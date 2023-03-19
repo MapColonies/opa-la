@@ -5,6 +5,9 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@commitlint/cli": "^17.4.4",
+    "@commitlint/config-conventional": "^17.4.4",
+    "@commitlint/config-lerna-scopes": "^17.4.2",
     "lerna": "^6.5.1"
   }
 }
