@@ -1,0 +1,839 @@
+openapi: 3.0.1
+info:
+  title: auth-manager
+  description: API server for managing all the authentication data
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+paths:
+  /client:
+    get:
+      operationId: getClients
+      summary: gets clients by filtering
+      parameters:
+        - in: query
+          name: branch
+          description: search by branch name
+          schema:
+            type: string
+        - in: query
+          name: createdBefore
+          description: filters all clients created before given date
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: createdAfter
+          description: filters all clients created after given date
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: updatedBefore
+          description: filters all clients updated before given date
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: updatedAfter
+          description: filters all clients updated after given date
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: tags
+          description: filters based on tags
+          schema:
+            type: array
+            uniqueItems: true
+            items:
+              type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/client'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+    post:
+      operationId: createClient
+      summary: creates a new client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/client'
+      responses:
+        201:
+          $ref: '#/components/responses/201Created'
+
+  /client/{clientName}:
+    parameters:
+      - $ref: '#/components/parameters/clientParam'
+    get:
+      operationId: getClient
+      summary: get client by name
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/client'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+    patch:
+      operationId: updateClient
+      summary: update the client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/namelessClient'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/client'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+  /client/{clientName}/connection:
+    parameters:
+      - $ref: '#/components/parameters/clientParam'
+    get:
+      operationId: getClientConnections
+      summary: gets the connections for a specific client
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+  /client/{clientName}/connection/{environment}:
+    parameters:
+      - $ref: '#/components/parameters/clientParam'
+      - $ref: '#/components/parameters/environmentPathParam'
+    get:
+      operationId: getClientEnvironmentConnections
+      summary: get the latest client connection for specific environment
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+    post:
+      operationId: createConnection
+      summary: creates a new connection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connection'
+      responses:
+        201:
+          $ref: '#/components/responses/201Created'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+    patch:
+      operationId: updateConnection
+      summary: updates an existing connection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/versionedConnection'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+        409:
+          $ref: '#/components/responses/409Conflict'
+  /client/{clientName}/connection/{environment}/{version}:
+    parameters:
+      - $ref: '#/components/parameters/clientParam'
+      - $ref: '#/components/parameters/environmentPathParam'
+      - $ref: '#/components/parameters/versionParam'
+    get:
+      operationId: getClientVersionedConnection
+      summary: get a specfic client connection for specific environment
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+  /connection:
+    get:
+      operationId: getConnections
+      summary: get a connections based on filters
+      parameters:
+        - $ref: '#/components/parameters/environmentQueryParam'
+        - in: query
+          name: isDeleted
+          schema:
+            type: boolean
+        - in: query
+          name: isEnabled
+          schema:
+            type: boolean
+        - in: query
+          name: noBrowser
+          schema:
+            type: boolean
+        - in: query
+          name: noOrigin
+          schema:
+            type: boolean
+        - in: query
+          name: latestVersion
+          schema:
+            type: boolean
+        - in: query
+          name: domains
+          schema:
+            type: array
+            uniqueItems: true
+            items:
+              type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+  /key:
+    get:
+      operationId: getLastestKeys
+      summary: get all latest keys
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedKey'
+  /key/{environment}:
+    parameters:
+      - $ref: '#/components/parameters/environmentPathParam'
+    get:
+      operationId: getKey
+      summary: get keys for specific environment
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedKey'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+    post:
+      operationId: createKey
+      summary: creates a new key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/key'
+      responses:
+        201:
+          $ref: '#/components/responses/201Created'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+    patch:
+      operationId: updateKey
+      summary: updates an existing key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/versionedKey'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+        409:
+          $ref: '#/components/responses/409Conflict'
+  /key/{environment}/{version}:
+    parameters:
+      - $ref: '#/components/parameters/environmentPathParam'
+      - $ref: '#/components/parameters/versionParam'
+    get:
+      operationId: getSpecificKey
+      summary: gets a specific key
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedKey'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+  /asset:
+    get:
+      operationId: getAssets
+      summary: get assets by filters
+      parameters:
+        - $ref: '#/components/parameters/environmentQueryParam'
+        - in: query
+          name: type
+          schema:
+            $ref: '#/components/schemas/assetType'
+        - in: query
+          name: isTemplate
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+    post:
+      operationId: createAsset
+      summary: creates a new asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/namedAsset'
+      responses:
+        201:
+          $ref: '#/components/responses/201Created'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+  /asset/{assetName}:
+    parameters:
+      - $ref: '#/components/parameters/assetParam'
+    get:
+      operationId: getAsset
+      summary: get asset by name
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+    patch:
+      operationId: updateAsset
+      summary: updates an existing asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/versionedAsset'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+        409:
+          $ref: '#/components/responses/409Conflict'
+  /asset/{assetName}/{version}:
+    parameters:
+      - $ref: '#/components/parameters/assetParam'
+      - $ref: '#/components/parameters/versionParam'
+    get:
+      operationId: getVersionedAsset
+      summary: get asset by name and version
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+  /bundle:
+    get:
+      operationId: getBundles
+      summary: get bundles by filter
+      parameters:
+        - $ref: '#/components/parameters/environmentQueryParam'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bundle'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+  /bundle/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: number
+          format: int32
+          minimum: 1
+    get:
+      operationId: getBundle
+      summary: get a specific bundle
+      parameters:
+        - $ref: '#/components/parameters/environmentQueryParam'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/400BadRequest'
+  /domain:
+    get:
+      operationId: getDomains
+      summary: get all the domains
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/client'
+    post:
+      operationId: createDomain
+      summary: create a new domain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/domain'
+      responses:
+        201:
+          $ref: '#/components/responses/201Created'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        409:
+          $ref: '#/components/responses/409Conflict'
+
+components:
+  responses:
+    201Created:
+      description: Created
+    400BadRequest:
+      description: BadRequest
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    404NotFound:
+      description: Not Found - If client does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    409Conflict:
+      description: conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+  parameters:
+    clientParam:
+      name: clientName
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+    assetParam:
+      name: assetName
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+    versionParam:
+      name: version
+      in: path
+      required: true
+      schema:
+        type: number
+        format: int32
+        minimum: 1
+    environmentQueryParam:
+      name: environment
+      in: query
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/components/schemas/environment'
+    environmentPathParam:
+      name: environment
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/environment'
+  schemas:
+    error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    environment:
+      type: string
+      enum:
+        - np
+        - stage
+        - prod
+    assetType:
+      type: string
+      enum:
+        - TEST
+        - TEST_DATA
+        - POLICY
+        - DATA
+    domain:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    pointOfContact:
+      type: object
+      required:
+        - name
+        - email
+        - phone
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          format: phone
+    namelessClient:
+      type: object
+      required:
+        - createdAt
+        - updatedAt
+      properties:
+        branch:
+          type: string
+        createdAt:
+          type: string
+          format: 'date-time'
+          readOnly: true
+        updatedAt:
+          type: string
+          format: 'date-time'
+          readOnly: true
+        techPointOfContact:
+          $ref: '#/components/schemas/pointOfContact'
+        productPointOfContact:
+          $ref: '#/components/schemas/pointOfContact'
+        tags:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+    client:
+      allOf:
+        - $ref: '#/components/schemas/namelessClient'
+        - type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              minLength: 3
+    connection:
+      type: object
+      required:
+        - enabled
+        - isDeleted
+        - environment
+        - domains
+        - allowNoBrowserConnection
+        - allowNoOriginConnection
+        - origins
+      properties:
+        enabled:
+          type: boolean
+          default: true
+        isDeleted:
+          type: boolean
+          readOnly: true
+        environment:
+          allOf:
+            - $ref: '#/components/schemas/environment'
+            - readOnly: true
+        domains:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+          minLength: 1
+        createdAt:
+          type: string
+          format: 'date-time'
+          readOnly: true
+        allowNoBrowserConnection:
+          type: boolean
+        allowNoOriginConnection:
+          type: boolean
+          readOnly: true
+        origins:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+    versionedConnection:
+      allOf:
+        - $ref: '#/components/schemas/connection'
+        - type: object
+          required:
+            - version
+          properties:
+            version:
+              type: number
+              default: 1
+              format: int32
+    publicJWK:
+      type: object
+      additionalProperties: false
+      required:
+        - kty
+        - n
+        - e
+        - alg
+        - kid
+      properties:
+        kty:
+          type: string
+        n:
+          type: string
+        e:
+          type: string
+        alg:
+          type: string
+        kid:
+          type: string
+    privateJWK:
+      allOf:
+        - $ref: '#/components/schemas/publicJWK'
+        - type: object
+          required:
+            - d
+            - p
+            - q
+            - dp
+            - dq
+            - qi
+          properties:
+            d:
+              type: string
+            p:
+              type: string
+            q:
+              type: string
+            dp:
+              type: string
+            dq:
+              type: string
+            qi:
+              type: string
+    key:
+      type: object
+      required:
+        - publicKey
+        - privateKey
+      properties:
+        publicKey:
+          $ref: '#/components/schemas/publicJWK'
+        privateKey:
+          $ref: '#/components/schemas/privateJWK'
+    versionedKey:
+      allOf:
+        - $ref: '#/components/schemas/key'
+        - type: object
+          required:
+            - version
+          properties:
+            version:
+              type: number
+              default: 1
+              format: int32
+    baseAsset:
+      type: object
+      required:
+        - createdAt
+        - value
+        - uri
+        - type
+        - isTemplate
+      properties:
+        environment:
+          type: array
+          items:
+            $ref: '#/components/schemas/environment'
+        createdAt:
+          type: string
+          format: 'date-time'
+          readOnly: true
+        value:
+          type: string
+          format: byte
+        uri:
+          type: string
+        type:
+          $ref: '#/components/schemas/assetType'
+        isTemplate:
+          type: boolean
+          default: false
+    versionedAsset:
+      allOf:
+        - $ref: '#/components/schemas/baseAsset'
+        - type: object
+          required:
+            - version
+          properties:
+            version:
+              type: number
+              default: 1
+              format: int32
+    namedAsset:
+      allOf:
+        - $ref: '#/components/schemas/baseAsset'
+        - type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              minLength: 3
+    asset:
+      allOf:
+        - $ref: '#/components/schemas/namedAsset'
+        - $ref: '#/components/schemas/versionedAsset'
+    bundle:
+      type: object
+      properties:
+        id:
+          type: number
+          format: int32
+        assets:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            required:
+              - name
+              - version
+            properties:
+              name:
+                type: string
+              version:
+                type: number
+        connections:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            required:
+              - name
+              - version
+            properties:
+              name:
+                type: string
+              version:
+                type: number
+        environment:
+          allOf:
+            - $ref: '#/components/schemas/environment'
+            - readOnly: true
+        createdAt:
+          type: string
+          format: 'date-time'
+          readOnly: true
+        keyVersion:
+          type: number
+          format: int32
