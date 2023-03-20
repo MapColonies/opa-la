@@ -16,6 +16,7 @@
     "@map-colonies/prettier-config": "^0.0.1",
     "husky": "^8.0.3",
     "lerna": "^6.5.1",
-    "prettier": "^2.8.4"
+    "prettier": "^2.8.4",
+    "pretty-quick": "^3.1.3"
   }
 }
