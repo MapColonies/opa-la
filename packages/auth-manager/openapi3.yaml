@@ -11,6 +11,8 @@ paths:
     get:
       operationId: getClients
       summary: gets clients by filtering
+      tags:
+        - client
       parameters:
         - in: query
           name: branch
@@ -61,6 +63,8 @@ paths:
     post:
       operationId: createClient
       summary: creates a new client
+      tags:
+        - client
       requestBody:
         required: true
         content:
@@ -69,7 +73,13 @@ paths:
               $ref: '#/components/schemas/client'
       responses:
         201:
-          $ref: '#/components/responses/201Created'
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/client'
+        400:
+          $ref: '#/components/responses/400BadRequest'
 
   /client/{clientName}:
     parameters:
@@ -77,6 +87,8 @@ paths:
     get:
       operationId: getClient
       summary: get client by name
+      tags:
+        - client
       responses:
         200:
           description: OK
@@ -91,6 +103,8 @@ paths:
     patch:
       operationId: updateClient
       summary: update the client
+      tags:
+        - client
       requestBody:
         required: true
         content:
@@ -114,6 +128,8 @@ paths:
     get:
       operationId: getClientConnections
       summary: gets the connections for a specific client
+      tags:
+        - connection
       responses:
         200:
           description: OK
@@ -132,6 +148,8 @@ paths:
     get:
       operationId: getClientEnvironmentConnections
       summary: get the latest client connection for specific environment
+      tags:
+        - connection
       responses:
         200:
           description: OK
@@ -144,8 +162,10 @@ paths:
         404:
           $ref: '#/components/responses/404NotFound'
     post:
-      operationId: createConnection
-      summary: creates a new connection
+      operationId: upsertConnection
+      summary: creates a new connection or updates it based on the version
+      tags:
+        - connection
       requestBody:
         required: true
         content:
@@ -154,23 +174,7 @@ paths:
               $ref: '#/components/schemas/connection'
       responses:
         201:
-          $ref: '#/components/responses/201Created'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        404:
-          $ref: '#/components/responses/404NotFound'
-    patch:
-      operationId: updateConnection
-      summary: updates an existing connection
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/versionedConnection'
-      responses:
-        200:
-          description: OK
+          description: created
           content:
             application/json:
               schema:
@@ -189,6 +193,8 @@ paths:
     get:
       operationId: getClientVersionedConnection
       summary: get a specfic client connection for specific environment
+      tags:
+        - connection
       responses:
         200:
           description: OK
@@ -200,10 +206,12 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
-  /connection:
+  /connections:
     get:
       operationId: getConnections
       summary: get a connections based on filters
+      tags:
+        - connection
       parameters:
         - $ref: '#/components/parameters/environmentQueryParam'
         - in: query
@@ -246,33 +254,39 @@ paths:
     get:
       operationId: getLastestKeys
       summary: get all latest keys
+      tags:
+        - key
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/versionedKey'
+                $ref: '#/components/schemas/key'
   /key/{environment}:
     parameters:
       - $ref: '#/components/parameters/environmentPathParam'
     get:
       operationId: getKey
       summary: get keys for specific environment
+      tags:
+        - key
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/versionedKey'
+                $ref: '#/components/schemas/key'
         400:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
     post:
-      operationId: createKey
-      summary: creates a new key
+      operationId: upsertKey
+      summary: creates a new key or updates it based on the version
+      tags:
+        - key
       requestBody:
         required: true
         content:
@@ -281,27 +295,11 @@ paths:
               $ref: '#/components/schemas/key'
       responses:
         201:
-          $ref: '#/components/responses/201Created'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        404:
-          $ref: '#/components/responses/404NotFound'
-    patch:
-      operationId: updateKey
-      summary: updates an existing key
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/versionedKey'
-      responses:
-        200:
-          description: OK
+          description: created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/connection'
+                $ref: '#/components/schemas/key'
         400:
           $ref: '#/components/responses/400BadRequest'
         404:
@@ -315,13 +313,15 @@ paths:
     get:
       operationId: getSpecificKey
       summary: gets a specific key
+      tags:
+        - key
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/versionedKey'
+                $ref: '#/components/schemas/key'
         400:
           $ref: '#/components/responses/400BadRequest'
         404:
@@ -330,6 +330,8 @@ paths:
     get:
       operationId: getAssets
       summary: get assets by filters
+      tags:
+        - asset
       parameters:
         - $ref: '#/components/parameters/environmentQueryParam'
         - in: query
@@ -350,25 +352,35 @@ paths:
         400:
           $ref: '#/components/responses/400BadRequest'
     post:
-      operationId: createAsset
-      summary: creates a new asset
+      operationId: upsertAsset
+      summary: creates a new asset or updates it based on the version
+      tags:
+        - asset
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/namedAsset'
+              $ref: '#/components/schemas/asset'
       responses:
         201:
-          $ref: '#/components/responses/201Created'
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
         400:
           $ref: '#/components/responses/400BadRequest'
+        409:
+          $ref: '#/components/responses/409Conflict'
   /asset/{assetName}:
     parameters:
       - $ref: '#/components/parameters/assetParam'
     get:
       operationId: getAsset
       summary: get asset by name
+      tags:
+        - asset
       responses:
         200:
           description: OK
@@ -380,28 +392,6 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
-    patch:
-      operationId: updateAsset
-      summary: updates an existing asset
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/versionedAsset'
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/asset'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        404:
-          $ref: '#/components/responses/404NotFound'
-        409:
-          $ref: '#/components/responses/409Conflict'
   /asset/{assetName}/{version}:
     parameters:
       - $ref: '#/components/parameters/assetParam'
@@ -409,6 +399,8 @@ paths:
     get:
       operationId: getVersionedAsset
       summary: get asset by name and version
+      tags:
+        - asset
       responses:
         200:
           description: OK
@@ -424,6 +416,8 @@ paths:
     get:
       operationId: getBundles
       summary: get bundles by filter
+      tags:
+        - bundle
       parameters:
         - $ref: '#/components/parameters/environmentQueryParam'
       responses:
@@ -447,6 +441,8 @@ paths:
     get:
       operationId: getBundle
       summary: get a specific bundle
+      tags:
+        - bundle
       parameters:
         - $ref: '#/components/parameters/environmentQueryParam'
       responses:
@@ -464,6 +460,8 @@ paths:
     get:
       operationId: getDomains
       summary: get all the domains
+      tags:
+        - domain
       responses:
         200:
           description: OK
@@ -474,6 +472,8 @@ paths:
     post:
       operationId: createDomain
       summary: create a new domain
+      tags:
+        - domain
       requestBody:
         required: true
         content:
@@ -482,7 +482,11 @@ paths:
               $ref: '#/components/schemas/domain'
       responses:
         201:
-          $ref: '#/components/responses/201Created'
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/domain'
         400:
           $ref: '#/components/responses/400BadRequest'
         409:
@@ -635,6 +639,7 @@ components:
         - allowNoBrowserConnection
         - allowNoOriginConnection
         - origins
+        - version
       properties:
         enabled:
           type: boolean
@@ -666,17 +671,10 @@ components:
           uniqueItems: true
           items:
             type: string
-    versionedConnection:
-      allOf:
-        - $ref: '#/components/schemas/connection'
-        - type: object
-          required:
-            - version
-          properties:
-            version:
-              type: number
-              default: 1
-              format: int32
+        version:
+          type: number
+          default: 1
+          format: int32
     publicJWK:
       type: object
       additionalProperties: false
@@ -726,23 +724,17 @@ components:
       required:
         - publicKey
         - privateKey
+        - version
       properties:
         publicKey:
           $ref: '#/components/schemas/publicJWK'
         privateKey:
           $ref: '#/components/schemas/privateJWK'
-    versionedKey:
-      allOf:
-        - $ref: '#/components/schemas/key'
-        - type: object
-          required:
-            - version
-          properties:
-            version:
-              type: number
-              default: 1
-              format: int32
-    baseAsset:
+        version:
+          type: number
+          default: 1
+          format: int32
+    asset:
       type: object
       required:
         - createdAt
@@ -750,6 +742,7 @@ components:
         - uri
         - type
         - isTemplate
+        - name
       properties:
         environment:
           type: array
@@ -769,31 +762,14 @@ components:
         isTemplate:
           type: boolean
           default: false
-    versionedAsset:
-      allOf:
-        - $ref: '#/components/schemas/baseAsset'
-        - type: object
-          required:
-            - version
-          properties:
-            version:
-              type: number
-              default: 1
-              format: int32
-    namedAsset:
-      allOf:
-        - $ref: '#/components/schemas/baseAsset'
-        - type: object
-          required:
-            - name
-          properties:
-            name:
-              type: string
-              minLength: 3
-    asset:
-      allOf:
-        - $ref: '#/components/schemas/namedAsset'
-        - $ref: '#/components/schemas/versionedAsset'
+        version:
+          type: number
+          default: 1
+          format: int32
+        name:
+          type: string
+          minLength: 3
+
     bundle:
       type: object
       properties:
