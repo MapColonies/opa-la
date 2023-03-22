@@ -105,3 +105,4 @@ dist
 
 # reports of jest tests
 reports
+local-*.json

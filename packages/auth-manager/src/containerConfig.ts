@@ -1,23 +1,42 @@
 import config from 'config';
 import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
+import { instanceCachingFactory } from 'tsyringe';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
-import { SERVICES, SERVICE_NAME } from './common/constants';
+import { DataSource } from 'typeorm';
+import { HealthCheck } from '@godaddy/terminus';
+import { DB_CONNECTION_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
-import { resourceNameRouterFactory, RESOURCE_NAME_ROUTER_SYMBOL } from './resourceName/routes/resourceNameRouter';
+
+import { domainRouterFactory, DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
-import { anotherResourceRouterFactory, ANOTHER_RESOURECE_ROUTER_SYMBOL } from './anotherResource/routes/anotherResourceRouter';
+import { DbConfig } from './common/interfaces';
+import { initConnection } from './common/db/connection';
+import { promiseTimeout } from './common/utils/promiseTimeout';
+import { Domain } from './domain/models/domain';
+
+const healthCheck = (connection: DataSource): HealthCheck => {
+  return async (): Promise<void> => {
+    const check = connection.query('SELECT 1').then(() => {
+      return;
+    });
+    return promiseTimeout<void>(DB_CONNECTION_TIMEOUT, check);
+  };
+};
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
   useChild?: boolean;
 }
 
-export const registerExternalValues = (options?: RegisterOptions): DependencyContainer => {
+export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
   const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
+
+  const dataSourceOptions = config.get<DbConfig>('db');
+  const connection = await initConnection(dataSourceOptions);
 
   const metrics = new Metrics();
   metrics.start();
@@ -30,14 +49,27 @@ export const registerExternalValues = (options?: RegisterOptions): DependencyCon
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
-    { token: RESOURCE_NAME_ROUTER_SYMBOL, provider: { useFactory: resourceNameRouterFactory } },
-    { token: ANOTHER_RESOURECE_ROUTER_SYMBOL, provider: { useFactory: anotherResourceRouterFactory } },
+    { token: DataSource, provider: { useValue: connection } },
+    {
+      token: SERVICES.HEALTHCHECK,
+      provider: {
+        useFactory: instanceCachingFactory((container) => {
+          const connection = container.resolve(DataSource);
+          return healthCheck(connection);
+        }),
+      },
+    },
+    {
+      token: SERVICES.DOMAIN_REPOSITORY,
+      provider: { useFactory: instanceCachingFactory((container) => container.resolve(DataSource).getRepository(Domain)) },
+    },
+    { token: DOMAIN_ROUTER_SYMBOL, provider: { useFactory: domainRouterFactory } },
     {
       token: 'onSignal',
       provider: {
         useValue: {
           useValue: async (): Promise<void> => {
-            await Promise.all([tracing.stop(), metrics.stop()]);
+            await Promise.all([tracing.stop(), metrics.stop(), connection.destroy()]);
           },
         },
       },

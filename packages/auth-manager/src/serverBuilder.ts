@@ -10,8 +10,7 @@ import httpLogger from '@map-colonies/express-access-log-middleware';
 import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
 import { SERVICES } from './common/constants';
 import { IConfig } from './common/interfaces';
-import { RESOURCE_NAME_ROUTER_SYMBOL } from './resourceName/routes/resourceNameRouter';
-import { ANOTHER_RESOURECE_ROUTER_SYMBOL } from './anotherResource/routes/anotherResourceRouter';
+import { DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -20,8 +19,7 @@ export class ServerBuilder {
   public constructor(
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(RESOURCE_NAME_ROUTER_SYMBOL) private readonly resourceNameRouter: Router,
-    @inject(ANOTHER_RESOURECE_ROUTER_SYMBOL) private readonly anotherResourceRouter: Router
+    @inject(DOMAIN_ROUTER_SYMBOL) private readonly domainRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -35,14 +33,16 @@ export class ServerBuilder {
   }
 
   private buildDocsRoutes(): void {
-    const openapiRouter = new OpenapiViewerRouter(this.config.get<OpenapiRouterConfig>('openapiConfig'));
+    const openapiRouter = new OpenapiViewerRouter({
+      ...this.config.get<OpenapiRouterConfig>('openapiConfig'),
+      filePathOrSpec: this.config.get<string>('openapiConfig.filePath'),
+    });
     openapiRouter.setup();
     this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
   }
 
   private buildRoutes(): void {
-    this.serverInstance.use('/resourceName', this.resourceNameRouter);
-    this.serverInstance.use('/anotherResource', this.anotherResourceRouter);
+    this.serverInstance.use('/domain', this.domainRouter);
     this.buildDocsRoutes();
   }
 
@@ -59,7 +59,15 @@ export class ServerBuilder {
 
     const ignorePathRegex = new RegExp(`^${this.config.get<string>('openapiConfig.basePath')}/.*`, 'i');
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');
-    this.serverInstance.use(OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex }));
+    this.serverInstance.use(
+      OpenApiMiddleware({
+        apiSpec: apiSpecPath,
+        validateRequests: true,
+        ignorePaths: ignorePathRegex,
+        formats: { phone: true },
+        ajvFormats: { mode: 'full' },
+      })
+    );
   }
 
   private registerPostRoutesMiddleware(): void {

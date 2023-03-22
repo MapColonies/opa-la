@@ -1,1 +1,10 @@
-{}
+{
+  "db": {
+    "host": "postgres",
+    "schema": "auth_manager",
+    "username": "postgres",
+    "password": "1234",
+    "database": "postgres",
+    "enableSslAuth": false
+  }
+}

@@ -60,6 +60,8 @@ paths:
                 $ref: '#/components/schemas/client'
         400:
           $ref: '#/components/responses/400BadRequest'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: createClient
       summary: creates a new client
@@ -80,6 +82,8 @@ paths:
                 $ref: '#/components/schemas/client'
         400:
           $ref: '#/components/responses/400BadRequest'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
 
   /client/{clientName}:
     parameters:
@@ -100,6 +104,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
     patch:
       operationId: updateClient
       summary: update the client
@@ -122,6 +128,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /client/{clientName}/connection:
     parameters:
       - $ref: '#/components/parameters/clientParam'
@@ -141,6 +149,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /client/{clientName}/connection/{environment}:
     parameters:
       - $ref: '#/components/parameters/clientParam'
@@ -161,6 +171,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: upsertConnection
       summary: creates a new connection or updates it based on the version
@@ -185,6 +197,8 @@ paths:
           $ref: '#/components/responses/404NotFound'
         409:
           $ref: '#/components/responses/409Conflict'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /client/{clientName}/connection/{environment}/{version}:
     parameters:
       - $ref: '#/components/parameters/clientParam'
@@ -206,6 +220,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /connections:
     get:
       operationId: getConnections
@@ -250,6 +266,8 @@ paths:
                 $ref: '#/components/schemas/connection'
         400:
           $ref: '#/components/responses/400BadRequest'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /key:
     get:
       operationId: getLastestKeys
@@ -263,6 +281,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/key'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /key/{environment}:
     parameters:
       - $ref: '#/components/parameters/environmentPathParam'
@@ -282,6 +302,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: upsertKey
       summary: creates a new key or updates it based on the version
@@ -306,6 +328,8 @@ paths:
           $ref: '#/components/responses/404NotFound'
         409:
           $ref: '#/components/responses/409Conflict'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /key/{environment}/{version}:
     parameters:
       - $ref: '#/components/parameters/environmentPathParam'
@@ -326,6 +350,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /asset:
     get:
       operationId: getAssets
@@ -351,6 +377,8 @@ paths:
                 $ref: '#/components/schemas/asset'
         400:
           $ref: '#/components/responses/400BadRequest'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: upsertAsset
       summary: creates a new asset or updates it based on the version
@@ -373,6 +401,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         409:
           $ref: '#/components/responses/409Conflict'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /asset/{assetName}:
     parameters:
       - $ref: '#/components/parameters/assetParam'
@@ -392,6 +422,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /asset/{assetName}/{version}:
     parameters:
       - $ref: '#/components/parameters/assetParam'
@@ -412,6 +444,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /bundle:
     get:
       operationId: getBundles
@@ -429,6 +463,8 @@ paths:
                 $ref: '#/components/schemas/bundle'
         400:
           $ref: '#/components/responses/400BadRequest'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /bundle/{id}:
     parameters:
       - in: path
@@ -456,6 +492,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/400BadRequest'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
   /domain:
     get:
       operationId: getDomains
@@ -468,7 +506,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/client'
+                type: array
+                items:
+                  $ref: '#/components/schemas/domain'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: createDomain
       summary: create a new domain
@@ -491,6 +533,8 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         409:
           $ref: '#/components/responses/409Conflict'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
 security: []
 components:
   responses:
@@ -508,6 +552,12 @@ components:
             $ref: '#/components/schemas/error'
     409Conflict:
       description: conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    500InternalServerError:
+      description: Internal Server Error
       content:
         application/json:
           schema:
@@ -577,6 +627,8 @@ components:
       properties:
         name:
           type: string
+          minLength: 3
+          maxLength: 32
     pointOfContact:
       type: object
       required:

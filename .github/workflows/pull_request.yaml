@@ -1,0 +1,135 @@
+name: pull_request
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+
+  eslint:
+    name: Run TS Project eslint
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [16.x, 18.x]
+
+    steps:
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install TS Project dependencies
+        run: npm ci
+
+      - name: bootstrap Lerna
+        run: npx lerna bootstrap
+
+      - name: Run TS Project linters
+        uses: wearerequired/lint-action@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          # Enable linters
+          eslint: true
+          prettier: true
+          eslint_extensions: ts
+
+  openapi-lint:
+    name: Run OpenAPI lint Check
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        package: [auth-manager]
+
+    steps:
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install TS Project dependencies
+        run: npm ci
+
+      - name: Bootstrap Lerna
+        run: npx lerna bootstrap
+
+      - name: OpenAPI Lint Checks
+        uses: nwestfall/openapi-action@v1.0.2
+        with:
+         github_token: ${{ secrets.GITHUB_TOKEN }}
+         file: ./packages/${{ matrix.package }}/openapi3.yaml
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/node@master
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:14
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: 1234
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      matrix:
+        node: [16.x, 18.x]
+        package: [auth-manager]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Bootstrap Lerna
+        run: npx lerna bootstrap
+
+      - name: Run migrations
+        run: npx lerna run migration:run --scope ${{ matrix.package }}
+        env:
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_USERNAME: postgres
+          DB_PASSWORD: 1234
+
+      - name: Run tests
+        run: npx lerna run test --scope ${{ matrix.package }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Test Reporters
+          path: packages/${{ matrix.package }}/reports/**
