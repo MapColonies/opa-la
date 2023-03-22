@@ -223,15 +223,15 @@ paths:
           schema:
             type: boolean
         - in: query
-          name: noBrowser
+          name: isNoBrowser
           schema:
             type: boolean
         - in: query
-          name: noOrigin
+          name: isNoOrigin
           schema:
             type: boolean
         - in: query
-          name: latestVersion
+          name: isLatestVersion
           schema:
             type: boolean
         - in: query
@@ -491,11 +491,9 @@ paths:
           $ref: '#/components/responses/400BadRequest'
         409:
           $ref: '#/components/responses/409Conflict'
-
+security: []
 components:
   responses:
-    201Created:
-      description: Created
     400BadRequest:
       description: BadRequest
       content:
