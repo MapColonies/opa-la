@@ -9,6 +9,10 @@ export class DomainRequestSender {
   }
 
   public async createDomain(domain: IDomain): Promise<supertest.Response> {
-    return supertest.agent(this.app).post('/domain').set('Content-Type', 'application/json').send(domain);
+    return supertest
+      .agent(this.app)
+      .post('/domain')
+      .set('Content-Type', 'application/json')
+      .send(domain as object);
   }
 }
