@@ -124,7 +124,12 @@ jobs:
 
       - name: Run migrations
         run: npx lerna run migration:run --scope ${{ matrix.package }}
-        
+        env:
+          DB_PORT: 5432
+          DB_USERNAME: postgres
+          DB_PASSWORD: 1234
+          DB_NAME: postgres
+
       - name: Run tests
         run: npx lerna run test --scope ${{ matrix.package }}
 
