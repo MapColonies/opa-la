@@ -83,6 +83,11 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node: [16.x, 18.x]
+        package: [auth-manager]
+
     services:
       # Label used to access the service container
       postgres:
@@ -101,11 +106,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
-    strategy:
-      matrix:
-        node: [16.x, 18.x]
-        package: [auth-manager]
 
     steps:
       - name: Check out Git repository
