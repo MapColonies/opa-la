@@ -1,5 +1,5 @@
 import * as supertest from 'supertest';
-import { IDomain } from '../../../../dist/domain/models/domain';
+import { IDomain } from '../../../../src/domain/models/domain';
 
 export class DomainRequestSender {
   public constructor(private readonly app: Express.Application) {}
