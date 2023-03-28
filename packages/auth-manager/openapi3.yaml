@@ -647,9 +647,12 @@ components:
     namelessClient:
       type: object
       required:
+        - hebName
         - createdAt
         - updatedAt
       properties:
+        hebName:
+          type: string
         branch:
           type: string
         createdAt:
