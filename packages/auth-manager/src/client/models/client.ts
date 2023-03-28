@@ -6,6 +6,15 @@ export interface PointOfContact {
   email: string;
 }
 
+export interface ClientSearchParams {
+  branch: IClient['branch'];
+  createdBefore: IClient['createdAt'];
+  createdAfter: IClient['createdAt'];
+  updatedBefore: IClient['createdAt'];
+  updatedAfter: IClient['createdAt'];
+  tags: IClient['tags'];
+}
+
 export interface IClient {
   name: string;
   hebName: string;
@@ -32,10 +41,10 @@ export class Client implements IClient {
   @Column({ type: 'text', nullable: true })
   public branch?: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   public createdAt?: Date;
 
-  @UpdateDateColumn({ name: 'update_at' })
+  @UpdateDateColumn({ name: 'update_at', type: 'timestamptz' })
   public updatedAt?: Date;
 
   @Column({ type: 'json', name: 'tech_point_of_contact', nullable: true })

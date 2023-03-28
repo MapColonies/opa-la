@@ -57,7 +57,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/client'
+                type: array
+                items:
+                  $ref: '#/components/schemas/client'
         400:
           $ref: '#/components/responses/400BadRequest'
         500:
@@ -82,6 +84,8 @@ paths:
                 $ref: '#/components/schemas/client'
         400:
           $ref: '#/components/responses/400BadRequest'
+        409:
+          $ref: '#/components/responses/409Conflict'
         500:
           $ref: '#/components/responses/500InternalServerError'
 
@@ -687,6 +691,7 @@ components:
             name:
               type: string
               minLength: 3
+              maxLength: 32
     connection:
       type: object
       required:

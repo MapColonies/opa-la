@@ -1,0 +1,86 @@
+import { Logger } from '@map-colonies/js-logger';
+import { inject, injectable } from 'tsyringe';
+import { ArrayContains } from 'typeorm';
+import { SERVICES } from '../../common/constants';
+import { createDatesComparison } from '../../common/db/utils';
+import { ClientRepository } from '../DAL/clientRepository';
+import { ClientSearchParams, IClient } from './client';
+import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
+
+@injectable()
+export class ClientManager {
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.CLIENT_REPOSITORY) private readonly clientRepository: ClientRepository
+  ) {}
+
+  public async getClients(searchParams?: ClientSearchParams): Promise<IClient[]> {
+    this.logger.info({ msg: 'fetching clients' });
+    this.logger.debug({ msg: 'search parameters', searchParams });
+
+    // eslint doesn't recognize this as valid because its in the type definition
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    let findOptions: Parameters<typeof this.clientRepository.find>[0] = undefined;
+    if (searchParams !== undefined) {
+      const { branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = searchParams;
+      findOptions = {
+        where: {
+          tags: tags ? ArrayContains(tags) : undefined,
+          branch,
+          createdAt: createDatesComparison(createdAfter, createdBefore),
+          updatedAt: createDatesComparison(updatedAfter, updatedBefore),
+        },
+      };
+    }
+
+    return this.clientRepository.find(findOptions);
+  }
+
+  public async getClient(name: string): Promise<IClient> {
+    this.logger.info({ msg: 'fetching client', name });
+
+    const client = await this.clientRepository.findOne({ where: { name } });
+
+    this.logger.debug('client result returned from db');
+
+    if (client === null) {
+      this.logger.debug('client result was null');
+      throw new ClientNotFoundError("A client with the given name doesn't exists in the database");
+    } else {
+      return client;
+    }
+  }
+
+  public async createClient(client: IClient): Promise<IClient> {
+    this.logger.info({ msg: 'creating domain', name: client.name });
+    try {
+      await this.clientRepository.insert(client);
+
+      this.logger.debug('client result returned from db');
+
+      return client;
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('duplicate key value violates unique constraint')) {
+        throw new ClientAlreadyExistsError('client already exists');
+      }
+      this.logger.debug('create client throw an unrecognized error');
+      throw error;
+    }
+  }
+
+  public async updateClient(name: string, client: Omit<IClient, 'name'>): Promise<IClient> {
+    this.logger.info({ msg: 'updating client', name });
+
+    this.logger.debug({ msg: 'updating client with following data', name, client });
+
+    const updatedClient = await this.clientRepository.updateAndReturn(name, client);
+
+    this.logger.debug('client result returned from db');
+    if (updatedClient === null) {
+      this.logger.debug('no rows were affected by client update command');
+      throw new ClientNotFoundError('client with given name was not found');
+    }
+
+    return updatedClient;
+  }
+}

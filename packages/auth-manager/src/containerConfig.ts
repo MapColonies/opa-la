@@ -16,6 +16,8 @@ import { DbConfig } from './common/interfaces';
 import { initConnection } from './common/db/connection';
 import { promiseTimeout } from './common/utils/promiseTimeout';
 import { Domain } from './domain/models/domain';
+import { clientRouterFactory, CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
+import { clientRepositoryFactory } from './client/DAL/clientRepository';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
@@ -64,6 +66,11 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       provider: { useFactory: instanceCachingFactory((container) => container.resolve(DataSource).getRepository(Domain)) },
     },
     { token: DOMAIN_ROUTER_SYMBOL, provider: { useFactory: domainRouterFactory } },
+    {
+      token: SERVICES.CLIENT_REPOSITORY,
+      provider: { useFactory: instanceCachingFactory(clientRepositoryFactory) },
+    },
+    { token: CLIENT_ROUTER_SYMBOL, provider: { useFactory: clientRouterFactory } },
     {
       token: 'onSignal',
       provider: {
