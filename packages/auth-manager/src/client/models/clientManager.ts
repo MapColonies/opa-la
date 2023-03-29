@@ -1,7 +1,9 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { ArrayContains } from 'typeorm';
+import { ArrayContains, QueryFailedError } from 'typeorm';
+import { DatabaseError } from 'pg';
 import { SERVICES } from '../../common/constants';
+import { PgErrorCodes } from '../../common/db/constants';
 import { createDatesComparison } from '../../common/db/utils';
 import { ClientRepository } from '../DAL/clientRepository';
 import { ClientSearchParams, IClient } from './client';
@@ -46,9 +48,9 @@ export class ClientManager {
     if (client === null) {
       this.logger.debug('client result was null');
       throw new ClientNotFoundError("A client with the given name doesn't exists in the database");
-    } else {
-      return client;
     }
+
+    return client;
   }
 
   public async createClient(client: IClient): Promise<IClient> {
@@ -60,7 +62,11 @@ export class ClientManager {
 
       return client;
     } catch (error) {
-      if (error instanceof Error && error.message.includes('duplicate key value violates unique constraint')) {
+      if (
+        error instanceof QueryFailedError &&
+        error.driverError instanceof DatabaseError &&
+        error.driverError.code === PgErrorCodes.UNIQUE_VIOLATION
+      ) {
         throw new ClientAlreadyExistsError('client already exists');
       }
       this.logger.debug('create client throw an unrecognized error');
@@ -73,7 +79,7 @@ export class ClientManager {
 
     this.logger.debug({ msg: 'updating client with following data', name, client });
 
-    const updatedClient = await this.clientRepository.updateAndReturn(name, client);
+    const updatedClient = await this.clientRepository.updateAndReturn({ name, ...client });
 
     this.logger.debug('client result returned from db');
     if (updatedClient === null) {
