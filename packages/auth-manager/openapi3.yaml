@@ -287,27 +287,6 @@ paths:
                 $ref: '#/components/schemas/key'
         500:
           $ref: '#/components/responses/500InternalServerError'
-  /key/{environment}:
-    parameters:
-      - $ref: '#/components/parameters/environmentPathParam'
-    get:
-      operationId: getKey
-      summary: get keys for specific environment
-      tags:
-        - key
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/key'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        404:
-          $ref: '#/components/responses/404NotFound'
-        500:
-          $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: upsertKey
       summary: creates a new key or updates it based on the version
@@ -332,6 +311,27 @@ paths:
           $ref: '#/components/responses/404NotFound'
         409:
           $ref: '#/components/responses/409Conflict'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
+  /key/{environment}:
+    parameters:
+      - $ref: '#/components/parameters/environmentPathParam'
+    get:
+      operationId: getKey
+      summary: get keys for specific environment
+      tags:
+        - key
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/key'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
         500:
           $ref: '#/components/responses/500InternalServerError'
   /key/{environment}/{version}:
@@ -788,6 +788,7 @@ components:
         - publicKey
         - privateKey
         - version
+        - environment
       properties:
         publicKey:
           $ref: '#/components/schemas/publicJWK'
@@ -797,6 +798,8 @@ components:
           type: number
           default: 1
           format: int32
+        environment:
+          $ref: '#/components/schemas/environment'
     asset:
       type: object
       required:
