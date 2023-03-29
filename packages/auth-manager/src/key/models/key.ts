@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { Environment } from '../../common/constants';
 
 export interface JWKPublicKey {
@@ -6,7 +6,7 @@ export interface JWKPublicKey {
   n: string;
   e: string;
   alg: string;
-  id: string;
+  kid: string;
 }
 
 export interface JWKPrivateKey extends JWKPublicKey {

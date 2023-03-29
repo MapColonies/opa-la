@@ -1,13 +1,13 @@
-export class ClientAlreadyExistsError extends Error {
+export class KeyNotFoundError extends Error {
   public constructor(message: string) {
     super(message);
-    Object.setPrototypeOf(this, ClientAlreadyExistsError.prototype);
+    Object.setPrototypeOf(this, KeyNotFoundError.prototype);
   }
 }
 
-export class ClientNotFoundError extends Error {
+export class KeyVersionMismatchError extends Error {
   public constructor(message: string) {
     super(message);
-    Object.setPrototypeOf(this, ClientNotFoundError.prototype);
+    Object.setPrototypeOf(this, KeyVersionMismatchError.prototype);
   }
 }

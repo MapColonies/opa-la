@@ -18,6 +18,8 @@ import { promiseTimeout } from './common/utils/promiseTimeout';
 import { Domain } from './domain/models/domain';
 import { clientRouterFactory, CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
 import { clientRepositoryFactory } from './client/DAL/clientRepository';
+import { keyRepositoryFactory } from './key/DAL/keyRepository';
+import { keyRouterFactory, KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
@@ -71,6 +73,11 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       provider: { useFactory: instanceCachingFactory(clientRepositoryFactory) },
     },
     { token: CLIENT_ROUTER_SYMBOL, provider: { useFactory: clientRouterFactory } },
+    {
+      token: SERVICES.KEY_REPOSITORY,
+      provider: { useFactory: instanceCachingFactory(keyRepositoryFactory) },
+    },
+    { token: KEY_ROUTER_SYMBOL, provider: { useFactory: keyRouterFactory } },
     {
       token: 'onSignal',
       provider: {
