@@ -10,7 +10,7 @@ import { SERVICES } from '../../../src/common/constants';
 import { Domain } from '../../../src/domain/models/domain';
 import { DomainRequestSender } from './helpers/requestSender';
 
-describe('resourceName', function () {
+describe('domain', function () {
   let requestSender: DomainRequestSender;
   let depContainer: DependencyContainer;
   beforeEach(async function () {

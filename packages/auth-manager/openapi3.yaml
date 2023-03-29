@@ -57,7 +57,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/client'
+                type: array
+                items:
+                  $ref: '#/components/schemas/client'
         400:
           $ref: '#/components/responses/400BadRequest'
         500:
@@ -82,6 +84,8 @@ paths:
                 $ref: '#/components/schemas/client'
         400:
           $ref: '#/components/responses/400BadRequest'
+        409:
+          $ref: '#/components/responses/409Conflict'
         500:
           $ref: '#/components/responses/500InternalServerError'
 
@@ -647,9 +651,17 @@ components:
     namelessClient:
       type: object
       required:
+        - hebName
         - createdAt
         - updatedAt
       properties:
+        hebName:
+          type: string
+          minLength: 3
+          maxLength: 32
+        description:
+          type: string
+          maxLength: 2048
         branch:
           type: string
         createdAt:
@@ -679,6 +691,7 @@ components:
             name:
               type: string
               minLength: 3
+              maxLength: 32
     connection:
       type: object
       required:

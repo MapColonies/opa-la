@@ -1,4 +1,4 @@
-dist
+**/dist
 .github
 .gitignore
 CHANGELOG.md

@@ -14,7 +14,7 @@ describe('DomainManager', () => {
     domainManager = new DomainManager(jsLogger({ enabled: false }), mockedRepository as unknown as Repository<Domain>);
     jest.resetAllMocks();
   });
-  describe('#getResource', () => {
+  describe('#getDomains', () => {
     it('should return the array of domains', async function () {
       mockedRepository.find.mockResolvedValue([{ name: 'avi' }]);
 
@@ -31,7 +31,7 @@ describe('DomainManager', () => {
       await expect(domainPromise).rejects.toThrow();
     });
   });
-  describe('#createResource', () => {
+  describe('#createDomain', () => {
     it('should insert into the db and return the domain', async function () {
       mockedRepository.insert.mockResolvedValue(undefined);
 
