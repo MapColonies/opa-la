@@ -284,28 +284,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/key'
-        500:
-          $ref: '#/components/responses/500InternalServerError'
-  /key/{environment}:
-    parameters:
-      - $ref: '#/components/parameters/environmentPathParam'
-    get:
-      operationId: getKey
-      summary: get keys for specific environment
-      tags:
-        - key
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/key'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        404:
-          $ref: '#/components/responses/404NotFound'
+                type: array
+                items:
+                  $ref: '#/components/schemas/key'
         500:
           $ref: '#/components/responses/500InternalServerError'
     post:
@@ -320,6 +301,12 @@ paths:
             schema:
               $ref: '#/components/schemas/key'
       responses:
+        200:
+          description: updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/key'
         201:
           description: created
           content:
@@ -328,10 +315,31 @@ paths:
                 $ref: '#/components/schemas/key'
         400:
           $ref: '#/components/responses/400BadRequest'
-        404:
-          $ref: '#/components/responses/404NotFound'
         409:
           $ref: '#/components/responses/409Conflict'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
+  /key/{environment}:
+    parameters:
+      - $ref: '#/components/parameters/environmentPathParam'
+    get:
+      operationId: getKeys
+      summary: get keys for specific environment
+      tags:
+        - key
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/key'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
         500:
           $ref: '#/components/responses/500InternalServerError'
   /key/{environment}/{version}:
@@ -586,9 +594,7 @@ components:
       in: path
       required: true
       schema:
-        type: number
-        format: int32
-        minimum: 1
+        $ref: '#/components/schemas/version'
     environmentQueryParam:
       name: environment
       in: query
@@ -617,6 +623,11 @@ components:
         - np
         - stage
         - prod
+    version:
+      type: number
+      default: 1
+      format: int32
+      minimum: 1
     assetType:
       type: string
       enum:
@@ -735,12 +746,9 @@ components:
           items:
             type: string
         version:
-          type: number
-          default: 1
-          format: int32
+          $ref: '#/components/schemas/version'
     publicJWK:
       type: object
-      additionalProperties: false
       required:
         - kty
         - n
@@ -788,15 +796,16 @@ components:
         - publicKey
         - privateKey
         - version
+        - environment
       properties:
         publicKey:
           $ref: '#/components/schemas/publicJWK'
         privateKey:
           $ref: '#/components/schemas/privateJWK'
         version:
-          type: number
-          default: 1
-          format: int32
+          $ref: '#/components/schemas/version'
+        environment:
+          $ref: '#/components/schemas/environment'
     asset:
       type: object
       required:
@@ -826,9 +835,7 @@ components:
           type: boolean
           default: false
         version:
-          type: number
-          default: 1
-          format: int32
+          $ref: '#/components/schemas/version'
         name:
           type: string
           minLength: 3
@@ -851,7 +858,7 @@ components:
               name:
                 type: string
               version:
-                type: number
+                $ref: '#/components/schemas/version'
         connections:
           type: array
           uniqueItems: true
@@ -864,7 +871,7 @@ components:
               name:
                 type: string
               version:
-                type: number
+                $ref: '#/components/schemas/version'
         environment:
           allOf:
             - $ref: '#/components/schemas/environment'
@@ -874,5 +881,4 @@ components:
           format: 'date-time'
           readOnly: true
         keyVersion:
-          type: number
-          format: int32
+          $ref: '#/components/schemas/version'

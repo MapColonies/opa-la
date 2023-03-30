@@ -12,6 +12,7 @@ import { SERVICES } from './common/constants';
 import { IConfig } from './common/interfaces';
 import { DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import { CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
+import { KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -21,7 +22,8 @@ export class ServerBuilder {
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(DOMAIN_ROUTER_SYMBOL) private readonly domainRouter: Router,
-    @inject(CLIENT_ROUTER_SYMBOL) private readonly clientRouter: Router
+    @inject(CLIENT_ROUTER_SYMBOL) private readonly clientRouter: Router,
+    @inject(KEY_ROUTER_SYMBOL) private readonly keyRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -46,6 +48,7 @@ export class ServerBuilder {
   private buildRoutes(): void {
     this.serverInstance.use('/domain', this.domainRouter);
     this.serverInstance.use('/client', this.clientRouter);
+    this.serverInstance.use('/key', this.keyRouter);
     this.buildDocsRoutes();
   }
 
