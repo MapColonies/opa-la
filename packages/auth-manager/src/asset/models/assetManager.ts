@@ -64,8 +64,6 @@ export class AssetManager {
       }
 
       // update
-      console.log(asset.version);
-
       return transactionRepo.save({ ...asset, version: maxVersion + 1 });
     });
   }
