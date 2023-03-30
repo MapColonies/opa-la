@@ -1,5 +1,4 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import {} from 'path';
 import { Environment } from '../../common/constants';
 
 export enum AssetType {
@@ -9,10 +8,16 @@ export enum AssetType {
   DATA = 'DATA',
 }
 
+export interface AssetSearchParams {
+  type?: AssetType;
+  environment?: Environment[];
+  isTemplate?: boolean;
+}
+
 export interface IAsset {
   name: string;
   version: number;
-  createdAt: Date;
+  createdAt?: Date;
   value: string;
   uri: string;
   type: AssetType;
@@ -31,7 +36,17 @@ export class Asset implements IAsset {
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   public createdAt!: Date;
 
-  @Column({ type: 'bytea' })
+  @Column({
+    type: 'bytea',
+    transformer: {
+      from(value: Buffer): string {
+        return value.toString('base64');
+      },
+      to(value: string): Buffer {
+        return Buffer.from(value, 'base64');
+      },
+    },
+  })
   public value!: string;
 
   @Column()
@@ -40,9 +55,9 @@ export class Asset implements IAsset {
   @Column({ type: 'enum', enum: AssetType })
   public type!: AssetType;
 
-  @Column({ type: 'enum', enum: Environment, unique: true, array: true })
+  @Column({ type: 'enum', enum: Environment, array: true })
   public environment!: Environment[];
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', name: 'is_template' })
   public isTemplate!: boolean;
 }

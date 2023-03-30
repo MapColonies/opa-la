@@ -386,7 +386,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/asset'
+                type: array
+                items:
+                  $ref: '#/components/schemas/asset'
         400:
           $ref: '#/components/responses/400BadRequest'
         500:
@@ -403,6 +405,12 @@ paths:
             schema:
               $ref: '#/components/schemas/asset'
       responses:
+        200:
+          description: updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
         201:
           description: created
           content:
@@ -429,7 +437,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/asset'
+                type: array
+                items:
+                  $ref: '#/components/schemas/asset'
         400:
           $ref: '#/components/responses/400BadRequest'
         404:
@@ -815,9 +825,12 @@ components:
         - type
         - isTemplate
         - name
+        - environment
+        - version
       properties:
         environment:
           type: array
+          uniqueItems: true
           items:
             $ref: '#/components/schemas/environment'
         createdAt:
