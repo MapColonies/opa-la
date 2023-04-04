@@ -25,5 +25,6 @@ export const SERVICES = {
   CLIENT_REPOSITORY: Symbol('CLIENT_REPO'),
   KEY_REPOSITORY: Symbol('KEY_REPO'),
   ASSET_REPOSITORY: Symbol('ASSET_REPO'),
+  CONNECTION_REPOSITORY: Symbol('CONNECTION_REPO'),
 };
 /* eslint-enable @typescript-eslint/naming-convention */

@@ -27,7 +27,7 @@ export interface IKey {
 
 @Entity()
 export class Key implements IKey {
-  @PrimaryColumn({ type: 'enum', enum: Environment, unique: true })
+  @PrimaryColumn({ type: 'enum', enum: Environment, unique: true, enumName: 'environment_enum' })
   public environment!: Environment;
 
   @PrimaryColumn({ type: 'integer' })

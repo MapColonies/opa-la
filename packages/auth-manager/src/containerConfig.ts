@@ -22,6 +22,13 @@ import { keyRepositoryFactory } from './key/DAL/keyRepository';
 import { keyRouterFactory, KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';
 import { assetRouterFactory, ASSET_ROUTER_SYMBOL } from './asset/routes/assetRouter';
 import { assetRepositoryFactory } from './asset/DAL/assetRepository';
+import { connectionRepositoryFactory } from './connection/DAL/connectionRepository';
+import {
+  connectionRouterFactory,
+  CONNECTION_ROUTER_SYMBOL,
+  nestedConnectionRouterFactory,
+  NESTED_CONNECTION_ROUTER_SYMBOL,
+} from './connection/routes/connectionRouter';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
@@ -85,6 +92,12 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       provider: { useFactory: instanceCachingFactory(assetRepositoryFactory) },
     },
     { token: ASSET_ROUTER_SYMBOL, provider: { useFactory: assetRouterFactory } },
+    {
+      token: SERVICES.CONNECTION_REPOSITORY,
+      provider: { useFactory: instanceCachingFactory(connectionRepositoryFactory) },
+    },
+    { token: CONNECTION_ROUTER_SYMBOL, provider: { useFactory: connectionRouterFactory } },
+    { token: NESTED_CONNECTION_ROUTER_SYMBOL, provider: { useFactory: nestedConnectionRouterFactory } },
     {
       token: 'onSignal',
       provider: {
