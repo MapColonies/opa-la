@@ -1,6 +1,5 @@
 import jsLogger from '@map-colonies/js-logger';
-import { Repository } from 'typeorm';
-import { Domain } from '../../../../src/domain/models/domain';
+import { DomainRepository } from '../../../../src/domain/DAL/domainRepository';
 import { DomainManager } from '../../../../src/domain/models/domainManager';
 import { DomainAlreadyExistsError } from '../../../../src/domain/models/errors';
 
@@ -11,7 +10,7 @@ describe('DomainManager', () => {
     insert: jest.fn(),
   };
   beforeEach(function () {
-    domainManager = new DomainManager(jsLogger({ enabled: false }), mockedRepository as unknown as Repository<Domain>);
+    domainManager = new DomainManager(jsLogger({ enabled: false }), mockedRepository as unknown as DomainRepository);
     jest.resetAllMocks();
   });
   describe('#getDomains', () => {

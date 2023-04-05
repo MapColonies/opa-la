@@ -14,7 +14,7 @@ import { DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import { CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
 import { KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';
 import { ASSET_ROUTER_SYMBOL } from './asset/routes/assetRouter';
-import { CONNECTION_ROUTER_SYMBOL, NESTED_CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
+import { CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -27,8 +27,7 @@ export class ServerBuilder {
     @inject(CLIENT_ROUTER_SYMBOL) private readonly clientRouter: Router,
     @inject(KEY_ROUTER_SYMBOL) private readonly keyRouter: Router,
     @inject(ASSET_ROUTER_SYMBOL) private readonly assetRouter: Router,
-    @inject(CONNECTION_ROUTER_SYMBOL) private readonly connectionRouter: Router,
-    @inject(NESTED_CONNECTION_ROUTER_SYMBOL) private readonly nestedConnectionRouter: Router
+    @inject(CONNECTION_ROUTER_SYMBOL) private readonly connectionRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -53,7 +52,6 @@ export class ServerBuilder {
   private buildRoutes(): void {
     this.serverInstance.use('/domain', this.domainRouter);
     this.serverInstance.use('/client', this.clientRouter);
-    this.serverInstance.use('/client/:clientName/connection', this.nestedConnectionRouter);
     this.serverInstance.use('/key', this.keyRouter);
     this.serverInstance.use('/asset', this.assetRouter);
     this.serverInstance.use('/connection', this.connectionRouter);

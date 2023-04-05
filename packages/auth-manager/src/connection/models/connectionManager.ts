@@ -1,9 +1,11 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { ArrayContains, ArrayOverlap } from 'typeorm';
+import { ArrayContains, In } from 'typeorm';
 import { Client } from '../../client/models/client';
 import { ClientNotFoundError } from '../../client/models/errors';
 import { Environment, SERVICES } from '../../common/constants';
+import { DomainRepository } from '../../domain/DAL/domainRepository';
+import { DomainNotFoundError } from '../../domain/models/errors';
 import { ConnectionRepository } from '../DAL/connectionRepository';
 import { ConnectionSearchParams, IConnection } from './connection';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
@@ -12,7 +14,8 @@ import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './error
 export class ConnectionManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONNECTION_REPOSITORY) private readonly connectionRepository: ConnectionRepository
+    @inject(SERVICES.CONNECTION_REPOSITORY) private readonly connectionRepository: ConnectionRepository,
+    @inject(SERVICES.DOMAIN_REPOSITORY) private readonly domainRepository: DomainRepository
   ) {}
 
   public async getConnections(searchParams: ConnectionSearchParams): Promise<IConnection[]> {
@@ -20,7 +23,7 @@ export class ConnectionManager {
     const { environment, domains, isEnabled, isNoBrowser, isNoOrigin, name } = searchParams;
     return this.connectionRepository.find({
       where: {
-        environment: environment ? ArrayOverlap(environment) : undefined,
+        environment: environment ? In(environment) : undefined,
         allowNoBrowserConnection: isNoBrowser ?? undefined,
         allowNoOriginConnection: isNoOrigin ?? undefined,
         name,
@@ -46,7 +49,8 @@ export class ConnectionManager {
   public async upsertConnection(connection: IConnection): Promise<IConnection> {
     this.logger.info({ msg: 'upserting connection', connection: { environment: connection.environment, version: connection.version } });
     return this.connectionRepository.manager.transaction(async (transactionManager) => {
-      const transactionRepo = transactionManager.withRepository(this.connectionRepository);
+      const connectionRepo = transactionManager.withRepository(this.connectionRepository);
+      const domainRepo = transactionManager.withRepository(this.domainRepository);
 
       const client = await transactionManager.getRepository(Client).findOneBy({ name: connection.name });
 
@@ -54,7 +58,13 @@ export class ConnectionManager {
         throw new ClientNotFoundError('no client exists with given name');
       }
 
-      const maxVersion = await transactionRepo.getMaxVersionWithLock(connection.name, connection.environment);
+      const notExistingDomains = await domainRepo.checkInputForNonExistingDomains(connection.domains);
+
+      if (notExistingDomains.length > 0) {
+        throw new DomainNotFoundError(`the following domains do not exist: ${notExistingDomains.join(', ')}`);
+      }
+
+      const maxVersion = await connectionRepo.getMaxVersionWithLock(connection.name, connection.environment);
 
       if (maxVersion === null) {
         if (connection.version !== 1) {
@@ -64,7 +74,7 @@ export class ConnectionManager {
         }
         this.logger.info({ msg: 'creating new connection', connection: { clientName: connection.name, environment: connection.environment } });
         // insert
-        return transactionRepo.save(connection);
+        return connectionRepo.save(connection);
       }
 
       if (maxVersion !== connection.version) {
@@ -76,7 +86,7 @@ export class ConnectionManager {
 
       this.logger.info({ msg: 'updating existing connection', connection: { clientName: connection.name, environment: connection.environment } });
       // update
-      return transactionRepo.save({ ...connection, version: maxVersion + 1 });
+      return connectionRepo.save({ ...connection, version: maxVersion + 1 });
     });
   }
 }

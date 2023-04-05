@@ -6,7 +6,7 @@ export interface ConnectionSearchParams {
   isEnabled?: boolean;
   isNoBrowser?: boolean;
   isNoOrigin?: boolean;
-  domains?: [];
+  domains?: string[];
   name?: string;
 }
 

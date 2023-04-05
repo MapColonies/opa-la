@@ -8,6 +8,7 @@ import { ConnectionManager } from '../models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../models/errors';
 import { Environment, SERVICES } from '../../common/constants';
 import { ClientNotFoundError } from '../../client/models/errors';
+import { DomainNotFoundError } from '../../domain/models/errors';
 
 interface ConnectionNamePathParams {
   clientName: string;
@@ -86,6 +87,10 @@ export class ConnectionController {
     } catch (error) {
       if (error instanceof ClientNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+
+      if (error instanceof DomainNotFoundError) {
+        (error as HttpError).status = httpStatus.BAD_REQUEST;
       }
 
       if (error instanceof ConnectionVersionMismatchError) {
