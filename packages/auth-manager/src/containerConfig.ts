@@ -23,6 +23,8 @@ import { assetRepositoryFactory } from './asset/DAL/assetRepository';
 import { connectionRepositoryFactory } from './connection/DAL/connectionRepository';
 import { connectionRouterFactory, CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
 import { domainRepositoryFactory } from './domain/DAL/domainRepository';
+import { Bundle } from './bundle/models/bundle';
+import { bundleRouterFactory, BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
@@ -91,6 +93,13 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       provider: { useFactory: instanceCachingFactory(connectionRepositoryFactory) },
     },
     { token: CONNECTION_ROUTER_SYMBOL, provider: { useFactory: connectionRouterFactory } },
+    {
+      token: SERVICES.BUNDLE_REPOSITORY,
+      provider: {
+        useFactory: instanceCachingFactory((c) => c.resolve(DataSource).getRepository(Bundle)),
+      },
+    },
+    { token: BUNDLE_ROUTER_SYMBOL, provider: { useFactory: bundleRouterFactory } },
     {
       token: 'onSignal',
       provider: {
