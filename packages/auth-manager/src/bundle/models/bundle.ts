@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 import { Environment } from '../../common/constants';
 
 export interface IBundle {
@@ -20,27 +20,27 @@ export interface BundleSearchParams {
 
 @Entity()
 export class Bundle implements IBundle {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ generated: 'identity', generatedIdentity: 'ALWAYS', insert: false })
   public id!: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   public hash?: string;
 
   @Column({ type: 'enum', enum: Environment, enumName: 'environment_enum' })
   public environment!: Environment;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   public metadata?: Record<string, unknown>;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   public assets?: { name: string; version: number }[];
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   public connections?: { name: string; version: number }[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   public createdAt?: Date;
 
-  @Column({ name: 'key_version', type: 'integer' })
+  @Column({ name: 'key_version', type: 'integer', nullable: true })
   public keyVersion?: number;
 }
