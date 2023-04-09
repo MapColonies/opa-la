@@ -11,7 +11,8 @@ export const domainRepositoryFactory: FactoryFunction<DomainRepository> = (conta
 
   return dataSource.getRepository(Domain).extend({
     async checkInputForNonExistingDomains(domainNames: string[]): Promise<string[]> {
-      // i wrote raw sql because typeorm doesn't think that using a function in FROM is a real thing and treats it like a table name
+      // unnest is a postgresql only function on array datatype
+      // I wrote raw sql because typeorm doesn't think that using a function in FROM is a real thing and treats it like a table name
       const res = (await this.manager.query(
         `
         SELECT i.name FROM unnest($1::text[]) i(name) LEFT JOIN auth_manager.domain d ON i.name = d.name WHERE d.name is NULL`,
