@@ -1,15 +1,15 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { Repository } from 'typeorm';
 import { SERVICES } from '../../common/constants';
-import { Domain, IDomain } from './domain';
+import { DomainRepository } from '../DAL/domainRepository';
+import { IDomain } from './domain';
 import { DomainAlreadyExistsError } from './errors';
 
 @injectable()
 export class DomainManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.DOMAIN_REPOSITORY) private readonly domainRepository: Repository<Domain>
+    @inject(SERVICES.DOMAIN_REPOSITORY) private readonly domainRepository: DomainRepository
   ) {}
 
   public async getDomains(): Promise<IDomain[]> {

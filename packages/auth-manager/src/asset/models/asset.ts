@@ -55,7 +55,7 @@ export class Asset implements IAsset {
   @Column({ type: 'enum', enum: AssetType })
   public type!: AssetType;
 
-  @Column({ type: 'enum', enum: Environment, array: true })
+  @Column({ type: 'enum', enum: Environment, array: true, enumName: 'environment_enum' })
   public environment!: Environment[];
 
   @Column({ type: 'boolean', name: 'is_template' })

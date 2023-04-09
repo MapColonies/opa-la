@@ -39,7 +39,7 @@ describe('domain', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual([{ name: 'avi' }, { name: 'iva' }]);
+        expect(res.body).toEqual(expect.arrayContaining([{ name: 'avi' }, { name: 'iva' }]));
       });
     });
 

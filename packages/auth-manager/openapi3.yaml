@@ -148,7 +148,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/connection'
+                type: array
+                items:
+                  $ref: '#/components/schemas/connection'
         400:
           $ref: '#/components/responses/400BadRequest'
         404:
@@ -170,37 +172,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/connection'
+                type: array
+                items:
+                  $ref: '#/components/schemas/connection'
         400:
           $ref: '#/components/responses/400BadRequest'
         404:
           $ref: '#/components/responses/404NotFound'
-        500:
-          $ref: '#/components/responses/500InternalServerError'
-    post:
-      operationId: upsertConnection
-      summary: creates a new connection or updates it based on the version
-      tags:
-        - connection
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/connection'
-      responses:
-        201:
-          description: created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/connection'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        404:
-          $ref: '#/components/responses/404NotFound'
-        409:
-          $ref: '#/components/responses/409Conflict'
         500:
           $ref: '#/components/responses/500InternalServerError'
   /client/{clientName}/connection/{environment}/{version}:
@@ -226,7 +204,7 @@ paths:
           $ref: '#/components/responses/404NotFound'
         500:
           $ref: '#/components/responses/500InternalServerError'
-  /connections:
+  /connection:
     get:
       operationId: getConnections
       summary: get a connections based on filters
@@ -234,10 +212,6 @@ paths:
         - connection
       parameters:
         - $ref: '#/components/parameters/environmentQueryParam'
-        - in: query
-          name: isDeleted
-          schema:
-            type: boolean
         - in: query
           name: isEnabled
           schema:
@@ -248,10 +222,6 @@ paths:
             type: boolean
         - in: query
           name: isNoOrigin
-          schema:
-            type: boolean
-        - in: query
-          name: isLatestVersion
           schema:
             type: boolean
         - in: query
@@ -267,9 +237,43 @@ paths:
           content:
             application/json:
               schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/connection'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        500:
+          $ref: '#/components/responses/500InternalServerError'
+    post:
+      operationId: upsertConnection
+      summary: creates a new connection or updates it based on the version
+      tags:
+        - connection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/connection'
+      responses:
+        200:
+          description: updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        201:
+          description: created
+          content:
+            application/json:
+              schema:
                 $ref: '#/components/schemas/connection'
         400:
           $ref: '#/components/responses/400BadRequest'
+        404:
+          $ref: '#/components/responses/404NotFound'
+        409:
+          $ref: '#/components/responses/409Conflict'
         500:
           $ref: '#/components/responses/500InternalServerError'
   /key:
@@ -645,15 +649,17 @@ components:
         - TEST_DATA
         - POLICY
         - DATA
+    name:
+      type: string
+      minLength: 3
+      maxLength: 32
     domain:
       type: object
       required:
         - name
       properties:
         name:
-          type: string
-          minLength: 3
-          maxLength: 32
+          $ref: '#/components/schemas/name'
     pointOfContact:
       type: object
       required:
@@ -662,7 +668,7 @@ components:
         - phone
       properties:
         name:
-          type: string
+          $ref: '#/components/schemas/name'
         email:
           type: string
           format: email
@@ -677,9 +683,7 @@ components:
         - updatedAt
       properties:
         hebName:
-          type: string
-          minLength: 3
-          maxLength: 32
+          $ref: '#/components/schemas/name'
         description:
           type: string
           maxLength: 2048
@@ -710,31 +714,31 @@ components:
             - name
           properties:
             name:
-              type: string
-              minLength: 3
-              maxLength: 32
+              $ref: '#/components/schemas/name'
     connection:
       type: object
       required:
+        - name
         - enabled
-        - isDeleted
         - environment
+        - token
         - domains
         - allowNoBrowserConnection
         - allowNoOriginConnection
         - origins
         - version
       properties:
+        name:
+          $ref: '#/components/schemas/name'
+        environment:
+          $ref: '#/components/schemas/environment'
+        version:
+          $ref: '#/components/schemas/version'
         enabled:
           type: boolean
           default: true
-        isDeleted:
-          type: boolean
-          readOnly: true
-        environment:
-          allOf:
-            - $ref: '#/components/schemas/environment'
-            - readOnly: true
+        token:
+          type: string
         domains:
           type: array
           uniqueItems: true
@@ -749,14 +753,11 @@ components:
           type: boolean
         allowNoOriginConnection:
           type: boolean
-          readOnly: true
         origins:
           type: array
           uniqueItems: true
           items:
             type: string
-        version:
-          $ref: '#/components/schemas/version'
     publicJWK:
       type: object
       required:

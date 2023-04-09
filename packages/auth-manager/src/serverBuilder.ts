@@ -14,6 +14,7 @@ import { DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import { CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
 import { KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';
 import { ASSET_ROUTER_SYMBOL } from './asset/routes/assetRouter';
+import { CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -25,7 +26,8 @@ export class ServerBuilder {
     @inject(DOMAIN_ROUTER_SYMBOL) private readonly domainRouter: Router,
     @inject(CLIENT_ROUTER_SYMBOL) private readonly clientRouter: Router,
     @inject(KEY_ROUTER_SYMBOL) private readonly keyRouter: Router,
-    @inject(ASSET_ROUTER_SYMBOL) private readonly assetRouter: Router
+    @inject(ASSET_ROUTER_SYMBOL) private readonly assetRouter: Router,
+    @inject(CONNECTION_ROUTER_SYMBOL) private readonly connectionRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -52,6 +54,7 @@ export class ServerBuilder {
     this.serverInstance.use('/client', this.clientRouter);
     this.serverInstance.use('/key', this.keyRouter);
     this.serverInstance.use('/asset', this.assetRouter);
+    this.serverInstance.use('/connection', this.connectionRouter);
     this.buildDocsRoutes();
   }
 
