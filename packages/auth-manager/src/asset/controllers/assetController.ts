@@ -3,7 +3,8 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
-import { AssetSearchParams, IAsset } from '../models/asset';
+import { IAsset } from 'auth-core';
+import { AssetSearchParams } from '../models/asset';
 
 import { AssetManager } from '../models/assetManager';
 import { AssetNotFoundError, AssetVersionMismatchError } from '../models/errors';

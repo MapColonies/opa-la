@@ -1,9 +1,10 @@
 import { Logger } from '@map-colonies/js-logger';
+import { Bundle, IBundle } from 'auth-core';
 import { inject, injectable } from 'tsyringe';
 import { In, Repository } from 'typeorm';
 import { SERVICES } from '../../common/constants';
 import { createDatesComparison } from '../../common/db/utils';
-import { Bundle, BundleSearchParams, IBundle } from './bundle';
+import { BundleSearchParams } from './bundle';
 import { BundleNotFoundError } from './errors';
 
 @injectable()

@@ -3,10 +3,11 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
-import { ConnectionSearchParams, IConnection } from '../models/connection';
+import { Environment, IConnection } from 'auth-core';
+import { ConnectionSearchParams } from '../models/connection';
 import { ConnectionManager } from '../models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../models/errors';
-import { Environment, SERVICES } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 import { ClientNotFoundError } from '../../client/models/errors';
 import { DomainNotFoundError } from '../../domain/models/errors';
 

@@ -1,7 +1,6 @@
+import { Connection, Environment } from 'auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
-import { Environment } from '../../common/constants';
-import { Connection } from '../models/connection';
 
 const maxVersionSubQuery = (qb: SelectQueryBuilder<Connection>): string => {
   const subQuery = qb

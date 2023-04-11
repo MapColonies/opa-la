@@ -3,11 +3,10 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
-import { IKey } from '../models/key';
-
+import { Environment, IKey } from 'auth-core';
 import { KeyManager } from '../models/keyManager';
 import { KeyNotFoundError, KeyVersionMismatchError } from '../models/errors';
-import { Environment, SERVICES } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 
 interface KeyPathParams {
   environment: Environment;

@@ -1,6 +1,6 @@
+import { Domain } from 'auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
-import { Domain } from '../models/domain';
 
 export type DomainRepository = Repository<Domain> & {
   checkInputForNonExistingDomains: (domainNames: string[]) => Promise<string[]>;

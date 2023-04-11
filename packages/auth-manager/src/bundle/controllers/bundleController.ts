@@ -1,8 +1,9 @@
 import { HttpError } from '@map-colonies/error-express-handler';
+import { IBundle } from 'auth-core';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { BundleSearchParams, IBundle } from '../models/bundle';
+import { BundleSearchParams } from '../models/bundle';
 
 import { BundleManager } from '../models/bundleManager';
 import { BundleNotFoundError } from '../models/errors';

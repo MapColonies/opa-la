@@ -1,9 +1,10 @@
 import { Logger } from '@map-colonies/js-logger';
+import { IAsset } from 'auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains } from 'typeorm';
 import { SERVICES } from '../../common/constants';
 import { AssetRepository } from '../DAL/assetRepository';
-import { AssetSearchParams, IAsset } from './asset';
+import { AssetSearchParams } from './asset';
 import { AssetVersionMismatchError, AssetNotFoundError } from './errors';
 
 @injectable()

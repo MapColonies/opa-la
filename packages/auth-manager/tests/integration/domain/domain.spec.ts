@@ -5,9 +5,9 @@ import { DependencyContainer } from 'tsyringe';
 import { DataSource } from 'typeorm';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
+import { Domain } from 'auth-core';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { Domain } from '../../../src/domain/models/domain';
 import { DomainRequestSender } from './helpers/requestSender';
 
 describe('domain', function () {

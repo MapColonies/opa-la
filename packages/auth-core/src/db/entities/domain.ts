@@ -1,8 +1,5 @@
 import { Entity, PrimaryColumn } from 'typeorm';
-
-export interface IDomain {
-  name: string;
-}
+import { IDomain } from '../../model';
 
 @Entity()
 export class Domain implements IDomain {

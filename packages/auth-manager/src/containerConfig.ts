@@ -1,18 +1,17 @@
 import config from 'config';
 import { getOtelMixin } from '@map-colonies/telemetry';
-import { trace, metrics as OtelMetrics } from '@opentelemetry/api';
+import { trace } from '@opentelemetry/api';
 import { instanceCachingFactory } from 'tsyringe';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
 import { DataSource } from 'typeorm';
 import { HealthCheck } from '@godaddy/terminus';
+import { Bundle, DbConfig, initConnection } from 'auth-core';
 import { DB_CONNECTION_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { domainRouterFactory, DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
-import { DbConfig } from './common/interfaces';
-import { initConnection } from './common/db/connection';
 import { promiseTimeout } from './common/utils/promiseTimeout';
 import { clientRouterFactory, CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
 import { clientRepositoryFactory } from './client/DAL/clientRepository';
@@ -23,7 +22,6 @@ import { assetRepositoryFactory } from './asset/DAL/assetRepository';
 import { connectionRepositoryFactory } from './connection/DAL/connectionRepository';
 import { connectionRouterFactory, CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
 import { domainRepositoryFactory } from './domain/DAL/domainRepository';
-import { Bundle } from './bundle/models/bundle';
 import { bundleRouterFactory, BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
@@ -57,7 +55,6 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.CONFIG, provider: { useValue: config } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
-    { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
     { token: DataSource, provider: { useValue: connection } },
     {
       token: SERVICES.HEALTHCHECK,

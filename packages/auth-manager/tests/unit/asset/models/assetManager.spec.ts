@@ -1,8 +1,8 @@
 import jsLogger from '@map-colonies/js-logger';
+import { Environment } from 'auth-core';
 import { AssetManager } from '../../../../src/asset/models/assetManager';
 import { AssetNotFoundError, AssetVersionMismatchError } from '../../../../src/asset/models/errors';
 import { AssetRepository } from '../../../../src/asset/DAL/assetRepository';
-import { Environment } from '../../../../src/common/constants';
 import { getFakeAsset } from '../../../utils/asset';
 
 describe('AssetManager', () => {

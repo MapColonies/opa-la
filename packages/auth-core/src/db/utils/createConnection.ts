@@ -1,7 +1,9 @@
 import { hostname } from 'os';
 import { readFileSync } from 'fs';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { DbConfig } from '../interfaces';
+import { DbConfig } from '../types/interfaces';
+import { migrations } from '../migrations';
+import { Asset, Bundle, Client, Connection, Domain, Key } from '../entities';
 
 export const createConnectionOptions = (dbConfig: DbConfig): DataSourceOptions => {
   const { enableSslAuth, sslPaths, ...dataSourceOptions } = dbConfig;
@@ -11,7 +13,12 @@ export const createConnectionOptions = (dbConfig: DbConfig): DataSourceOptions =
     dataSourceOptions.password = undefined;
     dataSourceOptions.ssl = { key: readFileSync(sslPaths.key), cert: readFileSync(sslPaths.cert), ca: readFileSync(sslPaths.ca) };
   }
-  return { entities: ['**/models/*.js', 'src/**/models/*.ts'], ...dataSourceOptions };
+  return {
+    entities: [Asset, Bundle, Client, Connection, Domain, Key],
+    migrations,
+    migrationsTableName: 'custom_migration_table',
+    ...dataSourceOptions,
+  };
 };
 
 export const initConnection = async (dbConfig: DbConfig): Promise<DataSource> => {

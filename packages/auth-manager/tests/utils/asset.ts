@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { AssetType, IAsset } from '../../src/asset/models/asset';
-import { Environment } from '../../src/common/constants';
+import { AssetType, Environment, IAsset } from 'auth-core';
 
 const EIGHT = 8;
 

@@ -1,10 +1,11 @@
 import { HttpError } from '@map-colonies/error-express-handler';
 import { Logger } from '@map-colonies/js-logger';
+import { IClient } from 'auth-core';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-import { ClientSearchParams, IClient } from '../models/client';
+import { ClientSearchParams } from '../models/client';
 import { ClientManager } from '../models/clientManager';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
 

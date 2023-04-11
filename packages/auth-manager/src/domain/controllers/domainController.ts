@@ -1,8 +1,8 @@
 import { HttpError } from '@map-colonies/error-express-handler';
+import { IDomain } from 'auth-core';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { IDomain } from '../models/domain';
 
 import { DomainManager } from '../models/domainManager';
 import { DomainAlreadyExistsError } from '../models/errors';

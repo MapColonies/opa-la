@@ -1,5 +1,6 @@
+import { IAsset } from 'auth-core';
 import * as supertest from 'supertest';
-import { AssetSearchParams, IAsset } from '../../../../src/asset/models/asset';
+import { AssetSearchParams } from '../../../../src/asset/models/asset';
 
 export class AssetRequestSender {
   public constructor(private readonly app: Express.Application) {}

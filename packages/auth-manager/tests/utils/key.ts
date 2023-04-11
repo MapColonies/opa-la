@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { JWKPrivateKey, JWKPublicKey } from '../../src/key/models/key';
+import { JWKPrivateKey, JWKPublicKey } from 'auth-core';
 
 const THREE = 3;
 
