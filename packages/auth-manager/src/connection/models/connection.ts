@@ -1,4 +1,4 @@
-import { Environment } from 'auth-core';
+import { Environment } from '@map-colonies/auth-core';
 
 export interface ConnectionSearchParams {
   environment?: Environment[];

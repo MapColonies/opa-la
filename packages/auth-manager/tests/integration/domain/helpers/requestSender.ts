@@ -1,4 +1,4 @@
-import { IDomain } from 'auth-core';
+import { IDomain } from '@map-colonies/auth-core';
 import * as supertest from 'supertest';
 
 export class DomainRequestSender {

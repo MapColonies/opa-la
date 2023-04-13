@@ -1,4 +1,4 @@
-import { Asset } from 'auth-core';
+import { Asset } from '@map-colonies/auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
 

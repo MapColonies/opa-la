@@ -1,5 +1,5 @@
 import { Logger } from '@map-colonies/js-logger';
-import { Client, Environment, IConnection } from 'auth-core';
+import { Client, Environment, IConnection } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains, In } from 'typeorm';
 import { ClientNotFoundError } from '../../client/models/errors';

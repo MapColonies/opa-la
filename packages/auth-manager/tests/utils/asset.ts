@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { AssetType, Environment, IAsset } from 'auth-core';
+import { AssetType, Environment, IAsset } from '@map-colonies/auth-core';
 
 const EIGHT = 8;
 

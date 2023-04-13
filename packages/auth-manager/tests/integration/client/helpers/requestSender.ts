@@ -1,4 +1,4 @@
-import { IClient } from 'auth-core';
+import { IClient } from '@map-colonies/auth-core';
 import * as supertest from 'supertest';
 import { ClientSearchParams } from '../../../../src/client/models/client';
 

@@ -5,7 +5,7 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { Client, Connection, Domain, Environment, IConnection } from 'auth-core';
+import { Client, Connection, Domain, Environment, IConnection } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';

@@ -6,7 +6,7 @@ import { DependencyContainer } from 'tsyringe';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { Client } from 'auth-core';
+import { Client } from '@map-colonies/auth-core';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { getFakeClient } from '../../utils/client';

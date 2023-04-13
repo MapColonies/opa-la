@@ -1,5 +1,5 @@
 import config from 'config';
-import { DbConfig, initConnection } from 'auth-core';
+import { DbConfig, initConnection } from '@map-colonies/auth-core';
 
 export default async (): Promise<void> => {
   const dataSourceOptions = config.get<DbConfig>('db');

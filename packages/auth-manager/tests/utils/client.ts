@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { IClient } from 'auth-core';
+import { IClient } from '@map-colonies/auth-core';
 
 export function getFakeClient(includeGeneratedFields: boolean): IClient {
   const firstName = faker.name.firstName();

@@ -1,4 +1,4 @@
-import { Environment, IConnection } from 'auth-core';
+import { Environment, IConnection } from '@map-colonies/auth-core';
 import * as supertest from 'supertest';
 import { ConnectionSearchParams } from '../../../../src/connection/models/connection';
 

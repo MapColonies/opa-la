@@ -3,7 +3,7 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
-import { Environment, IKey } from 'auth-core';
+import { Environment, IKey } from '@map-colonies/auth-core';
 import { KeyManager } from '../models/keyManager';
 import { KeyNotFoundError, KeyVersionMismatchError } from '../models/errors';
 import { SERVICES } from '../../common/constants';

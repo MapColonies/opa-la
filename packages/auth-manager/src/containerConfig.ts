@@ -7,7 +7,7 @@ import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
 import { DataSource } from 'typeorm';
 import { HealthCheck } from '@godaddy/terminus';
-import { Bundle, DbConfig, initConnection } from 'auth-core';
+import { Bundle, DbConfig, initConnection } from '@map-colonies/auth-core';
 import { DB_CONNECTION_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { domainRouterFactory, DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';

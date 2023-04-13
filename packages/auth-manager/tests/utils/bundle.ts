@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Environment, IBundle } from 'auth-core';
+import { Environment, IBundle } from '@map-colonies/auth-core';
 
 const EIGHT = 8;
 

@@ -1,4 +1,4 @@
-import { AssetType, Environment } from 'auth-core';
+import { AssetType, Environment } from '@map-colonies/auth-core';
 
 export interface AssetSearchParams {
   type?: AssetType;

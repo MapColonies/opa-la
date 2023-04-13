@@ -4,7 +4,7 @@ import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
-import { Bundle, Environment } from 'auth-core';
+import { Bundle, Environment } from '@map-colonies/auth-core';
 import 'jest-openapi';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';

@@ -1,6 +1,6 @@
 import jsLogger from '@map-colonies/js-logger';
 import { FindOptionsWhere } from 'typeorm';
-import { Connection, Environment } from 'auth-core';
+import { Connection, Environment } from '@map-colonies/auth-core';
 import { ConnectionManager } from '../../../../src/connection/models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../../../../src/connection/models/errors';
 import { ConnectionRepository } from '../../../../src/connection/DAL/connectionRepository';

@@ -1,6 +1,6 @@
 import { HttpError } from '@map-colonies/error-express-handler';
 import { Logger } from '@map-colonies/js-logger';
-import { IClient } from 'auth-core';
+import { IClient } from '@map-colonies/auth-core';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';

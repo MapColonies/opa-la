@@ -1,4 +1,4 @@
-import { Environment, IKey } from 'auth-core';
+import { Environment, IKey } from '@map-colonies/auth-core';
 import * as supertest from 'supertest';
 
 export class KeyRequestSender {

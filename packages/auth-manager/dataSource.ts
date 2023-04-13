@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import config from 'config';
-import { createConnectionOptions, DbConfig } from 'auth-core';
+import { createConnectionOptions, DbConfig } from '@map-colonies/auth-core';
 
 const connectionOptions = config.get<DbConfig>('db');
 

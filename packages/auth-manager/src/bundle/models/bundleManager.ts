@@ -1,5 +1,5 @@
 import { Logger } from '@map-colonies/js-logger';
-import { Bundle, IBundle } from 'auth-core';
+import { Bundle, IBundle } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { In, Repository } from 'typeorm';
 import { SERVICES } from '../../common/constants';

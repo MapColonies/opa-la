@@ -1,4 +1,4 @@
-import { IClient } from 'auth-core';
+import { IClient } from '@map-colonies/auth-core';
 
 export interface ClientSearchParams {
   branch: IClient['branch'];

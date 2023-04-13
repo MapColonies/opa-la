@@ -1,5 +1,5 @@
 {
-  "name": "auth-core",
+  "name": "@map-colonies/auth-core",
   "version": "0.0.0",
   "description": "package for auth types and functions",
   "author": "MapColonies",

@@ -1,5 +1,5 @@
 import jsLogger from '@map-colonies/js-logger';
-import { Environment } from 'auth-core';
+import { Environment } from '@map-colonies/auth-core';
 import { AssetManager } from '../../../../src/asset/models/assetManager';
 import { AssetNotFoundError, AssetVersionMismatchError } from '../../../../src/asset/models/errors';
 import { AssetRepository } from '../../../../src/asset/DAL/assetRepository';

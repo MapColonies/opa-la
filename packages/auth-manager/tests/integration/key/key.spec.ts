@@ -5,7 +5,7 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { IKey, Environment, Key } from 'auth-core';
+import { IKey, Environment, Key } from '@map-colonies/auth-core';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { KeyRepository } from '../../../src/key/DAL/keyRepository';

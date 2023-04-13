@@ -5,7 +5,7 @@ import { DependencyContainer } from 'tsyringe';
 import { DataSource } from 'typeorm';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
-import { Domain } from 'auth-core';
+import { Domain } from '@map-colonies/auth-core';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { DomainRequestSender } from './helpers/requestSender';

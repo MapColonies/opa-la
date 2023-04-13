@@ -1,5 +1,5 @@
 import jsLogger from '@map-colonies/js-logger';
-import { Bundle } from 'auth-core';
+import { Bundle } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import { BundleManager } from '../../../../src/bundle/models/bundleManager';
 import { BundleNotFoundError } from '../../../../src/bundle/models/errors';

@@ -1,4 +1,4 @@
-import { Client } from 'auth-core';
+import { Client } from '@map-colonies/auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
 

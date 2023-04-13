@@ -1,4 +1,4 @@
-import { Domain } from 'auth-core';
+import { Domain } from '@map-colonies/auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
 

@@ -1,4 +1,4 @@
-import { IAsset } from 'auth-core';
+import { IAsset } from '@map-colonies/auth-core';
 import * as supertest from 'supertest';
 import { AssetSearchParams } from '../../../../src/asset/models/asset';
 

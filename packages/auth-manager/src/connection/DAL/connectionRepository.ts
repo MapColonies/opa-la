@@ -1,4 +1,4 @@
-import { Connection, Environment } from 'auth-core';
+import { Connection, Environment } from '@map-colonies/auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 

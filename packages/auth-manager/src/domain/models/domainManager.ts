@@ -1,5 +1,5 @@
 import { Logger } from '@map-colonies/js-logger';
-import { IDomain } from 'auth-core';
+import { IDomain } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
 import { DomainRepository } from '../DAL/domainRepository';

@@ -1,5 +1,5 @@
 import { HttpError } from '@map-colonies/error-express-handler';
-import { IBundle } from 'auth-core';
+import { IBundle } from '@map-colonies/auth-core';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';

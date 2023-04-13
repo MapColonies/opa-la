@@ -1,4 +1,4 @@
-import { Environment, Key } from 'auth-core';
+import { Environment, Key } from '@map-colonies/auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
 
