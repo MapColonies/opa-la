@@ -479,6 +479,18 @@ paths:
       tags:
         - bundle
       parameters:
+        - in: query
+          name: createdBefore
+          description: filters all clients created before given date
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: createdAfter
+          description: filters all clients created after given date
+          schema:
+            type: string
+            format: date-time
         - $ref: '#/components/parameters/environmentQueryParam'
       responses:
         200:
@@ -486,7 +498,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/bundle'
+                type: array
+                items:
+                  $ref: '#/components/schemas/bundle'
         400:
           $ref: '#/components/responses/400BadRequest'
         500:
@@ -513,7 +527,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/connection'
+                $ref: '#/components/schemas/bundle'
         400:
           $ref: '#/components/responses/400BadRequest'
         404:
@@ -860,6 +874,11 @@ components:
         id:
           type: number
           format: int32
+        hash:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
         assets:
           type: array
           uniqueItems: true
