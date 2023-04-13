@@ -11,8 +11,6 @@
     "url": "git+https://github.com/MapColonies/opa-la.git"
   },
   "scripts": {
-    "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
-    "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "prelint:fix": "npm run format:fix",
@@ -23,7 +21,6 @@
     "migration:revert": "npm run typeorm migration:revert -- ",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "npm run test:unit && npm run test:integration",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json && npm run assets:copy",
     "prepublish": "npm run build",
