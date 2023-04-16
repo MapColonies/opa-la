@@ -117,12 +117,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
 
-      - name: Install Node.js dependencies
+      - name: Install TS Project dependencies
         run: npm ci
 
-      - name: Bootstrap Lerna
-        run: npx lerna bootstrap
+      - name: build packages
+        run: npx lerna run build
 
       - name: Run tests
         run: npx lerna run test --scope ${{ matrix.package }}
