@@ -5,16 +5,14 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
+import { Client, Connection, Domain, Environment, IConnection } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 import { getApp } from '../../../src/app';
-import { Environment, SERVICES } from '../../../src/common/constants';
+import { SERVICES } from '../../../src/common/constants';
 import { ConnectionRepository } from '../../../src/connection/DAL/connectionRepository';
 import { getFakeConnection, getFakeIConnection } from '../../utils/connection';
-import { IConnection, Connection } from '../../../src/connection/models/connection';
 import { DomainRepository } from '../../../src/domain/DAL/domainRepository';
 import { getFakeClient } from '../../utils/client';
-import { Client } from '../../../src/client/models/client';
-import { Domain } from '../../../src/domain/models/domain';
 import { ConnectionRequestSender } from './helpers/requestSender';
 
 describe('client', function () {

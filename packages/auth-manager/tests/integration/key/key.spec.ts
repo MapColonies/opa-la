@@ -5,11 +5,11 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
+import { IKey, Environment, Key } from '@map-colonies/auth-core';
 import { getApp } from '../../../src/app';
-import { Environment, SERVICES } from '../../../src/common/constants';
+import { SERVICES } from '../../../src/common/constants';
 import { KeyRepository } from '../../../src/key/DAL/keyRepository';
 import { getMockKeys } from '../../utils/key';
-import { IKey, Key } from '../../../src/key/models/key';
 import { KeyRequestSender } from './helpers/requestSender';
 
 describe('client', function () {

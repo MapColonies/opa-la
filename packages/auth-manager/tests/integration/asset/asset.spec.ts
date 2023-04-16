@@ -5,12 +5,12 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
+import { Asset, AssetType, Environment, IAsset } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 import { getApp } from '../../../src/app';
-import { Environment, SERVICES } from '../../../src/common/constants';
+import { SERVICES } from '../../../src/common/constants';
 import { AssetRepository } from '../../../src/asset/DAL/assetRepository';
 import { getFakeAsset } from '../../utils/asset';
-import { IAsset, Asset, AssetType } from '../../../src/asset/models/asset';
 import { AssetRequestSender } from './helpers/requestSender';
 
 describe('client', function () {

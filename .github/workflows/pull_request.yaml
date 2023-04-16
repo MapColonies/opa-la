@@ -18,18 +18,19 @@ jobs:
 
     steps:
       - name: Check out TS Project Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
 
       - name: Install TS Project dependencies
         run: npm ci
 
-      - name: bootstrap Lerna
-        run: npx lerna bootstrap
+      - name: build packages
+        run: npx lerna run build
 
       - name: Run TS Project linters
         uses: wearerequired/lint-action@v1
@@ -50,18 +51,19 @@ jobs:
 
     steps:
       - name: Check out TS Project Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: ${{ matrix.node }}
+          cache: npm
 
       - name: Install TS Project dependencies
         run: npm ci
 
-      - name: Bootstrap Lerna
-        run: npx lerna bootstrap
+      - name: build packages
+        run: npx lerna run build
 
       - name: OpenAPI Lint Checks
         uses: nwestfall/openapi-action@v1.0.2
@@ -109,18 +111,19 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
 
-      - name: Install Node.js dependencies
+      - name: Install TS Project dependencies
         run: npm ci
 
-      - name: Bootstrap Lerna
-        run: npx lerna bootstrap
+      - name: build packages
+        run: npx lerna run build
 
       - name: Run tests
         run: npx lerna run test --scope ${{ matrix.package }}

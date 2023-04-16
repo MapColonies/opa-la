@@ -1,13 +1,9 @@
 import { DataSource } from 'typeorm';
 import config from 'config';
-import { createConnectionOptions } from './src/common/db/connection';
-import { DbConfig } from './src/common/interfaces';
+import { createConnectionOptions, DbConfig } from '@map-colonies/auth-core';
 
 const connectionOptions = config.get<DbConfig>('db');
 
 export const appDataSource = new DataSource({
   ...createConnectionOptions(connectionOptions),
-  entities: ['src/**/models/*.ts'],
-  migrationsTableName: 'custom_migration_table',
-  migrations: ['db/migrations/*.ts'],
 });

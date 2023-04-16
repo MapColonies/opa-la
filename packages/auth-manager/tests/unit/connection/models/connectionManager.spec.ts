@@ -1,12 +1,12 @@
 import jsLogger from '@map-colonies/js-logger';
 import { FindOptionsWhere } from 'typeorm';
+import { Connection, Environment } from '@map-colonies/auth-core';
 import { ConnectionManager } from '../../../../src/connection/models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../../../../src/connection/models/errors';
 import { ConnectionRepository } from '../../../../src/connection/DAL/connectionRepository';
-import { Environment } from '../../../../src/common/constants';
 import { getFakeConnection } from '../../../utils/connection';
 import { DomainRepository } from '../../../../src/domain/DAL/domainRepository';
-import { Connection, ConnectionSearchParams } from '../../../../src/connection/models/connection';
+import { ConnectionSearchParams } from '../../../../src/connection/models/connection';
 import { ClientNotFoundError } from '../../../../src/client/models/errors';
 import { DomainNotFoundError } from '../../../../src/domain/models/errors';
 

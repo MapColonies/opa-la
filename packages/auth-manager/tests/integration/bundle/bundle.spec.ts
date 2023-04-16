@@ -4,10 +4,10 @@ import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
+import { Bundle, Environment } from '@map-colonies/auth-core';
 import 'jest-openapi';
 import { getApp } from '../../../src/app';
-import { Environment, SERVICES } from '../../../src/common/constants';
-import { Bundle } from '../../../src/bundle/models/bundle';
+import { SERVICES } from '../../../src/common/constants';
 import { getFakeBundle } from '../../utils/bundle';
 import { BundleRequestSender } from './helpers/requestSender';
 

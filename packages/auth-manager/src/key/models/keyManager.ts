@@ -1,8 +1,8 @@
 import { Logger } from '@map-colonies/js-logger';
+import { Environment, IKey } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { Environment, SERVICES } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 import { KeyRepository } from '../DAL/keyRepository';
-import { IKey } from './key';
 import { KeyVersionMismatchError, KeyNotFoundError } from './errors';
 
 @injectable()

@@ -1,6 +1,6 @@
+import { Asset } from '@map-colonies/auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
-import { Asset } from '../models/asset';
 
 export type AssetRepository = Repository<Asset> & {
   getMaxVersionWithLock: (name: string) => Promise<number | null>;

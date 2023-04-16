@@ -1,5 +1,5 @@
+import { IDomain } from '@map-colonies/auth-core';
 import * as supertest from 'supertest';
-import { IDomain } from '../../../../src/domain/models/domain';
 
 export class DomainRequestSender {
   public constructor(private readonly app: Express.Application) {}

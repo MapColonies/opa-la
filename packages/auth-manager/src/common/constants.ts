@@ -8,12 +8,6 @@ export const DB_CONNECTION_TIMEOUT = 5000;
 export const IGNORED_OUTGOING_TRACE_ROUTES = [/^.*\/v1\/metrics.*$/];
 export const IGNORED_INCOMING_TRACE_ROUTES = [/^.*\/docs.*$/];
 
-export enum Environment {
-  NP = 'np',
-  STAGE = 'stage',
-  PRODUCTION = 'prod',
-}
-
 /* eslint-disable @typescript-eslint/naming-convention */
 export const SERVICES = {
   LOGGER: Symbol('Logger'),

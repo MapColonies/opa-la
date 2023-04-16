@@ -1,13 +1,13 @@
 import { Logger } from '@map-colonies/js-logger';
+import { Client, Environment, IConnection } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains, In } from 'typeorm';
-import { Client } from '../../client/models/client';
 import { ClientNotFoundError } from '../../client/models/errors';
-import { Environment, SERVICES } from '../../common/constants';
+import { SERVICES } from '../../common/constants';
 import { DomainRepository } from '../../domain/DAL/domainRepository';
 import { DomainNotFoundError } from '../../domain/models/errors';
 import { ConnectionRepository } from '../DAL/connectionRepository';
-import { ConnectionSearchParams, IConnection } from './connection';
+import { ConnectionSearchParams } from './connection';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
 
 @injectable()

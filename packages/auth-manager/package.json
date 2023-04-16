@@ -36,6 +36,7 @@
     "url": "https://github.com/MapColonies/opa-la/issues"
   },
   "dependencies": {
+    "@map-colonies/auth-core": "0.0.0",
     "@godaddy/terminus": "^4.11.2",
     "@map-colonies/error-express-handler": "^2.1.0",
     "@map-colonies/express-access-log-middleware": "^1.0.0",

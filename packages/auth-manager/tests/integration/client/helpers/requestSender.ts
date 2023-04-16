@@ -1,5 +1,6 @@
+import { IClient } from '@map-colonies/auth-core';
 import * as supertest from 'supertest';
-import { IClient, ClientSearchParams } from '../../../../src/client/models/client';
+import { ClientSearchParams } from '../../../../src/client/models/client';
 
 export class ClientRequestSender {
   public constructor(private readonly app: Express.Application) {}

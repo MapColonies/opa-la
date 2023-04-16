@@ -1,8 +1,8 @@
 import jsLogger from '@map-colonies/js-logger';
+import { Environment } from '@map-colonies/auth-core';
 import { KeyManager } from '../../../../src/key/models/keyManager';
 import { KeyNotFoundError, KeyVersionMismatchError } from '../../../../src/key/models/errors';
 import { KeyRepository } from '../../../../src/key/DAL/keyRepository';
-import { Environment } from '../../../../src/common/constants';
 
 describe('KeyManager', () => {
   let keyManager: KeyManager;

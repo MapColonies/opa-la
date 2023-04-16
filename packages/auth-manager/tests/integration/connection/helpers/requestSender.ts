@@ -1,6 +1,6 @@
+import { Environment, IConnection } from '@map-colonies/auth-core';
 import * as supertest from 'supertest';
-import { Environment } from '../../../../src/common/constants';
-import { ConnectionSearchParams, IConnection } from '../../../../src/connection/models/connection';
+import { ConnectionSearchParams } from '../../../../src/connection/models/connection';
 
 export class ConnectionRequestSender {
   public constructor(private readonly app: Express.Application) {}
