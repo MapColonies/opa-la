@@ -24,14 +24,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
 
       - name: Install TS Project dependencies
         run: npm ci
 
-      - name: bootstrap Lerna
-        run: npx lerna bootstrap
-
-      - run: ls -alh
+      - name: build packages
+        run: npx lerna run build
 
       - name: Run TS Project linters
         uses: wearerequired/lint-action@v1
@@ -57,13 +56,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: ${{ matrix.node }}
+          cache: npm
 
       - name: Install TS Project dependencies
         run: npm ci
 
-      - name: Bootstrap Lerna
-        run: npx lerna bootstrap
+      - name: build packages
+        run: npx lerna run build
 
       - name: OpenAPI Lint Checks
         uses: nwestfall/openapi-action@v1.0.2
