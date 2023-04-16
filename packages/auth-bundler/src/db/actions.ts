@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import db, { sql } from './database';
+import { Asset } from '@map-colonies/auth-core';
+import { dataSource } from './database';
+
+const avi = dataSource.createQueryBuilder().execute();
 
 export async function getAssets(environment: string) {
-  return db.query(sql`
+  return dataSource.query(`
     SELECT *
       FROM auth_manager.asset 
       WHERE ${environment} = ANY ( environment ) 
@@ -13,7 +16,7 @@ export async function getAssets(environment: string) {
 
 export async function getKey(environment: string) {
   return (
-    await db.query(sql`
+    await dataSource.query(`
     SELECT *
       FROM auth_manager.key 
       WHERE ${environment} = environment
@@ -24,7 +27,7 @@ export async function getKey(environment: string) {
 }
 
 export async function getConnections(environment: string) {
-  return db.query(sql`
+  return dataSource.query(`
       SELECT name,version,allow_no_browser, allow_no_origin, domains, origins
       FROM auth_manager.connection
       WHERE ${environment} = environment AND enabled = TRUE AND (name, version ) IN (SELECT name, max(version) FROM auth_manager.connection WHERE ${environment} = environment GROUP BY name )
