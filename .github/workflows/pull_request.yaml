@@ -31,6 +31,8 @@ jobs:
       - name: bootstrap Lerna
         run: npx lerna bootstrap
 
+      - run: ls -alh
+
       - name: Run TS Project linters
         uses: wearerequired/lint-action@v1
         with:
