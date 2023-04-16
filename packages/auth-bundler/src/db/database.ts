@@ -1,21 +1,9 @@
 import config from 'config';
-import createConnectionPool, { sql, ClientConfig } from '@databases/pg';
-import tables from '@databases/pg-typed';
+import { createConnectionOptions, DbConfig } from '@map-colonies/auth-core';
+import { DataSource } from 'typeorm';
 
-type DbConfig = {
-  enableSslAuth: boolean;
-  sslPaths: { ca: string; cert: string; key: string };
-} & ClientConfig;
+const connectionOptions = config.get<DbConfig>('db');
 
-const dbConfig = config.get<DbConfig>('db');
-
-const db = createConnectionPool({ ...dbConfig, bigIntMode: 'bigint' });
-
-process.once('SIGTERM', () => {
-  db.dispose().catch((ex) => {
-    console.error(ex);
-  });
+export const dataSource = new DataSource({
+  ...createConnectionOptions(connectionOptions),
 });
-
-export { sql };
-export default db;
