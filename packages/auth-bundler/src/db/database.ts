@@ -1,9 +1,11 @@
 import config from 'config';
 import { createConnectionOptions, DbConfig } from '@map-colonies/auth-core';
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
 const connectionOptions = config.get<DbConfig>('db');
 
-export const dataSource = new DataSource({
+const avi: DataSourceOptions = {
   ...createConnectionOptions(connectionOptions),
-});
+}
+
+export const dataSource = new DataSource(avi);
