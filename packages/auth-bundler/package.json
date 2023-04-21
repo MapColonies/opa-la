@@ -40,9 +40,9 @@
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@types/config": "^3.3.0",
+    "config": "^3.3.9",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.15.5",
-    "config": "^3.3.9",
     "copyfiles": "^2.4.1",
     "jest-extended": "^3.2.4",
     "rimraf": "^4.4.0",
