@@ -5,19 +5,10 @@ HandleBars.registerHelper('escapeJson', (value: string) => {
 });
 
 HandleBars.registerHelper('delimitedEach', (context: unknown[], options: HelperOptions) => {
-  let ret = '';
-
-  for (let i = 0, j = context.length; i < j; i++) {
-    if (i != 0) {
-      ret += ',';
-    }
-    ret = ret + options.fn(context[i]);
-  }
-
-  return ret;
+  return context.map((v) => options.fn(v)).join(',');
 });
 
-export function render(templateString: string, context: any) {
-  const template = HandleBars.compile(templateString, { noEscape: true });
+export function render(templateString: string, context: unknown): string {
+  const template = HandleBars.compile(templateString, { noEscape: true, strict: true });
   return template(context, {});
 }
