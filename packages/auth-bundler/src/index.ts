@@ -80,19 +80,19 @@ const main = async (): Promise<void> => {
   // console.log(await database.getLatestVersions(Environment.STAGE));
   // console.log(await database.getLatestVersions(Environment.PRODUCTION));
 
-  if (!dataInDbIsNewer()) {
-    if (storageHash != dbHash) {
-      recreateBundle()
-      uploadBundle()
-    } else {
-      doNothing()
-    }
-  }
+  // if (!dataInDbIsNewer()) {
+  //   if (storageHash != dbHash) {
+  //     recreateBundle()
+  //     uploadBundle()
+  //   } else {
+  //     doNothing()
+  //   }
+  // }
 
-  getnewDataFromDb()
-  createBundle()
-  uploadBundle()
-  registerBundle()
+  // getnewDataFromDb()
+  // createBundle()
+  // uploadBundle()
+  // registerBundle()
 };
 
 main().catch(console.error);
