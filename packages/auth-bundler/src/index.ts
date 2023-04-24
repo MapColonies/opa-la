@@ -1,98 +1,90 @@
-/* eslint-disable */
-
 import { existsSync } from 'fs';
-import { mkdir, writeFile, rm } from 'fs/promises';
-import path from 'path';
-import { render } from './templating';
-import { Database } from './db';
-import { validateBinaryExist, checkFiles, test, testCoverage, createBundle } from './opa';
-import { createConnectionOptions, DbConfig, Environment, Key } from '@map-colonies/auth-core';
-import { DataSource } from 'typeorm';
-import config from 'config';
+// import { mkdir, rm } from 'fs/promises';
+// import { createConnectionOptions, DbConfig, Environment } from '@map-colonies/auth-core';
+// import { DataSource } from 'typeorm';
+// import config from 'config';
+import { createBundleCommand, testCommand, validateBinaryExistCommand, testCoverageCommand } from './opa';
+import { createBundleDirectoryStructure } from './bundler';
 import { BundleContent } from './types';
-import { tmpdir } from 'node:os';
 
-const WORKDIR = '/tmp/opa-bundler';
-const ENCODING = 'utf-8';
+export { BundleDatabase } from './db';
 
-const handleKey = async (key: Key): Promise<void> => {
-  const keyPath = path.join(WORKDIR, 'keys');
-  await mkdir(keyPath, { recursive: true });
-  await writeFile(path.join(keyPath, 'data.json'), JSON.stringify(key.publicKey), { encoding: ENCODING });
-};
+// const WORKDIR = '/tmp/opa-bundler';
 
-const createDirectoryStructure = async (bundle: BundleContent, basePath: string) => {
-  if (!existsSync(basePath)) {
-    throw new Error('basePath does not exist');
+export interface TestOptions {
+  enable: boolean;
+  coverage?: number;
+}
+
+export async function createBundle(content: BundleContent, workDir: string, bundlePath: string, tests?: TestOptions): Promise<void> {
+  if (!existsSync(workDir)) {
+    throw new Error();
   }
 
-  const { assets, connections } = bundle;
+  if (!(await validateBinaryExistCommand())) {
+    throw new Error();
+  }
 
-  for (const asset of assets) {
-    let value = Buffer.from(asset.value, 'base64').toString('utf-8');
+  await createBundleDirectoryStructure(content, workDir);
 
-    if (asset.isTemplate) {
-      value = render(value, connections);
-    }
-    const assetPath = path.join(basePath, asset.uri);
-
-    await mkdir(assetPath, { recursive: true });
-
-    let fileName: string = asset.name;
-
-    if (asset.type === 'DATA') {
-      fileName = 'data.' + fileName.split('.')[1];
+  if (tests?.enable === true) {
+    const [testCompleted, testErr] = await testCommand(workDir);
+    if (!testCompleted) {
+      throw new Error(JSON.stringify(testErr));
     }
 
-    await writeFile(path.join(assetPath, fileName), value, { encoding: ENCODING });
+    if (tests.coverage !== undefined) {
+      const coverage = await testCoverageCommand(workDir);
+      if (coverage < tests.coverage) {
+        throw new Error(`tests coverage was: ${coverage}`);
+      }
+    }
   }
-};
 
-const main = async (): Promise<void> => {
-  if (existsSync(WORKDIR)) {
-    await rm(WORKDIR, { force: true, recursive: true });
+  const [creationCompleted, creationErr] = await createBundleCommand(workDir, bundlePath);
+
+  if (!creationCompleted) {
+    throw new Error(creationErr);
   }
+}
 
-  await mkdir(WORKDIR);
+// export const main = async (): Promise<void> => {
+//   if (existsSync(WORKDIR)) {
+//     await rm(WORKDIR, { force: true, recursive: true });
+//   }
 
-  // const connections = await getConnections('np');
-  // console.log(connections);
-  // await handleKey('np');
-  // await handleAssets('np', connections);
-  const connectionOptions = config.get<DbConfig>('db');
+//   await mkdir(WORKDIR);
 
-  const dataSource = new DataSource({
-    ...createConnectionOptions(connectionOptions),
-  });
+//   const connectionOptions = config.get<DbConfig>('db');
 
-  await dataSource.initialize();
-  const database = new Database(dataSource);
-  // const bundle = await database.getBundleFromVersions(await database.getLatestVersions(Environment.NP));
-  // console.log(render(`{
-  //   {{#delimitedEach .}}
-  //     {{escapeJson name}}:{
-  //       "noBrowser": {{allowNoBrowserConnection}}
-  //     }
-  //   {{/delimitedEach}}
-  // }`,bundle.connections))
-  await createDirectoryStructure(await database.getBundleFromVersions(await database.getLatestVersions(Environment.NP)), WORKDIR);
-  await createBundle(WORKDIR, 'bundle.tar.gz')
-  // console.log(await database.getLatestVersions(Environment.STAGE));
-  // console.log(await database.getLatestVersions(Environment.PRODUCTION));
+//   const dataSource = new DataSource({
+//     ...createConnectionOptions(connectionOptions),
+//   });
 
-  // if (!dataInDbIsNewer()) {
-  //   if (storageHash != dbHash) {
-  //     recreateBundle()
-  //     uploadBundle()
-  //   } else {
-  //     doNothing()
-  //   }
-  // }
+//   await dataSource.initialize();
+//   const database = new BundleDatabase(dataSource);
 
-  // getnewDataFromDb()
-  // createBundle()
-  // uploadBundle()
-  // registerBundle()
-};
+//   const versions = await database.getLatestVersions(Environment.NP);
+//   const content = await database.getBundleFromVersions(versions);
+//   await createBundle(content, WORKDIR, '../bundle.tar.gz')
+//   console.log(versions);
 
-main().catch(console.error);
+// await createDirectoryStructure(await database.getBundleFromVersions(versions), WORKDIR);
+// await createBundle(WORKDIR, 'bundle.tar.gz')
+
+// if (!dataInDbIsNewer()) {
+//   if (storageHash != dbHash) {
+//     recreateBundle()
+//     uploadBundle()
+//   } else {
+//     doNothing()
+//   }
+// }
+
+// getNewDataFromDb()
+// createBundle()
+// uploadBundle()
+// registerBundle()
+// };
+
+// main().catch(console.error);

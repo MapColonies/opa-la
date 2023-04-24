@@ -1,9 +1,9 @@
 import { DataSource, Repository } from 'typeorm';
 import { Asset, Bundle, Connection, Environment, Key } from '@map-colonies/auth-core';
 import { BundleContent, BundleContentVersions } from './types';
-import { createBundleHash, extractNameAndVersion } from './util';
+import { extractNameAndVersion } from './util';
 
-export class Database {
+export class BundleDatabase {
   private readonly assetRepository: Repository<Asset>;
   private readonly keyRepository: Repository<Key>;
   private readonly connectionRepository: Repository<Connection>;
@@ -19,20 +19,6 @@ export class Database {
     this.bundleRepository = dataSource.getRepository(Bundle);
   }
 
-  public async getSpecificBundleVersions(id: number): Promise<BundleContentVersions> {
-    const bundle = await this.dataSource.getRepository(Bundle).findOneBy({ id });
-    if (bundle === null) {
-      throw new Error();
-    }
-
-    return {
-      assets: bundle.assets ?? [],
-      connections: bundle.connections ?? [],
-      environment: bundle.environment,
-      keyVersion: bundle.keyVersion,
-    };
-  }
-
   public async getLatestVersions(env: Environment): Promise<BundleContentVersions> {
     return {
       environment: env,
@@ -42,23 +28,13 @@ export class Database {
     };
   }
 
-  public async isBundleOutdated(version: BundleContentVersions): Promise<boolean> {
-    return (await this.bundleRepository.findOneBy(version)) === null;
-  }
-
-  public async getLatestBundleHash(env: Environment): Promise<string> {
-    const bundle = await this.bundleRepository.findOneOrFail({ select: ['hash'], where: { environment: env }, order: { id: 'DESC' } });
-    return bundle.hash ?? '';
-  }
-
-  public async saveBundle(versions: BundleContentVersions): Promise<number> {
+  public async saveBundle(versions: BundleContentVersions, hash:string): Promise<number> {
     const bundle: Omit<Bundle, 'id'> = {
       environment: versions.environment,
       assets: versions.assets,
       connections: versions.connections,
       keyVersion: versions.keyVersion,
-      // should be changed to md5 of the object itself so we can detect if its different
-      hash: createBundleHash(versions),
+      hash,
     };
 
     const res = await this.bundleRepository.save(bundle);
@@ -94,23 +70,25 @@ export class Database {
     const subQuery = this.assetRepository
       .createQueryBuilder('asset')
       .select(['name', 'MAX(version)'])
-      .where(':environment = ANY (environment)', { environment })
+      // .where(':environment = ANY (environment)', { environment })
       .groupBy('name');
 
-    return this.assetRepository
-      .createQueryBuilder('asset')
-      .select(['name', 'version'])
-      .where(':environment = ANY (environment)')
-      .andWhere('(name, version) IN (' + subQuery.getQuery() + ')')
-      .orderBy('name')
-      .setParameters(subQuery.getParameters())
-      .getRawMany<{ name: string; version: number }>();
+    return (
+      this.assetRepository
+        .createQueryBuilder('asset')
+        .select(['name', 'version'])
+        .where(':environment = ANY (environment)', { environment })
+        .andWhere('(name, version) IN (' + subQuery.getQuery() + ')')
+        .orderBy('name')
+        // .setParameters(subQuery.getParameters())
+        .getRawMany<{ name: string; version: number }>()
+    );
   }
 
   private async getLatestKeyVersion(environment: string): Promise<number | null> {
     const res = await this.keyRepository
       .createQueryBuilder('key')
-      .select('MAX(version) version')
+      .select('MAX(version) as version')
       .where('environment = :environment', { environment })
       .getRawOne<{ version: number | null }>();
 

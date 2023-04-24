@@ -1,7 +1,7 @@
 {
-  "name": "@map-colonies/auth-bundler",
+  "name": "auth-cron",
   "version": "0.0.0",
-  "description": "Server for creating and uploading Open Policy Agent bundles",
+  "description": "Server for generating and uploading Open Policy Agent bundles",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
@@ -32,15 +32,14 @@
   },
   "dependencies": {
     "@map-colonies/auth-core": "0.0.0",
+    "@map-colonies/auth-bundler": "0.0.0",
     "@map-colonies/js-logger": "^0.0.5",
     "@map-colonies/read-pkg": "0.0.1",
     "@map-colonies/telemetry": "4.1.0",
     "@opentelemetry/api": "1.1.0",
     "@opentelemetry/api-metrics": "0.23.0",
-    "@opentelemetry/instrumentation-express": "0.29.0",
-    "@opentelemetry/instrumentation-http": "0.29.0",
-    "execa": "^7.1.1",
-    "handlebars": "4.7.7",
+    "@aws-sdk/client-s3": "3.317.0",
+    "croner": "6.0.3",
     "pg": "^8.10.0",
     "typeorm": "^0.3.12"
   },
