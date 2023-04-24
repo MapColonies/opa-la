@@ -1,7 +1,7 @@
 {
-  "name": "@map-colonies/auth-bundler",
+  "name": "auth-cron",
   "version": "0.0.0",
-  "description": "Server for creating and uploading Open Policy Agent bundles",
+  "description": "Server for generating and uploading Open Policy Agent bundles",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
@@ -20,8 +20,8 @@
     "migration:run": "npm run typeorm migration:run -- ",
     "migration:revert": "npm run typeorm migration:revert -- ",
     "typeorm": "node --require ts-node/register ../../node_modules/typeorm/cli.js -d ./dataSource.ts",
+    "test": "npm run test:unit && npm run test:integration",
     "prebuild": "npm run clean",
-    "test": "jest --config=./tests/configurations/jest.config.js",
     "build": "tsc --project tsconfig.build.json && npm run assets:copy",
     "start": "npm run build && cd dist && node --enable-source-maps ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
@@ -32,8 +32,14 @@
   },
   "dependencies": {
     "@map-colonies/auth-core": "0.0.0",
-    "execa": "^7.1.1",
-    "handlebars": "4.7.7",
+    "@map-colonies/auth-bundler": "0.0.0",
+    "@map-colonies/js-logger": "^0.0.5",
+    "@map-colonies/read-pkg": "0.0.1",
+    "@map-colonies/telemetry": "4.1.0",
+    "@opentelemetry/api": "1.1.0",
+    "@opentelemetry/api-metrics": "0.23.0",
+    "@aws-sdk/client-s3": "3.317.0",
+    "croner": "6.0.3",
     "pg": "^8.10.0",
     "typeorm": "^0.3.12"
   },
@@ -48,8 +54,5 @@
     "rimraf": "^4.4.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
-  },
-  "peerDependencies": {
-    "@map-colonies/js-logger": "^1.0.1"
   }
 }
