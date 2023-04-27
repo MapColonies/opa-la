@@ -2,13 +2,24 @@ import { DataSource, Repository } from 'typeorm';
 import { Asset, Bundle, Connection, Environment, Key } from '@map-colonies/auth-core';
 import { BundleContent, BundleContentVersions } from './types';
 import { extractNameAndVersion } from './util';
+import { logger } from './logger';
 
+/**
+ * This class handles all the database interactions required to creating a bundle.
+ */
 export class BundleDatabase {
   private readonly assetRepository: Repository<Asset>;
   private readonly keyRepository: Repository<Key>;
   private readonly connectionRepository: Repository<Connection>;
   private readonly bundleRepository: Repository<Bundle>;
 
+  /**
+   * Initializes the class for communication with the database.
+   * The dataSource should point to a database initalized with the model defined in the auth-core package.
+   * @param dataSource The typeorm dataSource to use in the class
+   * @see {@link https://typeorm.io/data-source}
+   * @throws if the dataSource is not initialized
+   */
   public constructor(private readonly dataSource: DataSource) {
     if (!dataSource.isInitialized) {
       throw new Error('DB connection it not initialized');
@@ -19,7 +30,13 @@ export class BundleDatabase {
     this.bundleRepository = dataSource.getRepository(Bundle);
   }
 
+  /**
+   * Retrieves all the latest assets, connections and key versions based on requested environment
+   * @param env The environment for which to retrieve the versions
+   * @returns An object describing all the latest versions
+   */
   public async getLatestVersions(env: Environment): Promise<BundleContentVersions> {
+    logger?.debug('fetching latest versions from the db');
     return {
       environment: env,
       assets: await this.getAssetsVersions(env),
@@ -28,7 +45,14 @@ export class BundleDatabase {
     };
   }
 
-  public async saveBundle(versions: BundleContentVersions, hash:string): Promise<number> {
+  /**
+   * Saved the metadata of the bundle into the database
+   * @param versions The versions of the bundle content
+   * @param hash The md5 hash of the created bundle tarball
+   * @returns The ID of the created bundle
+   */
+  public async saveBundle(versions: BundleContentVersions, hash: string): Promise<number> {
+    logger?.debug('saving bundle to db');
     const bundle: Omit<Bundle, 'id'> = {
       environment: versions.environment,
       assets: versions.assets,
@@ -41,7 +65,14 @@ export class BundleDatabase {
     return res.id;
   }
 
+  /**
+   * Retrieves the values of the assets, connections and key based on the supplied versions
+   * @param versions The requested versions to be retrieved
+   * @returns All the values based on the supplied versions
+   */
   public async getBundleFromVersions(versions: BundleContentVersions): Promise<BundleContent> {
+    logger?.debug('fetching bundle from the db');
+
     const assets = this.dataSource
       .getRepository(Asset)
       .createQueryBuilder()

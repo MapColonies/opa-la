@@ -1,10 +1,4 @@
 {
-  "telemetry": {
-    "logger": {
-      "level": "info",
-      "prettyPrint": false
-    }
-  },
   "db": {
     "host": "localhost",
     "port": 5432,

@@ -1,4 +1,9 @@
 /* eslint-disable */
+/**
+ * This file exists to enable importing execa into cjs project, as execa only supports module.
+ * @module
+ * @ignore
+ */
 let _execa;
 
 async function execa(file, args, options) {
