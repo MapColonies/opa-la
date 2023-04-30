@@ -1,6 +1,9 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 import { Environment, IConnection } from '../../model';
 
+/**
+ * The typeorm implementation of the IConnection interface.
+ */
 @Entity()
 export class Connection implements IConnection {
   @PrimaryColumn()

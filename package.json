@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
+    "typedoc":"0.24.6",
     "@commitlint/config-conventional": "^17.4.4",
     "@commitlint/config-lerna-scopes": "^17.4.2",
     "@map-colonies/eslint-config": "^3.1.3",

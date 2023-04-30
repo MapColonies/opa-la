@@ -1,6 +1,9 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 import { AssetType, Environment, IAsset } from '../../model';
 
+/**
+ * The typeorm implementation of the IAsset interface.
+ */
 @Entity()
 export class Asset implements IAsset {
   @PrimaryColumn()

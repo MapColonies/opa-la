@@ -1,6 +1,9 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { IClient, PointOfContact } from '../../model';
 
+/**
+ * The typeorm implementation of the IClient interface.
+ */
 @Entity()
 export class Client implements IClient {
   @PrimaryColumn({ name: 'name', type: 'text', unique: true })
