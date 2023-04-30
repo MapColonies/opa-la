@@ -10,6 +10,7 @@ import { Asset, AssetType, Key } from '@map-colonies/auth-core';
 import { render } from './templating';
 import { BundleContent } from './types';
 import { logger } from './logger';
+import { MissingPolicyFilesError } from './errors';
 
 const ENCODING = 'utf-8';
 
@@ -66,6 +67,7 @@ async function handleAsset(basePath: string, asset: Asset, context: unknown): Pr
  * This function handles creating the directory structure of a bundle, and saving all the files into it.
  * @param bundle The content from which to create the bundle directory.
  * @param path The root directory in which to create the bundle.
+ * @throws {@link MissingPolicyFilesError} When there are no policy files.
  * @ignore
  */
 export async function createBundleDirectoryStructure(bundle: BundleContent, path: string): Promise<void> {
@@ -86,7 +88,7 @@ export async function createBundleDirectoryStructure(bundle: BundleContent, path
 
   if (!hasAssetType.POLICY) {
     logger?.error('bundle missing policy files');
-    throw new Error('bundle missing policy files');
+    throw new MissingPolicyFilesError('bundle missing policy files');
   }
 
   if (!hasAssetType.DATA) {

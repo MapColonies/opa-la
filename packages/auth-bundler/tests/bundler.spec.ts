@@ -8,6 +8,7 @@ import { Environment } from '@map-colonies/auth-core';
 import { createBundleDirectoryStructure } from '../src/bundler';
 import { setLogger } from '../src/logger';
 import { BundleContent } from '../src/types';
+import { MissingPolicyFilesError } from '../src/errors';
 import { getFakeBundleContent } from './utils/bundle';
 
 const bundleContent = getFakeBundleContent();
@@ -39,12 +40,16 @@ describe('bundler.ts', function () {
 
       const promise = createBundleDirectoryStructure(content, baseFolder);
 
-      await expect(promise).rejects.toThrow();
+      await expect(promise).rejects.toThrow(MissingPolicyFilesError);
     });
 
     it('should log errors if there are no data, tests and key', async function () {
-      const logger = jsLogger({ enabled: false });
+      const logger = jsLogger({
+        enabled: false,
+      });
+
       const warn = jest.spyOn(logger, 'warn');
+      jest.spyOn(logger, 'child').mockReturnValue(logger);
 
       setLogger(logger);
 

@@ -3,7 +3,14 @@
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { mkdir } from 'node:fs/promises';
-import { createBundle } from '../src/index';
+import {
+  OpaBundleCreationError,
+  OpaCoverageTooLowError,
+  OpaNotFoundError,
+  OpaTestsFailedError,
+  WorkdirNotFoundError,
+  createBundle,
+} from '../src/index';
 import * as opa from '../src/opa';
 import { getFakeBundleContent } from './utils/bundle';
 
@@ -32,14 +39,14 @@ describe('index.ts', function () {
     it('should throw an error if the workdir given does not exist', async function () {
       const promise = createBundle(bundleContent, '/avi', 'bundle.tar.gz');
 
-      await expect(promise).rejects.toThrow();
+      await expect(promise).rejects.toThrow(WorkdirNotFoundError);
     });
 
     it('should throw an error if the opa binary is missing', async function () {
       jest.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(false);
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz');
 
-      await expect(promise).rejects.toThrow('OPA cli is missing from path');
+      await expect(promise).rejects.toThrow(OpaNotFoundError);
     });
 
     it('should throw an error if the tests failed', async function () {
@@ -49,7 +56,7 @@ describe('index.ts', function () {
 
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: true });
 
-      await expect(promise).rejects.toThrow(JSON.stringify(err));
+      await expect(promise).rejects.toThrow(OpaTestsFailedError);
     });
 
     it('should throw an error if the coverage is below the threshold', async function () {
@@ -59,7 +66,7 @@ describe('index.ts', function () {
 
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: true, coverage: 80 });
 
-      await expect(promise).rejects.toThrow(`tests coverage was: 60`);
+      await expect(promise).rejects.toThrow(OpaCoverageTooLowError);
     });
 
     it('should throw an error if the bundle creation failed', async function () {
@@ -69,7 +76,7 @@ describe('index.ts', function () {
 
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: false });
 
-      await expect(promise).rejects.toThrow(err);
+      await expect(promise).rejects.toThrow(OpaBundleCreationError);
     });
   });
 });

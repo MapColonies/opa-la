@@ -4,6 +4,7 @@ import config from 'config';
 import { Asset, Connection, DbConfig, Environment, Key, createConnectionOptions } from '@map-colonies/auth-core';
 import { DataSource } from 'typeorm';
 import { BundleDatabase } from '../src/db';
+import { ConnectionNotInitializedError } from '../src';
 import { getMockKeys } from './utils/key';
 import { getFakeAsset } from './utils/asset';
 import { getFakeConnection } from './utils/connection';
@@ -50,7 +51,7 @@ describe('db.ts', function () {
 
       expect(() => {
         new BundleDatabase(dataSource);
-      }).toThrow();
+      }).toThrow(ConnectionNotInitializedError);
     });
   });
 

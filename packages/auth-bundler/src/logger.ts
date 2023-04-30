@@ -16,15 +16,5 @@ export let logger: Logger | undefined;
  */
 export function setLogger(externalLogger: Logger): void {
   // consider creating child logger?
-  logger = externalLogger;
-}
-
-/**
- * A function to disable the logger in the package.
- * @group logger
- * @see {@link https://github.com/MapColonies/js-logger }
- * @see {@link https://github.com/pinojs/pino }
- */
-export function unsetLogger(): void {
-  logger = undefined;
+  logger = externalLogger.child({ package: 'auth-bundler' });
 }

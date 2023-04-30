@@ -1,6 +1,5 @@
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { ExecaReturnValue } from 'execa';
 import * as execa from '../src/wrappers/execa';

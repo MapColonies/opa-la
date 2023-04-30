@@ -1,25 +1,25 @@
 import { faker } from '@faker-js/faker';
 import { JWKPrivateKey, JWKPublicKey } from '@map-colonies/auth-core';
 
-const THREE = 3;
+const LENGTH_OF_STRING = 3;
 
 export function getMockKeys(): [JWKPrivateKey, JWKPublicKey] {
   const publicKey: JWKPublicKey = {
-    alg: faker.datatype.string(THREE),
-    e: faker.datatype.string(THREE),
-    kid: faker.datatype.string(THREE),
-    kty: faker.datatype.string(THREE),
-    n: faker.datatype.string(THREE),
+    alg: faker.datatype.string(LENGTH_OF_STRING),
+    e: faker.datatype.string(LENGTH_OF_STRING),
+    kid: faker.datatype.string(LENGTH_OF_STRING),
+    kty: faker.datatype.string(LENGTH_OF_STRING),
+    n: faker.datatype.string(LENGTH_OF_STRING),
   };
   return [
     {
       ...publicKey,
-      d: faker.datatype.string(THREE),
-      dp: faker.datatype.string(THREE),
-      dq: faker.datatype.string(THREE),
-      p: faker.datatype.string(THREE),
-      q: faker.datatype.string(THREE),
-      qi: faker.datatype.string(THREE),
+      d: faker.datatype.string(LENGTH_OF_STRING),
+      dp: faker.datatype.string(LENGTH_OF_STRING),
+      dq: faker.datatype.string(LENGTH_OF_STRING),
+      p: faker.datatype.string(LENGTH_OF_STRING),
+      q: faker.datatype.string(LENGTH_OF_STRING),
+      qi: faker.datatype.string(LENGTH_OF_STRING),
     },
     publicKey,
   ];

@@ -12,8 +12,10 @@ import { createBundleCommand, testCommand, validateBinaryExistCommand, testCover
 import { createBundleDirectoryStructure } from './bundler';
 import { BundleContent, TestOptions } from './types';
 import { logger } from './logger';
+import { OpaBundleCreationError, OpaCoverageTooLowError, OpaNotFoundError, OpaTestsFailedError, WorkdirNotFoundError } from './errors';
 
-export { setLogger, unsetLogger } from './logger';
+export * from './errors';
+export { setLogger } from './logger';
 export { BundleDatabase } from './db';
 export * from './types';
 
@@ -23,17 +25,23 @@ export * from './types';
  * @param workDir The place where the bundle will be created
  * @param bundlePath The relative path compared to workDir
  * @param tests Controls whether to run tests and/or coverage
+ * @throws {@link WorkdirNotFoundError} If the workDir doesn't exist.
+ * @throws {@link OpaNotFoundError} If the OPA binary wasn't detected in the OS path.
+ * @throws {@link OpaTestsFailedError} If the OPA tests failed.
+ * @throws {@link OpaCoverageTooLowError} If the OPA tests coverage was below the threshold.
+ * @throws {@link OpaBundleCreationError} If the OPA bundle creation process failed.
+
  */
 export async function createBundle(content: BundleContent, workDir: string, bundlePath: string, tests?: TestOptions): Promise<void> {
   logger?.info({ msg: 'creating bundle', workDir, bundlePath });
   if (!existsSync(workDir)) {
     logger?.debug('workdir does not exists');
-    throw new Error('The workdir given does not exists');
+    throw new WorkdirNotFoundError('The workdir given does not exists');
   }
 
   if (!(await validateBinaryExistCommand())) {
     logger?.debug('opa is missing');
-    throw new Error('OPA cli is missing from path');
+    throw new OpaNotFoundError('OPA cli is missing from path');
   }
 
   await createBundleDirectoryStructure(content, workDir);
@@ -42,7 +50,7 @@ export async function createBundle(content: BundleContent, workDir: string, bund
     logger?.debug('tests are enabled');
     const [testCompleted, testErr] = await testCommand(workDir);
     if (!testCompleted) {
-      throw new Error(JSON.stringify(testErr));
+      throw new OpaTestsFailedError(JSON.stringify(testErr));
     }
 
     if (tests.coverage !== undefined) {
@@ -52,7 +60,7 @@ export async function createBundle(content: BundleContent, workDir: string, bund
       if (coverage < tests.coverage) {
         logger?.debug('test coverage is below threshold');
 
-        throw new Error(`tests coverage was: ${coverage}`);
+        throw new OpaCoverageTooLowError(`tests coverage was: ${coverage}`);
       }
     }
   }
@@ -62,7 +70,7 @@ export async function createBundle(content: BundleContent, workDir: string, bund
   if (!creationCompleted) {
     logger?.debug('failed creating bundle');
 
-    throw new Error(creationErr);
+    throw new OpaBundleCreationError(creationErr);
   }
 
   logger?.debug('bundle created successfully');

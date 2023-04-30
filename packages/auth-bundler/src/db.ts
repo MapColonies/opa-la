@@ -3,6 +3,7 @@ import { Asset, Bundle, Connection, Environment, Key } from '@map-colonies/auth-
 import { BundleContent, BundleContentVersions } from './types';
 import { extractNameAndVersion } from './util';
 import { logger } from './logger';
+import { ConnectionNotInitializedError, KeyNotFoundError } from './errors';
 
 /**
  * This class handles all the database interactions required to creating a bundle.
@@ -15,14 +16,14 @@ export class BundleDatabase {
 
   /**
    * Initializes the class for communication with the database.
-   * The dataSource should point to a database initalized with the model defined in the auth-core package.
+   * The dataSource should point to a database initialized with the model defined in the auth-core package.
    * @param dataSource The typeorm dataSource to use in the class
    * @see {@link https://typeorm.io/data-source}
-   * @throws if the dataSource is not initialized
+   * @throws {@link ConnectionNotInitializedError} If the dataSource is not initialized.
    */
   public constructor(private readonly dataSource: DataSource) {
     if (!dataSource.isInitialized) {
-      throw new Error('DB connection it not initialized');
+      throw new ConnectionNotInitializedError('DB connection it not initialized');
     }
     this.assetRepository = dataSource.getRepository(Asset);
     this.keyRepository = dataSource.getRepository(Key);
@@ -98,22 +99,15 @@ export class BundleDatabase {
   }
 
   private async getAssetsVersions(environment: string): Promise<{ name: string; version: number }[]> {
-    const subQuery = this.assetRepository
-      .createQueryBuilder('asset')
-      .select(['name', 'MAX(version)'])
-      // .where(':environment = ANY (environment)', { environment })
-      .groupBy('name');
+    const subQuery = this.assetRepository.createQueryBuilder('asset').select(['name', 'MAX(version)']).groupBy('name');
 
-    return (
-      this.assetRepository
-        .createQueryBuilder('asset')
-        .select(['name', 'version'])
-        .where(':environment = ANY (environment)', { environment })
-        .andWhere('(name, version) IN (' + subQuery.getQuery() + ')')
-        .orderBy('name')
-        // .setParameters(subQuery.getParameters())
-        .getRawMany<{ name: string; version: number }>()
-    );
+    return this.assetRepository
+      .createQueryBuilder('asset')
+      .select(['name', 'version'])
+      .where(':environment = ANY (environment)', { environment })
+      .andWhere('(name, version) IN (' + subQuery.getQuery() + ')')
+      .orderBy('name')
+      .getRawMany<{ name: string; version: number }>();
   }
 
   private async getLatestKeyVersion(environment: string): Promise<number | null> {
@@ -124,7 +118,7 @@ export class BundleDatabase {
       .getRawOne<{ version: number | null }>();
 
     if (res === undefined) {
-      throw new Error();
+      throw new KeyNotFoundError(`couldn't not find a key for environment: ${environment}`);
     }
 
     return res.version;
