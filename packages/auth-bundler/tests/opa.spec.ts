@@ -17,7 +17,7 @@ jest.mock('../src/wrappers/execa', () => {
 
 const baseFolder = path.join(tmpdir(), 'authbundlertests', 'opa');
 
-describe.skip('opa.ts', function () {
+describe('opa.ts', function () {
   beforeAll(async function () {
     await mkdir(baseFolder, { recursive: true });
     await writeFile(
@@ -64,6 +64,7 @@ describe.skip('opa.ts', function () {
 
   describe('#validateBinaryExistCommand', function () {
     it('should return true if the binary exists', async function () {
+      jest.spyOn(execa, 'execa').mockResolvedValue({ failed: false } as ExecaReturnValue);
       const res = await validateBinaryExistCommand();
 
       expect(res).toBe(true);
@@ -79,6 +80,7 @@ describe.skip('opa.ts', function () {
 
   describe('#checkFilesCommand', function () {
     it('should return true if the files are ok', async function () {
+      jest.spyOn(execa, 'execa').mockResolvedValue({ failed: false } as ExecaReturnValue);
       const [res] = await checkFilesCommand(baseFolder);
 
       expect(res).toBe(true);
@@ -96,6 +98,7 @@ describe.skip('opa.ts', function () {
 
   describe('#testCommand', function () {
     it('should return true if all the tests pass', async function () {
+      jest.spyOn(execa, 'execa').mockResolvedValue({ failed: false } as ExecaReturnValue);
       const [res] = await testCommand(baseFolder);
 
       expect(res).toBe(true);
@@ -113,6 +116,7 @@ describe.skip('opa.ts', function () {
 
   describe('#testCoverageCommand', function () {
     it('should return a number for the test coverage', async function () {
+      jest.spyOn(execa, 'execa').mockResolvedValue({ stdout: '{"coverage": 58}' } as ExecaReturnValue);
       const res = await testCoverageCommand(baseFolder);
 
       expect(typeof res).toBe('number');
@@ -121,10 +125,10 @@ describe.skip('opa.ts', function () {
 
   describe('#createBundleCommand', function () {
     it('should return true if the bundle was created', async function () {
+      jest.spyOn(execa, 'execa').mockResolvedValue({ failed: false } as ExecaReturnValue);
       const [res] = await createBundleCommand(baseFolder, 'bundle.tar.gz');
 
       expect(res).toBe(true);
-      expect(existsSync(path.join(baseFolder, 'bundle.tar.gz'))).toBe(true);
     });
 
     it('should return false if the create bundle command failed', async function () {

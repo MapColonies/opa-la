@@ -17,6 +17,13 @@ export { setLogger, unsetLogger } from './logger';
 export { BundleDatabase } from './db';
 export * from './types';
 
+/**
+ * This function creates an opa bundle tarball from the given content
+ * @param content The data from which to create the bundle
+ * @param workDir The place where the bundle will be created
+ * @param bundlePath The relative path compared to workDir
+ * @param tests Controls whether to run tests and/or coverage
+ */
 export async function createBundle(content: BundleContent, workDir: string, bundlePath: string, tests?: TestOptions): Promise<void> {
   logger?.info({ msg: 'creating bundle', workDir, bundlePath });
   if (!existsSync(workDir)) {
