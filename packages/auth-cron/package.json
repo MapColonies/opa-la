@@ -39,12 +39,15 @@
     "@map-colonies/telemetry": "4.1.0",
     "@opentelemetry/api": "1.1.0",
     "@opentelemetry/api-metrics": "0.23.0",
+    "http-status-codes": "^2.2.0",
+    "ajv": "^8.12.0",
+    "better-ajv-errors": "^1.2.0",
     "croner": "6.0.3",
-    "nanoid": "^4.0.2",
     "pg": "^8.10.0",
     "typeorm": "^0.3.12"
   },
   "devDependencies": {
+    "@adobe/jsonschema2md": "^7.1.5",
     "@faker-js/faker": "^7.6.0",
     "@types/config": "^3.3.0",
     "@types/jest": "^29.4.0",
