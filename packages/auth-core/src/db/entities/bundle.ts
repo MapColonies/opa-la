@@ -1,6 +1,9 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 import { Environment, IBundle } from '../../model';
 
+/**
+ * The typeorm implementation of the IBundle interface.
+ */
 @Entity()
 export class Bundle implements IBundle {
   @PrimaryColumn({ generated: 'identity', generatedIdentity: 'ALWAYS', insert: false })

@@ -1,0 +1,6 @@
+{
+  "entryPoints": ["packages/auth-core"],
+  "name": "MapColonies Authentication",
+  "entryPointStrategy": "packages",
+  "includeVersion": true
+}

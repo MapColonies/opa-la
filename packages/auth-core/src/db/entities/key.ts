@@ -1,6 +1,9 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { Environment, IKey, JWKPrivateKey, JWKPublicKey } from '../../model';
 
+/**
+ * The typeorm implementation of the IKey interface.
+ */
 @Entity()
 export class Key implements IKey {
   @PrimaryColumn({ type: 'enum', enum: Environment, unique: true, enumName: 'environment_enum' })

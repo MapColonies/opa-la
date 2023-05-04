@@ -2,6 +2,9 @@
 import { readdirSync } from 'fs';
 import path from 'path';
 
+/**
+ * A chronological sorted list of all the database migrations to create the latest authentication schema.
+ */
 export const migrations: Function[] = readdirSync(__dirname)
   .filter((file) => /^\d[\da-zA-Z-]+\.(js|ts)$/.test(file))
   .sort()
