@@ -24,6 +24,7 @@ export const createConnectionOptions = (dbConfig: DbConfig): DataSourceOptions =
     migrations,
     migrationsTableName: 'custom_migration_table',
     ...dataSourceOptions,
+    type: 'postgres',
   };
 };
 
