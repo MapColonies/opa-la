@@ -5,6 +5,7 @@
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
+  "private": "true",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
