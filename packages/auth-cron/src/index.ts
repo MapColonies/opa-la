@@ -1,78 +1,57 @@
 import path from 'node:path';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { DbConfig, createConnectionOptions, Bundle, Environment } from '@map-colonies/auth-core';
-import { createBundle, BundleDatabase } from '@map-colonies/auth-bundler';
+import { DbConfig, Bundle, Environment, initConnection } from '@map-colonies/auth-core';
+import { BundleDatabase } from '@map-colonies/auth-bundler';
 import config from 'config';
 import { CatchCallbackFn, Cron } from 'croner';
-import { DataSource } from 'typeorm';
-import { compareVersionsToBundle } from './util';
-import { getObjectHash, uploadFile } from './s3';
+import { Repository } from 'typeorm';
+import { getJob } from './job';
+import { AppConfig, CronConfig } from './config';
+import { emptyDir } from './util';
+import { validateConfigSchema } from './validators';
 import { validateS3 } from './validators';
+import { logger } from './logger';
 
-const bucket = 'opa';
-const objectKey = 'bundle.tar.gz';
+const cronConfig = config.get<AppConfig['cron']>('cron') as Record<Environment, CronConfig>;
 
-const connectionOptions = config.get<DbConfig>('db');
+async function initDb(): Promise<[BundleDatabase, Repository<Bundle>]> {
+  logger.debug('initializing database connection');
+  const dataSource = await initConnection(config.get<DbConfig>('db'));
+  await dataSource.initialize();
+  return [new BundleDatabase(dataSource), dataSource.getRepository(Bundle)];
+}
 
+async function runStartupValidators(): Promise<void> {
+  logger.debug('running startup validations');
+  validateConfigSchema(config.util.toObject(undefined) as AppConfig);
 
-const dataSource = new DataSource({
-  ...createConnectionOptions(connectionOptions),
-});
+  await validateS3(Object.keys(cronConfig) as Environment[]);
+}
 
 const errorHandler: CatchCallbackFn = (err, job) => {
-  console.error(`failed executing job ${job.name ?? ''}`);
-  console.error(err);
+  logger.error({ msg: 'failed running job', err, bundleEnv: job.name });
 };
 
 const main = async (): Promise<void> => {
-  await dataSource.initialize();
-  const bundleDatabase = new BundleDatabase(dataSource);
-  const bundleRepository = dataSource.getRepository(Bundle);
+  await runStartupValidators();
+  const [bundleDatabase, bundleRepository] = await initDb();
 
-  const jobs = Cron('*/5 * * * * *', { unref: true, protect: true, catch: errorHandler, name: 'np-job' }, async () => {
-  //   console.log('starting new check');
-  //   const latestBundle = await dataSource.getRepository(Bundle).findOne({ where: { environment }, order: { id: 'DESC' } });
-  //   const latestVersions = await db.getLatestVersions(environment);
+  Object.entries(cronConfig).map(([env, value]) => {
+    logger.info({ msg: 'initializing new update bundle job', bundleEnv: env });
 
-  //   let shouldSaveBundleToDb = true;
+    const workdir = mkdtempSync(path.join(tmpdir(), `authbundler-${env}-`));
+    const job = getJob(bundleRepository, bundleDatabase, env as Environment, workdir);
 
-  //   if (latestBundle !== null && compareVersionsToBundle(latestBundle, latestVersions)) {
-  //     if (latestBundle.hash === (await getObjectHash(bucket, objectKey))) {
-  //       console.log('everything is up to date');
-  //       return;
-  //     }
-  //     shouldSaveBundleToDb = false;
-  //   }
-  //   console.log('creating new bundle');
+    return Cron(value.pattern, { unref: false, protect: true, catch: errorHandler, name: env }, async () => {
+      logger.info({ msg: 'running new update job', bundleEnv: env });
 
-  //   const bundleContent = await db.getBundleFromVersions(latestVersions);
-  //   const workdir = mkdtempSync(path.join(tmpdir(), 'authbundler-'));
-
-  //   await createBundle(bundleContent, workdir, 'bundle.tar.gz');
-
-  //   const hash = await uploadFile(bucket, objectKey,path.join(workdir, 'bundle.tar.gz'));
-  //   if (shouldSaveBundleToDb) {
-  //     const id = await db.saveBundle(latestVersions, hash);
-  //     console.log(id);
-  //   }
-  //   rmSync(workdir, { force: true, recursive: true });
+      await job();
+      await emptyDir(workdir);
+    });
   });
-
-  // job.nextRun();
-  // if (!dataInDbIsNewer()) {
-  //   if (storageHash != dbHash) {
-  //     recreateBundle()
-  //     uploadBundle()
-  //   } else {
-  //     doNothing()
-  //   }
-  // }
-
-  // getNewDataFromDb()
-  // createBundle()
-  // uploadBundle()
-  // registerBundle()
 };
 
-main().catch(console.error);
+main().catch(logger.error);
+
+// ADD LIVENESS

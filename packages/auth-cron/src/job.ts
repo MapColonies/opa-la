@@ -1,11 +1,10 @@
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
 import { Bundle, Environment } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import { getS3Client } from './s3';
 import { compareVersionsToBundle } from './util';
+import { logger } from './logger';
 
 export function getJob(
   bundleRepository: Repository<Bundle>,
@@ -14,7 +13,7 @@ export function getJob(
   workdir: string
 ): () => Promise<void> {
   return async () => {
-    console.log('starting new check');
+    logger.debug({ msg: 'fetching bundle information from the database', bundleEnv: environment });
     const latestBundle = await bundleRepository.findOne({ where: { environment }, order: { id: 'DESC' } });
     const latestVersions = await bundleDatabase.getLatestVersions(environment);
 
@@ -22,25 +21,25 @@ export function getJob(
 
     if (latestBundle !== null && compareVersionsToBundle(latestBundle, latestVersions)) {
       if (latestBundle.hash === (await getS3Client(environment).getObjectHash())) {
-        console.log('everything is up to date');
+        logger.info({ msg: 's3 bundle is up to date with the database', bundleEnv: environment });
         return;
       }
       shouldSaveBundleToDb = false;
     }
-    console.log('creating new bundle');
+
+    logger.debug({ msg: 'creating new bundle as ', bundleEnv: environment });
 
     const bundleContent = await bundleDatabase.getBundleFromVersions(latestVersions);
-    // const workdir = mkdtempSync(path.join(tmpdir(), 'authbundler-'));
 
     await createBundle(bundleContent, workdir, 'bundle.tar.gz');
 
     const hash = await getS3Client(environment).uploadFile(path.join(workdir, 'bundle.tar.gz'));
 
     if (shouldSaveBundleToDb) {
-      const id = await bundleDatabase.saveBundle(latestVersions, hash);
-      console.log(id);
+      logger.debug({ msg: 'saving bundle metadata to the database', bundleEnv: environment });
+      await bundleDatabase.saveBundle(latestVersions, hash);
     }
 
-    // rmSync(workdir, { force: true, recursive: true });
+    logger.info({ msg: 'created new bundle successfully', bundleEnv: environment });
   };
 }

@@ -5,13 +5,9 @@ interface TelemetryConfig {
   logger: { level: 'debug' | 'info' | 'warn' | 'error'; prettyPrint: boolean };
 }
 
-
 const cronSchema: JSONSchemaType<CronConfig> = {
   type: 'object',
   properties: {
-    enabled: {
-      type: 'boolean',
-    },
     pattern: {
       type: 'string',
     },
@@ -37,12 +33,11 @@ const cronSchema: JSONSchemaType<CronConfig> = {
       required: ['accessKey', 'secretKey', 'bucket', 'key', 'endpoint'],
     },
   },
-  required: ['pattern'],
+  required: ['pattern', 's3'],
 };
 
 export interface CronConfig {
   s3: S3Config;
-  enabled: boolean;
   pattern: string;
 }
 
@@ -107,7 +102,7 @@ export const configSchema: JSONSchemaType<AppConfig> = {
         },
       },
       then: {
-        properties: { sslPaths: { nullable: false } },
+        // properties: { sslPaths: { nullable: false } },
         required: ['database', 'enableSslAuth', 'host', 'password', 'port', 'schema', 'username', 'sslPaths'],
       },
     },

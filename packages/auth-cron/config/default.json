@@ -19,22 +19,5 @@
     "database": "auth-manager",
     "schema": "auth_manager"
   },
-  "cron": {
-    "np": {
-      "enabled": "true",
-      "pattern": "*/5 * * * * *",
-      "s3": {
-        "accessKey":"",
-        "secretKey":"",
-        "bucket":"",
-        "key":""
-      }
-    },
-    "stage": {
-
-    },
-    "prod": {
-
-    }
-  }
+  "cron": {}
 }
