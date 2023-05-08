@@ -1,0 +1,86 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "auth-manager.name" . -}}
+{{- $cloudProviderFlavor := include "auth-manager.cloudProviderFlavor" . -}}
+{{- $cloudProviderDockerRegistryUrl := include "auth-manager.cloudProviderDockerRegistryUrl" . -}}
+{{- $cloudProviderImagePullSecretName := include "auth-manager.cloudProviderImagePullSecretName" . -}}
+{{- $imageTag := include "auth-manager.tag" . -}}
+{{- if .Values.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $releaseName }}-{{ $chartName }}
+  labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    environment: {{ include "auth-manager.environment" . }}
+    release: {{ $releaseName }}
+    {{- include "auth-manager.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $chartName }}
+      release: {{ $releaseName }}
+      run: {{ $releaseName }}-{{ $chartName }}
+      {{- include "auth-manager.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ $chartName }}
+        release: {{ $releaseName }}
+        run: {{ $releaseName }}-{{ $chartName }}
+        {{- include "auth-manager.selectorLabels" . | nindent 8 }}
+      {{- if .Values.resetOnConfigChange }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- end }}
+    spec:
+    {{- if $cloudProviderImagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ $cloudProviderImagePullSecretName | quote }}
+    {{- end }}
+      containers:
+        - name: {{ $releaseName }}-{{ $chartName }}-deployment
+          {{- with .Values.image }}
+          image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $imageTag }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.caSecretName }}
+            - mountPath: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+              name: root-ca
+              subPath: {{ quote .Values.caKey }}
+            {{- end }}
+          env:
+            - name: SERVER_PORT
+              value: {{ .Values.env.targetPort | quote }}
+            {{- if .Values.caSecretName }}
+            - name: REQUESTS_CA_BUNDLE
+              value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+            - name: NODE_EXTRA_CA_CERTS
+              value: {{ printf "[%s/%s]" .Values.caPath .Values.caKey | quote }}
+            {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ $releaseName }}-{{ $chartName }}-configmap
+            - secretRef:
+                name: {{ $releaseName }}-{{ $chartName }}-secret
+          ports:
+            - name: http
+              containerPort: {{ .Values.env.targetPort }}
+              protocol: {{ .Values.env.protocol }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            httpGet:
+              path: /liveness
+              port: {{ .Values.env.targetPort }}
+          {{- if .Values.resources.enabled }}
+          resources:
+            {{- toYaml .Values.resources.value | nindent 12 }}
+          {{- end }}
+      volumes:
+        {{- if .Values.caSecretName }}
+        - name: root-ca
+          secret:
+            secretName: {{ .Values.caSecretName }}
+        {{- end }}
+{{- end -}}
