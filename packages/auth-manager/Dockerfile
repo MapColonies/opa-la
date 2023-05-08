@@ -15,6 +15,8 @@ RUN node scripts/docker-build.mjs -n ${package} -d /tmp/buildRes
 
 FROM node:18-alpine3.16 as production
 
+ARG package=auth-manager
+
 RUN apk add dumb-init
 
 ENV NODE_ENV=production
