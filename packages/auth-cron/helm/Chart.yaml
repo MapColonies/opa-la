@@ -1,0 +1,6 @@
+apiVersion: v2
+name: auth-cron
+description: A Helm chart for auth-cron service
+type: application
+version: 0.0.0
+appVersion: 0.0.0

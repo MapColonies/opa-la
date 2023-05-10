@@ -46,7 +46,8 @@
     "better-ajv-errors": "^1.2.0",
     "croner": "6.0.3",
     "pg": "^8.10.0",
-    "typeorm": "^0.3.12"
+    "typeorm": "^0.3.12",
+    "config": "3.3.9"
   },
   "devDependencies": {
     "@adobe/jsonschema2md": "^7.1.5",
