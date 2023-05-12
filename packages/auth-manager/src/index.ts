@@ -25,5 +25,5 @@ void getApp()
   })
   .catch((error: Error) => {
     console.error('😢 - failed initializing the server');
-    console.error(error.message);
+    console.error(error);
   });

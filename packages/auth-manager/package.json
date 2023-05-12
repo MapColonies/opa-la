@@ -30,7 +30,7 @@
     "build": "tsc --project tsconfig.build.json && npm run assets:copy",
     "build:docker": "cross-env DOCKER_BUILDKIT=1 docker build -f Dockerfile -t auth-manager ../.. ",
     "start": "npm run build && cd dist && node --enable-source-maps ./index.js",
-    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
+    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist && copyfiles -f ./src/ui/wrappers/* ./dist/ui/wrappers",
     "clean": "rimraf dist"
   },
   "bugs": {
@@ -57,7 +57,11 @@
     "pg": "^8.10.0",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.7.0",
-    "typeorm": "^0.3.12"
+    "typeorm": "^0.3.12",
+    "adminjs": "7.0.1",
+    "@adminjs/express": "6.0.0",
+    "@adminjs/sql": "2.0.1"
+
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",

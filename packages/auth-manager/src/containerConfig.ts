@@ -23,6 +23,8 @@ import { connectionRepositoryFactory } from './connection/DAL/connectionReposito
 import { connectionRouterFactory, CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
 import { domainRepositoryFactory } from './domain/DAL/domainRepository';
 import { bundleRouterFactory, BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
+import { uiRouterFactory, UI_ROUTER_SYMBOL } from './ui/uiRouter';
+import { initUi } from './ui';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
@@ -50,6 +52,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   tracing.start();
   const tracer = trace.getTracer(SERVICE_NAME);
+
+  const admin = await initUi();
 
   const dependencies: InjectionObject<unknown>[] = [
     { token: SERVICES.CONFIG, provider: { useValue: config } },
@@ -97,6 +101,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       },
     },
     { token: BUNDLE_ROUTER_SYMBOL, provider: { useFactory: bundleRouterFactory } },
+    { token: 'AdminJS', provider: { useValue: admin } },
+    { token: UI_ROUTER_SYMBOL, provider: { useFactory: uiRouterFactory } },
     {
       token: 'onSignal',
       provider: {

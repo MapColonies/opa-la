@@ -15,7 +15,7 @@ export const domainRepositoryFactory: FactoryFunction<DomainRepository> = (conta
       // I wrote raw sql because typeorm doesn't think that using a function in FROM is a real thing and treats it like a table name
       const res = (await this.manager.query(
         `
-        SELECT i.name FROM unnest($1::text[]) i(name) LEFT JOIN auth_manager.domain d ON i.name = d.name WHERE d.name is NULL`,
+        SELECT i.name FROM unnest($1::text[]) i(name) LEFT JOIN public.domain d ON i.name = d.name WHERE d.name is NULL`,
         [domainNames]
       )) as { name: string }[];
 

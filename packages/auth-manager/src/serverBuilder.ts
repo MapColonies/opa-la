@@ -16,6 +16,7 @@ import { KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';
 import { ASSET_ROUTER_SYMBOL } from './asset/routes/assetRouter';
 import { CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
 import { BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
+import { UI_ROUTER_SYMBOL } from './ui/uiRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -29,7 +30,8 @@ export class ServerBuilder {
     @inject(KEY_ROUTER_SYMBOL) private readonly keyRouter: Router,
     @inject(ASSET_ROUTER_SYMBOL) private readonly assetRouter: Router,
     @inject(CONNECTION_ROUTER_SYMBOL) private readonly connectionRouter: Router,
-    @inject(BUNDLE_ROUTER_SYMBOL) private readonly bundleRouter: Router
+    @inject(BUNDLE_ROUTER_SYMBOL) private readonly bundleRouter: Router,
+    @inject(UI_ROUTER_SYMBOL) private readonly uiRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -63,6 +65,7 @@ export class ServerBuilder {
 
   private registerPreRoutesMiddleware(): void {
     this.serverInstance.use('/metrics', defaultMetricsMiddleware());
+    this.serverInstance.use('/admin', this.uiRouter);
     this.serverInstance.use(httpLogger({ logger: this.logger, ignorePaths: ['/metrics'] }));
 
     if (this.config.get<boolean>('server.response.compression.enabled')) {

@@ -1,7 +1,7 @@
 {
   "db": {
     "host": "localhost",
-    "schema": "auth_manager",
+    "schema": "public",
     "username": "postgres",
     "password": "1234",
     "database": "postgres",

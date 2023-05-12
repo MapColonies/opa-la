@@ -11,6 +11,6 @@
       "cert": ""
     },
     "database": "auth-manager",
-    "schema": "auth_manager"
+    "schema": "public"
   }
 }
