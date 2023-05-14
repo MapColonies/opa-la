@@ -8,7 +8,6 @@ enabled: true
 environment: development
 replicaCount: 1
 initialDelaySeconds: 60
-nodePort: 30030 #for minikube deployment only
 resetOnConfigChange: true
 
 cloudProvider:
@@ -27,7 +26,6 @@ image:
 env:
   port: 8080
   targetPort: 8080
-  protocol: TCP
   logLevel: info
   logPrettyPrintEnabled: false
   responseCompressionEnabled: true

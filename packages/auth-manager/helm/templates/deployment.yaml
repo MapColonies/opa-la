@@ -1,6 +1,5 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "auth-manager.name" . -}}
-{{- $cloudProviderFlavor := include "auth-manager.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "auth-manager.cloudProviderDockerRegistryUrl" . -}}
 {{- $cloudProviderImagePullSecretName := include "auth-manager.cloudProviderImagePullSecretName" . -}}
 {{- $imageTag := include "auth-manager.tag" . -}}
@@ -67,7 +66,7 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.env.targetPort }}
-              protocol: {{ .Values.env.protocol }}
+              protocol: TCP
           livenessProbe:
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
             httpGet:
