@@ -71,8 +71,6 @@ const s3Clients = new Map<Environment, S3client>();
 const cronConfig = config.get<AppConfig['cron']>('cron');
 
 export function getS3Client(env: Environment): S3client {
-  console.log(env);
-
   let client = s3Clients.get(env);
   if (!client) {
     if (cronConfig[env] !== undefined) {

@@ -14,11 +14,9 @@ import { validateS3 } from './validators';
 import { logger } from './logger';
 
 const cronConfig = config.get<AppConfig['cron']>('cron') as Record<Environment, CronConfig>;
-
 async function initDb(): Promise<[BundleDatabase, Repository<Bundle>]> {
   logger.debug('initializing database connection');
   const dataSource = await initConnection(config.get<DbConfig>('db'));
-  await dataSource.initialize();
   return [new BundleDatabase(dataSource), dataSource.getRepository(Bundle)];
 }
 
@@ -52,6 +50,7 @@ const main = async (): Promise<void> => {
   });
 };
 
-main().catch(logger.error);
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+main().catch((err) => logger.error({ msg: 'program terminated with an error', err }));
 
 // ADD LIVENESS

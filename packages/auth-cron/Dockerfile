@@ -17,14 +17,14 @@ FROM node:18-alpine3.16 as production
 
 ARG package=auth-cron
 
-RUN apk add dumb-init
+RUN apk add dumb-init && \
+    wget -O /usr/bin/opa https://openpolicyagent.org/downloads/v0.52.0/opa_linux_amd64_static && \
+    chmod a+x /usr/bin/opa
 
 ENV NODE_ENV=production
 ENV SERVER_PORT=8080
 
-
 WORKDIR /usr/src/app
-
 
 COPY --chown=node:node --from=build /tmp/buildRes .
 

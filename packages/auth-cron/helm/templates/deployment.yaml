@@ -51,7 +51,8 @@ spec:
               subPath: {{ quote .Values.caKey }}
             {{- end }}
             - name: config
-              mountPath: /usr/src/app/packages/auth-cron/config
+              mountPath: /usr/src/app/packages/auth-cron/config/production.json
+              subPath: production.json
               readOnly: true
           env:
             {{- if .Values.caSecretName }}
