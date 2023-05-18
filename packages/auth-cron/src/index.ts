@@ -15,20 +15,20 @@ import { logger } from './logger';
 
 const cronConfig = config.get<AppConfig['cron']>('cron') as Record<Environment, CronConfig>;
 async function initDb(): Promise<[BundleDatabase, Repository<Bundle>]> {
-  logger.debug('initializing database connection');
+  logger?.debug('initializing database connection');
   const dataSource = await initConnection(config.get<DbConfig>('db'));
   return [new BundleDatabase(dataSource), dataSource.getRepository(Bundle)];
 }
 
 async function runStartupValidators(): Promise<void> {
-  logger.debug('running startup validations');
+  logger?.debug('running startup validations');
   validateConfigSchema(config.util.toObject(undefined) as AppConfig);
 
   await validateS3(Object.keys(cronConfig) as Environment[]);
 }
 
 const errorHandler: CatchCallbackFn = (err, job) => {
-  logger.error({ msg: 'failed running job', err, bundleEnv: job.name });
+  logger?.error({ msg: 'failed running job', err, bundleEnv: job.name });
 };
 
 const main = async (): Promise<void> => {
@@ -36,13 +36,13 @@ const main = async (): Promise<void> => {
   const [bundleDatabase, bundleRepository] = await initDb();
 
   Object.entries(cronConfig).map(([env, value]) => {
-    logger.info({ msg: 'initializing new update bundle job', bundleEnv: env });
+    logger?.info({ msg: 'initializing new update bundle job', bundleEnv: env });
 
     const workdir = mkdtempSync(path.join(tmpdir(), `authbundler-${env}-`));
     const job = getJob(bundleRepository, bundleDatabase, env as Environment, workdir);
 
     return Cron(value.pattern, { unref: false, protect: true, catch: errorHandler, name: env }, async () => {
-      logger.info({ msg: 'running new update job', bundleEnv: env });
+      logger?.info({ msg: 'running new update job', bundleEnv: env });
 
       await job();
       await emptyDir(workdir);
@@ -51,6 +51,6 @@ const main = async (): Promise<void> => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-main().catch((err) => logger.error({ msg: 'program terminated with an error', err }));
+main().catch((err) => logger?.error({ msg: 'program terminated with an error', err }));
 
 // ADD LIVENESS

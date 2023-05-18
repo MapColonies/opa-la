@@ -6,5 +6,17 @@
     "password": "1234",
     "database": "postgres",
     "enableSslAuth": false
+  },
+  "cron": {
+    "np": {
+      "pattern": "*/30 * * * * *",
+      "s3": {
+        "accessKey": "minioadmin",
+        "secretKey": "minioadmin",
+        "endpoint": "http://minio:9000",
+        "bucket": "auth-cron-tests",
+        "key": "np-bundle.tar.gz"
+      }
+    }
   }
 }

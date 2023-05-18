@@ -12,14 +12,14 @@ export function validateConfigSchema(config: AppConfig): void {
 
   if (!validate(config)) {
     const err = betterAjvErrors(configSchema, config, validate.errors ?? [], { format: 'js' });
-    logger.debug('schema validation failed');
+    logger?.debug('schema validation failed');
     throw new Error(err[0].error);
   }
 }
 
 export async function validateS3(envs: Environment[]): Promise<void> {
   for (const env of envs) {
-    logger.debug({ msg: 'checking if bucket exists', s3Env: env });
+    logger?.debug({ msg: 'checking if bucket exists', s3Env: env });
     const doesExist = await getS3Client(env).doesBucketExist();
     if (!doesExist) {
       throw new Error('The bucket does not exist');

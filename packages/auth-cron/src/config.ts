@@ -98,7 +98,7 @@ export const configSchema: JSONSchemaType<AppConfig> = {
       },
       if: {
         properties: {
-          enableSslAuth: true,
+          enableSslAuth: { const: true },
         },
       },
       then: {
