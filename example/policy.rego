@@ -15,7 +15,6 @@ lower_object_keys(obj) = newObj if {
 constraints := {
 	"cert": json.marshal({"keys": [data.keys]}),
 	"alg": "RS256"
-	# 	"iss": "mapcolonies-token-cli",
 }
 
 headers := lower_object_keys(input.headers)
@@ -67,8 +66,6 @@ bad_browser_request if {
     regex.match(".*(Gecko|AppleWebKit|Opera|Trident|Edge|Chrome)\\/\\d.*$", headers["user-agent"])
 }
 
-
-# header not in array
 deny contains "origin check failed" if {
 	originHeader := object.get(headers, "origin", "A")
 	every origin in userData.origins { origin != originHeader }
