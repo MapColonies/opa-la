@@ -93,7 +93,17 @@ test_allowed_backend_origin if {
 	token := generate_token(private_key_1, {"sub": "avi"})
 	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": postman_agent}}
 		with data.keys as public_key_1
+		with data.users as users
     with data.users.avi.allowNoBrowser as true
+
+	res.allowed
+}
+
+test_allowed_same_origin if {
+	token := generate_token(private_key_1, {"sub": "avi"})
+	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": postman_agent, "Sec-Fetch-Site": "same-origin"}}
+		with data.keys as public_key_1
+		with data.users as users
 
 	res.allowed
 }
@@ -101,6 +111,7 @@ test_allowed_backend_origin if {
 test_deny_no_token if {
 	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
+		with data.users as users
 
 	not res.allowed
   contains(res.reason, "no token supplied")
@@ -110,6 +121,7 @@ test_deny_malformed_token if {
 	token := generate_token(private_key_1, {"sub": "avi"})
 	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": substring(token, 0, 40), "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
+		with data.users as users
 
 	not res.allowed
   contains(res.reason, "token not valid")
@@ -119,6 +131,7 @@ test_deny_token_wrong_key if {
 	token := generate_token(private_key_2, {"sub": "avi"})
 	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
+		with data.users as users
 
 	not res.allowed
   contains(res.reason, "token not valid")
@@ -128,6 +141,7 @@ test_deny_user_not_found if {
 	token := generate_token(private_key_1, {"sub": "itzik"})
 	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
+		with data.users as users
 
 	not res.allowed
   contains(res.reason, "user details missing")
@@ -137,6 +151,7 @@ test_deny_token_wrong_domain if {
 	token := generate_token(private_key_1, {"sub": "avi"})
 	res := decision with input as {"domain":"itzik", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
+		with data.users as users
 
 	not res.allowed
   contains(res.reason, "domain check failed")
@@ -146,6 +161,7 @@ test_deny_token_domain_missing if {
 	token := generate_token(private_key_1, {"sub": "avi"})
 	res := decision with input as {"headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
+		with data.users as users
 
 	not res.allowed
   contains(res.reason, "domain missing")
@@ -155,6 +171,7 @@ test_deny_wrong_origin if {
 	token := generate_token(private_key_1, {"sub": "avi"})
 	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi2.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
+		with data.users as users
 
 	not res.allowed
 }
@@ -163,6 +180,7 @@ test_deny_missing_origin if {
 	token := generate_token(private_key_1, {"sub": "avi"})
 	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
+		with data.users as users
 
 	not res.allowed
 }
