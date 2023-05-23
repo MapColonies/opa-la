@@ -66,11 +66,11 @@ spec:
                 name: {{ $releaseName }}-{{ $chartName }}-configmap
             - secretRef:
                 name: {{ $releaseName }}-{{ $chartName }}-secret
-          # livenessProbe:
-          #   initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-          #   httpGet:
-          #     path: /liveness
-          #     port: {{ .Values.env.targetPort }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            httpGet:
+              path: /liveness
+              port: 8080
           {{- if .Values.resources.enabled }}
           resources:
             {{- toYaml .Values.resources.value | nindent 12 }}
