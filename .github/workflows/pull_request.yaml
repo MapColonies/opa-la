@@ -93,7 +93,7 @@ jobs:
     services:
       # Label used to access the service container
       minio:
-        image: minio/minio
+        image: bitnami/minio
         ports:
           - 9100:9100
         env:
