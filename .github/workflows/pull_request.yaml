@@ -95,7 +95,7 @@ jobs:
       minio:
         image: bitnami/minio
         ports:
-          - 9100:9100
+          - 9000:9000
         env:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minioadmin
