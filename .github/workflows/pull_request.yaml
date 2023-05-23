@@ -88,10 +88,17 @@ jobs:
     strategy:
       matrix:
         node: [16.x, 18.x, 20.x]
-        package: [auth-manager, '@map-colonies/auth-bundler']
+        package: [auth-manager, '@map-colonies/auth-bundler', 'auth-cron']
 
     services:
       # Label used to access the service container
+      minio:
+        image: minio/minio
+        ports:
+          - 9100:9100
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
       postgres:
         # Docker Hub image
         image: postgres:14

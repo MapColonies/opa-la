@@ -1,0 +1,138 @@
+import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
+import { Bundle, Environment } from '@map-colonies/auth-core';
+import { Repository } from 'typeorm';
+import config from 'config';
+import jsLogger from '@map-colonies/js-logger';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getJob } from '../src/job';
+import { AppConfig } from '../src/config';
+
+jest.mock('@map-colonies/auth-bundler');
+jest.mock('../src/logger', () => {
+  return {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    __esModule: true,
+    logger: jsLogger({ enabled: false }),
+  };
+});
+
+describe('job.ts', function () {
+  describe('#getJob', function () {
+    const bundleRepoMock = jest.mocked({ findOne: jest.fn() } as unknown as Repository<Bundle>);
+    const bundleDbMock = jest.mocked({
+      getLatestVersions: jest.fn(),
+      getBundleFromVersions: jest.fn(),
+      saveBundle: jest.fn(),
+    } as unknown as BundleDatabase);
+    const createBundleMock = jest.mocked(createBundle);
+    let s3client: S3Client;
+    const cronOptions = config.get<AppConfig['cron']['np']>('cron.np');
+
+    beforeAll(function () {
+      createBundleMock.mockImplementation(async (content, workdir, filePath) => {
+        await writeFile(path.join(workdir, filePath), 'aviavi');
+      });
+
+      s3client = new S3Client({
+        credentials: { accessKeyId: cronOptions?.s3.accessKey as string, secretAccessKey: cronOptions?.s3.secretKey as string },
+        endpoint: cronOptions?.s3.endpoint,
+        region: 'us-east-1',
+        forcePathStyle: true,
+      });
+    });
+
+    afterEach(function () {
+      jest.resetAllMocks();
+    });
+
+    it('should create a bundle if no bundle exists', async function () {
+      bundleRepoMock.findOne.mockResolvedValueOnce(null);
+      bundleDbMock.getLatestVersions.mockResolvedValue({
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+      });
+
+      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+
+      await expect(promise).resolves.not.toThrow();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bundleDbMock.saveBundle).toHaveBeenCalledTimes(1);
+    });
+
+    it('should create a bundle if the data versions changed', async function () {
+      bundleRepoMock.findOne.mockResolvedValueOnce({
+        id: 1,
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 2,
+      });
+      bundleDbMock.getLatestVersions.mockResolvedValue({
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+      });
+
+      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+
+      await expect(promise).resolves.not.toThrow();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bundleDbMock.saveBundle).toHaveBeenCalledTimes(1);
+    });
+
+    it('should create a bundle and not save the metadata to the db if there is a mismatch between s3 and the db', async function () {
+      bundleRepoMock.findOne.mockResolvedValueOnce({
+        id: 1,
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+        hash: 'avi',
+      });
+      bundleDbMock.getLatestVersions.mockResolvedValue({
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+      });
+
+      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+
+      await expect(promise).resolves.not.toThrow();
+      expect(createBundle).toHaveBeenCalled();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bundleDbMock.saveBundle).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not create a bundle if the bundle in s3 is up to date', async function () {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const res = await s3client.send(new PutObjectCommand({ Bucket: cronOptions?.s3.bucket, Key: cronOptions?.s3.key }));
+      bundleRepoMock.findOne.mockResolvedValueOnce({
+        id: 1,
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+        hash: res.ETag,
+      });
+      bundleDbMock.getLatestVersions.mockResolvedValue({
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+      });
+
+      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+
+      await expect(promise).resolves.not.toThrow();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bundleDbMock.saveBundle).toHaveBeenCalledTimes(0);
+    });
+  });
+});

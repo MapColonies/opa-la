@@ -41,7 +41,8 @@ dbConfig:
     keyFileName: postgresql.key
     caFileName: root.crt
 
-cronConfig: {}
+cronConfig:
+  {}
   # np:
   #   pattern: '* * * * * *'
   #   s3:
@@ -67,8 +68,6 @@ cronConfig: {}
   #     bucket: bucket-name
   #     key: key-name
 
-
-
 resources:
   enabled: true
   value:
@@ -78,4 +77,3 @@ resources:
     requests:
       cpu: 100m
       memory: 128Mi
-

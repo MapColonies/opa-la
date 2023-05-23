@@ -28,8 +28,10 @@ class S3client {
     try {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const command = new HeadObjectCommand({ Bucket: this.bucket, Key: this.key });
+
       logger?.debug({ msg: 'fetching object metadata from s3', bucket: this.bucket, key: this.key, endpoint: this.endpoint });
       const res = await this.s3client.send(command);
+
       return res.ETag;
     } catch (error) {
       if (error instanceof NotFound) {
@@ -63,7 +65,7 @@ class S3client {
 
     const res = await this.s3client.send(command);
 
-    return res.ETag ?? '';
+    return res.ETag as string;
   }
 }
 

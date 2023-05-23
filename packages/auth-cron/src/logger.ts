@@ -6,6 +6,6 @@ import { AppConfig } from './config';
 const loggerConfig = config.get<AppConfig['telemetry']['logger']>('telemetry.logger');
 
 // eslint-disable-next-line import/exports-last
-export const logger: Logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint });
+export const logger: Logger | undefined = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint });
 
 setLogger(logger);

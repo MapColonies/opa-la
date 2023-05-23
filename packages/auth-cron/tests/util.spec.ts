@@ -2,9 +2,9 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { BundleContentVersions } from '@map-colonies/auth-bundler';
+import { Bundle } from '@map-colonies/auth-core';
 import { compareVersionsToBundle, emptyDir } from '../src/util';
 import { getFakeBundle } from './utils/bundle';
-import { Bundle } from '@map-colonies/auth-core';
 
 describe('util.ts', function () {
   describe('#emptyDir', function () {
