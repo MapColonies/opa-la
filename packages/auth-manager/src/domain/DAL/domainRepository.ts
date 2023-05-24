@@ -17,7 +17,7 @@ export const domainRepositoryFactory: FactoryFunction<DomainRepository> = (conta
         `
         SELECT i.name FROM unnest($1::text[]) i(name) LEFT JOIN auth_manager.domain d ON i.name = d.name WHERE d.name is NULL`,
         [domainNames]
-      )) as { name: string }[];
+      )) as unknown as { name: string }[];
 
       return res.map((domain) => domain.name);
     },

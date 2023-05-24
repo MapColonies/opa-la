@@ -1,0 +1,79 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+  environment: {}
+
+enabled: true
+environment: development
+replicaCount: 1
+initialDelaySeconds: 60
+nodePort: 30030 #for minikube deployment only
+resetOnConfigChange: true
+
+cloudProvider:
+  dockerRegistryUrl: my-registry-url.io
+  imagePullSecretName: 'my-registry-secret'
+  flavor: openshift
+
+caSecretName: ''
+caPath: '/usr/local/share/ca-certificates'
+caKey: 'ca.crt'
+
+image:
+  repository: auth-cron
+  # tag: 'latest'
+
+env:
+  logLevel: info
+  logPrettyPrintEnabled: false
+
+dbConfig:
+  host: localhost
+  username: postgres
+  password: postgres
+  database: auth-manager
+  # port: 5432
+  sslAuth:
+    enabled: false
+    secretName: secret-name
+    certFileName: postgresql.crt
+    keyFileName: postgresql.key
+    caFileName: root.crt
+
+cronConfig:
+  {}
+  # np:
+  #   pattern: '* * * * * *'
+  #   s3:
+  #     accessKey: access-key-value
+  #     secretKey: secret-key-value
+  #     endpoint: http://url-to-s3
+  #     bucket: bucket-name
+  #     key: key-name
+  # stage:
+  #   pattern: '* * * * * *'
+  #   s3:
+  #     accessKey: access-key-value
+  #     secretKey: secret-key-value
+  #     endpoint: http://url-to-s3
+  #     bucket: bucket-name
+  #     key: key-name
+  # prod:
+  #   pattern: '* * * * * *'
+  #   s3:
+  #     accessKey: access-key-value
+  #     secretKey: secret-key-value
+  #     endpoint: http://url-to-s3
+  #     bucket: bucket-name
+  #     key: key-name
+
+resources:
+  enabled: true
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi

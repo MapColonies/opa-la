@@ -1,0 +1,42 @@
+{
+  "db": {
+    "host": "postgres",
+    "schema": "auth_manager",
+    "username": "postgres",
+    "password": "1234",
+    "database": "postgres",
+    "enableSslAuth": false
+  },
+  "cron": {
+    "np": {
+      "pattern": "*/30 * * * * *",
+      "s3": {
+        "accessKey": "minioadmin",
+        "secretKey": "minioadmin",
+        "endpoint": "http://localhost:9000",
+        "bucket": "auth-cron-tests",
+        "key": "np-bundle.tar.gz"
+      }
+    },
+    "stage": {
+      "pattern": "*/30 * * * * *",
+      "s3": {
+        "accessKey": "minioadmin",
+        "secretKey": "minioadmin",
+        "endpoint": "http://avi:9000",
+        "bucket": "auth-cron-tests",
+        "key": "stage-bundle.tar.gz"
+      }
+    },
+    "prod": {
+      "pattern": "*/30 * * * * *",
+      "s3": {
+        "accessKey": "minioadmin",
+        "secretKey": "minioadmin",
+        "endpoint": "http://localhost:9000",
+        "bucket": "avi",
+        "key": "prod-bundle.tar.gz"
+      }
+    }
+  }
+}
