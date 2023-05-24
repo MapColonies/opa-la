@@ -1,0 +1,10 @@
+{
+    {{#delimitedEach .}}
+    {{ escapeJson name }}: {
+      "allowNoBrowser": {{ allowNoBrowserConnection }},
+      "allowNoOrigin": {{ allowNoOriginConnection }},
+    "domains": [{{#delimitedEach domains }}{{ escapeJson . }}{{/delimitedEach}}],
+    "origins": [{{#delimitedEach origins }}{{ escapeJson . }}{{/delimitedEach}}]
+    }
+    {{/delimitedEach}}
+}
