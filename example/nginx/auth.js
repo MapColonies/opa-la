@@ -21,7 +21,6 @@ async function opaAuth(r) {
       method: 'POST',
     });
 
-
     if (response.status > 500) {
       return r.return(response.status);
     }
@@ -30,7 +29,7 @@ async function opaAuth(r) {
 
     const opaResult = JSON.parse(response.responseText).result;
     if (!opaResult.allowed) {
-      r.error(opaResult.reason)
+      r.error(opaResult.reason);
       const returnCode = opaResult.reason.includes('no token supplied') ? 401 : 403;
 
       return r.return(returnCode);
