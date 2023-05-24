@@ -36,22 +36,22 @@ const errorHandler: CatchCallbackFn = (err, job) => {
 };
 
 const main = async (): Promise<void> => {
-  // await runStartupValidators();
+  await runStartupValidators();
   const [dataSource, bundleDatabase, bundleRepository] = await initDb();
 
-  // Object.entries(cronConfig).map(([env, value]) => {
-  //   logger?.info({ msg: 'initializing new update bundle job', bundleEnv: env });
+  Object.entries(cronConfig).map(([env, value]) => {
+    logger?.info({ msg: 'initializing new update bundle job', bundleEnv: env });
 
-  //   const workdir = mkdtempSync(path.join(tmpdir(), `authbundler-${env}-`));
-  //   const job = getJob(bundleRepository, bundleDatabase, env as Environment, workdir);
+    const workdir = mkdtempSync(path.join(tmpdir(), `authbundler-${env}-`));
+    const job = getJob(bundleRepository, bundleDatabase, env as Environment, workdir);
 
-  //   return Cron(value.pattern, { unref: false, protect: true, catch: errorHandler, name: env }, async () => {
-  //     logger?.info({ msg: 'running new update job', bundleEnv: env });
+    return Cron(value.pattern, { unref: false, protect: true, catch: errorHandler, name: env }, async () => {
+      logger?.info({ msg: 'running new update job', bundleEnv: env });
 
-  //     await job();
-  //     await emptyDir(workdir);
-  //   });
-  // });
+      await job();
+      await emptyDir(workdir);
+    });
+  });
 
   const server = createServer((request, response) => {
     response.end(`HELLO WORLD`);
