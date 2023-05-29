@@ -1,0 +1,1008 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: auth-core
+  description: Library for authentication related interfaces and utilities
+  tags:
+    - typescript
+spec:
+  type: library
+  lifecycle: experimental
+  owner: devinfra
+  system: authentication
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: auth-bundler
+  description: Library for creating OPA bundles
+  tags:
+    - typescript
+spec:
+  type: library
+  lifecycle: experimental
+  owner: devinfra
+  system: authentication
+  dependsOn:
+    - component:default/auth-core
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: auth-manager
+  description: Manages the authentication database
+  annotations:
+    github.com/project-slug: MapColonies/opa-la
+  tags:
+    - nodejs
+    - typescript
+    - expressjs
+spec:
+  type: service
+  lifecycle: experimental
+  owner: devinfra
+  system: authentication
+  dependsOn:
+    - resource:default/auth-db
+    - component:default/auth-core
+  providesApis:
+    - auth-manager-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: auth-manager-api
+  description: auth-manager service API for creating and updating authentication data.
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: devinfra
+  system: authentication
+  definition: |
+    openapi: 3.0.1
+    info:
+      title: auth-manager
+      description: API server for managing all the authentication data
+      version: 0.0.0
+      license:
+        name: MIT
+        url: https://opensource.org/licenses/MIT
+    paths:
+      /client:
+        get:
+          operationId: getClients
+          summary: gets clients by filtering
+          tags:
+            - client
+          parameters:
+            - in: query
+              name: branch
+              description: search by branch name
+              schema:
+                type: string
+            - in: query
+              name: createdBefore
+              description: filters all clients created before given date
+              schema:
+                type: string
+                format: date-time
+            - in: query
+              name: createdAfter
+              description: filters all clients created after given date
+              schema:
+                type: string
+                format: date-time
+            - in: query
+              name: updatedBefore
+              description: filters all clients updated before given date
+              schema:
+                type: string
+                format: date-time
+            - in: query
+              name: updatedAfter
+              description: filters all clients updated after given date
+              schema:
+                type: string
+                format: date-time
+            - in: query
+              name: tags
+              description: filters based on tags
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  type: string
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/client"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+        post:
+          operationId: createClient
+          summary: creates a new client
+          tags:
+            - client
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/client"
+          responses:
+            "201":
+              description: created
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/client"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "409":
+              $ref: "#/components/responses/409Conflict"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/client/{clientName}":
+        parameters:
+          - $ref: "#/components/parameters/clientParam"
+        get:
+          operationId: getClient
+          summary: get client by name
+          tags:
+            - client
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/client"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+        patch:
+          operationId: updateClient
+          summary: update the client
+          tags:
+            - client
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/namelessClient"
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/client"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/client/{clientName}/connection":
+        parameters:
+          - $ref: "#/components/parameters/clientParam"
+        get:
+          operationId: getClientConnections
+          summary: gets the connections for a specific client
+          tags:
+            - connection
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/connection"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/client/{clientName}/connection/{environment}":
+        parameters:
+          - $ref: "#/components/parameters/clientParam"
+          - $ref: "#/components/parameters/environmentPathParam"
+        get:
+          operationId: getClientEnvironmentConnections
+          summary: get the latest client connection for specific environment
+          tags:
+            - connection
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/connection"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/client/{clientName}/connection/{environment}/{version}":
+        parameters:
+          - $ref: "#/components/parameters/clientParam"
+          - $ref: "#/components/parameters/environmentPathParam"
+          - $ref: "#/components/parameters/versionParam"
+        get:
+          operationId: getClientVersionedConnection
+          summary: get a specfic client connection for specific environment
+          tags:
+            - connection
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/connection"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      /connection:
+        get:
+          operationId: getConnections
+          summary: get a connections based on filters
+          tags:
+            - connection
+          parameters:
+            - $ref: "#/components/parameters/environmentQueryParam"
+            - in: query
+              name: isEnabled
+              schema:
+                type: boolean
+            - in: query
+              name: isNoBrowser
+              schema:
+                type: boolean
+            - in: query
+              name: isNoOrigin
+              schema:
+                type: boolean
+            - in: query
+              name: domains
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  type: string
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/connection"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+        post:
+          operationId: upsertConnection
+          summary: creates a new connection or updates it based on the version
+          tags:
+            - connection
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/connection"
+          responses:
+            "200":
+              description: updated
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/connection"
+            "201":
+              description: created
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/connection"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "409":
+              $ref: "#/components/responses/409Conflict"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      /key:
+        get:
+          operationId: getLastestKeys
+          summary: get all latest keys
+          tags:
+            - key
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/key"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+        post:
+          operationId: upsertKey
+          summary: creates a new key or updates it based on the version
+          tags:
+            - key
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/key"
+          responses:
+            "200":
+              description: updated
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/key"
+            "201":
+              description: created
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/key"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "409":
+              $ref: "#/components/responses/409Conflict"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/key/{environment}":
+        parameters:
+          - $ref: "#/components/parameters/environmentPathParam"
+        get:
+          operationId: getKeys
+          summary: get keys for specific environment
+          tags:
+            - key
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/key"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/key/{environment}/{version}":
+        parameters:
+          - $ref: "#/components/parameters/environmentPathParam"
+          - $ref: "#/components/parameters/versionParam"
+        get:
+          operationId: getSpecificKey
+          summary: gets a specific key
+          tags:
+            - key
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/key"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      /asset:
+        get:
+          operationId: getAssets
+          summary: get assets by filters
+          tags:
+            - asset
+          parameters:
+            - $ref: "#/components/parameters/environmentQueryParam"
+            - in: query
+              name: type
+              schema:
+                $ref: "#/components/schemas/assetType"
+            - in: query
+              name: isTemplate
+              schema:
+                type: boolean
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/asset"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+        post:
+          operationId: upsertAsset
+          summary: creates a new asset or updates it based on the version
+          tags:
+            - asset
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/asset"
+          responses:
+            "200":
+              description: updated
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/asset"
+            "201":
+              description: created
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/asset"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "409":
+              $ref: "#/components/responses/409Conflict"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/asset/{assetName}":
+        parameters:
+          - $ref: "#/components/parameters/assetParam"
+        get:
+          operationId: getAsset
+          summary: get asset by name
+          tags:
+            - asset
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/asset"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/asset/{assetName}/{version}":
+        parameters:
+          - $ref: "#/components/parameters/assetParam"
+          - $ref: "#/components/parameters/versionParam"
+        get:
+          operationId: getVersionedAsset
+          summary: get asset by name and version
+          tags:
+            - asset
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/asset"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/404NotFound"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      /bundle:
+        get:
+          operationId: getBundles
+          summary: get bundles by filter
+          tags:
+            - bundle
+          parameters:
+            - in: query
+              name: createdBefore
+              description: filters all clients created before given date
+              schema:
+                type: string
+                format: date-time
+            - in: query
+              name: createdAfter
+              description: filters all clients created after given date
+              schema:
+                type: string
+                format: date-time
+            - $ref: "#/components/parameters/environmentQueryParam"
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/bundle"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      "/bundle/{id}":
+        parameters:
+          - in: path
+            name: id
+            required: true
+            schema:
+              type: number
+              format: int32
+              minimum: 1
+        get:
+          operationId: getBundle
+          summary: get a specific bundle
+          tags:
+            - bundle
+          parameters:
+            - $ref: "#/components/parameters/environmentQueryParam"
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/bundle"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "404":
+              $ref: "#/components/responses/400BadRequest"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+      /domain:
+        get:
+          operationId: getDomains
+          summary: get all the domains
+          tags:
+            - domain
+          responses:
+            "200":
+              description: OK
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/domain"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+        post:
+          operationId: createDomain
+          summary: create a new domain
+          tags:
+            - domain
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/domain"
+          responses:
+            "201":
+              description: created
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/domain"
+            "400":
+              $ref: "#/components/responses/400BadRequest"
+            "409":
+              $ref: "#/components/responses/409Conflict"
+            "500":
+              $ref: "#/components/responses/500InternalServerError"
+    security: []
+    components:
+      responses:
+        400BadRequest:
+          description: BadRequest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        404NotFound:
+          description: Not Found - If client does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        409Conflict:
+          description: conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        500InternalServerError:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+      parameters:
+        clientParam:
+          name: clientName
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 3
+        assetParam:
+          name: assetName
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 3
+        versionParam:
+          name: version
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/version"
+        environmentQueryParam:
+          name: environment
+          in: query
+          schema:
+            type: array
+            uniqueItems: true
+            items:
+              $ref: "#/components/schemas/environment"
+        environmentPathParam:
+          name: environment
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/environment"
+      schemas:
+        error:
+          type: object
+          required:
+            - message
+          properties:
+            message:
+              type: string
+        environment:
+          type: string
+          enum:
+            - np
+            - stage
+            - prod
+        version:
+          type: number
+          default: 1
+          format: int32
+          minimum: 1
+        assetType:
+          type: string
+          enum:
+            - TEST
+            - TEST_DATA
+            - POLICY
+            - DATA
+        name:
+          type: string
+          minLength: 3
+          maxLength: 32
+        domain:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              $ref: "#/components/schemas/name"
+        pointOfContact:
+          type: object
+          required:
+            - name
+            - email
+            - phone
+          properties:
+            name:
+              $ref: "#/components/schemas/name"
+            email:
+              type: string
+              format: email
+            phone:
+              type: string
+              format: phone
+        namelessClient:
+          type: object
+          required:
+            - hebName
+            - createdAt
+            - updatedAt
+          properties:
+            hebName:
+              $ref: "#/components/schemas/name"
+            description:
+              type: string
+              maxLength: 2048
+            branch:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+            updatedAt:
+              type: string
+              format: date-time
+              readOnly: true
+            techPointOfContact:
+              $ref: "#/components/schemas/pointOfContact"
+            productPointOfContact:
+              $ref: "#/components/schemas/pointOfContact"
+            tags:
+              type: array
+              uniqueItems: true
+              items:
+                type: string
+        client:
+          allOf:
+            - $ref: "#/components/schemas/namelessClient"
+            - type: object
+              required:
+                - name
+              properties:
+                name:
+                  $ref: "#/components/schemas/name"
+        connection:
+          type: object
+          required:
+            - name
+            - enabled
+            - environment
+            - token
+            - domains
+            - allowNoBrowserConnection
+            - allowNoOriginConnection
+            - origins
+            - version
+          properties:
+            name:
+              $ref: "#/components/schemas/name"
+            environment:
+              $ref: "#/components/schemas/environment"
+            version:
+              $ref: "#/components/schemas/version"
+            enabled:
+              type: boolean
+              default: true
+            token:
+              type: string
+            domains:
+              type: array
+              uniqueItems: true
+              items:
+                type: string
+              minLength: 1
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+            allowNoBrowserConnection:
+              type: boolean
+            allowNoOriginConnection:
+              type: boolean
+            origins:
+              type: array
+              uniqueItems: true
+              items:
+                type: string
+        publicJWK:
+          type: object
+          required:
+            - kty
+            - n
+            - e
+            - alg
+            - kid
+          properties:
+            kty:
+              type: string
+            n:
+              type: string
+            e:
+              type: string
+            alg:
+              type: string
+            kid:
+              type: string
+        privateJWK:
+          allOf:
+            - $ref: "#/components/schemas/publicJWK"
+            - type: object
+              required:
+                - d
+                - p
+                - q
+                - dp
+                - dq
+                - qi
+              properties:
+                d:
+                  type: string
+                p:
+                  type: string
+                q:
+                  type: string
+                dp:
+                  type: string
+                dq:
+                  type: string
+                qi:
+                  type: string
+        key:
+          type: object
+          required:
+            - publicKey
+            - privateKey
+            - version
+            - environment
+          properties:
+            publicKey:
+              $ref: "#/components/schemas/publicJWK"
+            privateKey:
+              $ref: "#/components/schemas/privateJWK"
+            version:
+              $ref: "#/components/schemas/version"
+            environment:
+              $ref: "#/components/schemas/environment"
+        asset:
+          type: object
+          required:
+            - createdAt
+            - value
+            - uri
+            - type
+            - isTemplate
+            - name
+            - environment
+            - version
+          properties:
+            environment:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: "#/components/schemas/environment"
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+            value:
+              type: string
+              format: byte
+            uri:
+              type: string
+            type:
+              $ref: "#/components/schemas/assetType"
+            isTemplate:
+              type: boolean
+              default: false
+            version:
+              $ref: "#/components/schemas/version"
+            name:
+              type: string
+              minLength: 3
+        bundle:
+          type: object
+          properties:
+            id:
+              type: number
+              format: int32
+            hash:
+              type: string
+            metadata:
+              type: object
+              additionalProperties: true
+            assets:
+              type: array
+              uniqueItems: true
+              items:
+                type: object
+                required:
+                  - name
+                  - version
+                properties:
+                  name:
+                    type: string
+                  version:
+                    $ref: "#/components/schemas/version"
+            connections:
+              type: array
+              uniqueItems: true
+              items:
+                type: object
+                required:
+                  - name
+                  - version
+                properties:
+                  name:
+                    type: string
+                  version:
+                    $ref: "#/components/schemas/version"
+            environment:
+              allOf:
+                - $ref: "#/components/schemas/environment"
+                - readOnly: true
+            createdAt:
+              type: string
+              format: date-time
+              readOnly: true
+            keyVersion:
+              $ref: "#/components/schemas/version"
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: auth-db
+  description: Stores authentication details
+  tags:
+    - postgresql
+spec:
+  type: database
+  owner: devinfra
+  system: authentication
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: auth-cron
+  description: Service for creating OPA bundles on a schedule
+  annotations:
+    github.com/project-slug: MapColonies/opa-la
+  tags:
+    - nodejs
+    - typescript
+spec:
+  type: service
+  lifecycle: experimental
+  owner: devinfra
+  system: authentication
+  dependsOn:
+    - resource:default/auth-db
+    - component:default/auth-core
+    - component:default/auth-bundler
