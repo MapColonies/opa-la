@@ -20,5 +20,5 @@ for (const file of files) {
   for (const target of file.targets) {
     set(content, target, version);
   }
-  writeFile(file.path, stringify(content), { encoding: 'utf-8' });
+  await writeFile(file.path, stringify(content), { encoding: 'utf-8' });
 }
