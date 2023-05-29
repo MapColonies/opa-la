@@ -10,7 +10,8 @@
     "format:fix": "prettier --write .",
     "test": "lerna run test",
     "lint": "lerna run lint",
-    "lint:fix": "lerna run lint:fix"
+    "lint:fix": "lerna run lint:fix",
+    "version": "node scripts/version-bump.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
@@ -31,6 +32,8 @@
     "ts-jest": "^29.0.5",
     "typedoc": "^0.24.6",
     "typescript": "^4.9.5",
-    "zx": "^7.2.2"
+    "zx": "^7.2.2",
+    "yaml": "2.3.0",
+    "just-safe-set": "4.2.1"
   }
 }
