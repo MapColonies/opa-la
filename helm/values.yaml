@@ -1,0 +1,145 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+  environment: {}
+
+environment: &environment development
+
+cloudProvider: &cloudProvider
+  dockerRegistryUrl: my-registry-url.io
+  imagePullSecretName: 'my-registry-secret'
+  flavor: openshift
+
+caSecretName: &caSecretName ''
+caPath: &caPath '/usr/local/share/ca-certificates'
+caKey: &caKey 'ca.crt'
+
+dbConfig: &dbConfig
+  host: localhost
+  username: postgres
+  password: postgres
+  database: auth-manager
+  # port: 5432
+  sslAuth:
+    enabled: false
+    secretName: secret-name
+    certFileName: postgresql.crt
+    keyFileName: postgresql.key
+    caFileName: root.crt
+
+auth-cron:
+  enabled: true
+  environment: *environment
+  initialDelaySeconds: 60
+  resetOnConfigChange: true
+
+  cloudProvider: *cloudProvider
+
+  caSecretName: *caSecretName 
+  caPath: *caPath
+  caKey: *caKey
+
+  image:
+    # tag: 'latest'
+
+  env:
+    logLevel: info
+    logPrettyPrintEnabled: false
+
+  dbConfig: *dbConfig
+
+  cronConfig:
+    {}
+    # np:
+    #   pattern: '* * * * * *'
+    #   s3:
+    #     accessKey: access-key-value
+    #     secretKey: secret-key-value
+    #     endpoint: http://url-to-s3
+    #     bucket: bucket-name
+    #     key: key-name
+    # stage:
+    #   pattern: '* * * * * *'
+    #   s3:
+    #     accessKey: access-key-value
+    #     secretKey: secret-key-value
+    #     endpoint: http://url-to-s3
+    #     bucket: bucket-name
+    #     key: key-name
+    # prod:
+    #   pattern: '* * * * * *'
+    #   s3:
+    #     accessKey: access-key-value
+    #     secretKey: secret-key-value
+    #     endpoint: http://url-to-s3
+    #     bucket: bucket-name
+    #     key: key-name
+
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+auth-manager:
+  enabled: true
+  environment: *environment
+  replicaCount: 1
+  initialDelaySeconds: 60
+  resetOnConfigChange: true
+
+  cloudProvider: *cloudProvider
+
+  caSecretName: *caSecretName
+  caPath: *caPath
+  caKey: *caKey
+
+  image:
+    repository: auth-manager
+    # tag: 'latest'
+
+  env:
+    port: 8080
+    targetPort: 8080
+    logLevel: info
+    logPrettyPrintEnabled: false
+    responseCompressionEnabled: true
+    requestPayloadLimit: 1mb
+    tracing:
+      enabled: false
+      url: http://localhost:55681/v1/trace
+    metrics:
+      enabled: false
+      url: http://localhost:55681/v1/metrics
+
+  dbConfig: *dbConfig
+
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  route:
+    enabled: true
+    path: /
+    timeout:
+      enabled: false # defaults to 30s by openshift
+      duration: 60s # supported units (us, ms, s, m, h, d)
+
+  ingress:
+    enabled: false
+    path: /
+    host: 'localhost'
+    cors:
+      enabled: true
+      origin: '*'
