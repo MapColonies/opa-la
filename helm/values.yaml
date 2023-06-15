@@ -28,6 +28,28 @@ dbConfig: &dbConfig
     keyFileName: postgresql.key
     caFileName: root.crt
 
+image:
+  repository: openpolicyagent/opa
+  tag: 0.53.0-envoy-3
+
+enabled: true
+replicaCount: 1
+enableLogging: true
+nodePort: 30000
+bundle:
+  serverUrl: http://localhost:9000/opa
+  filePath: /opa.tar.gz
+
+resources:
+  enabled: true
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
 auth-cron:
   enabled: true
   environment: *environment
@@ -41,7 +63,8 @@ auth-cron:
   caKey: *caKey
 
   image:
-    # tag: 'latest'
+    repository: auth-cron
+    tag: 'v0.0.0'
 
   env:
     logLevel: info
