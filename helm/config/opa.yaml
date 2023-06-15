@@ -1,0 +1,8 @@
+services:
+  bundleStore:
+    url: {{ .Values.bundle.serverUrl }}
+
+bundles:
+  authz:
+    service: bundleStore
+    resource: {{ .Values.bundle.filePath }}

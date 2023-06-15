@@ -1,0 +1,30 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "opa.name" . -}}
+{{- $cloudProviderFlavor := include "opa.cloudProviderFlavor" . -}}
+{{- $serviceName := include "service.fullname" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $serviceName }}
+  labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    environment: {{ include "opa.environment" . }}
+    release: {{ $releaseName }}
+    {{- include "opa.labels" . | nindent 4 }}
+spec:
+  {{- if eq $cloudProviderFlavor "minikube" }}
+  type: NodePort
+  {{- end }}
+  ports:
+    - port: 8181
+      targetPort: 8181
+      protocol: TCP
+      name: opa
+      {{- if eq $cloudProviderFlavor "minikube" }}
+      nodePort: {{ .Values.nodePort }}
+      {{- end }}
+  selector:
+    app: {{ $chartName }}
+    release: {{ $releaseName }}
+    run: {{ $releaseName }}-{{ $chartName }}
