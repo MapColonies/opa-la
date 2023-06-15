@@ -60,11 +60,6 @@ spec:
           - "--server"
           - "--addr=0.0.0.0:8181"
           - "--diagnostic-addr=0.0.0.0:8282"
-          - "--set=plugins.envoy_ext_authz_grpc.add=:{{ .Values.image.tag }}"
-          - "--set=plugins.envoy_ext_authz_grpc.path=envoy/authz/allow"
-          {{- if .Values.enableLogging }}
-          - "--set=decision_logs.console=true"
-          {{- end }}
           - "--config-file"
           - "/opa/opa.yaml"
           {{- if .Values.resources.enabled }}
