@@ -107,5 +107,4 @@ dist
 reports
 local-*.json
 local.json
-local.yaml
 *myvalues*
