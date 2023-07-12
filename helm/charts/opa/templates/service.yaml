@@ -17,8 +17,8 @@ spec:
   type: NodePort
   {{- end }}
   ports:
-    - port: 8181
-      targetPort: 8181
+    - port: {{ .Values.targetPort }}
+      targetPort: {{ .Values.targetPort }}
       protocol: TCP
       name: opa
       {{- if eq $cloudProviderFlavor "minikube" }}

@@ -23,6 +23,9 @@ enabled: true
 replicaCount: 1
 nodePort: 30000
 
+targetPort: 8181
+diagnosticTargetPort: 8282
+
 config:
   bundle:
     serverUrl: http://localhost:9000/opa

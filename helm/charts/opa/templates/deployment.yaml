@@ -58,8 +58,8 @@ spec:
           args:
           - "run"
           - "--server"
-          - "--addr=0.0.0.0:8181"
-          - "--diagnostic-addr=0.0.0.0:8282"
+          - "--addr=0.0.0.0:{{ .Values.targetPort }}"
+          - "--diagnostic-addr=0.0.0.0:{{ .Values.diagnosticTargetPort }}"
           - "--config-file"
           - "/opa/opa.yaml"
           {{- if .Values.resources.enabled }}
@@ -69,13 +69,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /health?plugins
-              port: 8282
+              port: {{ .Values.diagnosticTargetPort }}
             initialDelaySeconds: 5
             periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /health?plugins
-              port: 8282
+              port: {{ .Values.diagnosticTargetPort }}
             initialDelaySeconds: 5
             periodSeconds: 30          
 {{- end -}}
