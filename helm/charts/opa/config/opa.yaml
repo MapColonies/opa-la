@@ -1,0 +1,11 @@
+services:
+  bundleStore:
+    url: {{ .Values.config.bundle.serverUrl }}
+
+bundles:
+  authz:
+    service: bundleStore
+    resource: {{ .Values.config.bundle.filePath }}
+
+decision_logs:
+  console: {{ .Values.config.decisionLogs.enabled }}

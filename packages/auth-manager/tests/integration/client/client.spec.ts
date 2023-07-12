@@ -94,13 +94,13 @@ describe('client', function () {
     describe('POST /client', function () {
       it('should return 400 status code if the name is too short', async function () {
         const client = getFakeClient(false);
-        client.name = 'aa';
+        client.name = 'a';
 
         const res = await requestSender.createClient(client);
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ message: 'request/body/name must NOT have fewer than 3 characters' });
+        expect(res.body).toStrictEqual({ message: 'request/body/name must NOT have fewer than 2 characters' });
       });
 
       it('should return 400 status code if the name is too long', async function () {
