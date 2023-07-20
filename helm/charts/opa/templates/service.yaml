@@ -28,3 +28,4 @@ spec:
     app: {{ $chartName }}
     release: {{ $releaseName }}
     run: {{ $releaseName }}-{{ $chartName }}
+    {{- include "opa.selectorLabels" . | nindent 4 }}

@@ -7,7 +7,7 @@ appVersion: 0.0.0
 dependencies:
   - name: 'opa'
     repository: file://charts/opa
-    version: 0.0.0
+    version: v1.0.0
     condition: opa.enabled
   - name: 'auth-cron'
     repository: file://../packages/auth-cron/helm

@@ -13,6 +13,7 @@ async function opaAuth(r) {
         // uri: r.variables,
         // host: r.variables,
         query: qs.parse(r.variables.original_args),
+        domain: '',
       },
     };
 

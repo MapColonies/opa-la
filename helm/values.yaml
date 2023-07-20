@@ -21,6 +21,8 @@ dbConfig: &dbConfig
   password: postgres
   database: auth-manager
   # port: 5432
+  externalSecretName: ''
+  useExternalSecret: true
   sslAuth:
     enabled: false
     secretName: secret-name
