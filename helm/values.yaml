@@ -61,6 +61,19 @@ opa:
         cpu: 100m
         memory: 128Mi
 
+  route:
+    enabled: false
+    https: true
+    path: /
+    timeout:
+      enabled: true # defaults to 30s by openshift
+      duration: 60s # supported units (us, ms, s, m, h, d)
+
+  ingress:
+    enabled: false
+    path: /
+    host: 'localhost'
+
 auth-cron:
   enabled: true
   environment: *environment
@@ -164,7 +177,7 @@ auth-manager:
         memory: 128Mi
 
   route:
-    enabled: true
+    enabled: false
     path: /
     timeout:
       enabled: false # defaults to 30s by openshift
@@ -174,6 +187,3 @@ auth-manager:
     enabled: false
     path: /
     host: 'localhost'
-    cors:
-      enabled: true
-      origin: '*'

@@ -8,17 +8,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.org/mergeable-ingress-type: "minion"
-    nginx.org/rewrites: 'serviceName={{ $releaseName }}-{{ $chartName }} rewrite=/'    
-    nginx.org/location-snippets: |
-      if ($request_method = OPTIONS) {
-        return 204;
-      }
-    {{- if .Values.ingress.cors.enabled }}
-      add_header 'Access-Control-Allow-Origin' '{{- .Values.ingress.cors.origin -}}';
-      add_header 'Access-Control-Max-Age' 3600;
-      add_header 'Access-Control-Expose-Headers' 'Content-Length';
-      add_header 'Access-Control-Allow-Headers' '*';
-    {{- end }}
+    nginx.org/rewrites: 'serviceName={{ $releaseName }}-{{ $chartName }} rewrite=/'
 spec:
   rules:
   - http:
