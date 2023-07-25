@@ -77,7 +77,7 @@ deny contains "origin check failed" if {
 	bad_browser_request
 }
 
-decision := {"allowed": true} if {
+decision := {"allowed": true, "subject": claims.payload.sub} if {
 	count(deny) == 0
 }
 
