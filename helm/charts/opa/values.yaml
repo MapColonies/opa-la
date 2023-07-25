@@ -1,0 +1,59 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+  environment: {}
+
+environment: &environment development
+
+cloudProvider: &cloudProvider
+  dockerRegistryUrl: my-registry-url.io
+  imagePullSecretName: 'my-registry-secret'
+  flavor: openshift
+
+caSecretName: &caSecretName ''
+caPath: &caPath '/usr/local/share/ca-certificates'
+caKey: &caKey 'ca.crt'
+
+image:
+  repository: openpolicyagent/opa
+  tag: 0.53.0-envoy-3
+
+enabled: true
+replicaCount: 1
+nodePort: 30000
+
+targetPort: 8181
+diagnosticTargetPort: 8282
+
+config:
+  bundle:
+    serverUrl: http://localhost:9000/opa
+    filePath: /opa.tar.gz
+  decisionLogs:
+    enabled: false
+
+resources:
+  enabled: true
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+route:
+  enabled: true
+  path: /
+  timeout:
+    enabled: false # defaults to 30s by openshift
+    duration: 60s # supported units (us, ms, s, m, h, d)
+
+ingress:
+  enabled: false
+  path: /
+  host: 'localhost'
+  cors:
+    enabled: true
+    origin: '*'

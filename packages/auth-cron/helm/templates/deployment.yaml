@@ -3,6 +3,7 @@
 {{- $cloudProviderFlavor := include "auth-cron.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "auth-cron.cloudProviderDockerRegistryUrl" . -}}
 {{- $cloudProviderImagePullSecretName := include "auth-cron.cloudProviderImagePullSecretName" . -}}
+{{ $postgresSecretName := ternary .Values.dbConfig.externalSecretName (printf "%s%s" .Release.Name "-postgres-secret") .Values.dbConfig.useExternalSecret }}
 {{- $imageTag := include "auth-cron.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
@@ -55,6 +56,16 @@ spec:
               subPath: production.json
               readOnly: true
           env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $postgresSecretName }}
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $postgresSecretName }}
+                  key: password          
             {{- if .Values.caSecretName }}
             - name: REQUESTS_CA_BUNDLE
               value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
@@ -64,8 +75,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ $releaseName }}-{{ $chartName }}-configmap
-            - secretRef:
-                name: {{ $releaseName }}-{{ $chartName }}-secret
           livenessProbe:
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
             httpGet:

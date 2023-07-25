@@ -1,0 +1,26 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "opa.name" . -}}
+{{- $cloudProviderFlavor := include "opa.cloudProviderFlavor" . -}}
+{{- if and (and (.Values.enabled) (eq $cloudProviderFlavor "openshift")) (.Values.route.enabled) -}}
+{{- $serviceName := include "service.fullname" . -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ $releaseName }}-{{ $chartName }}-opa-route
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+    {{- if .Values.route.timeout.enabled }}
+    haproxy.router.openshift.io/timeout: {{ .Values.route.timeout.duration }}
+    {{- end }}
+spec:
+  path:  {{ .Values.route.path | default "/" }}
+  to:
+    kind: Service
+    name: {{ $serviceName }}
+  port:
+    targetPort: opa    
+  {{- if .Values.route.https }}
+  tls:
+    termination: edge
+  {{- end }}
+{{- end -}}
