@@ -26,8 +26,6 @@ async function opaAuth(r) {
       return r.return(response.status);
     }
 
-    r.error(response.status);
-
     const opaResult = JSON.parse(response.responseText).result;
     if (!opaResult.allowed) {
       r.error(opaResult.reason);
@@ -36,6 +34,7 @@ async function opaAuth(r) {
       return r.return(returnCode);
     }
 
+    r.variables.subject = opaResult.subject;
     r.return(204);
   } catch (error) {
     r.error(error);
