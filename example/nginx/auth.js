@@ -26,8 +26,6 @@ async function opaAuth(r) {
       return r.return(response.status);
     }
 
-    r.error(response.status);
-
     const opaResult = JSON.parse(response.responseText).result;
     if (!opaResult.allowed) {
       r.error(opaResult.reason);
