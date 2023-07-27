@@ -1,4 +1,5 @@
 /* eslint-disable */
+import 'zx/globals';
 import { readFile, writeFile } from 'node:fs/promises';
 import set from 'just-safe-set';
 import { parse, stringify, parseAllDocuments } from 'yaml';
@@ -32,3 +33,5 @@ catalogInfo
   .setIn(['spec', 'definition'], openapi.toString());
 const newCatalogInfo = catalogInfo.map((doc) => stringify(doc)).join('---\n');
 await writeFile('catalog-info.yaml', newCatalogInfo);
+
+$`git add ${[...files.map((f) => f.path), 'catalog-info.yaml']}`;

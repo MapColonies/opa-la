@@ -3,6 +3,7 @@
 {{- $cloudProviderDockerRegistryUrl := include "auth-manager.cloudProviderDockerRegistryUrl" . -}}
 {{- $cloudProviderImagePullSecretName := include "auth-manager.cloudProviderImagePullSecretName" . -}}
 {{- $imageTag := include "auth-manager.tag" . -}}
+{{ $postgresSecretName := ternary .Values.dbConfig.externalSecretName (printf "%s%s" .Release.Name "-postgres-secret") .Values.dbConfig.useExternalSecret }}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -50,6 +51,16 @@ spec:
               subPath: {{ quote .Values.caKey }}
             {{- end }}
           env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $postgresSecretName }}
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $postgresSecretName }}
+                  key: password               
             - name: SERVER_PORT
               value: {{ .Values.env.targetPort | quote }}
             {{- if .Values.caSecretName }}
@@ -61,8 +72,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ $releaseName }}-{{ $chartName }}-configmap
-            - secretRef:
-                name: {{ $releaseName }}-{{ $chartName }}-secret
           ports:
             - name: http
               containerPort: {{ .Values.env.targetPort }}

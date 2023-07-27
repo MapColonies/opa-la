@@ -1,0 +1,44 @@
+name: Release the repo
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      versionOverride:
+        description: Choose a different version bump than indicated by conventional commit messages
+        required: true
+        default: ''
+        type: choice
+        options:
+          - ''
+          - 'major' 
+          - 'minor'
+          - 'patch'
+          - 'premajor'
+          - 'preminor'
+          - 'prepatch'
+          - 'prerelease'
+
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install TS Project dependencies
+        run: npm ci
+      - name: Config git user
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      - name: release
+        run: > 
+          npx lerna version --conventional-commits --yes --create-release github --message "chore: release" ${{ inputs.versionOverride }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

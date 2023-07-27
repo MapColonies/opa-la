@@ -63,7 +63,7 @@ spec:
     info:
       title: auth-manager
       description: API server for managing all the authentication data
-      version: 0.0.0
+      version: 1.0.0
       license:
         name: MIT
         url: https://opensource.org/licenses/MIT
@@ -725,7 +725,7 @@ spec:
             - DATA
         name:
           type: string
-          minLength: 3
+          minLength: 2
           maxLength: 32
         domain:
           type: object

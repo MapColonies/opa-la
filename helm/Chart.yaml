@@ -5,9 +5,15 @@ type: application
 version: 0.0.0
 appVersion: 0.0.0
 dependencies:
+  - name: 'opa'
+    repository: file://charts/opa
+    version: v1.0.0
+    condition: opa.enabled
   - name: 'auth-cron'
     repository: file://../packages/auth-cron/helm
     version: 0.0.0
+    condition: auth-cron.enabled
   - name: 'auth-manager'
     repository: file://../packages/auth-manager/helm
     version: 0.0.0
+    condition: auth-manager.enabled

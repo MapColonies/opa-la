@@ -21,12 +21,58 @@ dbConfig: &dbConfig
   password: postgres
   database: auth-manager
   # port: 5432
+  externalSecretName: ''
+  useExternalSecret: true
   sslAuth:
     enabled: false
     secretName: secret-name
     certFileName: postgresql.crt
     keyFileName: postgresql.key
     caFileName: root.crt
+
+opa:
+  cloudProvider: *cloudProvider
+  environment: *environment
+  caSecretName: *caSecretName 
+  caPath: *caPath
+  caKey: *caKey
+
+  image:
+    repository: openpolicyagent/opa
+    tag: 0.53.0-envoy-3
+
+  enabled: true
+  replicaCount: 1
+  nodePort: 30000
+  config:
+    bundle:
+      serverUrl: http://localhost:9000/opa
+      filePath: /opa.tar.gz
+    decisionLogs:
+      enabled: false
+
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 400m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  route:
+    enabled: false
+    https: true
+    path: /
+    timeout:
+      enabled: true # defaults to 30s by openshift
+      duration: 60s # supported units (us, ms, s, m, h, d)
+
+  ingress:
+    enabled: false
+    path: /
+    host: 'localhost'
 
 auth-cron:
   enabled: true
@@ -41,7 +87,8 @@ auth-cron:
   caKey: *caKey
 
   image:
-    # tag: 'latest'
+    repository: auth-cron
+    tag: 'v0.0.0'
 
   env:
     logLevel: info
@@ -130,7 +177,7 @@ auth-manager:
         memory: 128Mi
 
   route:
-    enabled: true
+    enabled: false
     path: /
     timeout:
       enabled: false # defaults to 30s by openshift
@@ -140,6 +187,3 @@ auth-manager:
     enabled: false
     path: /
     host: 'localhost'
-    cors:
-      enabled: true
-      origin: '*'
