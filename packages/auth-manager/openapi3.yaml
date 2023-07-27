@@ -52,7 +52,7 @@ paths:
             items:
               type: string
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -60,9 +60,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/client'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: createClient
@@ -76,20 +76,19 @@ paths:
             schema:
               $ref: '#/components/schemas/client'
       responses:
-        201:
+        '201':
           description: created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/client'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        409:
+        '409':
           $ref: '#/components/responses/409Conflict'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-
-  /client/{clientName}:
+  '/client/{clientName}':
     parameters:
       - $ref: '#/components/parameters/clientParam'
     get:
@@ -98,17 +97,17 @@ paths:
       tags:
         - client
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/client'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
     patch:
       operationId: updateClient
@@ -122,19 +121,19 @@ paths:
             schema:
               $ref: '#/components/schemas/namelessClient'
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/client'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-  /client/{clientName}/connection:
+  '/client/{clientName}/connection':
     parameters:
       - $ref: '#/components/parameters/clientParam'
     get:
@@ -143,7 +142,7 @@ paths:
       tags:
         - connection
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -151,13 +150,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/connection'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-  /client/{clientName}/connection/{environment}:
+  '/client/{clientName}/connection/{environment}':
     parameters:
       - $ref: '#/components/parameters/clientParam'
       - $ref: '#/components/parameters/environmentPathParam'
@@ -167,7 +166,7 @@ paths:
       tags:
         - connection
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -175,13 +174,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/connection'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-  /client/{clientName}/connection/{environment}/{version}:
+  '/client/{clientName}/connection/{environment}/{version}':
     parameters:
       - $ref: '#/components/parameters/clientParam'
       - $ref: '#/components/parameters/environmentPathParam'
@@ -192,17 +191,17 @@ paths:
       tags:
         - connection
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/connection'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
   /connection:
     get:
@@ -232,7 +231,7 @@ paths:
             items:
               type: string
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -240,9 +239,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/connection'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: upsertConnection
@@ -256,25 +255,25 @@ paths:
             schema:
               $ref: '#/components/schemas/connection'
       responses:
-        200:
+        '200':
           description: updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/connection'
-        201:
+        '201':
           description: created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/connection'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        409:
+        '409':
           $ref: '#/components/responses/409Conflict'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
   /key:
     get:
@@ -283,7 +282,7 @@ paths:
       tags:
         - key
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -291,7 +290,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/key'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: upsertKey
@@ -305,25 +304,25 @@ paths:
             schema:
               $ref: '#/components/schemas/key'
       responses:
-        200:
+        '200':
           description: updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/key'
-        201:
+        '201':
           description: created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/key'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        409:
+        '409':
           $ref: '#/components/responses/409Conflict'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-  /key/{environment}:
+  '/key/{environment}':
     parameters:
       - $ref: '#/components/parameters/environmentPathParam'
     get:
@@ -332,7 +331,7 @@ paths:
       tags:
         - key
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -340,13 +339,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/key'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-  /key/{environment}/{version}:
+  '/key/{environment}/{version}':
     parameters:
       - $ref: '#/components/parameters/environmentPathParam'
       - $ref: '#/components/parameters/versionParam'
@@ -356,17 +355,17 @@ paths:
       tags:
         - key
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/key'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
   /asset:
     get:
@@ -385,7 +384,7 @@ paths:
           schema:
             type: boolean
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -393,9 +392,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/asset'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: upsertAsset
@@ -409,25 +408,25 @@ paths:
             schema:
               $ref: '#/components/schemas/asset'
       responses:
-        200:
+        '200':
           description: updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/asset'
-        201:
+        '201':
           description: created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/asset'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        409:
+        '409':
           $ref: '#/components/responses/409Conflict'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-  /asset/{assetName}:
+  '/asset/{assetName}':
     parameters:
       - $ref: '#/components/parameters/assetParam'
     get:
@@ -436,7 +435,7 @@ paths:
       tags:
         - asset
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -444,13 +443,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/asset'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-  /asset/{assetName}/{version}:
+  '/asset/{assetName}/{version}':
     parameters:
       - $ref: '#/components/parameters/assetParam'
       - $ref: '#/components/parameters/versionParam'
@@ -460,17 +459,17 @@ paths:
       tags:
         - asset
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/asset'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/404NotFound'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
   /bundle:
     get:
@@ -493,7 +492,7 @@ paths:
             format: date-time
         - $ref: '#/components/parameters/environmentQueryParam'
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -501,11 +500,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/bundle'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
-  /bundle/{id}:
+  '/bundle/{id}':
     parameters:
       - in: path
         name: id
@@ -522,17 +521,17 @@ paths:
       parameters:
         - $ref: '#/components/parameters/environmentQueryParam'
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/bundle'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        404:
+        '404':
           $ref: '#/components/responses/400BadRequest'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
   /domain:
     get:
@@ -541,7 +540,7 @@ paths:
       tags:
         - domain
       responses:
-        200:
+        '200':
           description: OK
           content:
             application/json:
@@ -549,7 +548,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/domain'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
     post:
       operationId: createDomain
@@ -563,17 +562,17 @@ paths:
             schema:
               $ref: '#/components/schemas/domain'
       responses:
-        201:
+        '201':
           description: created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/domain'
-        400:
+        '400':
           $ref: '#/components/responses/400BadRequest'
-        409:
+        '409':
           $ref: '#/components/responses/409Conflict'
-        500:
+        '500':
           $ref: '#/components/responses/500InternalServerError'
 security: []
 components:
@@ -705,11 +704,11 @@ components:
           type: string
         createdAt:
           type: string
-          format: 'date-time'
+          format: date-time
           readOnly: true
         updatedAt:
           type: string
-          format: 'date-time'
+          format: date-time
           readOnly: true
         techPointOfContact:
           $ref: '#/components/schemas/pointOfContact'
@@ -761,7 +760,7 @@ components:
           minLength: 1
         createdAt:
           type: string
-          format: 'date-time'
+          format: date-time
           readOnly: true
         allowNoBrowserConnection:
           type: boolean
@@ -850,7 +849,7 @@ components:
             $ref: '#/components/schemas/environment'
         createdAt:
           type: string
-          format: 'date-time'
+          format: date-time
           readOnly: true
         value:
           type: string
@@ -867,7 +866,6 @@ components:
         name:
           type: string
           minLength: 3
-
     bundle:
       type: object
       properties:
@@ -911,7 +909,7 @@ components:
             - readOnly: true
         createdAt:
           type: string
-          format: 'date-time'
+          format: date-time
           readOnly: true
         keyVersion:
           $ref: '#/components/schemas/version'
