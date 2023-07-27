@@ -39,6 +39,6 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - name: release
         run: > 
-          npx lerna version --conventional-commits --yes --create-release github --message "chore(release): publish" ${{ inputs.versionOverride }}
+          npx lerna version --conventional-commits --yes --create-release github --message "chore: release" ${{ inputs.versionOverride }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
