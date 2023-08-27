@@ -11,9 +11,9 @@ dependencies:
     condition: opa.enabled
   - name: 'auth-cron'
     repository: file://../packages/auth-cron/helm
-    version: 0.0.0
+    version: 1.0.0
     condition: auth-cron.enabled
   - name: 'auth-manager'
     repository: file://../packages/auth-manager/helm
-    version: 0.0.0
+    version: 1.0.0
     condition: auth-manager.enabled

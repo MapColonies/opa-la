@@ -50,6 +50,10 @@ opa:
       filePath: /opa.tar.gz
     decisionLogs:
       enabled: false
+    tracing:
+      enabled: false
+      type: grpc
+      endpoint: http://loaclhost:4317
 
   resources:
     enabled: true

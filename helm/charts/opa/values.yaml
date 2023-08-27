@@ -32,6 +32,10 @@ config:
     filePath: /opa.tar.gz
   decisionLogs:
     enabled: false
+  tracing:
+    enabled: false
+    type: grpc
+    endpoint: localhost:4317
 
 resources:
   enabled: true
