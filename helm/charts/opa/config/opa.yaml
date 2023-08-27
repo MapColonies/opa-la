@@ -10,8 +10,8 @@ bundles:
 decision_logs:
   console: {{ .Values.config.decisionLogs.enabled }}
 
-{{- if .Values.config.tracing.enabled -}}
+{{ if .Values.config.tracing.enabled }}
 distributed_tracing:
   type: {{ .Values.config.tracing.type }}
   address: {{ .Values.config.tracing.endpoint }}
-{{- end }}
+{{ end }}
