@@ -23,6 +23,7 @@ enabled: true
 replicaCount: 1
 nodePort: 30000
 
+servicePort: 80
 targetPort: 8181
 diagnosticTargetPort: 8282
 

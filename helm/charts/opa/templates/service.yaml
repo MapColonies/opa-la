@@ -17,7 +17,7 @@ spec:
   type: NodePort
   {{- end }}
   ports:
-    - port: {{ .Values.targetPort }}
+    - port: {{ .Values.servicePort }}
       targetPort: {{ .Values.targetPort }}
       protocol: TCP
       name: opa
