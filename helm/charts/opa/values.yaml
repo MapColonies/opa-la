@@ -23,6 +23,7 @@ enabled: true
 replicaCount: 1
 nodePort: 30000
 
+servicePort: 80
 targetPort: 8181
 diagnosticTargetPort: 8282
 
@@ -32,6 +33,10 @@ config:
     filePath: /opa.tar.gz
   decisionLogs:
     enabled: false
+  tracing:
+    enabled: false
+    type: grpc
+    endpoint: localhost:4317
 
 resources:
   enabled: true
