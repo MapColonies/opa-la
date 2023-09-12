@@ -65,6 +65,17 @@ opa:
         cpu: 100m
         memory: 128Mi
 
+  hpa:
+    minReplicas: 1
+    maxReplicas: 10
+    metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75        
+
   route:
     enabled: false
     https: true
