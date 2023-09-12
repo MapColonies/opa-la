@@ -14,4 +14,4 @@ spec:
   maxReplicas: {{ .Values.hpa.maxReplicas }}
   metrics: 
   {{- toYaml .Values.hpa.metrics | nindent 2 }}
-{{ end }}
+{{ end -}}
