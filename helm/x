@@ -1,0 +1,366 @@
+---
+# Source: opa-la/charts/auth-cron/templates/cron-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: x-auth-cron-cron-secret
+  annotations:
+    "helm.sh/resource-policy": keep
+  labels:
+    app: auth-cronshare
+    component: auth-cron
+    environment: development
+    release: x
+    helm.sh/chart: auth-cron-1.0.0
+    app.kubernetes.io/name: auth-cron
+    app.kubernetes.io/instance: x
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  config: eyAiY3JvbiI6IHt9IH0=
+---
+# Source: opa-la/charts/auth-cron/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: x-auth-cron-configmap
+data:
+  LOG_LEVEL: "info"
+  LOG_PRETTY_PRINT_ENABLED: "false"
+  DB_HOST: localhost
+  DB_NAME: auth-manager
+  DB_PORT: "5432"
+  DB_ENABLE_SSL_AUTH: "false"
+---
+# Source: opa-la/charts/auth-manager/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: x-auth-manager-configmap
+data:
+  REQUEST_PAYLOAD_LIMIT: "1mb"
+  RESPONSE_COMPRESSION_ENABLED: "true"
+  LOG_LEVEL: "info"
+  LOG_PRETTY_PRINT_ENABLED: "false"
+  
+  
+  DB_HOST: localhost
+  DB_NAME: auth-manager
+  DB_PORT: "5432"
+  DB_ENABLE_SSL_AUTH: "false"
+---
+# Source: opa-la/charts/opa/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: x-opa-configmap
+data:
+  OPA_CONFIG: "services:\n  bundleStore:\n    url: http://localhost:9000/opa\n\nbundles:\n  authz:\n    service: bundleStore\n    resource: /opa.tar.gz\n\ndecision_logs:\n  console: false\n\n\n"
+---
+# Source: opa-la/charts/auth-manager/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: x-auth-manager
+  labels:
+    app: auth-manager
+    component: auth-manager
+    environment: development
+    release: x
+    helm.sh/chart: auth-manager-1.0.0
+    app.kubernetes.io/name: auth-manager
+    app.kubernetes.io/instance: x
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: auth-manager
+    release: x
+    run: x-auth-manager
+    app.kubernetes.io/name: auth-manager
+    app.kubernetes.io/instance: x
+---
+# Source: opa-la/charts/opa/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: x-opa-service
+  labels:
+    app: opa
+    component: opa
+    environment: development
+    release: x
+    helm.sh/chart: opa-v1.0.0
+    app.kubernetes.io/name: opa
+    app.kubernetes.io/instance: x
+    app.kubernetes.io/version: "v1.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+    - port: 80
+      targetPort: 8181
+      protocol: TCP
+      name: opa
+  selector:
+    app: opa
+    release: x
+    run: x-opa
+    app.kubernetes.io/name: opa
+    app.kubernetes.io/instance: x
+---
+# Source: opa-la/charts/auth-cron/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: x-auth-cron
+  labels:
+    app: auth-cron
+    component: auth-cron
+    environment: development
+    release: x
+    helm.sh/chart: auth-cron-1.0.0
+    app.kubernetes.io/name: auth-cron
+    app.kubernetes.io/instance: x
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-cron
+      release: x
+      run: x-auth-cron
+      app.kubernetes.io/name: auth-cron
+      app.kubernetes.io/instance: x
+  template:
+    metadata:
+      labels:
+        app: auth-cron
+        release: x
+        run: x-auth-cron
+        app.kubernetes.io/name: auth-cron
+        app.kubernetes.io/instance: x
+      annotations:
+        checksum/configmap: 925b7d988fd7bf3a53dbea1e8f5550f7904f179ae0110ddf452bbfe0c10cbc97
+    spec:
+      imagePullSecrets:
+        - name: "my-registry-secret"
+      containers:
+        - name: x-auth-cron-deployment
+          image: my-registry-url.io/auth-cron:v0.0.0
+          volumeMounts:
+            - name: config
+              mountPath: /usr/src/app/packages/auth-cron/config/production.json
+              subPath: production.json
+              readOnly: true
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: 
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: 
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: x-auth-cron-configmap
+          livenessProbe:
+            initialDelaySeconds: 60
+            httpGet:
+              path: /liveness
+              port: 8080
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+        - name: config
+          secret:
+            secretName: x-auth-cron-cron-secret
+            items:
+            - key: config
+              path: production.json
+---
+# Source: opa-la/charts/auth-manager/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: x-auth-manager
+  labels:
+    app: auth-manager
+    component: auth-manager
+    environment: development
+    release: x
+    helm.sh/chart: auth-manager-1.0.0
+    app.kubernetes.io/name: auth-manager
+    app.kubernetes.io/instance: x
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-manager
+      release: x
+      run: x-auth-manager
+      app.kubernetes.io/name: auth-manager
+      app.kubernetes.io/instance: x
+  template:
+    metadata:
+      labels:
+        app: auth-manager
+        release: x
+        run: x-auth-manager
+        app.kubernetes.io/name: auth-manager
+        app.kubernetes.io/instance: x
+      annotations:
+        checksum/configmap: ad6ae6785de3051d5818c8e8ced584b99d1ad247742a0bb8a4f0ecdd93a444ce
+    spec:
+      imagePullSecrets:
+        - name: "my-registry-secret"
+      containers:
+        - name: x-auth-manager-deployment
+          image: my-registry-url.io/auth-manager:v1.0.0
+          volumeMounts:
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: 
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: 
+                  key: password               
+            - name: SERVER_PORT
+              value: "8080"
+          envFrom:
+            - configMapRef:
+                name: x-auth-manager-configmap
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 60
+            httpGet:
+              path: /liveness
+              port: 8080
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+---
+# Source: opa-la/charts/opa/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: x-opa
+  labels:
+    app: opa
+    component: opa
+    environment: development
+    release: x
+    helm.sh/chart: opa-v1.0.0
+    app.kubernetes.io/name: opa
+    app.kubernetes.io/instance: x
+    app.kubernetes.io/version: "v1.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa
+      release: x
+      run: x-opa
+      app.kubernetes.io/name: opa
+      app.kubernetes.io/instance: x
+  template:
+    metadata:
+      labels:
+        app: opa
+        release: x
+        run: x-opa
+        app.kubernetes.io/name: opa
+        app.kubernetes.io/instance: x
+    spec:
+      imagePullSecrets:
+        - name: "my-registry-secret"
+      volumes:
+        - name: opa-configfile
+          configMap:
+            name: x-opa-configmap
+            items:
+            - key: "OPA_CONFIG"
+              path: "opa.yaml"
+      containers:
+        - name: x-opa-deployment
+          image: my-registry-url.io/openpolicyagent/opa:0.53.0-envoy-3
+          volumeMounts:
+          - name: opa-configfile
+            mountPath: /opa/opa.yaml
+            readOnly: true
+            subPath: opa.yaml
+          args:
+          - "run"
+          - "--server"
+          - "--addr=0.0.0.0:8181"
+          - "--diagnostic-addr=0.0.0.0:8282"
+          - "--config-file"
+          - "/opa/opa.yaml"
+          resources:
+            limits:
+              cpu: 400m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 30
+---
+# Source: opa-la/charts/opa/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: x-opa-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: x-opa
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 75
+        type: Utilization
+    type: Resource

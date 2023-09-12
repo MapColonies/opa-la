@@ -1,5 +1,6 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "opa.name" . -}}
+{{- if .Values.hpa.enabled }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -13,3 +14,4 @@ spec:
   maxReplicas: {{ .Values.hpa.maxReplicas }}
   metrics: 
   {{- toYaml .Values.hpa.metrics | nindent 2 }}
+{{ end }}
