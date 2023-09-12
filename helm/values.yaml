@@ -42,6 +42,7 @@ opa:
     tag: 0.53.0-envoy-3
 
   enabled: true
+  replicaCount: 2
   nodePort: 30000
   config:
     bundle:
