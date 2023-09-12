@@ -42,7 +42,6 @@ opa:
     tag: 0.53.0-envoy-3
 
   enabled: true
-  replicaCount: 1
   nodePort: 30000
   config:
     bundle:
@@ -67,7 +66,7 @@ opa:
 
   # hpa:
   #   enabled: true
-  #   minReplicas: 1
+  #   minReplicas: 2
   #   maxReplicas: 10
   #   metrics:
   #   - type: Resource
