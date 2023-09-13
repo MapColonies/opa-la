@@ -42,7 +42,7 @@ opa:
     tag: 0.53.0-envoy-3
 
   enabled: true
-  replicaCount: 1
+  replicaCount: 2
   nodePort: 30000
   config:
     bundle:
@@ -64,6 +64,18 @@ opa:
       requests:
         cpu: 100m
         memory: 128Mi
+
+  # hpa:
+  #   enabled: true
+  #   minReplicas: 2
+  #   maxReplicas: 10
+  #   metrics:
+  #   - type: Resource
+  #     resource:
+  #       name: cpu
+  #       target:
+  #         type: Utilization
+  #         averageUtilization: 75
 
   route:
     enabled: false

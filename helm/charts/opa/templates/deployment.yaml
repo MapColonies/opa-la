@@ -15,7 +15,9 @@ metadata:
     release: {{ $releaseName }}
     {{- include "opa.labels" . | nindent 4 }}
 spec:
+  {{ if not (.Values.hpa.enabled) -}}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app: {{ $chartName }}

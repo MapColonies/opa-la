@@ -1,0 +1,17 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "opa.name" . -}}
+{{- if .Values.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $releaseName }}-{{ $chartName }}-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $releaseName }}-{{ $chartName }}
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
+  metrics: 
+  {{- toYaml .Values.hpa.metrics | nindent 2 }}
+{{ end -}}
