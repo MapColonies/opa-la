@@ -9,6 +9,7 @@ import { DomainRepository } from '../../../../src/domain/DAL/domainRepository';
 import { ConnectionSearchParams } from '../../../../src/connection/models/connection';
 import { ClientNotFoundError } from '../../../../src/client/models/errors';
 import { DomainNotFoundError } from '../../../../src/domain/models/errors';
+import { KeyRepository } from '../../../../src/key/DAL/keyRepository';
 
 describe('ConnectionManager', () => {
   let connectionManager: ConnectionManager;
@@ -18,11 +19,13 @@ describe('ConnectionManager', () => {
     transaction: jest.fn(),
   };
   const mockedDomainRepository = {};
+  const mockedKeysRepository = {};
   beforeEach(function () {
     connectionManager = new ConnectionManager(
       jsLogger({ enabled: false }),
       mockedConnectionRepository as unknown as ConnectionRepository,
-      mockedDomainRepository as DomainRepository
+      mockedDomainRepository as DomainRepository,
+      mockedKeysRepository as KeyRepository
     );
     jest.resetAllMocks();
   });
@@ -105,6 +108,7 @@ describe('ConnectionManager', () => {
       domainTransactionRepo.checkInputForNonExistingDomains.mockResolvedValue([]);
       const connectionRepo = { manager: { transaction: jest.fn() } };
       const domainRepo = {};
+      const keysRepo = {};
       connectionRepo.manager.transaction.mockImplementation(async (fn: (a: unknown) => Promise<unknown>) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return fn({
@@ -118,7 +122,8 @@ describe('ConnectionManager', () => {
       manager = new ConnectionManager(
         jsLogger({ enabled: false }),
         connectionRepo as unknown as ConnectionRepository,
-        domainRepo as DomainRepository
+        domainRepo as DomainRepository,
+        keysRepo as KeyRepository
       );
     });
 

@@ -5,6 +5,8 @@ export const DEFAULT_SERVER_PORT = 80;
 
 export const DB_CONNECTION_TIMEOUT = 5000;
 
+export const TOKENS_ISSUER = 'mapcolonies-token-cli';
+
 export const IGNORED_OUTGOING_TRACE_ROUTES = [/^.*\/v1\/metrics.*$/];
 export const IGNORED_INCOMING_TRACE_ROUTES = [/^.*\/docs.*$/];
 
@@ -21,5 +23,5 @@ export const SERVICES = {
   ASSET_REPOSITORY: Symbol('ASSET_REPO'),
   CONNECTION_REPOSITORY: Symbol('CONNECTION_REPO'),
   BUNDLE_REPOSITORY: Symbol('BUNDLE_REPO'),
-};
+} satisfies Record<string, symbol>;
 /* eslint-enable @typescript-eslint/naming-convention */

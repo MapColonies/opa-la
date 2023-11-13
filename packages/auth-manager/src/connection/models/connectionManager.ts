@@ -2,11 +2,14 @@ import { Logger } from '@map-colonies/js-logger';
 import { Client, Environment, IConnection } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains, In } from 'typeorm';
+import { JWK } from 'jose';
 import { ClientNotFoundError } from '../../client/models/errors';
 import { SERVICES } from '../../common/constants';
 import { DomainRepository } from '../../domain/DAL/domainRepository';
 import { DomainNotFoundError } from '../../domain/models/errors';
 import { ConnectionRepository } from '../DAL/connectionRepository';
+import { KeyRepository } from '../../key/DAL/keyRepository';
+import { generateToken } from '../../common/crypto';
 import { ConnectionSearchParams } from './connection';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
 
@@ -15,7 +18,8 @@ export class ConnectionManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.CONNECTION_REPOSITORY) private readonly connectionRepository: ConnectionRepository,
-    @inject(SERVICES.DOMAIN_REPOSITORY) private readonly domainRepository: DomainRepository
+    @inject(SERVICES.DOMAIN_REPOSITORY) private readonly domainRepository: DomainRepository,
+    @inject(SERVICES.KEY_REPOSITORY) private readonly keyRepository: KeyRepository
   ) {}
 
   public async getConnections(searchParams: ConnectionSearchParams): Promise<IConnection[]> {
@@ -64,6 +68,8 @@ export class ConnectionManager {
         throw new DomainNotFoundError(`the following domains do not exist: ${notExistingDomains.join(', ')}`);
       }
 
+      connection.token = await this.handleToken(connection, this.keyRepository);
+
       const maxVersion = await connectionRepo.getMaxVersionWithLock(connection.name, connection.environment);
 
       if (maxVersion === null) {
@@ -88,5 +94,28 @@ export class ConnectionManager {
       // update
       return connectionRepo.save({ ...connection, version: maxVersion + 1 });
     });
+  }
+
+  private async handleToken(connection: IConnection, transactionKeyRepo: KeyRepository): Promise<string> {
+    if (connection.token !== '') {
+      return connection.token;
+    }
+
+    const key = (await transactionKeyRepo.getLatestKeys()).find((key) => key.environment === connection.environment);
+
+    if (key === undefined || key.privateKey === undefined) {
+      this.logger.warn({
+        msg: 'no private key found for connection, could not create token',
+        connection: { name: connection.name, environment: connection.environment },
+      });
+      return '';
+    }
+
+    try {
+      return await generateToken(key.privateKey as JWK, connection.name, key.privateKey.kid);
+    } catch (error) {
+      this.logger.error({ msg: 'could not generate token', error });
+      return '';
+    }
   }
 }
