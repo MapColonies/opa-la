@@ -61,7 +61,7 @@ class S3client {
 
     logger?.debug({ msg: 'uploading object to s3', bucket: this.bucket, key: this.key, endpoint: this.endpoint });
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const command = new PutObjectCommand({ Body: file, Bucket: this.bucket, Key: this.key, ContentType: 'application/gzip' });
+    const command = new PutObjectCommand({ Body: file, Bucket: this.bucket, ACL: 'public-read', Key: this.key, ContentType: 'application/gzip' });
 
     const res = await this.s3client.send(command);
 

@@ -52,7 +52,11 @@ deny contains "domain missing" if {
 }
 
 deny contains "domain check failed" if {
- 	every domain in userData.domains { domain != input.domain }
+ 	every userDomain in userData.domains { 
+		every inputDomain in input.domain {
+			inputDomain != userDomain
+		}
+	 }
 }
 
 allowed_empty_origin if {
