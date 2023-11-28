@@ -27,6 +27,9 @@ servicePort: 80
 targetPort: 8181
 diagnosticTargetPort: 8282
 
+additionalPodAnnotations:
+  {}
+
 config:
   bundle:
     serverUrl: http://localhost:9000/opa
@@ -37,6 +40,10 @@ config:
     enabled: false
     type: grpc
     endpoint: localhost:4317
+
+s3:
+  secretName: s3-secret
+  awsRegion: ' '
 
 resources:
   enabled: true
@@ -51,7 +58,7 @@ resources:
 hpa:
   enabled: true
   minReplicas: 2
-  maxReplicas: 10
+  maxReplicas: 15
   metrics:
   - type: Resource
     resource:

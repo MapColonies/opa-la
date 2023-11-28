@@ -31,16 +31,24 @@ spec:
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
         {{- include "opa.selectorLabels" . | nindent 8 }}
-      {{- if .Values.resetOnConfigChange }}
       annotations:
+        {{- if .Values.resetOnConfigChange }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-      {{- end }}
+        {{- end }}
+        {{- if .Values.additionalPodAnnotations }}
+        {{- toYaml .Values.additionalPodAnnotations | nindent 8}}
+        {{- end }}
     spec:
     {{- if $cloudProviderImagePullSecretName }}
       imagePullSecrets:
         - name: {{ $cloudProviderImagePullSecretName | quote }}
     {{- end }}
       volumes:
+          {{- if .Values.caSecretName }}
+          - name: root-ca
+            secret:
+              secretName: {{ .Values.caSecretName }}
+          {{- end }}
         - name: opa-configfile
           configMap:
             name: {{ .Release.Name }}-{{ $chartName }}-configmap
@@ -53,6 +61,11 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ .tag }}
           {{- end }}
           volumeMounts:
+          {{- if .Values.caSecretName }}
+          - name: root-ca
+            mountPath: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+            subPath: {{ .Values.caKey | quote }}
+          {{- end }}
           - name: opa-configfile
             mountPath: /opa/opa.yaml
             readOnly: true
@@ -68,6 +81,23 @@ spec:
           resources:
             {{- toYaml .Values.resources.value | nindent 12 }}
           {{- end }}
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.s3.caSecretName | quote }}
+                  key: accessKeyId
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.s3.caSecretName | quote }}
+                  key: secretAccessKey
+            - name: AWS_REGION
+              value: ' ' # Region is hardcoded since we don't use real AWS S3          
+            {{- if .Values.caSecretName }}
+            - name: SSL_CERT_FILE
+              value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /health?plugins

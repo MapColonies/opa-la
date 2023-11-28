@@ -1,10 +1,13 @@
 services:
-  bundleStore:
+  s3:
     url: {{ .Values.config.bundle.serverUrl }}
+    credentials:
+      s3_signing:
+        environment_credentials: {}
 
 bundles:
   authz:
-    service: bundleStore
+    service: s3
     resource: {{ .Values.config.bundle.filePath }}
 
 decision_logs:
