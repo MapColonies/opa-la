@@ -55,6 +55,10 @@ opa:
       type: grpc
       endpoint: http://loaclhost:4317
 
+  s3:
+    secretName: s3-secret
+    awsRegion: ' '      
+
   resources:
     enabled: true
     value:
@@ -64,6 +68,9 @@ opa:
       requests:
         cpu: 100m
         memory: 128Mi
+
+  additionalPodAnnotations:
+    {}        
 
   # hpa:
   #   enabled: true
