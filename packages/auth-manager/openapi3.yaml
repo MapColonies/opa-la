@@ -248,6 +248,12 @@ paths:
       summary: creates a new connection or updates it based on the version
       tags:
         - connection
+      parameters:
+        - in: query
+          name: ignoreTokenErrors
+          schema:
+            type: boolean
+            default: false
       requestBody:
         required: true
         content:

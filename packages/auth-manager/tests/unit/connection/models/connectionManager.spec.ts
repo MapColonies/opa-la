@@ -10,6 +10,8 @@ import { ConnectionSearchParams } from '../../../../src/connection/models/connec
 import { ClientNotFoundError } from '../../../../src/client/models/errors';
 import { DomainNotFoundError } from '../../../../src/domain/models/errors';
 import { KeyRepository } from '../../../../src/key/DAL/keyRepository';
+import { getRealKeys } from '../../../utils/key';
+import { KeyNotFoundError } from '../../../../src/key/models/errors';
 
 describe('ConnectionManager', () => {
   let connectionManager: ConnectionManager;
@@ -102,6 +104,9 @@ describe('ConnectionManager', () => {
     const clientTransactionRepo = {
       findOneBy: jest.fn(),
     };
+    const keyTransactionRepo = {
+      getLatestKeys: jest.fn(),
+    };
     beforeEach(function () {
       jest.resetAllMocks();
       clientTransactionRepo.findOneBy.mockResolvedValue({});
@@ -114,7 +119,19 @@ describe('ConnectionManager', () => {
         return fn({
           withRepository: jest
             .fn()
-            .mockImplementation((callValue) => (callValue === connectionRepo ? connectionTransactionRepo : domainTransactionRepo)),
+            // .mockImplementation((callValue) => (callValue === connectionRepo ? connectionTransactionRepo : domainTransactionRepo)),
+            .mockImplementation((callValue) => {
+              switch (callValue) {
+                case connectionRepo:
+                  return connectionTransactionRepo;
+                case domainRepo:
+                  return domainTransactionRepo;
+                case keysRepo:
+                  return keyTransactionRepo;
+                default:
+                  throw new Error('unknown repo');
+              }
+            }),
           getRepository: jest.fn().mockReturnValue(clientTransactionRepo),
         });
       });
@@ -151,6 +168,67 @@ describe('ConnectionManager', () => {
       expect(connectionTransactionRepo.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
       expect(connectionTransactionRepo.save).toHaveBeenCalledTimes(1);
       expect(connectionTransactionRepo.save).toHaveBeenCalledWith(connection);
+    });
+
+    it('should generate a token if the token is an empty string', async () => {
+      const keys = getRealKeys();
+      const connection = getFakeConnection();
+      connection.token = '';
+      connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
+      connectionTransactionRepo.save.mockResolvedValue(connection);
+      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([{ privateKey: keys[0], environment: connection.environment }]);
+
+      const connectionRes = await manager.upsertConnection({ ...connection, version: 1 });
+
+      expect(connectionRes).not.toBe('');
+    });
+
+    it('should return the connection with empty token if the token is an empty string and ignoreTokenErrors is true', async () => {
+      const connection = getFakeConnection();
+      connection.token = '';
+      connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
+      connectionTransactionRepo.save.mockResolvedValue(connection);
+      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([]);
+
+      const connectionRes = await manager.upsertConnection({ ...connection, version: 1 }, true);
+
+      expect(connectionRes).toHaveProperty('token', '');
+    });
+
+    it('should return the connection with empty token if the token generation failed and ignoreTokenErrors is true', async () => {
+      const connection = getFakeConnection();
+      connection.token = '';
+      connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
+      connectionTransactionRepo.save.mockResolvedValue(connection);
+      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([{ environment: connection.environment, privateKey: 'avi' }]);
+
+      const connectionRes = await manager.upsertConnection({ ...connection, version: 1 }, true);
+
+      expect(connectionRes).toHaveProperty('token', '');
+    });
+
+    it('should throw an error if the token is an empty string and a key is not found', async () => {
+      const connection = getFakeConnection();
+      connection.token = '';
+      connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
+      connectionTransactionRepo.save.mockResolvedValue(connection);
+      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([]);
+
+      const connectionPromise = manager.upsertConnection({ ...connection, version: 1 });
+
+      await expect(connectionPromise).rejects.toThrow(KeyNotFoundError);
+    });
+
+    it('should throw an error if the token generation failed', async () => {
+      const connection = getFakeConnection();
+      connection.token = '';
+      connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
+      connectionTransactionRepo.save.mockResolvedValue(connection);
+      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([{ environment: connection.environment, privateKey: 'avi' }]);
+
+      const connectionPromise = manager.upsertConnection({ ...connection, version: 1 });
+
+      await expect(connectionPromise).rejects.toThrow();
     });
 
     it('should throw an error if a client with the given name do not exist', async () => {

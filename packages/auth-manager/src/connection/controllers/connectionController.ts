@@ -10,6 +10,7 @@ import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../mode
 import { SERVICES } from '../../common/constants';
 import { ClientNotFoundError } from '../../client/models/errors';
 import { DomainNotFoundError } from '../../domain/models/errors';
+import { KeyNotFoundError } from '../../key/models/errors';
 
 interface ConnectionNamePathParams {
   clientName: string;
@@ -19,7 +20,7 @@ type EnvConnectionPathParams = {
   environment: Environment;
 } & ConnectionNamePathParams;
 
-type UpsertConnectionHandler = RequestHandler<undefined, IConnection, IConnection>;
+type UpsertConnectionHandler = RequestHandler<undefined, IConnection, IConnection, { ignoreTokenErrors?: boolean }>;
 type GetConnectionsHandler = RequestHandler<undefined, IConnection[], undefined, ConnectionSearchParams>;
 type GetNamedConnectionsHandler = RequestHandler<ConnectionNamePathParams, IConnection[]>;
 type GetNamedEnvConnectionsHandler = RequestHandler<EnvConnectionPathParams, IConnection[]>;
@@ -81,22 +82,26 @@ export class ConnectionController {
     this.logger.debug('executing #upsertConnection handler');
 
     try {
-      const createdConnection = await this.manager.upsertConnection(req.body);
+      const createdConnection = await this.manager.upsertConnection(req.body, req.query.ignoreTokenErrors);
 
       const returnStatus = createdConnection.version === 1 ? httpStatus.CREATED : httpStatus.OK;
       return res.status(returnStatus).json(createdConnection);
     } catch (error) {
-      if (error instanceof ClientNotFoundError) {
-        (error as HttpError).status = httpStatus.NOT_FOUND;
+      switch (true) {
+        case error instanceof KeyNotFoundError:
+          (error as HttpError).status = httpStatus.BAD_REQUEST;
+          break;
+        case error instanceof DomainNotFoundError:
+          (error as HttpError).status = httpStatus.BAD_REQUEST;
+          break;
+        case error instanceof ClientNotFoundError:
+          (error as HttpError).status = httpStatus.NOT_FOUND;
+          break;
+        case error instanceof ConnectionVersionMismatchError:
+          (error as HttpError).status = httpStatus.CONFLICT;
+          break;
       }
 
-      if (error instanceof DomainNotFoundError) {
-        (error as HttpError).status = httpStatus.BAD_REQUEST;
-      }
-
-      if (error instanceof ConnectionVersionMismatchError) {
-        (error as HttpError).status = httpStatus.CONFLICT;
-      }
       return next(error);
     }
   };
