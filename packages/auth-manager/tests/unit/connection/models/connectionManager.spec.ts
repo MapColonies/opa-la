@@ -117,21 +117,18 @@ describe('ConnectionManager', () => {
       connectionRepo.manager.transaction.mockImplementation(async (fn: (a: unknown) => Promise<unknown>) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return fn({
-          withRepository: jest
-            .fn()
-            // .mockImplementation((callValue) => (callValue === connectionRepo ? connectionTransactionRepo : domainTransactionRepo)),
-            .mockImplementation((callValue) => {
-              switch (callValue) {
-                case connectionRepo:
-                  return connectionTransactionRepo;
-                case domainRepo:
-                  return domainTransactionRepo;
-                case keysRepo:
-                  return keyTransactionRepo;
-                default:
-                  throw new Error('unknown repo');
-              }
-            }),
+          withRepository: jest.fn().mockImplementation((callValue) => {
+            switch (callValue) {
+              case connectionRepo:
+                return connectionTransactionRepo;
+              case domainRepo:
+                return domainTransactionRepo;
+              case keysRepo:
+                return keyTransactionRepo;
+              default:
+                throw new Error('unknown repo');
+            }
+          }),
           getRepository: jest.fn().mockReturnValue(clientTransactionRepo),
         });
       });
