@@ -250,7 +250,7 @@ paths:
         - connection
       parameters:
         - in: query
-          name: ignoreTokenErrors
+          name: shouldIgnoreTokenErrors
           schema:
             type: boolean
             default: false

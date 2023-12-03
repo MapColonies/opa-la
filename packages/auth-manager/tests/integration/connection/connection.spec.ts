@@ -118,7 +118,6 @@ describe('connection', function () {
         await depContainer.resolve(DataSource).getRepository(Client).save(client);
 
         const res = await requestSender.upsertConnection(connection, true);
-
         delete connection.createdAt;
 
         expect(res).toHaveProperty('status', httpStatusCodes.CREATED);

@@ -20,7 +20,7 @@ type EnvConnectionPathParams = {
   environment: Environment;
 } & ConnectionNamePathParams;
 
-type UpsertConnectionHandler = RequestHandler<undefined, IConnection, IConnection, { ignoreTokenErrors?: boolean }>;
+type UpsertConnectionHandler = RequestHandler<undefined, IConnection, IConnection, { shouldIgnoreTokenErrors?: boolean }>;
 type GetConnectionsHandler = RequestHandler<undefined, IConnection[], undefined, ConnectionSearchParams>;
 type GetNamedConnectionsHandler = RequestHandler<ConnectionNamePathParams, IConnection[]>;
 type GetNamedEnvConnectionsHandler = RequestHandler<EnvConnectionPathParams, IConnection[]>;
@@ -82,7 +82,7 @@ export class ConnectionController {
     this.logger.debug('executing #upsertConnection handler');
 
     try {
-      const createdConnection = await this.manager.upsertConnection(req.body, req.query.ignoreTokenErrors);
+      const createdConnection = await this.manager.upsertConnection(req.body, req.query.shouldIgnoreTokenErrors);
 
       const returnStatus = createdConnection.version === 1 ? httpStatus.CREATED : httpStatus.OK;
       return res.status(returnStatus).json(createdConnection);
