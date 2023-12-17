@@ -21,4 +21,6 @@ distributed_tracing:
 
 status:
   service: s3
+  {{ if .Values.config.prometheus.enabled }}
   prometheus: true
+  {{ end }}
