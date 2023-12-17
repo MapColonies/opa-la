@@ -9,4 +9,4 @@ dependencies:
   repository: file://../packages/auth-manager/helm
   version: 1.0.0
 digest: sha256:42c31c2d77c3d1f546e4add8a9750524d5414dd163c7e36025f91f44d651a40b
-generated: "2023-12-17T15:50:52.562028166+02:00"
+generated: "2023-08-15T15:00:52.811609139+03:00"

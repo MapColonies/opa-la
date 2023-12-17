@@ -5,7 +5,6 @@
 # Common VCS dirs
 .git/
 .gitignore
-.helmignore
 .bzr/
 .bzrignore
 .hg/
@@ -22,4 +21,3 @@
 .idea/
 *.tmproj
 .vscode/
-Chart.lock
