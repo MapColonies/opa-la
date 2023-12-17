@@ -40,6 +40,8 @@ config:
     enabled: false
     type: grpc
     endpoint: localhost:4317
+  prometheus:
+    enabled: true
 
 s3:
   secretName: s3-secret

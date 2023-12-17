@@ -54,6 +54,8 @@ opa:
       enabled: false
       type: grpc
       endpoint: http://loaclhost:4317
+    prometheus:
+      enabled: true      
 
   s3:
     secretName: s3-secret
@@ -70,7 +72,7 @@ opa:
         memory: 128Mi
 
   additionalPodAnnotations:
-    {}        
+    {}
 
   # hpa:
   #   enabled: true

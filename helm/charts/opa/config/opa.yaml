@@ -18,3 +18,7 @@ distributed_tracing:
   type: {{ .Values.config.tracing.type }}
   address: {{ .Values.config.tracing.endpoint }}
 {{ end }}
+
+status:
+  service: s3
+  prometheus: true
