@@ -1,11 +1,6 @@
 # `auth-manager`
 
-> TODO: description
+## Note about tokens and connections
 
-## Usage
-
-```
-const authManager = require('auth-manager');
-
-// TODO: DEMONSTRATE API
-```
+When creating or updating a connection, a token will be generated automatically based on the private key.
+If for any reason the token generation failed, or no private key existed, the token field will be an empty string, and the reason will be logged.

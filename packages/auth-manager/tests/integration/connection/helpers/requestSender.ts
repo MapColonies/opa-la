@@ -25,10 +25,11 @@ export class ConnectionRequestSender {
     return supertest.agent(this.app).get(`/client/${clientName}/connection/${environment}/${version}`).set('Content-Type', 'application/json');
   }
 
-  public async upsertConnection(connection: IConnection): Promise<supertest.Response> {
+  public async upsertConnection(connection: IConnection, shouldIgnoreTokenErrors = false): Promise<supertest.Response> {
     return supertest
       .agent(this.app)
       .post('/connection')
+      .query({ shouldIgnoreTokenErrors })
       .set('Content-Type', 'application/json')
       .send(connection as object);
   }

@@ -5,17 +5,19 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { Client, Connection, Domain, Environment, IConnection } from '@map-colonies/auth-core';
+import { Client, Connection, Domain, Environment, IConnection, Key } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { ConnectionRepository } from '../../../src/connection/DAL/connectionRepository';
 import { getFakeConnection, getFakeIConnection } from '../../utils/connection';
+import { KeyRepository } from '../../../src/key/DAL/keyRepository';
 import { DomainRepository } from '../../../src/domain/DAL/domainRepository';
 import { getFakeClient } from '../../utils/client';
+import { getRealKeys } from '../../utils/key';
 import { ConnectionRequestSender } from './helpers/requestSender';
 
-describe('client', function () {
+describe('connection', function () {
   let requestSender: ConnectionRequestSender;
   let depContainer: DependencyContainer;
   const clients = [getFakeClient(false), getFakeClient(false)];
@@ -89,6 +91,7 @@ describe('client', function () {
         expect(res).toHaveProperty('status', httpStatusCodes.CREATED);
         expect(res).toSatisfyApiSpec();
         expect(res.body).toMatchObject(connection);
+        expect(res.body).toHaveProperty('token', connection.token);
       });
 
       it('should return 200 status code and the updated connection', async function () {
@@ -105,6 +108,42 @@ describe('client', function () {
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
         expect(res.body).toMatchObject({ ...connection, version: 2 });
+      });
+
+      it('should not generate a token and return an empty string if no token is supplied and no private key is available and ignoreErrors is true', async function () {
+        const client = getFakeClient(false);
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        connection.token = '';
+        await depContainer.resolve(DataSource).getRepository(Client).save(client);
+
+        const res = await requestSender.upsertConnection(connection, true);
+        delete connection.createdAt;
+
+        expect(res).toHaveProperty('status', httpStatusCodes.CREATED);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toHaveProperty('token', '');
+      });
+
+      it('should generate a token if no token is supplied and private key is available', async function () {
+        const client = getFakeClient(false);
+        const connection = getFakeIConnection();
+        const keys = getRealKeys();
+        connection.name = client.name;
+        connection.environment = Environment.STAGE;
+        await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        await depContainer.resolve(DataSource).getRepository(Connection).save(connection);
+        const keyRepo = depContainer.resolve(DataSource).getRepository(Key);
+        await keyRepo.clear();
+        await keyRepo.save({ environment: connection.environment, version: 1, privateKey: keys[0], publicKey: keys[1] });
+
+        delete connection.createdAt;
+
+        const res: { status: number; body: { token: string } } = await requestSender.upsertConnection({ ...connection, token: '' });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body.token).not.toBeEmpty();
       });
     });
 
@@ -153,6 +192,15 @@ describe('client', function () {
       it('should return 400 if a domain is not in the DB', async function () {
         const connection = getFakeConnection();
         connection.domains = ['c'];
+        const res = await requestSender.upsertConnection(connection);
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+      });
+
+      it('should return 400 if token generation failed because of missing private key', async function () {
+        const connection = getFakeConnection();
+        connection.token = '';
         const res = await requestSender.upsertConnection(connection);
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
@@ -238,6 +286,7 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
       });
     });
+
     describe('POST /connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const connection = getFakeIConnection();
@@ -252,40 +301,53 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
       });
 
-      describe('GET /client/:clientName/connection', function () {
-        it('should return 500 status code if db throws an error', async function () {
-          const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-          jest.spyOn(repo, 'find').mockRejectedValue(new Error());
+      it('should return 500 if token generation fails', async function () {
+        const connection = getFakeIConnection();
+        connection.name = clients[0].name;
+        connection.token = '';
+        const keyRepo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
+        jest.spyOn(keyRepo, 'getLatestKeys').mockRejectedValue(new Error());
 
-          const res = await requestSender.getNamedConnections('avi');
+        const res = await requestSender.upsertConnection(connection);
 
-          expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
-          expect(res).toSatisfyApiSpec();
-        });
+        expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(res).toSatisfyApiSpec();
       });
+    });
 
-      describe('GET /client/:clientName/connection/:environment', function () {
-        it('should return 500 status code if db throws an error', async function () {
-          const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-          jest.spyOn(repo, 'find').mockRejectedValue(new Error());
+    describe('GET /client/:clientName/connection', function () {
+      it('should return 500 status code if db throws an error', async function () {
+        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
+        jest.spyOn(repo, 'find').mockRejectedValue(new Error());
 
-          const res = await requestSender.getNamedEnvConnections('avi', Environment.NP);
+        const res = await requestSender.getNamedConnections('avi');
 
-          expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
-          expect(res).toSatisfyApiSpec();
-        });
+        expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(res).toSatisfyApiSpec();
       });
+    });
 
-      describe('GET /client/:clientName/connection/:environment/:version', function () {
-        it('should return 500 status code if db throws an error', async function () {
-          const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-          jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+    describe('GET /client/:clientName/connection/:environment', function () {
+      it('should return 500 status code if db throws an error', async function () {
+        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
+        jest.spyOn(repo, 'find').mockRejectedValue(new Error());
 
-          const res = await requestSender.getConnection('avi', Environment.NP, 1);
+        const res = await requestSender.getNamedEnvConnections('avi', Environment.NP);
 
-          expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
-          expect(res).toSatisfyApiSpec();
-        });
+        expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(res).toSatisfyApiSpec();
+      });
+    });
+
+    describe('GET /client/:clientName/connection/:environment/:version', function () {
+      it('should return 500 status code if db throws an error', async function () {
+        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
+        jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+
+        const res = await requestSender.getConnection('avi', Environment.NP, 1);
+
+        expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(res).toSatisfyApiSpec();
       });
     });
   });
