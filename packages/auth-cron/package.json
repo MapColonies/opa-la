@@ -20,13 +20,13 @@
     "lint:fix": "eslint --fix .",
     "migration:run": "npm run typeorm migration:run -- ",
     "migration:revert": "npm run typeorm migration:revert -- ",
-    "typeorm": "node --require ts-node/register ../../node_modules/typeorm/cli.js -d ./dataSource.ts",
+    "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.js",
     "test": "jest --config=./tests/configurations/jest.config.js",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json && npm run assets:copy",
     "build:docker": "cross-env DOCKER_BUILDKIT=1 docker build -f Dockerfile -t auth-cron ../.. ",
     "start": "npm run build && cd dist && node --enable-source-maps ./index.js",
-    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
+    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles ./dataSource.js dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
     "clean": "rimraf dist"
   },
   "bugs": {

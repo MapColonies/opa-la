@@ -45,4 +45,15 @@ The configuration is as follows:
   }
 }
 ```
+
+## Running migrations
+When you want to deploy the service, you need to run the database migrations before you can use the service.
+The docker image already contains all the necessary tools to run the migrations.
+
+For example:
+```sh
+docker run --rm --network=host --entrypoint=npm auth-manager run migration:run
+```
+
+Do not forget to also supply the required configuration by using environment variables or file.
   
