@@ -48,9 +48,9 @@ dbConfig:
   sslAuth:
     enabled: false
     secretName: secret-name
-    certFileName: postgresql.crt
-    keyFileName: postgresql.key
-    caFileName: root.crt
+    certFileName: certFile
+    keyFileName: keyFile
+    caFileName: caFile
 
 resources:
   enabled: true
