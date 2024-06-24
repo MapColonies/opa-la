@@ -43,6 +43,12 @@ config:
   prometheus:
     enabled: true
 
+extraConfig: |-
+  storage:
+    disk:
+      directory: /tmp/opa
+      auto_create: true
+
 s3:
   secretName: s3-secret
   awsRegion: ' '
@@ -65,6 +71,12 @@ hpa:
   - type: Resource
     resource:
       name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
       target:
         type: Utilization
         averageUtilization: 75
