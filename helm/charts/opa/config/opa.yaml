@@ -24,3 +24,5 @@ status:
   {{ if .Values.config.prometheus.enabled }}
   prometheus: true
   {{ end }}
+
+{{- tpl .Values.extraConfig . | nindent 0 }}

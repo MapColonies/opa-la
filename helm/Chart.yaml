@@ -2,12 +2,12 @@ apiVersion: v2
 name: opa-la
 description: A Helm chart for opa-la
 type: application
-version: 1.0.0
+version: 1.1.0
 appVersion: 0.53.0
 dependencies:
   - name: 'opa'
     repository: file://charts/opa
-    version: v1.0.0
+    version: v1.1.0
     condition: opa.enabled
   - name: 'auth-cron'
     repository: file://../packages/auth-cron/helm
