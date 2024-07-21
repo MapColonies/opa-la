@@ -63,7 +63,7 @@ spec:
     info:
       title: auth-manager
       description: API server for managing all the authentication data
-      version: 1.0.0
+      version: 1.1.0
       license:
         name: MIT
         url: https://opensource.org/licenses/MIT
@@ -309,6 +309,12 @@ spec:
           summary: creates a new connection or updates it based on the version
           tags:
             - connection
+          parameters:
+            - in: query
+              name: shouldIgnoreTokenErrors
+              schema:
+                type: boolean
+                default: false
           requestBody:
             required: true
             content:

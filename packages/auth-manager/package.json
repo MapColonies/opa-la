@@ -1,6 +1,6 @@
 {
   "name": "auth-manager",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "API server for managing all the authentication data",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@godaddy/terminus": "^4.11.2",
-    "@map-colonies/auth-core": "^1.0.0",
+    "@map-colonies/auth-core": "^1.1.0",
     "@map-colonies/error-express-handler": "^2.1.0",
     "@map-colonies/express-access-log-middleware": "^2.0.1",
     "@map-colonies/js-logger": "^1.0.1",
