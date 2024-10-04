@@ -17,6 +17,7 @@ decision_logs:
 distributed_tracing:
   type: {{ .Values.config.tracing.type }}
   address: {{ .Values.config.tracing.endpoint }}
+  sample_percentage: {{ .Values.config.tracing.sample_percentage }}
 {{ end }}
 
 status:
