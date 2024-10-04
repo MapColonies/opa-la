@@ -54,6 +54,7 @@ opa:
       enabled: false
       type: grpc
       endpoint: http://loaclhost:4317
+      sample_percentage: 50
     prometheus:
       enabled: true      
 
