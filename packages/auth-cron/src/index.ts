@@ -2,33 +2,23 @@ import path from 'node:path';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:http';
-import { DbConfig, Bundle, Environment, initConnection } from '@map-colonies/auth-core';
+import { Bundle, Environment, initConnection } from '@map-colonies/auth-core';
 import { BundleDatabase } from '@map-colonies/auth-bundler';
-import config from 'config';
 import { createTerminus } from '@godaddy/terminus';
 import { CatchCallbackFn, Cron } from 'croner';
 import { DataSource, Repository } from 'typeorm';
 import { getJob } from './job';
-import { AppConfig, CronConfig } from './config';
+import { getConfig } from './config';
+import { type commonDbFullV1Type } from '@map-colonies/schemas';
 import { emptyDir } from './util';
-import { validateConfigSchema } from './validators';
-import { validateS3 } from './validators';
 import { logger } from './logger';
 
 const LIVENESS_PORT = 8080;
 
-const cronConfig = config.get<AppConfig['cron']>('cron') as Record<Environment, CronConfig>;
-async function initDb(): Promise<[DataSource, BundleDatabase, Repository<Bundle>]> {
+async function initDb(dbConfig: commonDbFullV1Type): Promise<[DataSource, BundleDatabase, Repository<Bundle>]> {
   logger?.debug('initializing database connection');
-  const dataSource = await initConnection(config.get<DbConfig>('db'));
+  const dataSource = await initConnection(dbConfig);
   return [dataSource, new BundleDatabase(dataSource), dataSource.getRepository(Bundle)];
-}
-
-async function runStartupValidators(): Promise<void> {
-  logger?.debug('running startup validations');
-  validateConfigSchema(config.util.toObject(undefined) as AppConfig);
-
-  await validateS3(Object.keys(cronConfig) as Environment[]);
 }
 
 const errorHandler: CatchCallbackFn = (err, job) => {
@@ -36,8 +26,11 @@ const errorHandler: CatchCallbackFn = (err, job) => {
 };
 
 const main = async (): Promise<void> => {
-  await runStartupValidators();
-  const [dataSource, bundleDatabase, bundleRepository] = await initDb();
+  const config = getConfig();
+  const cronConfig = config.get('cron');
+  const dbConfig = config.get('db');
+  console.log('Im before init db');
+  const [dataSource, bundleDatabase, bundleRepository] = await initDb(dbConfig);
 
   Object.entries(cronConfig).map(([env, value]) => {
     logger?.info({ msg: 'initializing new update bundle job', bundleEnv: env });

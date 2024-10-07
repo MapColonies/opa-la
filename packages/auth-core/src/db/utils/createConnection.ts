@@ -1,9 +1,10 @@
 import { hostname } from 'os';
 import { readFileSync } from 'fs';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { DbConfig } from '../types/interfaces';
+import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { migrations } from '../migrations';
 import { Asset, Bundle, Client, Connection, Domain, Key } from '../entities';
+import { TlsOptions } from 'tls';
 
 /**
  * A helper function that creates the typeorm DataSource options to use for creating a new DataSource.
@@ -11,20 +12,23 @@ import { Asset, Bundle, Client, Connection, Domain, Key } from '../entities';
  * @param dbConfig The typeorm postgres configuration with added SSL options.
  * @returns Options object ready to use with typeorm.
  */
-export const createConnectionOptions = (dbConfig: DbConfig): DataSourceOptions => {
-  const { enableSslAuth, sslPaths, ...dataSourceOptions } = dbConfig;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  dataSourceOptions.extra = { application_name: `${hostname()}-${process.env.NODE_ENV ?? 'unknown_env'}` };
-  if (enableSslAuth) {
-    dataSourceOptions.password = undefined;
-    dataSourceOptions.ssl = { key: readFileSync(sslPaths.key), cert: readFileSync(sslPaths.cert), ca: readFileSync(sslPaths.ca) };
+export const createConnectionOptions = (dbConfig: commonDbFullV1Type): DataSourceOptions => {
+  let ssl: TlsOptions | undefined = undefined;
+
+  const { ssl: InputSsl, ...dataSourceOptions } = dbConfig;
+
+  if (InputSsl.enabled) {
+    ssl = { key: readFileSync(InputSsl.key), cert: readFileSync(InputSsl.cert), ca: readFileSync(InputSsl.ca) };
   }
+
   return {
+    type: 'postgres',
     entities: [Asset, Bundle, Client, Connection, Domain, Key],
     migrations,
     migrationsTableName: 'custom_migration_table',
+    applicationName: `${hostname()}-${process.env.NODE_ENV ?? 'unknown_env'}`,
+    ssl,
     ...dataSourceOptions,
-    type: 'postgres',
   };
 };
 
@@ -34,7 +38,7 @@ export const createConnectionOptions = (dbConfig: DbConfig): DataSourceOptions =
  * @param dbConfig The typeorm postgres configuration with added SSL options.
  * @returns Ready to use typeorm DataSource.
  */
-export const initConnection = async (dbConfig: DbConfig): Promise<DataSource> => {
+export const initConnection = async (dbConfig: commonDbFullV1Type): Promise<DataSource> => {
   const dataSource = new DataSource(createConnectionOptions(dbConfig));
   await dataSource.initialize();
   return dataSource;

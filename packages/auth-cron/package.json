@@ -25,7 +25,7 @@
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json && npm run assets:copy",
     "build:docker": "cross-env DOCKER_BUILDKIT=1 docker build -f Dockerfile -t auth-cron ../.. ",
-    "start": "npm run build && cd dist && node --enable-source-maps ./index.js",
+    "start": "npm run build && cd dist && node --enable-source-maps --import ./instrumentation.mjs ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles ./dataSource.js dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
     "clean": "rimraf dist"
   },
@@ -48,7 +48,9 @@
     "croner": "6.0.3",
     "http-status-codes": "^2.2.0",
     "pg": "^8.10.0",
-    "typeorm": "^0.3.12"
+    "typeorm": "^0.3.12",
+    "@map-colonies/schemas": "file:/home/ronenk1/dev/infra/schemas",
+    "@map-colonies/config": "^1.1.0"
   },
   "devDependencies": {
     "@adobe/jsonschema2md": "^7.1.5",

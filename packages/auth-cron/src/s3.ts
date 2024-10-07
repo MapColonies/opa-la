@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs';
-import config from 'config';
 import { StatusCodes } from 'http-status-codes';
 import { HeadBucketCommand, HeadObjectCommand, NotFound, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Environment } from '@map-colonies/auth-core';
-import { AppConfig, CronConfig, S3Config } from './config';
+import { getConfig } from './config';
+import { type commonS3FullV1Type } from '@map-colonies/schemas';
 import { logger } from './logger';
+
+type cronS3Type = commonS3FullV1Type & { key: string };
 
 class S3client {
   private readonly s3client: S3Client;
@@ -12,16 +14,15 @@ class S3client {
   private readonly key: string;
   private readonly endpoint: string;
 
-  public constructor(config: S3Config) {
+  public constructor(config: cronS3Type) {
+    const { accessKeyId, secretAccessKey, bucket, endpoint, key, ...s3Options } = config;
     this.s3client = new S3Client({
-      credentials: { accessKeyId: config.accessKey, secretAccessKey: config.secretKey },
-      endpoint: config.endpoint,
-      region: 'us-east-1',
-      forcePathStyle: true,
+      credentials: { accessKeyId, secretAccessKey },
+      ...s3Options,
     });
-    this.bucket = config.bucket;
-    this.key = config.key;
-    this.endpoint = config.endpoint;
+    this.bucket = bucket;
+    this.key = key;
+    this.endpoint = endpoint;
   }
 
   public async getObjectHash(): Promise<string | undefined> {
@@ -47,6 +48,7 @@ class S3client {
       const command = new HeadBucketCommand({ Bucket: this.bucket });
       logger?.debug({ msg: 'fetching bucket metadata from s3', bucket: this.bucket, endpoint: this.endpoint });
       const res = await this.s3client.send(command);
+      console.log('after fetch');
       return res.$metadata.httpStatusCode === StatusCodes.OK;
     } catch (error) {
       if (error instanceof NotFound) {
@@ -70,13 +72,13 @@ class S3client {
 }
 
 const s3Clients = new Map<Environment, S3client>();
-const cronConfig = config.get<AppConfig['cron']>('cron');
 
 export function getS3Client(env: Environment): S3client {
+  const cronConfig = getConfig().get(`cron.${env}`);
   let client = s3Clients.get(env);
   if (!client) {
-    if (cronConfig[env] !== undefined) {
-      const s3Config = (cronConfig[env] as CronConfig).s3;
+    if (cronConfig !== undefined) {
+      const s3Config = cronConfig.s3;
       logger?.debug({ msg: 'initializing new s3 connection', s3Env: env, endpoint: s3Config.endpoint });
       client = new S3client(s3Config);
       s3Clients.set(env, client);
