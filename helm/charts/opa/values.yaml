@@ -7,8 +7,8 @@ global:
 environment: &environment development
 
 cloudProvider: &cloudProvider
-  dockerRegistryUrl: my-registry-url.io
-  imagePullSecretName: 'my-registry-secret'
+  dockerRegistryUrl: acrarolibotnonprod.azurecr.io
+  imagePullSecretName: 'acr-registry'
   flavor: openshift
 
 caSecretName: &caSecretName ''
@@ -17,7 +17,7 @@ caKey: &caKey 'ca.crt'
 
 image:
   repository: openpolicyagent/opa
-  tag: 0.53.0-envoy-3
+  tag: 0.53.0
 
 enabled: true
 replicaCount: 2
@@ -33,15 +33,49 @@ additionalPodAnnotations:
 config:
   bundle:
     serverUrl: http://localhost:9000/opa
-    filePath: /opa.tar.gz
+    filePath: /opa/bundle.tar.gz
+    name: authz
+    
   decisionLogs:
-    enabled: false
+    enabled: true  # Enable decision logging to console
+
   tracing:
-    enabled: false
+    enabled: true
     type: grpc
     endpoint: localhost:4317
+    sample_percentage: 50
+
   prometheus:
     enabled: true
+
+  # Extra configurations to inject into services, bundles, and other sections
+  extraServicesConfig: |-
+    external:
+      url: http://external-service
+
+  extraBundlesConfig: |-
+    custom_bundle:
+      service: custom
+      resource: /custom/bundle.tar.gz
+
+  extraDecisionLogsConfig: |-
+    partition: true
+
+  extraTracingConfig: |-
+    options:
+      retry: 3
+
+  extraStatusConfig: |-
+    healthcheck:
+      enabled: true
+
+# Additional global-level configuration outside any specific block
+extraGlobalConfig: |-
+  storage:
+    disk:
+      directory: /tmp/opa
+      auto_create: true
+
 
 extraConfig: |-
   storage:

@@ -1,9 +1,43 @@
 {{- $chartName := include "opa.name" . -}}
-{{- if .Values.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-{{ $chartName }}-configmap
+  name: {{ include "opa.fullname" . }}-configmap
 data:
-  OPA_CONFIG: {{ tpl (.Files.Get "config/opa.yaml") . | quote }}
-{{- end }}
+  OPA_CONFIG: |-
+    services:
+      s3:
+        url: {{ .Values.config.bundle.serverUrl | quote }}
+        credentials:
+          s3_signing:
+            environment_credentials: {}
+      {{ tpl .Values.config.extraServicesConfig . | nindent 6 }}
+
+    bundles:
+      {{ .Values.config.bundle.name | default "authz" }}:
+        service: s3
+        resource: {{ .Values.config.bundle.filePath | quote }}
+      {{ tpl .Values.config.extraBundlesConfig . | nindent 6 }}
+
+    decision_logs:
+      console: {{ .Values.config.decisionLogs.enabled | default false }}
+      {{ tpl .Values.config.extraDecisionLogsConfig . | nindent 6 }}
+
+    {{- if .Values.config.tracing.enabled }}
+    distributed_tracing:
+      type: {{ .Values.config.tracing.type | quote }}
+      address: {{ .Values.config.tracing.endpoint | quote }}
+      sample_percentage: {{ .Values.config.tracing.sample_percentage | default 100 }}
+      {{ tpl .Values.config.extraTracingConfig . | nindent 6 }}
+    {{- end }}
+
+    status:
+      service: s3
+      {{- if .Values.config.prometheus.enabled }}
+      prometheus: true
+      {{- else }}
+      prometheus: false
+      {{- end }}
+      {{ tpl .Values.config.extraStatusConfig . | nindent 6 }}
+
+    {{ tpl .Values.extraGlobalConfig . | nindent 4 }}
