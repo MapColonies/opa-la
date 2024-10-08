@@ -31,6 +31,7 @@ dbConfig: &dbConfig
     caFileName: root.crt
 
 opa:
+  logLevel: debug
   cloudProvider: *cloudProvider
   environment: *environment
   caSecretName: *caSecretName 
