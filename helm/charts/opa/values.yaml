@@ -40,7 +40,6 @@ config:
     enabled: true
     type: grpc
     endpoint: localhost:4317
-    sample_percentage: 50
   prometheus:
     enabled: true
 
