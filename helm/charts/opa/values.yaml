@@ -37,7 +37,7 @@ config:
   decisionLogs:
     enabled: false
   tracing:
-    enabled: true
+    enabled: false
     type: grpc
     endpoint: localhost:4317
   prometheus:

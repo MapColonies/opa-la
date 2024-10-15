@@ -52,7 +52,7 @@ opa:
     decisionLogs:
       enabled: false
     tracing:
-      enabled: true
+      enabled: false
       type: grpc
       endpoint: http://loaclhost:4317
     prometheus:
