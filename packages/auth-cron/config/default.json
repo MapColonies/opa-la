@@ -2,7 +2,7 @@
   "telemetry": {
     "logger": {
       "level": "info",
-      "prettyPrint": false
+      "prettyPrint": true
     }
   },
   "db": {
@@ -10,13 +10,10 @@
     "port": 5432,
     "username": "postgres",
     "password": "postgres",
-    "enableSslAuth": false,
-    "sslPaths": {
-      "ca": "",
-      "key": "",
-      "cert": ""
-    },
     "database": "auth-manager",
+    "ssl": {
+      "enabled": false
+    },
     "schema": "auth_manager"
   },
   "cron": {}
