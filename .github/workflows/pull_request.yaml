@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [16.x, 18.x, 20.x]
+        node: [18.x, 20.x]
 
     steps:
       - name: Check out TS Project Git repository
@@ -87,7 +87,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [16.x, 18.x, 20.x]
+        node: [18.x, 20.x]
         package: [auth-manager, '@map-colonies/auth-bundler', 'auth-cron']
 
     services:
@@ -135,7 +135,7 @@ jobs:
       - name: Run tests
         run: npx lerna run test --scope ${{ matrix.package }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
-          name: Test Reporters
+          name: ${{ matrix.package }} Test Reporter for node ${{ matrix.node }}
           path: packages/${{ matrix.package }}/reports/**
