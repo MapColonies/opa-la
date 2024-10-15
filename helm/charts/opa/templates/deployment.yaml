@@ -75,6 +75,7 @@ spec:
           - "--server"
           - "--addr=0.0.0.0:{{ .Values.targetPort }}"
           - "--diagnostic-addr=0.0.0.0:{{ .Values.diagnosticTargetPort }}"
+          - "--log-level={{ .Values.logLevel }}"
           - "--config-file"
           - "/opa/opa.yaml"
           {{- if .Values.resources.enabled }}
