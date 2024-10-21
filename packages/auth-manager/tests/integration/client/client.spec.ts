@@ -11,11 +11,15 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { getFakeClient } from '../../utils/client';
 import { ClientRepository } from '../../../src/client/DAL/clientRepository';
+import { initConfig } from '../../../src/common/config';
 import { ClientRequestSender } from './helpers/requestSender';
 
 describe('client', function () {
   let requestSender: ClientRequestSender;
   let depContainer: DependencyContainer;
+  beforeAll(async function () {
+    await initConfig(true);
+  });
   beforeEach(async function () {
     const [app, container] = await getApp({
       override: [

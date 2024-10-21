@@ -2,14 +2,14 @@ import path from 'node:path';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { createServer } from 'node:http';
-import { Bundle, Environment, initConnection } from '@map-colonies/auth-core';
-import { BundleDatabase } from '@map-colonies/auth-bundler';
 import { createTerminus } from '@godaddy/terminus';
 import { CatchCallbackFn, Cron } from 'croner';
 import { DataSource, Repository } from 'typeorm';
+import { Bundle, Environment, initConnection } from '@map-colonies/auth-core';
+import { type commonDbFullV1Type } from '@map-colonies/schemas';
+import { BundleDatabase } from '@map-colonies/auth-bundler';
 import { getJob } from './job';
 import { getConfig } from './config';
-import { type commonDbFullV1Type } from '@map-colonies/schemas';
 import { emptyDir } from './util';
 import { logger } from './logger';
 
@@ -29,7 +29,6 @@ const main = async (): Promise<void> => {
   const config = getConfig();
   const cronConfig = config.get('cron');
   const dbConfig = config.get('db');
-  console.log('Im before init db');
   const [dataSource, bundleDatabase, bundleRepository] = await initDb(dbConfig);
 
   Object.entries(cronConfig).map(([env, value]) => {

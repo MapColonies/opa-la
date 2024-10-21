@@ -2,11 +2,11 @@ import { readFileSync } from 'node:fs';
 import { StatusCodes } from 'http-status-codes';
 import { HeadBucketCommand, HeadObjectCommand, NotFound, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Environment } from '@map-colonies/auth-core';
+import { type infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { getConfig } from './config';
-import { type commonS3FullV1Type } from '@map-colonies/schemas';
 import { logger } from './logger';
 
-type cronS3Type = commonS3FullV1Type & { key: string };
+type CronS3Type = Exclude<infraOpalaCronV1Type['cron']['np'], undefined>['s3'];
 
 class S3client {
   private readonly s3client: S3Client;
@@ -14,10 +14,11 @@ class S3client {
   private readonly key: string;
   private readonly endpoint: string;
 
-  public constructor(config: cronS3Type) {
+  public constructor(config: CronS3Type) {
     const { accessKeyId, secretAccessKey, bucket, endpoint, key, ...s3Options } = config;
     this.s3client = new S3Client({
       credentials: { accessKeyId, secretAccessKey },
+      endpoint,
       ...s3Options,
     });
     this.bucket = bucket;
@@ -29,7 +30,6 @@ class S3client {
     try {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const command = new HeadObjectCommand({ Bucket: this.bucket, Key: this.key });
-
       logger?.debug({ msg: 'fetching object metadata from s3', bucket: this.bucket, key: this.key, endpoint: this.endpoint });
       const res = await this.s3client.send(command);
 
@@ -48,7 +48,6 @@ class S3client {
       const command = new HeadBucketCommand({ Bucket: this.bucket });
       logger?.debug({ msg: 'fetching bucket metadata from s3', bucket: this.bucket, endpoint: this.endpoint });
       const res = await this.s3client.send(command);
-      console.log('after fetch');
       return res.$metadata.httpStatusCode === StatusCodes.OK;
     } catch (error) {
       if (error instanceof NotFound) {

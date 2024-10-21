@@ -1,13 +1,13 @@
 /// <reference types="jest-extended" />
 
-import config from 'config';
-import { Asset, Connection, DbConfig, Environment, Key, createConnectionOptions } from '@map-colonies/auth-core';
+import { Asset, Connection, Environment, Key, createConnectionOptions } from '@map-colonies/auth-core';
 import { DataSource } from 'typeorm';
 import { BundleDatabase } from '../src/db';
 import { ConnectionNotInitializedError } from '../src';
 import { getMockKeys } from './utils/key';
 import { getFakeAsset } from './utils/asset';
 import { getFakeConnection } from './utils/connection';
+import { getConfig, initConfig } from './helpers/config';
 
 describe('db.ts', function () {
   let dataSource: DataSource;
@@ -15,7 +15,8 @@ describe('db.ts', function () {
   const connection: Connection = { ...getFakeConnection(), environment: Environment.PRODUCTION, name: 'xd' };
 
   beforeAll(async function () {
-    const connectionOptions = config.get<DbConfig>('db');
+    await initConfig();
+    const connectionOptions = getConfig().getAll();
 
     dataSource = new DataSource({
       ...createConnectionOptions(connectionOptions),
@@ -43,8 +44,7 @@ describe('db.ts', function () {
 
   describe('#init', function () {
     it('should throw an error if datasource is not initialized', function () {
-      const connectionOptions = config.get<DbConfig>('db');
-
+      const connectionOptions = getConfig().getAll();
       const dataSource = new DataSource({
         ...createConnectionOptions(connectionOptions),
       });

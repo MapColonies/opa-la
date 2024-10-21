@@ -9,6 +9,7 @@ import 'jest-openapi';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { getFakeBundle } from '../../utils/bundle';
+import { initConfig } from '../../../src/common/config';
 import { BundleRequestSender } from './helpers/requestSender';
 
 describe('bundle', function () {
@@ -16,6 +17,7 @@ describe('bundle', function () {
   let depContainer: DependencyContainer;
   const bundles = [getFakeBundle(), { ...getFakeBundle(), environment: Environment.PRODUCTION }, getFakeBundle()];
   beforeAll(async function () {
+    await initConfig(true);
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },

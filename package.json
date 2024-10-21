@@ -9,6 +9,8 @@
     "format": "prettier -c .",
     "format:fix": "prettier --write .",
     "test": "lerna run test",
+    "prelint": "npm run format",
+    "prelint:fix": "npm run format:fix",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "version": "node scripts/version-bump.mjs"

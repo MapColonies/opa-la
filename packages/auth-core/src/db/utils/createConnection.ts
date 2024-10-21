@@ -1,10 +1,10 @@
-import { hostname } from 'os';
-import { readFileSync } from 'fs';
+import { hostname } from 'node:os';
+import { readFileSync } from 'node:fs';
+import { TlsOptions } from 'node:tls';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { migrations } from '../migrations';
 import { Asset, Bundle, Client, Connection, Domain, Key } from '../entities';
-import { TlsOptions } from 'tls';
 
 /**
  * A helper function that creates the typeorm DataSource options to use for creating a new DataSource.
@@ -15,10 +15,10 @@ import { TlsOptions } from 'tls';
 export const createConnectionOptions = (dbConfig: commonDbFullV1Type): DataSourceOptions => {
   let ssl: TlsOptions | undefined = undefined;
 
-  const { ssl: InputSsl, ...dataSourceOptions } = dbConfig;
+  const { ssl: inputSsl, ...dataSourceOptions } = dbConfig;
 
-  if (InputSsl.enabled) {
-    ssl = { key: readFileSync(InputSsl.key), cert: readFileSync(InputSsl.cert), ca: readFileSync(InputSsl.ca) };
+  if (inputSsl.enabled) {
+    ssl = { key: readFileSync(inputSsl.key), cert: readFileSync(inputSsl.cert), ca: readFileSync(inputSsl.ca) };
   }
 
   return {

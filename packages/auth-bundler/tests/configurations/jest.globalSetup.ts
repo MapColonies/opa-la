@@ -1,9 +1,9 @@
-import { mkdir } from 'fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import path from 'path';
-import { tmpdir } from 'os';
-import config from 'config';
-import { DbConfig, initConnection } from '@map-colonies/auth-core';
+import path from 'node:path';
+import { tmpdir } from 'node:os';
+import { initConnection } from '@map-colonies/auth-core';
+import { getConfig, initConfig } from '../helpers/config';
 
 export default async (): Promise<void> => {
   const folder = path.join(tmpdir(), 'authbundlertests');
@@ -11,13 +11,15 @@ export default async (): Promise<void> => {
     await mkdir(folder);
   }
 
-  const dataSourceOptions = config.get<DbConfig>('db');
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  await initConfig();
+  const configInstance = getConfig();
+  const dataSourceOptions = configInstance.getAll();
   const connection = await initConnection({ ...dataSourceOptions });
+
   // it is not allowed to use parameters for create commands in postgresql :(
-  if (dataSourceOptions.schema != undefined) {
-    await connection.query(`DROP SCHEMA IF EXISTS ${dataSourceOptions.schema} CASCADE`);
-  }
-  await connection.query(`CREATE SCHEMA IF NOT EXISTS ${dataSourceOptions.schema ?? 'public'}`);
+  await connection.query(`DROP SCHEMA IF EXISTS ${dataSourceOptions.schema} CASCADE`);
+  await connection.query(`CREATE SCHEMA IF NOT EXISTS ${dataSourceOptions.schema}`);
   await connection.runMigrations();
   await connection.destroy();
 };

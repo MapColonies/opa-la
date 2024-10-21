@@ -1,12 +1,8 @@
 const { DataSource } = require('typeorm');
-const config = require('config');
-const { createConnectionOptions } = require('./db/utils/createConnection');
+const { getConfig } = require('./dist/config.js');
+const { createConnectionOptions } = require('./dist/db/utils/createConnection');
 
-/**
- * @type {import("./src/db/types").DbConfig}
- */
-const connectionOptions = config.get('db');
-
+const connectionOptions = getConfig().getAll();
 const appDataSource = new DataSource({
   ...createConnectionOptions(connectionOptions),
 });

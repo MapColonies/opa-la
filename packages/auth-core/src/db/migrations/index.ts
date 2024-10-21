@@ -1,6 +1,6 @@
 /* eslint-disable */
-import { readdirSync } from 'fs';
-import path from 'path';
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
 
 /**
  * A chronological sorted list of all the database migrations to create the latest authentication schema.

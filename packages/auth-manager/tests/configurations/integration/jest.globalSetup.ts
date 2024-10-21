@@ -1,14 +1,13 @@
-import config from 'config';
-import { DbConfig, initConnection } from '@map-colonies/auth-core';
+import { initConnection } from '@map-colonies/auth-core';
+import { getConfig, initConfig } from '../../../src/common/config';
 
 export default async (): Promise<void> => {
-  const dataSourceOptions = config.get<DbConfig>('db');
+  await initConfig(true);
+  const configInstance = getConfig();
+  const dataSourceOptions = configInstance.get('db');
   const connection = await initConnection({ ...dataSourceOptions });
-  // it is not allowed to use parameters for create commands in postgresql :(
-  if (dataSourceOptions.schema != undefined) {
-    await connection.query(`DROP SCHEMA IF EXISTS ${dataSourceOptions.schema} CASCADE`);
-  }
-  await connection.query(`CREATE SCHEMA IF NOT EXISTS ${dataSourceOptions.schema ?? 'public'}`);
+  await connection.query(`DROP SCHEMA IF EXISTS ${dataSourceOptions.schema} CASCADE`);
+  await connection.query(`CREATE SCHEMA IF NOT EXISTS ${dataSourceOptions.schema}`);
   await connection.runMigrations();
   await connection.destroy();
 };
