@@ -9,10 +9,14 @@
     "logger": {
       "level": "info",
       "prettyPrint": false
-    }
+    },
+    "tracing": {
+      "isEnabled": false
+    },
+    "shared": {}
   },
   "server": {
-    "port": "8080",
+    "port": 8080,
     "request": {
       "payload": {
         "limit": "1mb"
@@ -29,11 +33,8 @@
     "port": 5432,
     "username": "postgres",
     "password": "postgres",
-    "enableSslAuth": false,
-    "sslPaths": {
-      "ca": "",
-      "key": "",
-      "cert": ""
+    "ssl": {
+      "enabled": false
     },
     "database": "auth-manager",
     "schema": "auth_manager"

@@ -7,7 +7,7 @@
  *
  * @packageDocumentation
  */
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 import { createBundleCommand, testCommand, validateBinaryExistCommand, testCoverageCommand } from './opa';
 import { createBundleDirectoryStructure } from './bundler';
 import { BundleContent, TestOptions } from './types';

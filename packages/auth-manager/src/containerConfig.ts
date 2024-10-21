@@ -1,13 +1,12 @@
-import config from 'config';
 import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
 import { instanceCachingFactory } from 'tsyringe';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
-import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
+import jsLogger from '@map-colonies/js-logger';
 import { Metrics } from '@map-colonies/telemetry';
 import { DataSource } from 'typeorm';
 import { HealthCheck } from '@godaddy/terminus';
-import { Bundle, DbConfig, initConnection } from '@map-colonies/auth-core';
+import { Bundle, initConnection } from '@map-colonies/auth-core';
 import { DB_CONNECTION_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
 import { tracing } from './common/tracing';
 import { domainRouterFactory, DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
@@ -23,6 +22,7 @@ import { connectionRepositoryFactory } from './connection/DAL/connectionReposito
 import { connectionRouterFactory, CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
 import { domainRepositoryFactory } from './domain/DAL/domainRepository';
 import { bundleRouterFactory, BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
+import { getConfig } from './common/config';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
@@ -39,10 +39,13 @@ export interface RegisterOptions {
 }
 
 export const registerExternalValues = async (options?: RegisterOptions): Promise<DependencyContainer> => {
-  const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
+  const configInstance = getConfig();
+
+  const loggerConfig = configInstance.get('telemetry.logger');
+
   const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
 
-  const dataSourceOptions = config.get<DbConfig>('db');
+  const dataSourceOptions = configInstance.get('db');
   const connection = await initConnection(dataSourceOptions);
 
   const metrics = new Metrics();
@@ -52,7 +55,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   const tracer = trace.getTracer(SERVICE_NAME);
 
   const dependencies: InjectionObject<unknown>[] = [
-    { token: SERVICES.CONFIG, provider: { useValue: config } },
+    { token: SERVICES.CONFIG, provider: { useValue: configInstance } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: DataSource, provider: { useValue: connection } },

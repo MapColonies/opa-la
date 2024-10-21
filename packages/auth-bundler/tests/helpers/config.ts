@@ -1,7 +1,7 @@
 import { type ConfigInstance, config } from '@map-colonies/config';
-import { infraOpalaCronV1, type infraOpalaCronV1Type } from '@map-colonies/schemas';
+import { commonDbFullV1, type commonDbFullV1Type } from '@map-colonies/schemas';
 
-type ConfigType = ConfigInstance<infraOpalaCronV1Type>;
+type ConfigType = ConfigInstance<commonDbFullV1Type>;
 
 let configInstance: ConfigType | undefined;
 
@@ -10,13 +10,13 @@ let configInstance: ConfigType | undefined;
  * This should only be called from the instrumentation file.
  * @returns A Promise that resolves when the configuration is successfully initialized.
  */
-async function initConfig(offlineMode?: boolean): Promise<void> {
+async function initConfig(): Promise<void> {
   configInstance = await config({
-    configName: 'auth-cron',
+    configName: 'auth-bundler',
     configServerUrl: 'http://localhost:8080',
-    schema: infraOpalaCronV1,
+    schema: commonDbFullV1,
     version: 'latest',
-    offlineMode: offlineMode,
+    offlineMode: true,
   });
 }
 

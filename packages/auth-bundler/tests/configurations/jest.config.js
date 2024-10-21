@@ -4,7 +4,7 @@ module.exports = {
   ...base,
   rootDir: '../..',
   transform: {},
-  displayName: 'auth-manager-integration',
+  displayName: 'auth-bundler-integration',
   testMatch: ['<rootDir>/tests/**/*.spec.ts'],
   setupFiles: ['<rootDir>/tests/configurations/jest.setup.ts'],
   setupFilesAfterEnv: ['jest-extended/all'],

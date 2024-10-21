@@ -10,11 +10,17 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { KeyRepository } from '../../../src/key/DAL/keyRepository';
 import { getMockKeys } from '../../utils/key';
+import { initConfig } from '../../../src/common/config';
 import { KeyRequestSender } from './helpers/requestSender';
 
 describe('client', function () {
   let requestSender: KeyRequestSender;
   let depContainer: DependencyContainer;
+
+  beforeAll(async function () {
+    await initConfig(true);
+  });
+
   beforeEach(async function () {
     const [app, container] = await getApp({
       override: [
