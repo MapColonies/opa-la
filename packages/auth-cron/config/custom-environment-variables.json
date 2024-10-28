@@ -28,11 +28,11 @@
     },
     "username": "DB_USERNAME",
     "password": "DB_PASSWORD",
-    "enableSslAuth": {
-      "__name": "DB_ENABLE_SSL_AUTH",
-      "__format": "boolean"
-    },
-    "sslPaths": {
+    "ssl": {
+      "enabled": {
+        "__name": "DB_ENABLE_SSL_AUTH",
+        "__format": "boolean"
+      },
       "ca": "DB_CA_PATH",
       "key": "DB_KEY_PATH",
       "cert": "DB_CERT_PATH"
