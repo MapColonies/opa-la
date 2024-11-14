@@ -6,7 +6,7 @@ import { createTerminus } from '@godaddy/terminus';
 import { CatchCallbackFn, Cron } from 'croner';
 import { DataSource, Repository } from 'typeorm';
 import { Bundle, Environment, initConnection } from '@map-colonies/auth-core';
-import { type commonDbFullV1Type } from '@map-colonies/schemas';
+import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { BundleDatabase } from '@map-colonies/auth-bundler';
 import { getJob } from './job';
 import { getConfig } from './config';
