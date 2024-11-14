@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [16.x, 18.x, 20.x]
+        node: [18.x, 20.x]
 
     steps:
       - name: Check out TS Project Git repository
@@ -87,7 +87,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [16.x, 18.x, 20.x]
+        node: [18.x, 20.x]
         package: [auth-manager, '@map-colonies/auth-bundler', 'auth-cron']
 
     services:

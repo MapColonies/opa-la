@@ -12,10 +12,8 @@ let configInstance: ConfigType | undefined;
  */
 async function initConfig(offlineMode?: boolean): Promise<void> {
   configInstance = await config({
-    configName: 'auth-cron',
     configServerUrl: 'http://localhost:8080',
     schema: infraOpalaCronV1,
-    version: 'latest',
     offlineMode: offlineMode,
   });
 }
