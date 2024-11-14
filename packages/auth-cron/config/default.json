@@ -2,7 +2,7 @@
   "telemetry": {
     "logger": {
       "level": "info",
-      "prettyPrint": true
+      "prettyPrint": false
     }
   },
   "db": {
