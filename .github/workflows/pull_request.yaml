@@ -88,6 +88,7 @@ jobs:
     strategy:
       matrix:
         node: [16.x, 18.x, 20.x]
+        postgres: [12, 13, 14, 15, 16, 17]
         package: [auth-manager, '@map-colonies/auth-bundler', 'auth-cron']
 
     services:
@@ -101,7 +102,7 @@ jobs:
           MINIO_ROOT_PASSWORD: minioadmin
       postgres:
         # Docker Hub image
-        image: postgres:14
+        image: postgres:${{ matrix.postgres }}
         # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: 1234
