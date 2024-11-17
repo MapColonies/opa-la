@@ -136,7 +136,7 @@ jobs:
       - name: Run tests
         run: npx lerna run test --scope ${{ matrix.package }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: Test Reporters
           path: packages/${{ matrix.package }}/reports/**
