@@ -138,5 +138,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Test-Reporters-pg${{ matrix.postgres }}
+          name: ${{ matrix.package }} Test Reporter for node ${{ matrix.node }}
           path: packages/${{ matrix.package }}/reports/**
