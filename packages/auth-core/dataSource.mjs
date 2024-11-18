@@ -1,5 +1,4 @@
 import { DataSource } from 'typeorm';
-import { createConnectionOptions } from '@map-colonies/auth-core';
 
 /**
  *
@@ -21,11 +20,9 @@ async function importModule(moduleName) {
 }
 
 const { getConfig, initConfig } = await importModule('config.js');
-
 await initConfig(true);
-const configOption = getConfig().get('db');
-const connectionOptions = configOption;
-
+const connectionOptions = getConfig().getAll();
+const { createConnectionOptions } = await importModule('db/utils/createConnection.js');
 const appDataSource = new DataSource({
   ...createConnectionOptions(connectionOptions),
 });

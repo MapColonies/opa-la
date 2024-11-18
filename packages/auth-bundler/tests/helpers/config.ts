@@ -12,10 +12,8 @@ let configInstance: ConfigType | undefined;
  */
 async function initConfig(): Promise<void> {
   configInstance = await config({
-    configName: 'auth-bundler',
     configServerUrl: 'http://localhost:8080',
     schema: commonDbFullV1,
-    version: 'latest',
     offlineMode: true,
   });
 }
