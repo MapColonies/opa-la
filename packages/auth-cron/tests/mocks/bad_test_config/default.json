@@ -1,0 +1,20 @@
+{
+  "telemetry": {
+    "logger": {
+      "level": "info",
+      "prettyPrint": false
+    }
+  },
+  "db": {
+    "host": "localhost",
+    "port": 5432,
+    "username": "postgres",
+    "password": "postgres",
+    "database": "auth-manager",
+    "ssl": {
+      "enabled": false
+    },
+    "schema": "auth_manager"
+  },
+  "cron": {}
+}
