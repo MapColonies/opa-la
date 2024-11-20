@@ -12,7 +12,11 @@ export default async (): Promise<void> => {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  await initConfig();
+  try {
+    await initConfig();
+  } catch (error) {
+    console.error(error);
+  }
   const configInstance = getConfig();
   const dataSourceOptions = configInstance.getAll();
   const connection = await initConnection({ ...dataSourceOptions });
