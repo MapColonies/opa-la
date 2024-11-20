@@ -1,12 +1,12 @@
 dependencies:
 - name: opa
   repository: file://charts/opa
-  version: v1.1.0
+  version: v1.1.1
 - name: auth-cron
   repository: file://../packages/auth-cron/helm
-  version: 1.0.0
+  version: 1.1.0
 - name: auth-manager
   repository: file://../packages/auth-manager/helm
-  version: 1.0.0
-digest: sha256:6162059176094554ba2ff9b34ce54092b0817450b44951f01f294c4f0c9bd826
-generated: "2024-06-24T11:43:16.861690715+03:00"
+  version: 1.1.0
+digest: sha256:ad0a47c1cab6e16591d11ffee0621335f016dc7d90019d7b2b1b0b07fcbd44c4
+generated: "2024-10-08T18:00:09.066481942+03:00"
