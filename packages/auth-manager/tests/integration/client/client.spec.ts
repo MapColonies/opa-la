@@ -17,9 +17,11 @@ import { ClientRequestSender } from './helpers/requestSender';
 describe('client', function () {
   let requestSender: ClientRequestSender;
   let depContainer: DependencyContainer;
+
   beforeAll(async function () {
     await initConfig(true);
   });
+
   beforeEach(async function () {
     const [app, container] = await getApp({
       override: [

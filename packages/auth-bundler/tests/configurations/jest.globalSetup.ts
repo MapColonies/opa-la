@@ -11,7 +11,6 @@ export default async (): Promise<void> => {
     await mkdir(folder);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   try {
     await initConfig();
   } catch (error) {

@@ -14,9 +14,11 @@ import { DomainRequestSender } from './helpers/requestSender';
 describe('domain', function () {
   let requestSender: DomainRequestSender;
   let depContainer: DependencyContainer;
+
   beforeAll(async function () {
     await initConfig(true);
   });
+
   beforeEach(async function () {
     const [app, container] = await getApp({
       override: [
