@@ -20,7 +20,7 @@ describe('config.ts', function () {
           return configModule.config(params);
         });
 
-        const action = initConfig(true);
+        const action = initConfig();
         await expect(action).rejects.toThrow('Config validation error');
         await action.catch((err) => {
           if (isConfigError(err, 'configValidationError')) {

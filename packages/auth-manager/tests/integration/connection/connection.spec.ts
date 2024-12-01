@@ -30,7 +30,7 @@ describe('connection', function () {
   ];
 
   beforeAll(async function () {
-    await initConfig(true);
+    await initConfig();
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },

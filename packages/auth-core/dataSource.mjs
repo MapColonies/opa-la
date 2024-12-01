@@ -20,7 +20,7 @@ async function importModule(moduleName) {
 }
 
 const { getConfig, initConfig } = await importModule('config.js');
-await initConfig(true);
+await initConfig();
 const connectionOptions = getConfig().getAll();
 const { createConnectionOptions } = await importModule('db/utils/createConnection.js');
 const appDataSource = new DataSource({

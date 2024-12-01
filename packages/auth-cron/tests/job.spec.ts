@@ -32,7 +32,7 @@ describe('job.ts', function () {
     let cronOptions: Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
 
     beforeAll(async function () {
-      await initConfig(true);
+      await initConfig();
       cronOptions = getConfig().get('cron.np') as Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
       createBundleMock.mockImplementation(async (content, workdir, filePath) => {
         await writeFile(path.join(workdir, filePath), 'aviavi');

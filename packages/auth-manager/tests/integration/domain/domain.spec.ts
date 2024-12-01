@@ -16,7 +16,7 @@ describe('domain', function () {
   let depContainer: DependencyContainer;
 
   beforeAll(async function () {
-    await initConfig(true);
+    await initConfig();
   });
 
   beforeEach(async function () {

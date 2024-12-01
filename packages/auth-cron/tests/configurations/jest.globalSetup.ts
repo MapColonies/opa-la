@@ -12,7 +12,7 @@ export default async (): Promise<void> => {
     await mkdir(folder);
   }
 
-  await initConfig(true);
+  await initConfig();
   const configInstance = getConfig();
   const cronOptions = configInstance.get('cron.np');
 

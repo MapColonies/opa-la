@@ -13,7 +13,7 @@ jest.mock('../src/logger', () => {
 
 describe('validators.ts', function () {
   beforeAll(async function () {
-    await initConfig(true);
+    await initConfig();
   });
   describe('#validateS3', function () {
     it('should not throw if the bucket exists', async function () {

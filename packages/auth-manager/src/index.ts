@@ -4,16 +4,14 @@ import 'reflect-metadata';
 import { createServer } from 'http';
 import { createTerminus, HealthCheck } from '@godaddy/terminus';
 import { Logger } from '@map-colonies/js-logger';
-import { container } from 'tsyringe';
-import config from 'config';
-import { DEFAULT_SERVER_PORT, SERVICES } from './common/constants';
-
+import { SERVICES } from './common/constants';
 import { getApp } from './app';
-
-const port: number = config.get<number>('server.port') || DEFAULT_SERVER_PORT;
+import { ConfigType } from './common/config';
 
 void getApp()
-  .then(([app]) => {
+  .then(([app, container]) => {
+    const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+    const port: number = config.get('server.port');
     const logger = container.resolve<Logger>(SERVICES.LOGGER);
     const healthCheck = container.resolve<HealthCheck>(SERVICES.HEALTHCHECK);
     // eslint-disable-next-line @typescript-eslint/naming-convention

@@ -52,7 +52,7 @@ describe('s3.ts', function () {
   let cronOptions: Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
 
   beforeAll(async function () {
-    await initConfig(true);
+    await initConfig();
     cronOptions = getConfig().get('cron.np') as Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
     s3client = new S3Client({
       credentials: { accessKeyId: cronOptions.s3.accessKeyId, secretAccessKey: cronOptions.s3.secretAccessKey },
