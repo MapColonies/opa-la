@@ -1,4 +1,4 @@
-FROM node:18 as build
+FROM node:20 as build
 
 ARG package=auth-cron
 
@@ -13,7 +13,7 @@ COPY . .
 RUN npx lerna run --include-dependencies --scope ${package} build
 RUN node scripts/docker-build.mjs -n ${package} -d /tmp/buildRes
 
-FROM node:18-alpine3.16 as production
+FROM node:20.3.1-alpine3.17 as production
 
 ARG package=auth-cron
 
@@ -34,4 +34,4 @@ WORKDIR /usr/src/app/packages/${package}
 
 USER node
 EXPOSE 8080
-CMD ["dumb-init", "node", "--max_old_space_size=512", "./index.js"]
+CMD ["dumb-init", "node", "--max_old_space_size=512", "--import", "./instrumentation.mjs", "./index.js"]
