@@ -13,13 +13,11 @@
   },
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
-    "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
+    "test:integration": "cross-env CONFIG_OFFLINE_MODE=true jest --config=./tests/configurations/integration/jest.config.js",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
-    "prelint:fix": "npm run format:fix",
-    "prelint": "npm run format",
     "lint:openapi": "openapi lint ./openapi3.yaml",
-    "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.js",
+    "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
     "migration:create": "npm run typeorm migration:generate --",
     "migration:run": "npm run typeorm migration:run -- ",
     "migration:revert": "npm run typeorm migration:revert -- ",
@@ -29,8 +27,9 @@
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json && npm run assets:copy",
     "build:docker": "cross-env DOCKER_BUILDKIT=1 docker build -f Dockerfile -t auth-manager ../.. ",
-    "start": "npm run build && cd dist && node --enable-source-maps ./index.js",
-    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./dataSource.js dist && copyfiles ./package.json dist",
+    "build:docker-no-cache": "cross-env DOCKER_BUILDKIT=1 docker build --no-cache -f Dockerfile -t auth-cron ../.. ",
+    "start": "npm run build && cd dist && node --enable-source-maps --import ./instrumentation.mjs ./index.js",
+    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./dataSource.mjs dist && copyfiles ./package.json dist",
     "clean": "rimraf dist"
   },
   "bugs": {
@@ -58,7 +57,9 @@
     "pg": "^8.10.0",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.7.0",
-    "typeorm": "^0.3.12"
+    "typeorm": "^0.3.12",
+    "@map-colonies/schemas": "^1.1.0",
+    "@map-colonies/config": "^1.3.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",

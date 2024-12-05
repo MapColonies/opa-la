@@ -108,3 +108,7 @@ reports
 local-*.json
 local.json
 *myvalues*
+
+# temporary files
+*workdir*
+*.tar.gz*

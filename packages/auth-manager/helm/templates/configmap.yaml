@@ -29,4 +29,11 @@ data:
   {{- else }}
   DB_ENABLE_SSL_AUTH: "false"
   {{- end }}
+  {{- with .Values.env.configManager }}
+  CONFIG_OFFLINE_MODE: {{ .offlineMode | quote }}
+  {{- if not .offlineMode }}
+  CONFIG_SERVER_URL: {{ .serverUrl | quote }}
+  CONFIG_NAME: {{ .configName | quote }}
+  {{- end }}
+  {{- end }}
 {{- end }}

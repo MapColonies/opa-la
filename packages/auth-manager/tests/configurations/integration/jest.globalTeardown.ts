@@ -1,11 +1,11 @@
-import config from 'config';
-import { DbConfig, initConnection } from '@map-colonies/auth-core';
+import { initConnection } from '@map-colonies/auth-core';
+import { getConfig, initConfig } from '../../../src/common/config';
 
 export default async (): Promise<void> => {
-  const dataSourceOptions = config.get<DbConfig>('db');
+  await initConfig();
+  const configInstance = getConfig();
+  const dataSourceOptions = configInstance.get('db');
   const connection = await initConnection(dataSourceOptions);
-  if (dataSourceOptions.schema != undefined) {
-    await connection.query(`DROP SCHEMA IF EXISTS ${dataSourceOptions.schema} CASCADE`);
-  }
+  await connection.query(`DROP SCHEMA IF EXISTS ${dataSourceOptions.schema} CASCADE`);
   await connection.destroy();
 };

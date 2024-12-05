@@ -73,6 +73,7 @@ spec:
               {{- end }}
               {{- end }}
           env:
+            {{- if .Values.env.configManager.offlineMode }}
             - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -91,6 +92,7 @@ spec:
                 secretKeyRef:
                   name: {{ $postgresSecretName }}
                   key: password
+            {{- end }}
             {{- end }}
             {{- if .Values.caSecretName }}
             - name: REQUESTS_CA_BUNDLE
@@ -116,7 +118,7 @@ spec:
           secret:
             secretName: {{ .Values.caSecretName }}
         {{- end }}
-        {{- if .Values.dbConfig.sslAuth.enabled }}
+        {{- if and .Values.dbConfig.sslAuth.enabled .Values.env.configManager.offlineMode }}
         {{- if .Values.dbConfig.sslAuth.caFileKey }}
         - name: ca-file
           secret:

@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { mkdirSync } from 'fs';
+import { mkdirSync } from 'node:fs';
 import config from 'config';
 import { DataSource } from 'typeorm';
 import { createConnectionOptions } from '@map-colonies/auth-core';

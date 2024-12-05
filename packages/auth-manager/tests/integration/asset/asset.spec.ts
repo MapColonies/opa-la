@@ -11,11 +11,17 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { AssetRepository } from '../../../src/asset/DAL/assetRepository';
 import { getFakeAsset } from '../../utils/asset';
+import { initConfig } from '../../../src/common/config';
 import { AssetRequestSender } from './helpers/requestSender';
 
 describe('client', function () {
   let requestSender: AssetRequestSender;
   let depContainer: DependencyContainer;
+
+  beforeAll(async function () {
+    await initConfig();
+  });
+
   beforeEach(async function () {
     const [app, container] = await getApp({
       override: [

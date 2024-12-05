@@ -52,7 +52,7 @@ The docker image already contains all the necessary tools to run the migrations.
 
 For example:
 ```sh
-docker run --rm --network=host --entrypoint=npm auth-manager run migration:run
+docker run --rm --network=host --entrypoint=npm auth-cron run migration:run
 ```
 
 Do not forget to also supply the required configuration by using environment variables or file.

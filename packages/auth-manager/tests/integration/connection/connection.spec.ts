@@ -15,6 +15,7 @@ import { KeyRepository } from '../../../src/key/DAL/keyRepository';
 import { DomainRepository } from '../../../src/domain/DAL/domainRepository';
 import { getFakeClient } from '../../utils/client';
 import { getRealKeys } from '../../utils/key';
+import { initConfig } from '../../../src/common/config';
 import { ConnectionRequestSender } from './helpers/requestSender';
 
 describe('connection', function () {
@@ -27,7 +28,9 @@ describe('connection', function () {
     { ...getFakeIConnection(), name: clients[0].name, environment: Environment.PRODUCTION, version: 2 },
     { ...getFakeIConnection(), name: clients[1].name, environment: Environment.NP },
   ];
+
   beforeAll(async function () {
+    await initConfig();
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },

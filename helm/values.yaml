@@ -120,6 +120,11 @@ auth-cron:
     logLevel: info
     logPrettyPrintEnabled: false
 
+    configManager:
+      offlineMode: false
+      serverUrl: 'http://infra-config-config-server/api'
+      configName: 'auth-cron'
+
   dbConfig: *dbConfig
 
   cronConfig:
@@ -189,6 +194,11 @@ auth-manager:
     metrics:
       enabled: false
       url: http://localhost:55681/v1/metrics
+
+    configManager:
+      offlineMode: false
+      serverUrl: 'http://infra-config-config-server/api'
+      configName: 'auth-manager'
 
   dbConfig: *dbConfig
 

@@ -28,6 +28,11 @@ env:
   logLevel: info
   logPrettyPrintEnabled: false
 
+  configManager:
+    offlineMode: false
+    serverUrl: 'http://infra-config-config-server/api'
+    configName: 'auth-cron'
+
 dbConfig:
   host: localhost
   username: postgres

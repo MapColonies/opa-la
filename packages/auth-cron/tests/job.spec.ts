@@ -4,11 +4,11 @@ import path from 'node:path';
 import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
 import { Bundle, Environment } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
-import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
+import { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getJob } from '../src/job';
-import { AppConfig } from '../src/config';
+import { getConfig, initConfig } from '../src/config';
 
 jest.mock('@map-colonies/auth-bundler');
 jest.mock('../src/logger', () => {
@@ -29,16 +29,18 @@ describe('job.ts', function () {
     } as unknown as BundleDatabase);
     const createBundleMock = jest.mocked(createBundle);
     let s3client: S3Client;
-    const cronOptions = config.get<AppConfig['cron']['np']>('cron.np');
+    let cronOptions: Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
 
-    beforeAll(function () {
+    beforeAll(async function () {
+      await initConfig();
+      cronOptions = getConfig().get('cron.np') as Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
       createBundleMock.mockImplementation(async (content, workdir, filePath) => {
         await writeFile(path.join(workdir, filePath), 'aviavi');
       });
 
       s3client = new S3Client({
-        credentials: { accessKeyId: cronOptions?.s3.accessKey as string, secretAccessKey: cronOptions?.s3.secretKey as string },
-        endpoint: cronOptions?.s3.endpoint,
+        credentials: { accessKeyId: cronOptions.s3.accessKeyId, secretAccessKey: cronOptions.s3.secretAccessKey },
+        endpoint: cronOptions.s3.endpoint,
         region: 'us-east-1',
         forcePathStyle: true,
       });
@@ -112,7 +114,7 @@ describe('job.ts', function () {
 
     it('should not create a bundle if the bundle in s3 is up to date', async function () {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      const res = await s3client.send(new PutObjectCommand({ Bucket: cronOptions?.s3.bucket, Key: cronOptions?.s3.key }));
+      const res = await s3client.send(new PutObjectCommand({ Bucket: cronOptions.s3.bucket, Key: cronOptions.s3.key }));
       bundleRepoMock.findOne.mockResolvedValueOnce({
         id: 1,
         assets: [{ name: 'avi', version: 1 }],

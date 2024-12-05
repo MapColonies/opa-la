@@ -5,12 +5,16 @@ import { DependencyContainer } from 'tsyringe';
 import { DataSource } from 'typeorm';
 
 import { getApp } from '../../../src/app';
+import { initConfig } from '../../../src/common/config';
 import { SERVICES } from '../../../src/common/constants';
 import { DocsRequestSender } from './helpers/docsRequestSender';
 
 describe('docs', function () {
   let requestSender: DocsRequestSender;
   let depContainer: DependencyContainer;
+  beforeAll(async function () {
+    await initConfig();
+  });
   beforeEach(async function () {
     const [app, container] = await getApp({
       override: [
