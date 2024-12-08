@@ -13,7 +13,8 @@
     "prelint:fix": "npm run format:fix",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
-    "version": "node scripts/version-bump.mjs"
+    "version": "node scripts/version-bump.mjs",
+    "release": "npx lerna version --conventional-commits"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.4",
