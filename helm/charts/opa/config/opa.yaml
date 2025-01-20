@@ -1,28 +1,44 @@
 services:
   s3:
-    url: {{ .Values.config.bundle.serverUrl }}
+    url: {{ .Values.s3.endpoint }}
     credentials:
       s3_signing:
+        # Required for finding the envs for S3
         environment_credentials: {}
 
 bundles:
   authz:
     service: s3
-    resource: {{ .Values.config.bundle.filePath }}
+    resource: {{ .Values.s3.filePath }}
 
-decision_logs:
-  console: {{ .Values.config.decisionLogs.enabled }}
-
-{{ if .Values.config.tracing.enabled }}
-distributed_tracing:
-  type: {{ .Values.config.tracing.type }}
-  address: {{ .Values.config.tracing.endpoint }}
+{{ if .Values.status.enabled }}
+status:
+  console: {{ .Values.status.console }}
+  prometheus: {{ .Values.status.metrics }}
 {{ end }}
 
-status:
-  service: s3
-  {{ if .Values.config.prometheus.enabled }}
-  prometheus: true
-  {{ end }}
+decision_logs:
+  console: {{ .Values.decisionLogs.console }}
+  reporting:
+    buffer_size_limit_bytes: {{ .Values.decisionLogs.maxBufferSize }}
 
-{{- tpl .Values.extraConfig . | nindent 0 }}
+{{ if .Values.tracing.enabled }}
+distributed_tracing:
+  type: {{ .Values.tracing.type }}
+  address: {{ .Values.tracing.endpoint }}
+  sample_percentage: {{ .Values.tracing.samplePercentage | default 100 }}
+  resource:
+    service_namespace: {{ .Values.tracing.resources.namespace }}
+    service_version: {{ .Values.image.tag }}
+{{ end }}
+
+storage:
+  disk:
+    auto_create: {{ .Values.storage.autoCreate }}
+    directory: {{ .Values.storage.directory }}
+
+labels:
+  environment: *environment
+  {{- range $key, $value := .Values.labels }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

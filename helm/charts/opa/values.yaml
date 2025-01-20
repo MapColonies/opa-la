@@ -4,68 +4,72 @@ global:
   metrics: {}
   environment: ''
 
-environment: &environment development
+environment: development
 
-cloudProvider: &cloudProvider
+cloudProvider:
   dockerRegistryUrl: my-registry-url.io
   imagePullSecretName: 'my-registry-secret'
   flavor: openshift
 
-caSecretName: &caSecretName ''
-caPath: &caPath '/usr/local/share/ca-certificates'
-caKey: &caKey 'ca.crt'
+caSecretName: ''
+caPath: '/usr/local/share/ca-certificates'
+caKey: 'ca.crt'
 
 image:
   repository: openpolicyagent/opa
-  tag: 0.53.0-envoy-3
+  tag: 1.0.0
 
 enabled: true
-replicaCount: 2
+replicaCount: 1
 nodePort: 30000
 
 servicePort: 80
 targetPort: 8181
 diagnosticTargetPort: 8282
+logLevel: error
 
-additionalPodAnnotations:
-  {}
-
-config:
-  bundle:
-    serverUrl: http://localhost:9000/opa
-    filePath: /opa.tar.gz
-  decisionLogs:
-    enabled: false
-  tracing:
-    enabled: false
-    type: grpc
-    endpoint: localhost:4317
-  prometheus:
-    enabled: true
-
-extraConfig: |-
-  storage:
-    disk:
-      directory: /tmp/opa
-      auto_create: true
+additionalPodAnnotations: {}
 
 s3:
+  endpoint: http://localhost:9000/opa
   secretName: s3-secret
   awsRegion: ' '
+  filePath: '/dev.tar.gz'
+
+status:
+  enabled: true
+  console: true
+  metrics: true
+
+decisionLogs:
+  console: true
+  maxBufferSize: 5242880 # 5MB
+
+tracing:
+  enabled: false
+  type: grpc
+  endpoint: localhost:4317
+  samplePercentage: 1
+  resources:
+    namespace: NAMESPACE
+
+storage:
+  autoCreate: true
+  directory: /tmp/opa
 
 resources:
   enabled: true
   value:
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 400m
+      memory: 300Mi
     requests:
       cpu: 100m
-      memory: 128Mi
+      memory: 300Mi
 
 hpa:
-  enabled: true
-  minReplicas: 2
+  enabled: false
+  minReplicas: 1
   maxReplicas: 15
   metrics:
   - type: Resource
@@ -95,3 +99,6 @@ ingress:
   cors:
     enabled: true
     origin: '*'
+
+# Add any label you want as `KEY: VALUE`
+labels:

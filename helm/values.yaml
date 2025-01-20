@@ -31,7 +31,6 @@ dbConfig: &dbConfig
     caFileName: root.crt
 
 opa:
-  logLevel: debug
   cloudProvider: *cloudProvider
   environment: *environment
   caSecretName: *caSecretName 
@@ -40,52 +39,31 @@ opa:
 
   image:
     repository: openpolicyagent/opa
-    tag: 0.53.0-envoy-3
+    tag: 1.0.0
 
   enabled: true
   replicaCount: 2
-  nodePort: 30000
-  config:
-    bundle:
-      serverUrl: http://localhost:9000/opa
-      filePath: /opa.tar.gz
-    decisionLogs:
-      enabled: false
-    tracing:
-      enabled: false
-      type: grpc
-      endpoint: http://loaclhost:4317
-    prometheus:
-      enabled: true      
+
+  decisionLogs:
+    console: true
+
+  tracing:
+    enabled: false
 
   s3:
+    endpoint: http://localhost:9000/opa
     secretName: s3-secret
-    awsRegion: ' '      
+    filePath: '/dev.tar.gz'    
 
   resources:
     enabled: true
     value:
       limits:
         cpu: 400m
-        memory: 128Mi
+        memory: 300Mi
       requests:
         cpu: 100m
-        memory: 128Mi
-
-  additionalPodAnnotations:
-    {}
-
-  # hpa:
-  #   enabled: true
-  #   minReplicas: 2
-  #   maxReplicas: 10
-  #   metrics:
-  #   - type: Resource
-  #     resource:
-  #       name: cpu
-  #       target:
-  #         type: Utilization
-  #         averageUtilization: 75
+        memory: 300Mi
 
   route:
     enabled: false
