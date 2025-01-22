@@ -3,6 +3,7 @@
 {{- $cloudProviderFlavor := include "opa.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "opa.cloudProviderDockerRegistryUrl" . -}}
 {{- $cloudProviderImagePullSecretName := include "opa.cloudProviderImagePullSecretName" . -}}
+{{- $imageTag := include "opa.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -54,11 +55,11 @@ spec:
             name: {{ .Release.Name }}-{{ $chartName }}-configmap
             items:
             - key: "OPA_CONFIG"
-              path: "opa.yaml"
+              path: "opa-config.yaml"
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}
-          image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ .tag }}
+          image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $imageTag }}
           {{- end }}
           volumeMounts:
           {{- if .Values.caSecretName }}
@@ -67,9 +68,9 @@ spec:
             subPath: {{ .Values.caKey | quote }}
           {{- end }}
           - name: opa-configfile
-            mountPath: /opa/opa.yaml
+            mountPath: /etc/opa-config.yaml
             readOnly: true
-            subPath: opa.yaml
+            subPath: opa-config.yaml
           args:
           - "run"
           - "--server"
@@ -77,7 +78,7 @@ spec:
           - "--diagnostic-addr=0.0.0.0:{{ .Values.diagnosticTargetPort }}"
           - "--log-level={{ .Values.logLevel }}"
           - "--config-file"
-          - "/opa/opa.yaml"
+          - "/etc/opa-config.yaml"
           {{- if .Values.resources.enabled }}
           resources:
             {{- toYaml .Values.resources.value | nindent 12 }}
