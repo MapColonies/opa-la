@@ -29,7 +29,7 @@ distributed_tracing:
   sample_percentage: {{ .Values.tracing.samplePercentage | default 100 }}
   resource:
     service_namespace: {{ .Values.tracing.resources.namespace }}
-    service_version: {{ .Values.image.tag }}
+    # service_version: {{ .Values.image.tag }}
 {{ end }}
 
 storage:
