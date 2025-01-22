@@ -3,4 +3,4 @@ name: opa
 description: A Helm chart for opa
 type: application
 version: v1.1.0
-appVersion: v1.0.0
+appVersion: 0.53.0-envoy-3

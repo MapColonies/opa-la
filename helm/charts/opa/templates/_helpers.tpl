@@ -43,6 +43,13 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
+Returns the tag of the chart.
+*/}}
+{{- define "opa.tag" -}}
+{{- default (printf "v%s" .Chart.AppVersion) .Values.image.tag }}
+{{- end }}
+
+{{/*
 Selector labels
 */}}
 {{- define "opa.selectorLabels" -}}
