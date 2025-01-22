@@ -29,7 +29,7 @@ distributed_tracing:
   sample_percentage: {{ .Values.tracing.samplePercentage | default 100 }}
   resource:
     service_namespace: {{ .Values.tracing.resources.namespace }}
-    # service_version: {{ .Values.image.tag }}
+    # service_version: {{ include "opa.tag" . }}
 {{ end }}
 
 storage:
@@ -38,7 +38,7 @@ storage:
     directory: {{ .Values.storage.directory }}
 
 labels:
-  environment: {{ .Values.environment }}
+  environment: {{ include "opa.environment" . }}
   {{- range $key, $value := .Values.labels }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
