@@ -39,7 +39,7 @@ opa:
 
   image:
     repository: openpolicyagent/opa
-    tag: 0.53.0-envoy-3
+    # tag: 1.0.1
 
   enabled: true
   replicaCount: 2
@@ -51,6 +51,7 @@ opa:
     enabled: false
 
   s3:
+    endpoint: http://localhost:9000/opa
     secretName: s3-secret
     filePath: '/dev.tar.gz'    
 
