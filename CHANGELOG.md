@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/MapColonies/opa-la/compare/v1.2.0...v1.3.0) (2025-01-29)
+
+
+### Features
+
+* add opa to releasing script ([#54](https://github.com/MapColonies/opa-la/issues/54)) ([3d35c26](https://github.com/MapColonies/opa-la/commit/3d35c26b133a51fe41cb845a016c6ce3f660afb0))
+* update version of OPA ([#51](https://github.com/MapColonies/opa-la/issues/51)) ([e530f82](https://github.com/MapColonies/opa-la/commit/e530f82c78eb8c977fbd2cd64f826232ab02bc43))
+
+
+### Reverts
+
+* Revert "v1.3.0" ([46da5ec](https://github.com/MapColonies/opa-la/commit/46da5ecd82107d5a49631b5a96738cb5766131c0))
+
+
+
+
+
 # [1.2.0](https://github.com/MapColonies/opa-la/compare/v1.1.0...v1.2.0) (2024-12-05)
 
 
