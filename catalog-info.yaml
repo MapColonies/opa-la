@@ -63,7 +63,7 @@ spec:
     info:
       title: auth-manager
       description: API server for managing all the authentication data
-      version: 1.4.0
+      version: 1.2.0
       license:
         name: MIT
         url: https://opensource.org/licenses/MIT
