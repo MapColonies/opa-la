@@ -7,6 +7,8 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-{{ $chartName }}-configmap
 data:
+  CONFIG_OFFLINE_MODE: {{ .Values.env.configManager.offlineMode | quote }}
+  {{- if .Values.env.configManager.offlineMode }}
   REQUEST_PAYLOAD_LIMIT: {{ .Values.env.requestPayloadLimit | quote }}
   RESPONSE_COMPRESSION_ENABLED: {{ .Values.env.responseCompressionEnabled | quote }}
   LOG_LEVEL: {{ .Values.env.logLevel | quote }}
@@ -19,21 +21,17 @@ data:
   TELEMETRY_METRICS_ENABLED: 'true'
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
-  {{- with .Values.dbConfig }}
-  DB_HOST: {{ .host }}
-  DB_NAME: {{ .database }}
-  DB_PORT: {{ .port | default 5432 | quote }}
-  {{- end -}}
+  DB_HOST: {{ .Values.dbConfig.host }}
+  DB_NAME: {{ .Values.dbConfig.database }}
+  DB_PORT: {{ .Values.dbConfig.port | default 5432 | quote }}
+  DB_ENABLE_SSL_AUTH: {{ .Values.dbConfig.sslAuth.enabled | quote }}
   {{- if .Values.dbConfig.sslAuth.enabled }}
-  DB_ENABLE_SSL_AUTH: "true"
+  DB_CERT_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.certFileName }}
+  DB_KEY_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.keyFileName }}
+  DB_CA_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.caFileName }}
+  {{- end }}
   {{- else }}
-  DB_ENABLE_SSL_AUTH: "false"
-  {{- end }}
-  {{- with .Values.env.configManager }}
-  CONFIG_OFFLINE_MODE: {{ .offlineMode | quote }}
-  {{- if not .offlineMode }}
-  CONFIG_SERVER_URL: {{ .serverUrl | quote }}
-  CONFIG_NAME: {{ .configName | quote }}
-  {{- end }}
+  CONFIG_SERVER_URL: {{ .Values.env.configManager.serverUrl | quote }}
+  CONFIG_NAME: {{ .Values.env.configManager.configName | quote }}
   {{- end }}
 {{- end }}

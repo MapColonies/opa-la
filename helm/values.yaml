@@ -98,6 +98,13 @@ auth-cron:
   initialDelaySeconds: 60
   resetOnConfigChange: true
 
+  extraEnvVars: []
+  # extraEnvVars:
+  #   - name: DB_HOST
+  #     value: localhost
+  #   - name: DB_NAME
+  #     value: postgres
+
   cloudProvider: *cloudProvider
 
   caSecretName: *caSecretName 
@@ -163,6 +170,12 @@ auth-manager:
   initialDelaySeconds: 60
   resetOnConfigChange: true
 
+  extraEnvVars: []
+  # extraEnvVars:
+  #   - name: DB_HOST
+  #     value: localhost
+  #   - name: DB_NAME
+  #     value: postgres
   cloudProvider: *cloudProvider
 
   caSecretName: *caSecretName
