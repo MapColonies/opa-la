@@ -49,7 +49,7 @@ dbConfig:
   externalSecretName: ''
   useExternalSecret: false  
   sslAuth:
-    enabled: true
+    enabled: false
     secretName: secret-name
     certFileName: cert.pem
     keyFileName: key.pem
