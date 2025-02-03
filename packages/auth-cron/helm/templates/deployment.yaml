@@ -34,6 +34,9 @@ spec:
       {{- if .Values.resetOnConfigChange }}
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if .Values.additionalPodAnnotations }}
+        {{- toYaml .Values.additionalPodAnnotations | nindent 8}}
+        {{- end }}
       {{- end }}
     spec:
     {{- if $cloudProviderImagePullSecretName }}
@@ -51,27 +54,29 @@ spec:
               name: root-ca
               subPath: {{ quote .Values.caKey }}
             {{- end }}
+            {{- if .Values.env.configManager.offlineMode }}
             - name: config
               mountPath: /usr/src/app/packages/auth-cron/config/production.json
               subPath: production.json
               readOnly: true
-              {{- if .Values.dbConfig.sslAuth.enabled }}
-              {{- if .Values.dbConfig.sslAuth.caFileKey }}
-              - name: ca-file
-                mountPath: /tmp/certs/ca.crt
-                subPath: ca.crt
-              {{- end }}
-              {{- if .Values.dbConfig.sslAuth.keyFileKey }}
-              - name: key-file
-                mountPath: /tmp/certs/key.pem
-                subPath: key.pem
-              {{- end }}
-              {{- if .Values.dbConfig.sslAuth.certFileKey }}
-              - name: cert-file
-                mountPath: /tmp/certs/cert.pem
-                subPath: cert.pem
-              {{- end }}
-              {{- end }}
+            {{- end }}
+            {{- if .Values.dbConfig.sslAuth.enabled }}
+            {{- if .Values.dbConfig.sslAuth.caFileName }}
+            - name: ca-file
+              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.caFileName }}
+              subPath: {{ .Values.dbConfig.sslAuth.caFileName }}
+            {{- end }}
+            {{- if .Values.dbConfig.sslAuth.keyFileName }}
+            - name: key-file
+              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.keyFileName }}
+              subPath: {{ .Values.dbConfig.sslAuth.keyFileName }}
+            {{- end }}
+            {{- if .Values.dbConfig.sslAuth.certFileName }}
+            - name: cert-file
+              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.certFileName }}
+              subPath: {{ .Values.dbConfig.sslAuth.certFileName }}
+            {{- end }}
+            {{- end }}
           env:
             {{- if .Values.env.configManager.offlineMode }}
             - name: DB_USERNAME
@@ -79,14 +84,7 @@ spec:
                 secretKeyRef:
                   name: {{ $postgresSecretName }}
                   key: username
-            {{- if .Values.dbConfig.sslAuth.enabled }}
-            - name: DB_CA_PATH
-              value: /tmp/certs/ca.crt
-            - name: DB_KEY_PATH
-              value: /tmp/certs/key.pem
-            - name: DB_CERT_PATH
-              value: /tmp/certs/cert.pem
-            {{- else }}
+            {{- if not .Values.dbConfig.sslAuth.enabled }}
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -99,6 +97,9 @@ spec:
               value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
             - name: NODE_EXTRA_CA_CERTS
               value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+            {{- end }}
+            {{- if .Values.extraEnvVars }}
+            {{- toYaml .Values.extraEnvVars | nindent 12 }}
             {{- end }}
           envFrom:
             - configMapRef:
@@ -118,36 +119,38 @@ spec:
           secret:
             secretName: {{ .Values.caSecretName }}
         {{- end }}
-        {{- if and .Values.dbConfig.sslAuth.enabled .Values.env.configManager.offlineMode }}
-        {{- if .Values.dbConfig.sslAuth.caFileKey }}
+        {{- if .Values.dbConfig.sslAuth.enabled }}
+        {{- if .Values.dbConfig.sslAuth.caFileName }}
         - name: ca-file
           secret:
             secretName: {{ $postgresSecretName }}
             items:
-              - key: {{ .Values.dbConfig.sslAuth.caFileKey }}
+              - key: {{ .Values.dbConfig.sslAuth.caFileName }}
                 path: ca.crt
         {{- end }}
-        {{- if .Values.dbConfig.sslAuth.keyFileKey }}
+        {{- if .Values.dbConfig.sslAuth.keyFileName }}
         - name: key-file
           secret:
             secretName: {{ $postgresSecretName }}
             items:
-              - key: {{ .Values.dbConfig.sslAuth.keyFileKey }}
+              - key: {{ .Values.dbConfig.sslAuth.keyFileName }}
                 path: key.pem
         {{- end }}
-        {{- if .Values.dbConfig.sslAuth.certFileKey }}
+        {{- if .Values.dbConfig.sslAuth.certFileName }}
         - name: cert-file
           secret:
             secretName: {{ $postgresSecretName }}
             items:
-              - key: {{ .Values.dbConfig.sslAuth.certFileKey }}
+              - key: {{ .Values.dbConfig.sslAuth.certFileName }}
                 path: cert.pem
         {{- end }}
         {{- end }}
+        {{- if .Values.env.configManager.offlineMode }}
         - name: config
           secret:
             secretName: {{ $releaseName }}-{{ $chartName }}-cron-secret
             items:
             - key: config
               path: production.json
+        {{- end }}
 {{- end -}}

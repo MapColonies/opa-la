@@ -11,6 +11,13 @@ initialDelaySeconds: 60
 nodePort: 30030 #for minikube deployment only
 resetOnConfigChange: true
 
+extraEnvVars: []
+# extraEnvVars:
+#   - name: DB_HOST
+#     value: localhost
+#   - name: DB_NAME
+#     value: postgres
+
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
   imagePullSecretName: 'my-registry-secret'
@@ -33,6 +40,8 @@ env:
     serverUrl: 'http://infra-config-config-server/api'
     configName: 'auth-cron'
 
+additionalPodAnnotations: {}
+
 dbConfig:
   host: localhost
   username: postgres
@@ -44,9 +53,9 @@ dbConfig:
   sslAuth:
     enabled: false
     secretName: secret-name
-    certFileName: certFile
-    keyFileName: keyFile
-    caFileName: caFile
+    certFileName: cert.pem
+    keyFileName: key.pem
+    caFileName: ca.crt
 
 cronConfig:
   {}

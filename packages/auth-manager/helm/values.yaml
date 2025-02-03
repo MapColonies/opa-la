@@ -10,6 +10,13 @@ replicaCount: 1
 initialDelaySeconds: 60
 resetOnConfigChange: true
 
+extraEnvVars: []
+# extraEnvVars:
+#   - name: DB_HOST
+#     value: localhost
+#   - name: DB_NAME
+#     value: postgres
+
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
   imagePullSecretName: 'my-registry-secret'
@@ -53,9 +60,11 @@ dbConfig:
   sslAuth:
     enabled: false
     secretName: secret-name
-    certFileName: certFile
-    keyFileName: keyFile
-    caFileName: caFile
+    certFileName: cert.pem
+    keyFileName: key.pem
+    caFileName: ca.crt
+
+additionalPodAnnotations: {}
 
 resources:
   enabled: true
