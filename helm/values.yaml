@@ -5,6 +5,8 @@ global:
   environment: ''
 
 environment: &environment development
+configServerUrl: &configServerUrl 'http://localhost/api'
+offlineMode: &configOfflineMode false
 
 cloudProvider: &cloudProvider
   dockerRegistryUrl: my-registry-url.io
@@ -15,20 +17,20 @@ caSecretName: &caSecretName ''
 caPath: &caPath '/usr/local/share/ca-certificates'
 caKey: &caKey 'ca.crt'
 
-dbConfig: &dbConfig
-  host: localhost
-  username: postgres
-  password: postgres
-  database: auth-manager
-  # port: 5432
-  externalSecretName: ''
-  useExternalSecret: true
-  sslAuth:
-    enabled: false
-    secretName: secret-name
-    certFileName: postgresql.crt
-    keyFileName: postgresql.key
-    caFileName: root.crt
+# dbConfig: &dbConfig
+#   host: localhost
+#   username: postgres
+#   password: postgres
+#   database: auth-manager
+#   # port: 5432
+#   externalSecretName: ''
+#   useExternalSecret: true
+#   sslAuth:
+#     enabled: false
+#     secretName: secret-name
+#     certFileName: postgresql.crt
+#     keyFileName: postgresql.key
+#     caFileName: root.crt
 
 opa:
   cloudProvider: *cloudProvider
@@ -43,9 +45,6 @@ opa:
 
   enabled: true
   replicaCount: 2
-
-  decisionLogs:
-    console: true
 
   tracing:
     enabled: false
@@ -112,22 +111,22 @@ auth-cron:
   caKey: *caKey
 
   image:
-    repository: auth-cron
-    tag: 'v0.0.0'
+    repository: infra/auth-cron
+    # tag: 'v1.3.0'
 
   env:
     logLevel: info
     logPrettyPrintEnabled: false
 
     configManager:
-      offlineMode: false
-      serverUrl: 'http://infra-config-config-server/api'
-      configName: 'auth-cron'
+      offlineMode: *configOfflineMode
+      serverUrl: *configServerUrl
+      configName: 'infra-auth-cron'
 
-  dbConfig: *dbConfig
+  # dbConfig: *dbConfig
 
-  cronConfig:
-    {}
+  # cronConfig:
+  #   {}
     # np:
     #   pattern: '* * * * * *'
     #   s3:
@@ -183,8 +182,8 @@ auth-manager:
   caKey: *caKey
 
   image:
-    repository: auth-manager
-    # tag: 'latest'
+    repository: infra/auth-manager
+    # tag: v1.3.0
 
   env:
     port: 8080
@@ -201,11 +200,11 @@ auth-manager:
       url: http://localhost:55681/v1/metrics
 
     configManager:
-      offlineMode: false
-      serverUrl: 'http://infra-config-config-server/api'
-      configName: 'auth-manager'
+      offlineMode: *configOfflineMode
+      serverUrl: *configServerUrl
+      configName: 'infra-auth-manager'
 
-  dbConfig: *dbConfig
+  # dbConfig: *dbConfig
 
   resources:
     enabled: true
