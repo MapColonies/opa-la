@@ -97,6 +97,7 @@ auth-cron:
   initialDelaySeconds: 60
   resetOnConfigChange: true
 
+  additionalPodAnnotations: {}
   extraEnvVars: []
   # extraEnvVars:
   #   - name: DB_HOST
@@ -122,7 +123,7 @@ auth-cron:
       offlineMode: *configOfflineMode
       serverUrl: *configServerUrl
       configName: 'infra-auth-cron'
-
+  
   # dbConfig: *dbConfig
 
   # cronConfig:
@@ -169,6 +170,7 @@ auth-manager:
   initialDelaySeconds: 60
   resetOnConfigChange: true
 
+  additionalPodAnnotations: {}
   extraEnvVars: []
   # extraEnvVars:
   #   - name: DB_HOST

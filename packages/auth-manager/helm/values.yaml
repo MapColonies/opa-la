@@ -64,6 +64,8 @@ dbConfig:
     keyFileName: key.pem
     caFileName: ca.crt
 
+additionalPodAnnotations: {}
+
 resources:
   enabled: true
   value:
