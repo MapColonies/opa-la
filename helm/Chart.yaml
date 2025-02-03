@@ -7,9 +7,12 @@ dependencies:
   - name: opa
     repository: file://charts/opa
     condition: opa.enabled
+    version: 1.3.0
   - name: auth-cron
     repository: file://../packages/auth-cron/helm
+    version: 1.3.0
     condition: auth-cron.enabled
   - name: auth-manager
     repository: file://../packages/auth-manager/helm
+    version: 1.3.0
     condition: auth-manager.enabled
