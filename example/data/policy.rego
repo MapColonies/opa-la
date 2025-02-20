@@ -81,10 +81,9 @@ deny contains "origin check failed" if {
 decision := {"allowed": true, "sub": claims.payload.sub, "kid": claims.kid} if {
 	count(deny) == 0
 	claims.payload.sub != null
-	claims.kid != null
 }
 
-decision := {"allowed": false, "reason": reason, "sub": claims.payload.sub, "kid": claims.kid} if {
+decision := {"allowed": false, "reason": reason} if {
 	count(deny) > 0
 	reason := concat(", ", deny)
 }
