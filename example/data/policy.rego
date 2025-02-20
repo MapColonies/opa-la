@@ -27,9 +27,10 @@ tokens := [token |
 	token := temp
 ]
 
-claims := {"payload": payload, "valid": valid} if {
+claims := {"payload": payload, "valid": valid, "kid": kid} if {
 	token := tokens[_]
-	[valid, _, payload] := io.jwt.decode_verify(token, constraints)
+	[valid, header, payload] := io.jwt.decode_verify(token, constraints)
+	kid := object.get(header, "kid", null)  # Extract kid from JWT header
 }
 
 userData := data.users[claims.payload.sub]
@@ -77,8 +78,9 @@ deny contains "origin check failed" if {
 	bad_browser_request
 }
 
-decision := {"allowed": true} if {
+decision := {"allowed": true, "sub": claims.payload.sub, "kid": claims.kid} if {
 	count(deny) == 0
+	claims.payload.sub != null
 }
 
 decision := {"allowed": false, "reason": reason} if {
