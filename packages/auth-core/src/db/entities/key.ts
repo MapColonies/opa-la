@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { Environment, IKey, JWKPrivateKey, JWKPublicKey } from '../../model';
+import { Environment, IKey, type JWKPrivateKey, type JWKPublicKey } from '../../model';
 
 /**
  * The typeorm implementation of the IKey interface.

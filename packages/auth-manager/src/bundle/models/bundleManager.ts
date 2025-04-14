@@ -1,4 +1,4 @@
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import { Bundle, IBundle } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { In, Repository } from 'typeorm';

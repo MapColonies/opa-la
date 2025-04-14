@@ -1,12 +1,12 @@
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains, QueryFailedError } from 'typeorm';
 import { DatabaseError } from 'pg';
-import { IClient } from '@map-colonies/auth-core';
+import { type IClient } from '@map-colonies/auth-core';
 import { SERVICES } from '../../common/constants';
 import { PgErrorCodes } from '../../common/db/constants';
 import { createDatesComparison } from '../../common/db/utils';
-import { ClientRepository } from '../DAL/clientRepository';
+import { type ClientRepository } from '../DAL/clientRepository';
 import { ClientSearchParams } from './client';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
 

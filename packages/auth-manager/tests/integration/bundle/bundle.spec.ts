@@ -4,7 +4,7 @@ import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
-import { Bundle, Environment } from '@map-colonies/auth-core';
+import { Bundle, Environment, IBundle } from '@map-colonies/auth-core';
 import 'jest-openapi';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
@@ -59,11 +59,12 @@ describe('bundle', function () {
 
     describe('GET /bundle/:id', function () {
       it('should return 201 status code and the created bundle', async function () {
-        const res = await requestSender.getBundle(bundles[0].id as number);
+        const firstBundle = bundles[0] as IBundle;
+        const res = await requestSender.getBundle(firstBundle.id as number);
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toMatchObject(bundles[0]);
+        expect(res.body).toMatchObject(firstBundle);
       });
     });
   });

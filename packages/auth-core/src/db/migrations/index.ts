@@ -8,4 +8,5 @@ import path from 'node:path';
 export const migrations: Function[] = readdirSync(__dirname)
   .filter((file) => /^\d[\da-zA-Z-]+\.(js|ts)$/.test(file))
   .sort()
-  .map((file) => Object.values<Function>(require(path.join(__dirname, file)))[0]);
+  .map((file) => Object.values<Function>(require(path.join(__dirname, file)))[0])
+  .filter((func) => func !== undefined);

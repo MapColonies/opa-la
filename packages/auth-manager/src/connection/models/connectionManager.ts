@@ -1,14 +1,14 @@
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import { Client, Environment, IConnection } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains, In } from 'typeorm';
 import { JWK } from 'jose';
 import { ClientNotFoundError } from '../../client/models/errors';
 import { SERVICES } from '../../common/constants';
-import { DomainRepository } from '../../domain/DAL/domainRepository';
+import { type DomainRepository } from '../../domain/DAL/domainRepository';
 import { DomainNotFoundError } from '../../domain/models/errors';
-import { ConnectionRepository } from '../DAL/connectionRepository';
-import { KeyRepository } from '../../key/DAL/keyRepository';
+import { type ConnectionRepository } from '../DAL/connectionRepository';
+import { type KeyRepository } from '../../key/DAL/keyRepository';
 import { generateToken } from '../../common/crypto';
 import { KeyNotFoundError } from '../../key/models/errors';
 import { ConnectionSearchParams } from './connection';

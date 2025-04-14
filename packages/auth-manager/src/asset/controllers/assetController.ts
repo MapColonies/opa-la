@@ -2,7 +2,7 @@ import { HttpError } from '@map-colonies/error-express-handler';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import { IAsset } from '@map-colonies/auth-core';
 import { AssetSearchParams } from '../models/asset';
 

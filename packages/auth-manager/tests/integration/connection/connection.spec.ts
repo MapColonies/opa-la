@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /// <reference types="jest-extended" />
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
@@ -23,10 +24,10 @@ describe('connection', function () {
   let depContainer: DependencyContainer;
   const clients = [getFakeClient(false), getFakeClient(false)];
   const connections = [
-    { ...getFakeIConnection(), name: clients[0].name, environment: Environment.NP, domains: ['test'] },
-    { ...getFakeIConnection(), name: clients[0].name, environment: Environment.PRODUCTION },
-    { ...getFakeIConnection(), name: clients[0].name, environment: Environment.PRODUCTION, version: 2 },
-    { ...getFakeIConnection(), name: clients[1].name, environment: Environment.NP },
+    { ...getFakeIConnection(), name: clients[0]!.name, environment: Environment.NP, domains: ['test'] },
+    { ...getFakeIConnection(), name: clients[0]!.name, environment: Environment.PRODUCTION },
+    { ...getFakeIConnection(), name: clients[0]!.name, environment: Environment.PRODUCTION, version: 2 },
+    { ...getFakeIConnection(), name: clients[1]!.name, environment: Environment.NP },
   ];
 
   beforeAll(async function () {
@@ -152,31 +153,31 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection', function () {
       it('should return 200 status code all the connections with the specific name', async function () {
-        const res = await requestSender.getNamedConnections(connections[0].name);
+        const res = await requestSender.getNamedConnections(connections[0]!.name);
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((c: IConnection) => c.name === connections[0].name);
+        expect(res.body).toSatisfyAll((c: IConnection) => c.name === connections[0]!.name);
       });
     });
 
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 200 status code all the connections with the specific name', async function () {
-        const res = await requestSender.getNamedEnvConnections(connections[0].name, Environment.PRODUCTION);
+        const res = await requestSender.getNamedEnvConnections(connections[0]!.name, Environment.PRODUCTION);
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((c: IConnection) => c.name === connections[0].name && c.environment === Environment.PRODUCTION);
+        expect(res.body).toSatisfyAll((c: IConnection) => c.name === connections[0]!.name && c.environment === Environment.PRODUCTION);
       });
     });
 
     describe('GET /client/:clientName/connection/:environment/:version', function () {
       it('should return 200 status code and the requested connection', async function () {
-        const res = await requestSender.getConnection(connections[2].name, connections[2].environment, connections[2].version);
+        const res = await requestSender.getConnection(connections[2]!.name, connections[2]!.environment, connections[2]!.version);
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ ...connections[2], createdAt: connections[2].createdAt?.toISOString() });
+        expect(res.body).toStrictEqual({ ...connections[2], createdAt: connections[2]!.createdAt?.toISOString() });
       });
     });
   });
@@ -220,7 +221,7 @@ describe('connection', function () {
       });
 
       it("should return 409 if the request version doesn't match the DB version", async function () {
-        const { createdAt, ...connection } = connections[0];
+        const { createdAt, ...connection } = connections[0]!;
         const res = await requestSender.upsertConnection({ ...connection, version: 5 });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
@@ -293,7 +294,7 @@ describe('connection', function () {
     describe('POST /connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const connection = getFakeIConnection();
-        connection.name = clients[0].name;
+        connection.name = clients[0]!.name;
 
         const repo = depContainer.resolve<DomainRepository>(SERVICES.DOMAIN_REPOSITORY);
         jest.spyOn(repo, 'checkInputForNonExistingDomains').mockRejectedValue(new Error());
@@ -306,7 +307,7 @@ describe('connection', function () {
 
       it('should return 500 if token generation fails', async function () {
         const connection = getFakeIConnection();
-        connection.name = clients[0].name;
+        connection.name = clients[0]!.name;
         connection.token = '';
         const keyRepo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
         jest.spyOn(keyRepo, 'getLatestKeys').mockRejectedValue(new Error());

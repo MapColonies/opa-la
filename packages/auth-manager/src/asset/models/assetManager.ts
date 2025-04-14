@@ -1,9 +1,9 @@
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import { IAsset } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains } from 'typeorm';
 import { SERVICES } from '../../common/constants';
-import { AssetRepository } from '../DAL/assetRepository';
+import { type AssetRepository } from '../DAL/assetRepository';
 import { AssetSearchParams } from './asset';
 import { AssetVersionMismatchError, AssetNotFoundError } from './errors';
 

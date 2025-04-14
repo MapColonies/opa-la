@@ -1,5 +1,5 @@
 import { HttpError } from '@map-colonies/error-express-handler';
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import { IClient } from '@map-colonies/auth-core';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
