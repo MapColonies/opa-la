@@ -36,7 +36,7 @@
     "ssl": {
       "enabled": false
     },
-    "database": "auth-manager",
+    "database": "infra-auth-manager",
     "schema": "auth_manager"
   }
 }
