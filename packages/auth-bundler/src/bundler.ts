@@ -57,7 +57,11 @@ async function handleAsset(basePath: string, asset: Asset, context: unknown): Pr
 
   if (asset.type === 'DATA') {
     // consider a different way to do this, we do this because OPA required data files to be called data.
-    fileName = 'data.' + fileName.split('.')[1];
+    const extension = fileName.split('.')[1];
+    if (extension === undefined) {
+      throw new Error('data file name is missing extension');
+    }
+    fileName = 'data.' + extension;
   }
 
   await saveFile(assetPath, fileName, value);
