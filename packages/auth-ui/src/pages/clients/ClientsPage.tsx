@@ -1,4 +1,4 @@
-import { $api } from '../../fetch';
+import { $api, siteApis } from '../../fetch';
 import { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/button';
 import { Loader2, Plus, Search, Calendar } from 'lucide-react';
@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { cn } from '../../lib/utils';
 
 type Client = components['schemas']['client'];
+type NamelessClient = components['schemas']['namelessClient'];
 
 type Filters = {
   branch?: string;
@@ -51,30 +52,169 @@ export const ClientsPage = () => {
     },
   });
 
-  const createClientMutation = $api.useMutation('post', '/client', {
-    onSuccess: () => {
-      setIsCreateDialogOpen(false);
-      toast.success('Client created successfully');
-      refetch();
-    },
-    onError: (error) => {
-      console.error('Error creating client:', error);
-      toast.error(error.message);
-    },
-  });
+  const [isCreatePending, setIsCreatePending] = useState(false);
+  const [isUpdatePending, setIsUpdatePending] = useState(false);
 
-  const updateClientMutation = $api.useMutation('patch', '/client/{clientName}', {
-    onSuccess: () => {
-      setIsEditDialogOpen(false);
-      setSelectedClient(null);
-      toast.success('Client updated successfully');
-      refetch();
+  const siteMutations = Object.keys(siteApis || {}).reduce(
+    (acc, site) => {
+      const createMutation = siteApis?.[site]?.useMutation('post', '/client', {
+        onSuccess: () => {
+          toast.success(`Client created successfully on ${site}`);
+        },
+        onError: (error) => {
+          console.error(`Error creating client on site: ${site}`, error);
+          toast.error(`Error on ${site}: ${error.message}`);
+        },
+      });
+
+      const updateMutation = siteApis?.[site]?.useMutation('patch', '/client/{clientName}', {
+        onSuccess: () => {
+          toast.success(`Client updated successfully on ${site}`);
+        },
+        onError: (error) => {
+          console.error(`Error updating client on site: ${site}`, error);
+          toast.error(`Error on ${site}: ${error.message}`);
+        },
+      });
+
+      if (createMutation && updateMutation) {
+        acc[site] = {
+          create: createMutation as any,
+          update: updateMutation as any,
+        };
+      }
+
+      return acc;
     },
-    onError: (error) => {
-      console.error('Error updating client:', error);
-      toast.error(error.message);
+    {} as Record<
+      string,
+      {
+        create: { mutate: (data: any) => any };
+        update: { mutate: (data: any) => any };
+      }
+    >
+  );
+
+  const createClientMutation = {
+    mutate: async (data: { body: Client; sites: string[] }) => {
+      setIsCreatePending(true);
+      try {
+        const siteKeys = data.sites;
+
+        if (siteKeys.length === 0) {
+          toast.error('Please select at least one site for client creation');
+          return;
+        }
+
+        const results = await Promise.allSettled(
+          siteKeys.map(async (site) => {
+            const mutation = siteMutations[site]?.create;
+            if (mutation) {
+              try {
+                await mutation.mutate({ body: data.body });
+                return { site, success: true };
+              } catch (error) {
+                return { site, success: false, error };
+              }
+            }
+            return { site, success: true };
+          })
+        );
+
+        const successfulSites = results
+          .filter((result) => result.status === 'fulfilled' && result.value.success)
+          .map((result) => (result as PromiseFulfilledResult<{ site: string }>).value.site);
+
+        const failedSites = results
+          .filter((result) => result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success))
+          .map((result) => {
+            if (result.status === 'rejected') {
+              return (result as PromiseRejectedResult).reason?.site || 'unknown';
+            }
+            return (result as PromiseFulfilledResult<{ site: string }>).value.site;
+          });
+
+        if (successfulSites.length > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          setIsCreateDialogOpen(false);
+          await refetch();
+        }
+
+        if (failedSites.length > 0) {
+          toast.error(`Failed to create client on ${failedSites.join(', ')}`);
+        }
+      } catch (error) {
+        console.error('Error in multi-site client creation:', error);
+        toast.error('Failed to create client on all sites');
+      } finally {
+        setIsCreatePending(false);
+      }
     },
-  });
+    isPending: isCreatePending,
+  };
+
+  const updateClientMutation = {
+    mutate: async (data: { params: { path: { clientName: string } }; body: NamelessClient; sites: string[] }) => {
+      setIsUpdatePending(true);
+      try {
+        const siteKeys = data.sites;
+
+        if (siteKeys.length === 0) {
+          toast.error('Please select at least one site for client update');
+          return;
+        }
+
+        const results = await Promise.allSettled(
+          siteKeys.map(async (site) => {
+            const mutation = siteMutations[site]?.update;
+            if (mutation) {
+              try {
+                await mutation.mutate({
+                  params: data.params,
+                  body: data.body,
+                });
+                return { site, success: true };
+              } catch (error) {
+                return { site, success: false, error };
+              }
+            }
+            return { site, success: true };
+          })
+        );
+
+        const successfulSites = results
+          .filter((result) => result.status === 'fulfilled' && result.value.success)
+          .map((result) => (result as PromiseFulfilledResult<{ site: string }>).value.site);
+
+        const failedSites = results
+          .filter((result) => result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success))
+          .map((result) => {
+            if (result.status === 'rejected') {
+              return (result as PromiseRejectedResult).reason?.site || 'unknown';
+            }
+            return (result as PromiseFulfilledResult<{ site: string }>).value.site;
+          });
+
+        if (successfulSites.length > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          setIsEditDialogOpen(false);
+          setSelectedClient(null);
+          await refetch();
+        }
+
+        if (failedSites.length > 0) {
+          toast.error(`Failed to update client on ${failedSites.join(', ')}`);
+        }
+      } catch (error) {
+        console.error('Error in multi-site client update:', error);
+        toast.error('Failed to update client on all sites');
+      } finally {
+        setIsUpdatePending(false);
+        setIsEditDialogOpen(false);
+      }
+    },
+    isPending: isUpdatePending,
+  };
 
   useEffect(() => {
     if (data) {
@@ -171,11 +311,13 @@ export const ClientsPage = () => {
                 Add Client
               </Button>
             </DialogTrigger>
-            <CreateClientModal
-              onClose={() => setIsCreateDialogOpen(false)}
-              onCreateClient={createClientMutation.mutate}
-              isPending={createClientMutation.isPending}
-            />
+            {isCreateDialogOpen && (
+              <CreateClientModal
+                onClose={() => setIsCreateDialogOpen(false)}
+                onCreateClient={createClientMutation.mutate}
+                isPending={createClientMutation.isPending}
+              />
+            )}
           </Dialog>
         </div>
 
@@ -304,12 +446,14 @@ export const ClientsPage = () => {
       <ClientsTable clients={clients} onEditClient={openEditDialog} />
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <EditClientModal
-          client={selectedClient}
-          onClose={() => setIsEditDialogOpen(false)}
-          onUpdateClient={updateClientMutation.mutate}
-          isPending={updateClientMutation.isPending}
-        />
+        {isEditDialogOpen && (
+          <EditClientModal
+            client={selectedClient}
+            onClose={() => setIsEditDialogOpen(false)}
+            onUpdateClient={updateClientMutation.mutate}
+            isPending={updateClientMutation.isPending}
+          />
+        )}
       </Dialog>
     </div>
   );

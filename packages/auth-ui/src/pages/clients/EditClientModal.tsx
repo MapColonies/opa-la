@@ -7,6 +7,7 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Badge } from '../../components/ui/badge';
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { SiteSelection, availableSites } from '../../components/SiteSelection';
 
 type Client = components['schemas']['client'];
 type NamelessClient = components['schemas']['namelessClient'];
@@ -14,17 +15,19 @@ type NamelessClient = components['schemas']['namelessClient'];
 interface EditClientModalProps {
   client: Client | null;
   onClose: () => void;
-  onUpdateClient: (data: { params: { path: { clientName: string } }; body: NamelessClient }) => void;
+  onUpdateClient: (data: { params: { path: { clientName: string } }; body: NamelessClient; sites: string[] }) => void;
   isPending: boolean;
 }
 
 export const EditClientModal = ({ client, onClose, onUpdateClient, isPending }: EditClientModalProps) => {
   const [editedClient, setEditedClient] = useState<Client | null>(null);
   const [editTag, setEditTag] = useState('');
+  const [selectedSites, setSelectedSites] = useState<string[]>(availableSites);
 
   useEffect(() => {
     if (client) {
       setEditedClient({ ...client });
+      setSelectedSites(availableSites);
     }
   }, [client]);
 
@@ -68,6 +71,7 @@ export const EditClientModal = ({ client, onClose, onUpdateClient, isPending }: 
         techPointOfContact: editedClient.techPointOfContact || undefined,
         productPointOfContact: editedClient.productPointOfContact || undefined,
       } as NamelessClient,
+      sites: selectedSites,
     });
   };
 
@@ -176,12 +180,14 @@ export const EditClientModal = ({ client, onClose, onUpdateClient, isPending }: 
             </div>
           </div>
         </div>
+
+        <SiteSelection selectedSites={selectedSites} setSelectedSites={setSelectedSites} />
       </div>
       <DialogFooter>
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleEditClient} disabled={isPending}>
+        <Button onClick={handleEditClient} disabled={isPending || selectedSites.length === 0}>
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

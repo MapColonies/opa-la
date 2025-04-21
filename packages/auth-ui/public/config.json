@@ -1,0 +1,12 @@
+{
+  "8080": {
+    "name": "localhost 8080",
+    "url": "http://localhost:8080",
+    "envs": ["prod", "np", "stage"]
+  },
+  "8083": {
+    "name": "localhost 8083",
+    "url": "http://localhost:8083",
+    "envs": ["prod"]
+  }
+}

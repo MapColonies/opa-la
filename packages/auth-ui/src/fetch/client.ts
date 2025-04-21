@@ -1,9 +1,62 @@
 import createClient from 'openapi-react-query';
 import createFetchClient from 'openapi-fetch';
 import type { paths } from '../types/schema';
+import { configLoader } from '../config/loader';
+import { NetworkConfig } from '../types/config';
 
-const fetchClient = createFetchClient<paths>({
-  baseUrl: 'http://localhost:8080/',
+const DEFAULT_BASE_URL = 'http://localhost:8080/';
+
+const getCurrentBaseUrl = (): string => {
+  const storedBaseUrl = localStorage.getItem('currentBaseUrl');
+  if (storedBaseUrl) return storedBaseUrl;
+
+  const selectedSite = localStorage.getItem('selectedSite');
+  if (!selectedSite) return DEFAULT_BASE_URL;
+
+  const siteConfig = localStorage.getItem(`siteConfig_${selectedSite}`);
+  if (!siteConfig) return DEFAULT_BASE_URL;
+
+  try {
+    const config = JSON.parse(siteConfig);
+    return config.url || DEFAULT_BASE_URL;
+  } catch (e) {
+    return DEFAULT_BASE_URL;
+  }
+};
+
+const defaultFetchClient = createFetchClient<paths>({
+  baseUrl: getCurrentBaseUrl(),
 });
 
-export const $api = createClient(fetchClient);
+export const $api = createClient(defaultFetchClient);
+
+export const createSiteApis = async () => {
+  try {
+    const config = await configLoader.loadConfig();
+    return createApiClientsFromConfig(config);
+  } catch (error) {
+    console.error('Failed to create site APIs:', error);
+    return { $api };
+  }
+};
+
+export const createApiClientsFromConfig = (config: NetworkConfig) => {
+  const siteApis: Record<string, typeof $api> = {};
+
+  Object.entries(config).forEach(([siteName, siteConfig]) => {
+    const fetchClient = createFetchClient<paths>({
+      baseUrl: siteConfig.url,
+    });
+
+    siteApis[siteName] = createClient(fetchClient);
+  });
+
+  return siteApis;
+};
+
+export const updateApiBaseUrl = (baseUrl: string) => {
+  localStorage.setItem('currentBaseUrl', baseUrl);
+  window.location.reload();
+};
+
+export const siteApis = await createSiteApis();

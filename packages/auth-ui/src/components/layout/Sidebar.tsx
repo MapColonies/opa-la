@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
-import { Users, Link as LinkIcon, Globe, Menu, X } from 'lucide-react';
+import { Users, Link as LinkIcon, Globe, Menu, X, Key } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useState } from 'react';
+import { SiteSwitcher } from './SiteSwitcher';
 
 interface SidebarProps {
   className?: string;
@@ -28,6 +29,11 @@ export const Sidebar = ({ className }: SidebarProps) => {
       href: '/domains',
       icon: Globe,
     },
+    {
+      title: 'JWT Inspector',
+      href: '/jwt-inspector',
+      icon: Key,
+    },
   ];
 
   return (
@@ -38,6 +44,11 @@ export const Sidebar = ({ className }: SidebarProps) => {
           {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
         </Button>
       </div>
+      {!isCollapsed && (
+        <div className="p-4 border-b">
+          <SiteSwitcher />
+        </div>
+      )}
       <nav className="flex-1 p-2 space-y-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.href;
