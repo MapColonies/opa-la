@@ -1,6 +1,6 @@
 module.exports = {
   transform: {
-      '^.+\\.ts$': 'ts-jest'
+    '^.+\\.ts$': ['@swc/jest'],
   },
   coverageReporters: ['text', 'html'],
   collectCoverage: true,

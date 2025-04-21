@@ -19,7 +19,7 @@
     "migration:run": "npm run typeorm migration:run -- ",
     "migration:revert": "npm run typeorm migration:revert -- ",
     "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
-    "test": "cross-env CONFIG_OFFLINE_MODE=true jest --config=./tests/configurations/jest.config.js",
+    "test": "tsc --noEmit && cross-env CONFIG_OFFLINE_MODE=true jest --config=./tests/configurations/jest.config.js",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json && npm run assets:copy",
     "build:docker": "cross-env DOCKER_BUILDKIT=1 docker build -f Dockerfile -t auth-cron ../.. ",
@@ -61,6 +61,8 @@
     "jest-extended": "^3.2.4",
     "rimraf": "^4.4.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@swc/core": "^1.11.21",
+    "@swc/jest": "^0.2.37"
   }
 }
