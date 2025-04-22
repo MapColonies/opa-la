@@ -66,10 +66,7 @@ jobs:
         run: npx lerna run build
 
       - name: OpenAPI Lint Checks
-        uses: nwestfall/openapi-action@v1.0.2
-        with:
-         github_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ./packages/${{ matrix.package }}/openapi3.yaml
+        run: npx @redocly/cli lint --format=github-actions ./packages/${{ matrix.package }}/openapi3.yaml
 
   security:
     runs-on: ubuntu-latest
