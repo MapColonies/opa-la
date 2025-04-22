@@ -25,7 +25,7 @@
     "lint:fix": "eslint --fix .",
     "test": "tsc --noEmit && npm run test:unit && npm run test:integration",
     "prebuild": "npm run clean",
-    "build": "tsc --project tsconfig.build.json && npm run assets:copy",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run assets:copy",
     "build:docker": "cross-env DOCKER_BUILDKIT=1 docker build -f Dockerfile -t auth-manager ../.. ",
     "build:docker-no-cache": "cross-env DOCKER_BUILDKIT=1 docker build --no-cache -f Dockerfile -t auth-manager ../.. ",
     "start": "npm run build && cd dist && node --enable-source-maps --import ./instrumentation.mjs ./index.js",
@@ -79,8 +79,6 @@
     "rimraf": "^4.4.0",
     "supertest": "^6.3.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.8.3",
-    "@swc/core": "^1.11.21",
-    "@swc/jest": "^0.2.37"
+    "typescript": "^5.8.3"
   }
 }

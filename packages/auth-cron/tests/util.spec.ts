@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { BundleContentVersions } from '@map-colonies/auth-bundler';
 import { Bundle } from '@map-colonies/auth-core';
-import { compareVersionsToBundle, emptyDir } from '../src/util';
+import { compareVersionsToBundle, emptyDir } from '@src/util';
 import { getFakeBundle } from './utils/bundle';
 
 describe('util.ts', function () {

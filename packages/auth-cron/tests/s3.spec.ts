@@ -9,8 +9,8 @@ import { Environment } from '@map-colonies/auth-core';
 import { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import jsLogger from '@map-colonies/js-logger';
 import { initConfig, getConfig } from '../src/config';
-import { getS3Client } from '../src/s3';
-import * as appConfig from '../src/config';
+import { getS3Client } from '@src/s3';
+import * as appConfig from '@src/config';
 
 jest.mock('../src/logger', () => {
   return {

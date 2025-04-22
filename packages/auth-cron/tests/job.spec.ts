@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 import jsLogger from '@map-colonies/js-logger';
 import { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getJob } from '../src/job';
-import { getConfig, initConfig } from '../src/config';
+import { getJob } from '@src/job';
+import { getConfig, initConfig } from '@src/config';
 
 jest.mock('@map-colonies/auth-bundler');
 jest.mock('../src/logger', () => {

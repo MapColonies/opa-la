@@ -4,13 +4,13 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
 import { Environment, IConnection } from '@map-colonies/auth-core';
+import { SERVICES } from '@common/constants';
+import { ClientNotFoundError } from '@client/models/errors';
+import { DomainNotFoundError } from '@domain/models/errors';
+import { KeyNotFoundError } from '@key/models/errors';
 import { ConnectionSearchParams } from '../models/connection';
 import { ConnectionManager } from '../models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../models/errors';
-import { SERVICES } from '../../common/constants';
-import { ClientNotFoundError } from '../../client/models/errors';
-import { DomainNotFoundError } from '../../domain/models/errors';
-import { KeyNotFoundError } from '../../key/models/errors';
 
 interface ConnectionNamePathParams {
   clientName: string;

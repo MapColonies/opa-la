@@ -4,11 +4,10 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
 import { IAsset } from '@map-colonies/auth-core';
+import { SERVICES } from '@common/constants';
 import { AssetSearchParams } from '../models/asset';
-
 import { AssetManager } from '../models/assetManager';
 import { AssetNotFoundError, AssetVersionMismatchError } from '../models/errors';
-import { SERVICES } from '../../common/constants';
 
 interface AssetPathParams {
   assetName: string;
@@ -21,7 +20,10 @@ type GetAssetHandler = RequestHandler<AssetPathParams & { version: number }, IAs
 
 @injectable()
 export class AssetController {
-  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger, @inject(AssetManager) private readonly manager: AssetManager) {}
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(AssetManager) private readonly manager: AssetManager
+  ) {}
 
   public getAssets: GetAssetsHandler = async (req, res, next) => {
     this.logger.debug('executing #getAssets handler');

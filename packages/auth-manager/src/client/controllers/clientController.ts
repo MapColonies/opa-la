@@ -4,7 +4,7 @@ import { IClient } from '@map-colonies/auth-core';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { SERVICES } from '../../common/constants';
+import { SERVICES } from '@common/constants';
 import { ClientSearchParams } from '../models/client';
 import { ClientManager } from '../models/clientManager';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
@@ -20,7 +20,10 @@ export interface ClientNameParam {
 
 @injectable()
 export class ClientController {
-  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger, @inject(ClientManager) private readonly manager: ClientManager) {}
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(ClientManager) private readonly manager: ClientManager
+  ) {}
 
   public getClients: GetClientsHandler = async (req, res, next) => {
     try {

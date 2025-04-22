@@ -1,4 +1,4 @@
-import { extractNameAndVersion } from '../src/util';
+import { extractNameAndVersion } from '@src/util';
 
 describe('util.ts', function () {
   describe('#extractNameAndVersion', function () {

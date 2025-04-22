@@ -10,8 +10,8 @@ import {
   OpaTestsFailedError,
   WorkdirNotFoundError,
   createBundle,
-} from '../src/index';
-import * as opa from '../src/opa';
+} from '@src/index';
+import * as opa from '@src/opa';
 import { getFakeBundleContent } from './utils/bundle';
 
 const baseFolder = path.join(tmpdir(), 'authbundlertests', 'index');
