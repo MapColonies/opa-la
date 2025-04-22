@@ -19,7 +19,10 @@ type GetKeyHandler = RequestHandler<KeyPathParams & { version: number }, IKey>;
 
 @injectable()
 export class KeyController {
-  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger, @inject(KeyManager) private readonly manager: KeyManager) {}
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(KeyManager) private readonly manager: KeyManager
+  ) {}
 
   public getLatestKeys: GetLatestKeysHandler = async (req, res, next) => {
     this.logger.debug('executing #getLatestKeys handler');

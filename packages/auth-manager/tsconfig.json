@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "paths": {      
+    "paths": {
       "@src/*": ["./src/*"],
       "@src": ["./src/index.ts"],
       "@common/*": ["./src/common/*"],
