@@ -7,22 +7,20 @@ import 'jest-openapi';
 import { DataSource } from 'typeorm';
 import { Asset, AssetType, Environment, IAsset } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
-import { getApp } from '../../../src/app';
-import { SERVICES } from '../../../src/common/constants';
-import { AssetRepository } from '../../../src/asset/DAL/assetRepository';
-import { getFakeAsset } from '../../utils/asset';
-import { initConfig } from '../../../src/common/config';
-import { AssetRequestSender } from './helpers/requestSender';
+import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { paths, operations } from '@openapi';
+import { getApp } from '@src/app';
+import { SERVICES } from '@common/constants';
+import { AssetRepository } from '@src/asset/DAL/assetRepository';
+import { getFakeAsset } from '@tests/utils/asset';
+import { initConfig } from '@common/config';
 
 describe('client', function () {
-  let requestSender: AssetRequestSender;
+  let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
 
   beforeAll(async function () {
     await initConfig();
-  });
-
-  beforeEach(async function () {
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -30,11 +28,11 @@ describe('client', function () {
       ],
       useChild: true,
     });
-    requestSender = new AssetRequestSender(app);
+    requestSender = await createRequestSender<paths, operations>('openapi3.yaml', app);
     depContainer = container;
   });
 
-  afterEach(async function () {
+  afterAll(async function () {
     await depContainer.resolve(DataSource).destroy();
   });
 
@@ -71,7 +69,7 @@ describe('client', function () {
         const connection = depContainer.resolve(DataSource);
         await connection.getRepository(Asset).save(assets);
 
-        const res = await requestSender.getAssets({ environment: [Environment.PRODUCTION] });
+        const res = await requestSender.getAssets({ queryParams: { environment: ['prod'] } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -89,7 +87,7 @@ describe('client', function () {
         const connection = depContainer.resolve(DataSource);
         await connection.getRepository(Asset).save(assets);
 
-        const res = await requestSender.getAssets({ type: AssetType.DATA });
+        const res = await requestSender.getAssets({ queryParams: { type: AssetType.DATA } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -101,7 +99,7 @@ describe('client', function () {
       it('should return 201 status code and the created asset', async function () {
         const asset = getFakeAsset();
 
-        const res = await requestSender.upsertAsset(asset);
+        const res = await requestSender.upsertAsset({ requestBody: asset });
 
         delete asset.createdAt;
 
@@ -117,7 +115,7 @@ describe('client', function () {
 
         delete asset.createdAt;
 
-        const res = await requestSender.upsertAsset(asset);
+        const res = await requestSender.upsertAsset({ requestBody: asset });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -133,7 +131,7 @@ describe('client', function () {
         const connection = depContainer.resolve(DataSource);
         await connection.getRepository(Asset).save(assets);
 
-        const res = await requestSender.getNamedAssets(asset.name);
+        const res = await requestSender.getAsset({ pathParams: { assetName: asset.name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -147,7 +145,7 @@ describe('client', function () {
         const connection = depContainer.resolve(DataSource);
         await connection.getRepository(Asset).save(asset);
 
-        const res = await requestSender.getAsset(asset.name, asset.version);
+        const res = await requestSender.getVersionedAsset({ pathParams: { assetName: asset.name, version: asset.version } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -160,7 +158,7 @@ describe('client', function () {
     describe('POST /asset', function () {
       it('should return 400 if the request body is incorrect', async function () {
         const { version, ...asset } = getFakeAsset();
-        const res = await requestSender.upsertAsset(asset as IAsset);
+        const res = await requestSender.upsertAsset({ requestBody: asset as IAsset });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -171,14 +169,14 @@ describe('client', function () {
         const connection = depContainer.resolve(DataSource);
         await connection.getRepository(Asset).save({ ...asset });
 
-        const res = await requestSender.upsertAsset({ ...asset, version: 2 });
+        const res = await requestSender.upsertAsset({ requestBody: { ...asset, version: 2 } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
       });
 
       it("should return 409 if the no asset exists and request version isn't 1", async function () {
-        const res = await requestSender.upsertAsset({ ...getFakeAsset(), version: 2 });
+        const res = await requestSender.upsertAsset({ requestBody: { ...getFakeAsset(), version: 2 } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
@@ -187,7 +185,7 @@ describe('client', function () {
 
     describe('GET /asset/:name', function () {
       it('should return 400 if name value is not valid', async function () {
-        const res = await requestSender.getNamedAssets('ai');
+        const res = await requestSender.getAsset({ pathParams: { assetName: 'AI' } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -196,14 +194,14 @@ describe('client', function () {
 
     describe('GET /asset/:name/:version', function () {
       it('should return 400 if version value is not valid', async function () {
-        const res = await requestSender.getAsset('avi', -1);
+        const res = await requestSender.getVersionedAsset({ pathParams: { assetName: 'avi', version: -1 } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
       });
 
       it("should return 404 if the asset doesn't exist", async function () {
-        const res = await requestSender.getAsset('avi', 999);
+        const res = await requestSender.getVersionedAsset({ pathParams: { assetName: 'avi', version: 999 } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
         expect(res).toSatisfyApiSpec();
@@ -233,7 +231,7 @@ describe('client', function () {
         jest.spyOn(repo, 'getMaxVersionWithLock').mockRejectedValue(new Error());
         const asset = getFakeAsset();
 
-        const res = await requestSender.upsertAsset(asset);
+        const res = await requestSender.upsertAsset({ requestBody: asset });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
@@ -244,7 +242,7 @@ describe('client', function () {
           const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
           jest.spyOn(repo, 'findBy').mockRejectedValue(new Error());
 
-          const res = await requestSender.getNamedAssets('avi');
+          const res = await requestSender.getAsset({ pathParams: { assetName: 'avi' } });
 
           expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
           expect(res).toSatisfyApiSpec();
@@ -256,7 +254,7 @@ describe('client', function () {
           const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
           jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
-          const res = await requestSender.getAsset('avi', 1);
+          const res = await requestSender.getVersionedAsset({ pathParams: { assetName: 'avi', version: 1 } });
 
           expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
           expect(res).toSatisfyApiSpec();

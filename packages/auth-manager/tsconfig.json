@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
       "@src/*": ["./src/*"],
       "@src": ["./src/index.ts"],
@@ -9,7 +10,8 @@
       "@client/*": ["./src/client/*"],
       "@domain/*": ["./src/domain/*"],
       "@key/*": ["./src/key/*"],
-      "@connection/*": ["./src/connection/*"]
+      "@connection/*": ["./src/connection/*"],
+      "@openapi": ["src/openapi"]
     }
   }
 }

@@ -4,6 +4,7 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
 import { IAsset } from '@map-colonies/auth-core';
+import type { TypedRequestHandlers } from '@openapi';
 import { SERVICES } from '@common/constants';
 import { AssetSearchParams } from '../models/asset';
 import { AssetManager } from '../models/assetManager';

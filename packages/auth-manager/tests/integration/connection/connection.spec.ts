@@ -8,19 +8,22 @@ import 'jest-openapi';
 import { DataSource } from 'typeorm';
 import { Client, Connection, Domain, Environment, IConnection, Key } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
-import { getApp } from '../../../src/app';
-import { SERVICES } from '../../../src/common/constants';
-import { ConnectionRepository } from '../../../src/connection/DAL/connectionRepository';
-import { getFakeConnection, getFakeIConnection } from '../../utils/connection';
-import { KeyRepository } from '../../../src/key/DAL/keyRepository';
-import { DomainRepository } from '../../../src/domain/DAL/domainRepository';
-import { getFakeClient } from '../../utils/client';
-import { getRealKeys } from '../../utils/key';
-import { initConfig } from '../../../src/common/config';
-import { ConnectionRequestSender } from './helpers/requestSender';
+import { getApp } from '@src/app';
+import { SERVICES } from '@src/common/constants';
+import { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
+import { getFakeConnection, getFakeIConnection } from '@tests/utils/connection';
+import { KeyRepository } from '@src/key/DAL/keyRepository';
+import { DomainRepository } from '@src/domain/DAL/domainRepository';
+import { getFakeClient } from '@tests/utils/client';
+import { getRealKeys } from '@tests/utils/key';
+import { initConfig } from '@src/common/config';
+import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { paths, operations } from '@openapi';
 
 describe('connection', function () {
-  let requestSender: ConnectionRequestSender;
+  const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
+
+  let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
   const clients = [getFakeClient(false), getFakeClient(false)];
   const connections = [
@@ -39,7 +42,7 @@ describe('connection', function () {
       ],
       useChild: true,
     });
-    requestSender = new ConnectionRequestSender(app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
     depContainer = container;
     await depContainer.resolve(DataSource).getRepository(Client).save(clients);
     await depContainer.resolve(DataSource).getRepository(Connection).save(connections);
@@ -61,11 +64,11 @@ describe('connection', function () {
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(res.body.length).toBeGreaterThan(0);
+        expect(res.body).toBeArray();
       });
 
       it('should return 200 status code and all the connections with specific env', async function () {
-        const res = await requestSender.getConnections({ environment: [Environment.PRODUCTION] });
+        const res = await requestSender.getConnections({ queryParams: { environment: [Environment.PRODUCTION] } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -73,7 +76,7 @@ describe('connection', function () {
       });
 
       it('should return 200 status code and all the connections with specific domain', async function () {
-        const res = await requestSender.getConnections({ domains: ['test'] });
+        const res = await requestSender.getConnections({ queryParams: { domains: ['test'] } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -88,7 +91,7 @@ describe('connection', function () {
         connection.name = client.name;
         await depContainer.resolve(DataSource).getRepository(Client).save(client);
 
-        const res = await requestSender.upsertConnection(connection);
+        const res = await requestSender.upsertConnection({ requestBody: connection });
 
         delete connection.createdAt;
 
@@ -107,7 +110,7 @@ describe('connection', function () {
 
         delete connection.createdAt;
 
-        const res = await requestSender.upsertConnection(connection);
+        const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -121,7 +124,7 @@ describe('connection', function () {
         connection.token = '';
         await depContainer.resolve(DataSource).getRepository(Client).save(client);
 
-        const res = await requestSender.upsertConnection(connection, true);
+        const res = await requestSender.upsertConnection({ requestBody: connection, queryParams: { shouldIgnoreTokenErrors: true } });
         delete connection.createdAt;
 
         expect(res).toHaveProperty('status', httpStatusCodes.CREATED);
@@ -143,17 +146,17 @@ describe('connection', function () {
 
         delete connection.createdAt;
 
-        const res: { status: number; body: { token: string } } = await requestSender.upsertConnection({ ...connection, token: '' });
+        const res = await requestSender.upsertConnection({ requestBody: { ...connection, token: '' } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body.token).not.toBeEmpty();
+        expect(res.body).toHaveProperty('token', expect.stringMatching(/^.+$/));
       });
     });
 
     describe('GET /client/:clientName/connection', function () {
       it('should return 200 status code all the connections with the specific name', async function () {
-        const res = await requestSender.getNamedConnections(connections[0]!.name);
+        const res = await requestSender.getClientConnections({ pathParams: { clientName: connections[0]!.name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -163,7 +166,9 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 200 status code all the connections with the specific name', async function () {
-        const res = await requestSender.getNamedEnvConnections(connections[0]!.name, Environment.PRODUCTION);
+        const res = await requestSender.getClientEnvironmentConnections({
+          pathParams: { clientName: connections[0]!.name, environment: Environment.PRODUCTION },
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -173,7 +178,9 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment/:version', function () {
       it('should return 200 status code and the requested connection', async function () {
-        const res = await requestSender.getConnection(connections[2]!.name, connections[2]!.environment, connections[2]!.version);
+        const res = await requestSender.getClientVersionedConnection({
+          pathParams: { clientName: connections[2]!.name, environment: connections[2]!.environment, version: connections[2]!.version },
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -187,7 +194,7 @@ describe('connection', function () {
       it('should return 400 if the request body is incorrect', async function () {
         const connection = getFakeConnection();
         connection.domains = [];
-        const res = await requestSender.upsertConnection(connection);
+        const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -196,7 +203,7 @@ describe('connection', function () {
       it('should return 400 if a domain is not in the DB', async function () {
         const connection = getFakeConnection();
         connection.domains = ['c'];
-        const res = await requestSender.upsertConnection(connection);
+        const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -205,7 +212,7 @@ describe('connection', function () {
       it('should return 400 if token generation failed because of missing private key', async function () {
         const connection = getFakeConnection();
         connection.token = '';
-        const res = await requestSender.upsertConnection(connection);
+        const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -214,7 +221,7 @@ describe('connection', function () {
       it('should return 404 if a client with name is not in the DB', async function () {
         const connection = getFakeIConnection();
         connection.name = faker.random.alphaNumeric(5);
-        const res = await requestSender.upsertConnection(connection);
+        const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
         expect(res).toSatisfyApiSpec();
@@ -222,7 +229,7 @@ describe('connection', function () {
 
       it("should return 409 if the request version doesn't match the DB version", async function () {
         const { createdAt, ...connection } = connections[0]!;
-        const res = await requestSender.upsertConnection({ ...connection, version: 5 });
+        const res = await requestSender.upsertConnection({ requestBody: { ...connection, version: 5 } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
@@ -232,7 +239,7 @@ describe('connection', function () {
         const client = getFakeClient(false);
         await depContainer.resolve(DataSource).getRepository(Client).save(client);
 
-        const res = await requestSender.upsertConnection({ ...getFakeIConnection(), name: client.name, version: 2 });
+        const res = await requestSender.upsertConnection({ requestBody: { ...getFakeIConnection(), name: client.name, version: 2 } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
@@ -241,7 +248,7 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection', function () {
       it('should return 400 if name value is not valid', async function () {
-        const res = await requestSender.getNamedConnections('ai');
+        const res = await requestSender.getClientConnections({ pathParams: { clientName: 'AI' } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -250,7 +257,9 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 400 if environment value is not valid', async function () {
-        const res = await requestSender.getNamedEnvConnections('ai', 'avi' as Environment.PRODUCTION);
+        const res = await requestSender.getClientEnvironmentConnections({
+          pathParams: { clientName: 'avi', environment: 'avi' as Environment.PRODUCTION },
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -259,14 +268,18 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment/:version', function () {
       it('should return 400 if version value is not valid', async function () {
-        const res = await requestSender.getConnection('avi', Environment.STAGE, -1);
+        const res = await requestSender.getClientVersionedConnection({
+          pathParams: { clientName: 'avi', environment: Environment.STAGE, version: -1 },
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
       });
 
       it("should return 404 if the connection doesn't exist", async function () {
-        const res = await requestSender.getConnection('avi', Environment.STAGE, 999);
+        const res = await requestSender.getClientVersionedConnection({
+          pathParams: { clientName: 'avi', environment: Environment.STAGE, version: 999 },
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
         expect(res).toSatisfyApiSpec();
@@ -299,7 +312,7 @@ describe('connection', function () {
         const repo = depContainer.resolve<DomainRepository>(SERVICES.DOMAIN_REPOSITORY);
         jest.spyOn(repo, 'checkInputForNonExistingDomains').mockRejectedValue(new Error());
 
-        const res = await requestSender.upsertConnection(connection);
+        const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
@@ -312,7 +325,7 @@ describe('connection', function () {
         const keyRepo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
         jest.spyOn(keyRepo, 'getLatestKeys').mockRejectedValue(new Error());
 
-        const res = await requestSender.upsertConnection(connection);
+        const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
@@ -324,7 +337,7 @@ describe('connection', function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
         jest.spyOn(repo, 'find').mockRejectedValue(new Error());
 
-        const res = await requestSender.getNamedConnections('avi');
+        const res = await requestSender.getClientConnections({ pathParams: { clientName: 'avi' } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
@@ -336,7 +349,7 @@ describe('connection', function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
         jest.spyOn(repo, 'find').mockRejectedValue(new Error());
 
-        const res = await requestSender.getNamedEnvConnections('avi', Environment.NP);
+        const res = await requestSender.getClientEnvironmentConnections({ pathParams: { clientName: 'avi', environment: Environment.NP } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
@@ -348,7 +361,9 @@ describe('connection', function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
         jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
-        const res = await requestSender.getConnection('avi', Environment.NP, 1);
+        const res = await requestSender.getClientVersionedConnection({
+          pathParams: { clientName: 'avi', environment: Environment.NP, version: 1 },
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();

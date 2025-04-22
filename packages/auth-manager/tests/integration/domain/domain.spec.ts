@@ -6,20 +6,21 @@ import { DataSource } from 'typeorm';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
 import { Domain } from '@map-colonies/auth-core';
-import { getApp } from '../../../src/app';
-import { SERVICES } from '../../../src/common/constants';
-import { initConfig } from '../../../src/common/config';
-import { DomainRequestSender } from './helpers/requestSender';
+import { getApp } from '@src/app';
+import { SERVICES } from '@src/common/constants';
+import { initConfig } from '@src/common/config';
+import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { paths, operations } from '@openapi';
 
 describe('domain', function () {
-  let requestSender: DomainRequestSender;
+  const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
+
+  let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
 
   beforeAll(async function () {
     await initConfig();
-  });
 
-  beforeEach(async function () {
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -27,11 +28,11 @@ describe('domain', function () {
       ],
       useChild: true,
     });
-    requestSender = new DomainRequestSender(app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
     depContainer = container;
   });
 
-  afterEach(async function () {
+  afterAll(async function () {
     await depContainer.resolve(DataSource).destroy();
   });
 
@@ -53,7 +54,7 @@ describe('domain', function () {
       it('should return 201 status code and the created domain', async function () {
         const domain = { name: 'aviavi' };
 
-        const res = await requestSender.createDomain(domain);
+        const res = await requestSender.createDomain({ requestBody: domain });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CREATED);
         expect(res).toSatisfyApiSpec();
@@ -66,7 +67,7 @@ describe('domain', function () {
       it('should return 400 status code if the name is too short', async function () {
         const domain = { name: faker.datatype.string(1) };
 
-        const res = await requestSender.createDomain(domain);
+        const res = await requestSender.createDomain({ requestBody: domain });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -76,7 +77,7 @@ describe('domain', function () {
       it('should return 400 status code if the name is too long', async function () {
         const domain = { name: faker.datatype.string(33) };
 
-        const res = await requestSender.createDomain(domain);
+        const res = await requestSender.createDomain({ requestBody: domain });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -86,11 +87,11 @@ describe('domain', function () {
       it('should return 409 status code if domain with the same name already', async function () {
         const domain = { name: faker.datatype.string(16) };
 
-        const res1 = await requestSender.createDomain(domain);
+        const res1 = await requestSender.createDomain({ requestBody: domain });
 
         expect(res1).toHaveProperty('status', httpStatusCodes.CREATED);
 
-        const res2 = await requestSender.createDomain(domain);
+        const res2 = await requestSender.createDomain({ requestBody: domain });
 
         expect(res2).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res2).toSatisfyApiSpec();
@@ -100,7 +101,7 @@ describe('domain', function () {
   });
   describe('Sad Path', function () {
     const MockProvider = { insert: jest.fn(), find: jest.fn() };
-    let mockedSender: DomainRequestSender;
+    let mockedSender: RequestSender<paths, operations>;
     beforeEach(async function () {
       const [app, container] = await getApp({
         override: [
@@ -110,7 +111,7 @@ describe('domain', function () {
         ],
         useChild: true,
       });
-      mockedSender = new DomainRequestSender(app);
+      mockedSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
       await container.resolve(DataSource).destroy();
       jest.resetAllMocks();
     });
@@ -129,7 +130,7 @@ describe('domain', function () {
         MockProvider.insert.mockRejectedValue(new Error(''));
         const domain = { name: faker.datatype.string(8) };
 
-        const res = await mockedSender.createDomain(domain);
+        const res = await mockedSender.createDomain({ requestBody: domain });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
