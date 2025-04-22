@@ -296,6 +296,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/key'
+        '415':
+          $ref: '#/components/responses/415UnsupportedMediaType'
         '500':
           $ref: '#/components/responses/500InternalServerError'
     post:
@@ -554,6 +556,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/domain'
+        '415':
+          $ref: '#/components/responses/415UnsupportedMediaType'
         '500':
           $ref: '#/components/responses/500InternalServerError'
     post:
@@ -597,6 +601,12 @@ components:
             $ref: '#/components/schemas/error'
     409Conflict:
       description: conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    415UnsupportedMediaType:
+      description: Unsupported Media Type
       content:
         application/json:
           schema:
