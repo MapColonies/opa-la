@@ -1,5 +1,5 @@
 import { type Logger } from '@map-colonies/js-logger';
-import { Client, Environment, IConnection } from '@map-colonies/auth-core';
+import { Client, Environments, IConnection } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains, In } from 'typeorm';
 import { JWK } from 'jose';
@@ -39,7 +39,7 @@ export class ConnectionManager {
     });
   }
 
-  public async getConnection(name: string, environment: Environment, version: number): Promise<IConnection> {
+  public async getConnection(name: string, environment: Environments, version: number): Promise<IConnection> {
     this.logger.info({ msg: 'fetching connection', connection: { name, version, environment } });
 
     const connection = await this.connectionRepository.findOne({ where: { name, version } });

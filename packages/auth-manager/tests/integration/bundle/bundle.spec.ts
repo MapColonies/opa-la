@@ -4,7 +4,7 @@ import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
-import { Bundle, Environment, IBundle } from '@map-colonies/auth-core';
+import { Bundle, Environment, Environments, IBundle } from '@map-colonies/auth-core';
 import 'jest-openapi';
 import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { paths, operations } from '@openapi';
@@ -73,7 +73,7 @@ describe('bundle', function () {
   describe('Bad Path', function () {
     describe('GET /bundle', function () {
       it('should return 400 status code if the environment value is invalid', async function () {
-        const res = await requestSender.getBundles({ queryParams: { environment: ['avi'] as unknown as Environment[] } });
+        const res = await requestSender.getBundles({ queryParams: { environment: ['avi'] as unknown as Environments[] } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();

@@ -1,5 +1,5 @@
 import { DataSource, Repository } from 'typeorm';
-import { Asset, Bundle, Connection, Environment, Key } from '@map-colonies/auth-core';
+import { Asset, Bundle, Connection, Environments, Key } from '@map-colonies/auth-core';
 import { BundleContent, BundleContentVersions } from './types';
 import { extractNameAndVersion } from './util';
 import { logger } from './logger';
@@ -36,7 +36,7 @@ export class BundleDatabase {
    * @param env The environment for which to retrieve the versions
    * @returns An object describing all the latest versions
    */
-  public async getLatestVersions(env: Environment): Promise<BundleContentVersions> {
+  public async getLatestVersions(env: Environments): Promise<BundleContentVersions> {
     logger?.debug('fetching latest versions from the db');
     return {
       environment: env,

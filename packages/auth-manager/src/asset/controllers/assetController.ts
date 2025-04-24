@@ -1,23 +1,23 @@
 import { HttpError } from '@map-colonies/error-express-handler';
-import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
-import { IAsset } from '@map-colonies/auth-core';
-import type { TypedRequestHandlers } from '@openapi';
+import type { TypedRequestHandlers, components } from '@openapi';
 import { SERVICES } from '@common/constants';
-import { AssetSearchParams } from '../models/asset';
-import { AssetManager } from '../models/assetManager';
+import { AssetManager, type ResponseAsset } from '../models/assetManager';
 import { AssetNotFoundError, AssetVersionMismatchError } from '../models/errors';
 
-interface AssetPathParams {
-  assetName: string;
+/**
+ * Converts an asset entity to the OpenAPI schema format
+ * @param asset - The asset entity to convert
+ * @returns The asset formatted according to OpenAPI schema
+ */
+function responseAssetToOpenApi(asset: ResponseAsset): components['schemas']['asset'] {
+  return {
+    ...asset,
+    createdAt: asset.createdAt.toISOString(),
+  };
 }
-
-type UpsertAssetHandler = RequestHandler<undefined, IAsset, IAsset>;
-type GetAssetsHandler = RequestHandler<undefined, IAsset[], undefined, AssetSearchParams>;
-type GetNamedAssetsHandler = RequestHandler<AssetPathParams, IAsset[]>;
-type GetAssetHandler = RequestHandler<AssetPathParams & { version: number }, IAsset>;
 
 @injectable()
 export class AssetController {
@@ -26,31 +26,43 @@ export class AssetController {
     @inject(AssetManager) private readonly manager: AssetManager
   ) {}
 
-  public getAssets: GetAssetsHandler = async (req, res, next) => {
+  /**
+   * Get all assets matching the query filters
+   */
+  public getAssets: TypedRequestHandlers['getAssets'] = async (req, res, next) => {
     this.logger.debug('executing #getAssets handler');
 
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getAssets(req.query));
+      const assets = await this.manager.getAssets(req.query ?? {});
+      return res.status(httpStatus.OK).json(assets.map(responseAssetToOpenApi));
     } catch (error) {
       return next(error);
     }
   };
 
-  public getNamedAssets: GetNamedAssetsHandler = async (req, res, next) => {
+  /**
+   * Get all assets with a specific name
+   */
+  public getNamedAssets: TypedRequestHandlers['getAsset'] = async (req, res, next) => {
     this.logger.debug('executing #getNamedAssets handler');
 
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getNamedAssets(req.params.assetName));
+      const assets = await this.manager.getNamedAssets(req.params.assetName);
+      return res.status(httpStatus.OK).json(assets.map(responseAssetToOpenApi));
     } catch (error) {
       return next(error);
     }
   };
 
-  public getAsset: GetAssetHandler = async (req, res, next) => {
+  /**
+   * Get a specific asset by name and version
+   */
+  public getAsset: TypedRequestHandlers['getVersionedAsset'] = async (req, res, next) => {
     this.logger.debug('executing #getAsset handler');
 
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getAsset(req.params.assetName, req.params.version));
+      const asset = await this.manager.getAsset(req.params.assetName, req.params.version);
+      return res.status(httpStatus.OK).json(responseAssetToOpenApi(asset));
     } catch (error) {
       if (error instanceof AssetNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;
@@ -59,14 +71,17 @@ export class AssetController {
     }
   };
 
-  public upsertAsset: UpsertAssetHandler = async (req, res, next) => {
+  /**
+   * Create a new asset or update an existing one based on version
+   */
+  public upsertAsset: TypedRequestHandlers['upsertAsset'] = async (req, res, next) => {
     this.logger.debug('executing #upsertAsset handler');
 
     try {
       const createdAsset = await this.manager.upsertAsset(req.body);
 
       const returnStatus = createdAsset.version === 1 ? httpStatus.CREATED : httpStatus.OK;
-      return res.status(returnStatus).json(createdAsset);
+      return res.status(returnStatus).json(responseAssetToOpenApi(createdAsset));
     } catch (error) {
       if (error instanceof AssetVersionMismatchError) {
         (error as HttpError).status = httpStatus.CONFLICT;

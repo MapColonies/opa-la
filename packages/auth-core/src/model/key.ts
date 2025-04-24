@@ -1,4 +1,4 @@
-import { Environment } from './common';
+import { Environments } from './common';
 
 /**
  * JSON representation of a public key
@@ -31,9 +31,9 @@ export interface IKey {
    * The version of the key with the given {@link environment}. Starts at 1 and automatically increments.
    * When updated, the POST body should contain the latest version.
    */
-  environment: Environment;
+  environment: Environments;
   /** The environment this key relates to. */
   version: number;
-  privateKey?: JWKPrivateKey;
-  publicKey?: JWKPublicKey;
+  privateKey: JWKPrivateKey;
+  publicKey: JWKPublicKey;
 }

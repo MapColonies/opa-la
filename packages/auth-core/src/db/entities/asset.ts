@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import { AssetType, Environment, IAsset } from '../../model';
+import { AssetType, type AssetTypes, Environment, type Environments, IAsset } from '../../model';
 
 /**
  * The typeorm implementation of the IAsset interface.
@@ -32,10 +32,10 @@ export class Asset implements IAsset {
   public uri!: string;
 
   @Column({ type: 'enum', enum: AssetType })
-  public type!: AssetType;
+  public type!: AssetTypes;
 
   @Column({ type: 'enum', enum: Environment, array: true, enumName: 'environment_enum' })
-  public environment!: Environment[];
+  public environment!: Environments[];
 
   @Column({ type: 'boolean', name: 'is_template' })
   public isTemplate!: boolean;

@@ -47,7 +47,6 @@
     "@map-colonies/read-pkg": "0.0.1",
     "@map-colonies/schemas": "^1.1.0",
     "@map-colonies/telemetry": "4.1.0",
-    "@map-colonies/openapi-helpers": "^2.0.0",
     "@opentelemetry/api": "1.1.0",
     "@opentelemetry/api-metrics": "0.23.0",
     "@opentelemetry/instrumentation-express": "0.29.0",
@@ -64,6 +63,7 @@
     "typeorm": "^0.3.12"
   },
   "devDependencies": {
+    "@map-colonies/openapi-helpers": "^2.0.0",
     "@faker-js/faker": "^7.6.0",
     "@types/compression": "^1.7.2",
     "@types/config": "^3.3.0",
@@ -80,6 +80,7 @@
     "rimraf": "^4.4.0",
     "supertest": "^7.1.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "type-fest": "^4.40.0"
   }
 }

@@ -1,7 +1,7 @@
-import { Environment } from '@map-colonies/auth-core';
+import { Environments } from '@map-colonies/auth-core';
 
 export interface ConnectionSearchParams {
-  environment?: Environment[];
+  environment?: Environments[];
   isEnabled?: boolean;
   isNoBrowser?: boolean;
   isNoOrigin?: boolean;

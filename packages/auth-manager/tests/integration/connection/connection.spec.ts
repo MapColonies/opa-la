@@ -6,7 +6,7 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { Client, Connection, Domain, Environment, IConnection, Key } from '@map-colonies/auth-core';
+import { Client, Connection, Domain, Environment, Environments, IConnection, Key } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
@@ -258,7 +258,7 @@ describe('connection', function () {
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 400 if environment value is not valid', async function () {
         const res = await requestSender.getClientEnvironmentConnections({
-          pathParams: { clientName: 'avi', environment: 'avi' as Environment.PRODUCTION },
+          pathParams: { clientName: 'avi', environment: 'avi' as Environments },
         });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);

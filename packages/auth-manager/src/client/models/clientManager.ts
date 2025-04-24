@@ -57,6 +57,8 @@ export class ClientManager {
   public async createClient(client: IClient): Promise<IClient> {
     this.logger.info({ msg: 'creating domain', name: client.name });
     try {
+      console.log(client);
+
       await this.clientRepository.insert(client);
 
       this.logger.debug('client result returned from db');

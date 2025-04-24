@@ -5,12 +5,12 @@ import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { IKey, Environment, Key } from '@map-colonies/auth-core';
-import { getApp } from '../../../src/app';
-import { SERVICES } from '../../../src/common/constants';
-import { KeyRepository } from '../../../src/key/DAL/keyRepository';
-import { getMockKeys } from '../../utils/key';
-import { initConfig } from '../../../src/common/config';
+import { IKey, Environments, Key, Environment } from '@map-colonies/auth-core';
+import { getApp } from '@src/app';
+import { SERVICES } from '@src/common/constants';
+import { KeyRepository } from '@src/key/DAL/keyRepository';
+import { getMockKeys } from '@tests/utils/key';
+import { initConfig } from '@src/common/config';
 import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { paths, operations, components } from '@openapi';
 
@@ -158,7 +158,7 @@ describe('key', function () {
 
     describe('GET /key/:environment', function () {
       it('should return 400 if environment value is not valid', async function () {
-        const res = await requestSender.getKeys({ pathParams: { environment: 'avi' as Environment } });
+        const res = await requestSender.getKeys({ pathParams: { environment: 'avi' as Environments } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();

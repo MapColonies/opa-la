@@ -1,9 +1,12 @@
 import { type Logger } from '@map-colonies/js-logger';
-import { Environment, IKey } from '@map-colonies/auth-core';
+import { Environments, IKey } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { SERVICES } from '../../common/constants';
+import type { SetRequired } from 'type-fest';
+import { SERVICES } from '@common/constants';
 import { type KeyRepository } from '../DAL/keyRepository';
 import { KeyVersionMismatchError, KeyNotFoundError } from './errors';
+
+type ResponseKey = SetRequired<IKey, 'privateKey' | 'publicKey'>;
 
 @injectable()
 export class KeyManager {
@@ -12,19 +15,19 @@ export class KeyManager {
     @inject(SERVICES.KEY_REPOSITORY) private readonly keyRepository: KeyRepository
   ) {}
 
-  public async getLatestKeys(): Promise<IKey[]> {
+  public async getLatestKeys(): Promise<ResponseKey[]> {
     this.logger.info({ msg: 'fetching latest keys' });
 
     return this.keyRepository.getLatestKeys();
   }
 
-  public async getEnvKeys(environment: Environment): Promise<IKey[]> {
+  public async getEnvKeys(environment: Environments): Promise<ResponseKey[]> {
     this.logger.info({ msg: 'fetching all specific environment keys', key: { environment } });
 
     return this.keyRepository.find({ where: { environment } });
   }
 
-  public async getKey(environment: Environment, version: number): Promise<IKey> {
+  public async getKey(environment: Environments, version: number): Promise<IKey> {
     this.logger.info({ msg: 'fetching key', key: { environment, version } });
 
     const key = await this.keyRepository.findOne({ where: { environment, version } });

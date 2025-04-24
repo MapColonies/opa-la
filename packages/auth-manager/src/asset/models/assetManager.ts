@@ -3,10 +3,13 @@ import { IAsset } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains } from 'typeorm';
 import { SERVICES } from '@common/constants';
-import type { components } from '@openapi';
+import type { SetRequired } from 'type-fest';
+import { operations } from '@openapi';
 import { type AssetRepository } from '../DAL/assetRepository';
-import { AssetSearchParams } from './asset';
 import { AssetVersionMismatchError, AssetNotFoundError } from './errors';
+
+export type ResponseAsset = SetRequired<IAsset, 'createdAt'>;
+export type RequestAsset = Omit<IAsset, 'createdAt'>;
 
 @injectable()
 export class AssetManager {
@@ -15,20 +18,20 @@ export class AssetManager {
     @inject(SERVICES.ASSET_REPOSITORY) private readonly assetRepository: AssetRepository
   ) {}
 
-  public async getAssets(searchParams: AssetSearchParams): Promise<IAsset[]> {
+  public async getAssets(searchParams: NonNullable<operations['getAssets']['parameters']['query']>): Promise<ResponseAsset[]> {
     this.logger.info({ msg: 'fetching assets', searchParams });
     const { environment, isTemplate, type } = searchParams;
 
     return this.assetRepository.findBy({ environment: environment ? ArrayContains(environment) : undefined, isTemplate, type });
   }
 
-  public async getNamedAssets(name: string): Promise<IAsset[]> {
+  public async getNamedAssets(name: string): Promise<ResponseAsset[]> {
     this.logger.info({ msg: 'fetching all specific environment assets', asset: { name } });
 
     return this.assetRepository.findBy({ name });
   }
 
-  public async getAsset(name: string, version: number): Promise<IAsset> {
+  public async getAsset(name: string, version: number): Promise<ResponseAsset> {
     this.logger.info({ msg: 'fetching asset', asset: { name, version } });
 
     const asset = await this.assetRepository.findOne({ where: { name, version } });
@@ -40,7 +43,7 @@ export class AssetManager {
     return asset;
   }
 
-  public async upsertAsset(asset: IAsset): Promise<IAsset> {
+  public async upsertAsset(asset: RequestAsset): Promise<ResponseAsset> {
     this.logger.info({ msg: 'upserting asset', asset: { environment: asset.environment, version: asset.version } });
     return this.assetRepository.manager.transaction(async (transactionManager) => {
       const transactionRepo = transactionManager.withRepository(this.assetRepository);

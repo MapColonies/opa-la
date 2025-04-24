@@ -122,11 +122,12 @@ describe('client', function () {
         expect(res.body).toStrictEqual({ message: 'request/body/name must NOT have more than 32 characters' });
       });
 
-      it('should return 409 status code if client with the same name already exists', async function () {
+      it.only('should return 409 status code if client with the same name already exists', async function () {
         const client = getFakeClient(false);
 
         const res1 = await requestSender.createClient({ requestBody: client });
 
+        console.log(res1.body);
         expect(res1).toHaveProperty('status', httpStatusCodes.CREATED);
 
         const res2 = await requestSender.createClient({ requestBody: client });

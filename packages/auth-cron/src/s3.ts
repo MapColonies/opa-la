@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { StatusCodes } from 'http-status-codes';
 import { HeadBucketCommand, HeadObjectCommand, NotFound, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { Environment } from '@map-colonies/auth-core';
+import { Environments } from '@map-colonies/auth-core';
 import type { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { getConfig } from './config';
 import { logger } from './logger';
@@ -70,9 +70,9 @@ class S3client {
   }
 }
 
-const s3Clients = new Map<Environment, S3client>();
+const s3Clients = new Map<Environments, S3client>();
 
-export function getS3Client(env: Environment): S3client {
+export function getS3Client(env: Environments): S3client {
   const cronConfig = getConfig().get(`cron.${env}`);
   let client = s3Clients.get(env);
   if (!client) {

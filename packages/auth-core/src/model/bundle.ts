@@ -1,4 +1,4 @@
-import { Environment } from './common';
+import { Environments } from './common';
 
 /**
  * Describes the metadata of contents of bundles that were created.
@@ -7,7 +7,7 @@ export interface IBundle {
   /** The auto-generated ID of the bundle. */
   id?: number;
   /** The environment the bundle was created for. */
-  environment: Environment;
+  environment: Environments;
   /** The md5 based hash of the bundle tarball. */
   hash?: string;
   /** Free form object to describe the bundle. */
