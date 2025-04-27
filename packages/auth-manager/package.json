@@ -64,7 +64,6 @@
   },
   "devDependencies": {
     "@map-colonies/openapi-helpers": "^2.0.0",
-    "@faker-js/faker": "^7.6.0",
     "@types/compression": "^1.7.2",
     "@types/config": "^3.3.0",
     "@types/express": "^4.17.17",

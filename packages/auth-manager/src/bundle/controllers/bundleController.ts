@@ -2,7 +2,7 @@ import { HttpError } from '@map-colonies/error-express-handler';
 import { IBundle } from '@map-colonies/auth-core';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import type { TypedRequestHandlers, components } from '@openapi';
+import type { TypedRequestHandlers, components, operations } from '@openapi';
 
 import { BundleManager } from '../models/bundleManager';
 import { BundleNotFoundError } from '../models/errors';
@@ -20,7 +20,7 @@ export class BundleController {
 
   public getBundles: TypedRequestHandlers['getBundles'] = async (req, res, next) => {
     try {
-      const query = req.query ?? {};
+      const query = req.query as NonNullable<operations['getBundles']['parameters']['query']>;
       const searchParams = {
         ...query,
         createdBefore: query.createdBefore ? new Date(query.createdBefore) : undefined,

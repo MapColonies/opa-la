@@ -50,6 +50,28 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
         expect(res.body).toIncludeAllPartialMembers(clients);
       });
+
+      it('should support filtering by dates', async function () {
+        const clients = [
+          { ...getFakeClient(false), createdAt: new Date('2022-12-01') },
+          { ...getFakeClient(false), createdAt: new Date('2023-01-01') },
+          { ...getFakeClient(false), createdAt: new Date('2023-02-01') },
+        ];
+
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Client).insert(clients.map((c) => ({ ...c })));
+
+        const res = await requestSender.getClients({
+          queryParams: {
+            createdAfter: new Date('2022-12-31').toISOString(),
+            createdBefore: new Date('2023-03-31').toISOString(),
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toBeArrayOfSize(2);
+      });
     });
 
     describe('POST /client', function () {
@@ -113,7 +135,7 @@ describe('client', function () {
 
       it('should return 400 status code if the name is too long', async function () {
         const client = getFakeClient(false);
-        client.name = faker.datatype.string(33);
+        client.name = faker.string.alpha(33);
 
         const res = await requestSender.createClient({ requestBody: client });
 
@@ -122,12 +144,11 @@ describe('client', function () {
         expect(res.body).toStrictEqual({ message: 'request/body/name must NOT have more than 32 characters' });
       });
 
-      it.only('should return 409 status code if client with the same name already exists', async function () {
+      it('should return 409 status code if client with the same name already exists', async function () {
         const client = getFakeClient(false);
 
         const res1 = await requestSender.createClient({ requestBody: client });
 
-        console.log(res1.body);
         expect(res1).toHaveProperty('status', httpStatusCodes.CREATED);
 
         const res2 = await requestSender.createClient({ requestBody: client });

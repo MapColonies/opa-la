@@ -44,7 +44,7 @@ describe('client', function () {
         const assets: IAsset[] = [
           asset,
           { ...asset, version: 2 },
-          { ...asset, name: faker.random.alphaNumeric(9), environment: [Environment.NP, Environment.STAGE] },
+          { ...asset, name: faker.string.sample(9), environment: [Environment.NP, Environment.STAGE] },
         ];
 
         const connection = depContainer.resolve(DataSource);
@@ -63,7 +63,7 @@ describe('client', function () {
         const assets: IAsset[] = [
           asset,
           { ...asset, version: 2 },
-          { ...asset, name: faker.random.alphaNumeric(9), environment: [Environment.NP, Environment.STAGE] },
+          { ...asset, name: faker.string.sample(9), environment: [Environment.NP, Environment.STAGE] },
         ];
 
         const connection = depContainer.resolve(DataSource);
@@ -80,7 +80,7 @@ describe('client', function () {
         const asset = getFakeAsset();
         asset.type = AssetType.DATA;
         const assets: IAsset[] = [
-          { ...asset, name: faker.random.alphaNumeric(9) },
+          { ...asset, name: faker.string.sample(9) },
           { ...asset, type: AssetType.POLICY },
         ];
 

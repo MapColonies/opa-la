@@ -10,18 +10,11 @@ import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors'
 import { ClientSearchParams } from '../models/client';
 
 function responseClientToOpenApi(client: IClient): components['schemas']['client'] {
-  if (!client.createdAt) {
-    throw new Error('createdAt is required');
-  }
-
-  if (!client.updatedAt) {
-    throw new Error('updatedAt is required');
-  }
-
+  const { createdAt, updatedAt, ...rest } = client;
   return {
     ...client,
-    createdAt: client.createdAt.toISOString(),
-    updatedAt: client.updatedAt.toISOString(),
+    createdAt: (client.createdAt as Date).toISOString(),
+    updatedAt: (client.updatedAt as Date).toISOString(),
   };
 }
 
@@ -48,7 +41,9 @@ export class ClientController {
     try {
       this.logger.debug('executing #getClients handler');
 
-      const clients = await this.manager.getClients(queryParamsToSearchParams(req.query ?? {}));
+      const clients = await this.manager.getClients(
+        queryParamsToSearchParams(req.query as NonNullable<operations['getClients']['parameters']['query']>)
+      );
       return res.status(httpStatus.OK).json(clients.map(responseClientToOpenApi));
     } catch (error) {
       return next(error);
@@ -71,12 +66,8 @@ export class ClientController {
   public createClient: TypedRequestHandlers['createClient'] = async (req, res, next) => {
     try {
       this.logger.debug('executing #createClient handler');
-      console.log(req.body.createdAt);
-      type Prettify<T> = {
-        [K in keyof T]: T[K];
-      } & {};
-      type a = Prettify<typeof req.body>;
-      const reqClient = { createdAt, ...req.body };
+      const { createdAt, updatedAt, ...reqClient } = req.body;
+
       const createdClient = await this.manager.createClient(reqClient);
       return res.status(httpStatus.CREATED).json(responseClientToOpenApi(createdClient));
     } catch (error) {
@@ -90,8 +81,7 @@ export class ClientController {
   public updateClient: TypedRequestHandlers['updateClient'] = async (req, res, next) => {
     try {
       this.logger.debug('executing #updateClient handler');
-      const reqClient = { ...req.body, createdAt: new Date(req.body.createdAt), updatedAt: new Date(req.body.updatedAt) };
-      const updatedClient = await this.manager.updateClient(req.params.clientName, reqClient);
+      const updatedClient = await this.manager.updateClient(req.params.clientName, req.body);
       return res.status(httpStatus.OK).json(responseClientToOpenApi(updatedClient));
     } catch (error) {
       if (error instanceof ClientNotFoundError) {

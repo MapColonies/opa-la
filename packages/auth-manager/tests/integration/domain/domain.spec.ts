@@ -65,7 +65,7 @@ describe('domain', function () {
   describe('Bad Path', function () {
     describe('POST /domain', function () {
       it('should return 400 status code if the name is too short', async function () {
-        const domain = { name: faker.datatype.string(1) };
+        const domain = { name: faker.string.alpha(1) };
 
         const res = await requestSender.createDomain({ requestBody: domain });
 
@@ -75,7 +75,7 @@ describe('domain', function () {
       });
 
       it('should return 400 status code if the name is too long', async function () {
-        const domain = { name: faker.datatype.string(33) };
+        const domain = { name: faker.string.alpha(33) };
 
         const res = await requestSender.createDomain({ requestBody: domain });
 
@@ -85,7 +85,7 @@ describe('domain', function () {
       });
 
       it('should return 409 status code if domain with the same name already', async function () {
-        const domain = { name: faker.datatype.string(16) };
+        const domain = { name: faker.string.alpha(16) };
 
         const res1 = await requestSender.createDomain({ requestBody: domain });
 
@@ -128,7 +128,7 @@ describe('domain', function () {
     describe('POST /domain', function () {
       it('should return 500 status code if db throws an error', async function () {
         MockProvider.insert.mockRejectedValue(new Error(''));
-        const domain = { name: faker.datatype.string(8) };
+        const domain = { name: faker.string.alpha(8) };
 
         const res = await mockedSender.createDomain({ requestBody: domain });
 

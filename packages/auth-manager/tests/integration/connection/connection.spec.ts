@@ -220,7 +220,7 @@ describe('connection', function () {
 
       it('should return 404 if a client with name is not in the DB', async function () {
         const connection = getFakeIConnection();
-        connection.name = faker.random.alphaNumeric(5);
+        connection.name = faker.string.alpha(5);
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);

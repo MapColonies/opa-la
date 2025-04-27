@@ -57,8 +57,6 @@ export class ClientManager {
   public async createClient(client: IClient): Promise<IClient> {
     this.logger.info({ msg: 'creating domain', name: client.name });
     try {
-      console.log(client);
-
       await this.clientRepository.insert(client);
 
       this.logger.debug('client result returned from db');
@@ -77,7 +75,7 @@ export class ClientManager {
     }
   }
 
-  public async updateClient(name: string, client: Omit<IClient, 'name'>): Promise<IClient> {
+  public async updateClient(name: string, client: Omit<IClient, 'name' | 'createdAt' | 'updatedAt'>): Promise<IClient> {
     this.logger.info({ msg: 'updating client', name });
 
     this.logger.debug({ msg: 'updating client with following data', name, client });
