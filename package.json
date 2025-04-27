@@ -23,6 +23,7 @@
     "@map-colonies/eslint-config": "^3.1.3",
     "@map-colonies/prettier-config": "^0.0.1",
     "@map-colonies/tsconfig": "^1.0.1",
+    "@faker-js/faker": "^9.7.0",
     "@map-colonies/infra-copilot-instructions": "^1.1.0",
     "@redocly/cli": "^1.34.2",
     "cross-env": "^7.0.3",

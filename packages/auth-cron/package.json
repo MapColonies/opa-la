@@ -53,7 +53,6 @@
   },
   "devDependencies": {
     "@adobe/jsonschema2md": "^7.1.5",
-    "@faker-js/faker": "^7.6.0",
     "@types/config": "^3.3.0",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.15.5",

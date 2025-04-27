@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { writeFileSync } from 'node:fs';
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { Environment } from '@map-colonies/auth-core';
+import { Environment, Environments } from '@map-colonies/auth-core';
 import { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import jsLogger from '@map-colonies/js-logger';
 import { initConfig, getConfig } from '../src/config';
@@ -64,7 +64,7 @@ describe('s3.ts', function () {
 
   describe('#getS3Client', function () {
     it('should throw an error if env is not defined', function () {
-      expect(() => getS3Client('avi' as Environment)).toThrow();
+      expect(() => getS3Client('avi' as Environments)).toThrow();
     });
   });
   describe('#getObjectHash', function () {
