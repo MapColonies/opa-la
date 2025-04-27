@@ -110,23 +110,25 @@ export const ConnectionsPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">Connections</h2>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Connection
-            </Button>
+    <div className="flex flex-col h-full p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Connections</h1>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Connection
+          </Button>
+          {isCreateDialogOpen && (
             <CreateConnectionModal
               onClose={() => setIsCreateDialogOpen(false)}
               onSave={upsertConnectionMutation.mutate}
               isPending={upsertConnectionMutation.isPending}
             />
-          </Dialog>
-        </div>
+          )}
+        </Dialog>
+      </div>
 
+      <div className="mb-6 space-y-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="relative flex-1">
             <Select value={selectedEnvironment} onValueChange={(value) => setSelectedEnvironment(value as Environment | 'all')}>
@@ -175,15 +177,19 @@ export const ConnectionsPage = () => {
         </div>
       </div>
 
-      <ConnectionsTable connections={data || []} onEditConnection={openEditDialog} />
+      <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
+        <ConnectionsTable connections={data || []} onEditConnection={openEditDialog} />
+      </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <EditConnectionModal
-          connection={selectedConnection}
-          onClose={() => setIsEditDialogOpen(false)}
-          onSave={upsertConnectionMutation.mutate}
-          isPending={upsertConnectionMutation.isPending}
-        />
+        {isEditDialogOpen && (
+          <EditConnectionModal
+            connection={selectedConnection}
+            onClose={() => setIsEditDialogOpen(false)}
+            onSave={upsertConnectionMutation.mutate}
+            isPending={upsertConnectionMutation.isPending}
+          />
+        )}
       </Dialog>
     </div>
   );

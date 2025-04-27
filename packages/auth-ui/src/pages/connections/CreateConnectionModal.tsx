@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, Check, ChevronsUpDown, HelpCircle } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Badge } from '../../components/ui/badge';
@@ -9,6 +9,10 @@ import { Switch } from '../../components/ui/switch';
 import { toast } from 'sonner';
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../../components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
+import { cn } from '../../lib/utils';
 import { $api } from '../../fetch';
 
 type Connection = components['schemas']['connection'];
@@ -36,7 +40,8 @@ export const CreateConnectionModal = ({ onClose, onSave, isPending }: CreateConn
   });
 
   const [newOrigin, setNewOrigin] = useState('');
-  const [useToken, setUseToken] = useState(true);
+  const [useToken, setUseToken] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const { data: clients, isLoading: isLoadingClients } = $api.useQuery('get', '/client');
 
@@ -130,18 +135,41 @@ export const CreateConnectionModal = ({ onClose, onSave, isPending }: CreateConn
           <Label htmlFor="client" className="text-right">
             Client
           </Label>
-          <Select value={newConnection.name} onValueChange={handleClientChange} disabled={isLoadingClients}>
-            <SelectTrigger className="col-span-3">
-              <SelectValue placeholder="Select a client" />
-            </SelectTrigger>
-            <SelectContent>
-              {clients?.map((client: Client) => (
-                <SelectItem key={client.name} value={client.name}>
-                  {client.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="col-span-3 justify-between w-full"
+                disabled={isLoadingClients}
+              >
+                {newConnection.name ? newConnection.name : 'Select a client...'}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Search client..." />
+                <CommandEmpty>No client found.</CommandEmpty>
+                <CommandGroup>
+                  {clients?.map((client: Client) => (
+                    <CommandItem
+                      key={client.name}
+                      value={client.name}
+                      onSelect={() => {
+                        handleClientChange(client.name);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check className={cn('mr-2 h-4 w-4', newConnection.name === client.name ? 'opacity-100' : 'opacity-0')} />
+                      {client.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="environment" className="text-right">
@@ -162,10 +190,16 @@ export const CreateConnectionModal = ({ onClose, onSave, isPending }: CreateConn
           </Select>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label className="text-right">Use Token</Label>
+          <Label className="text-right">Status</Label>
           <div className="flex items-center space-x-2 col-span-3">
-            <Switch checked={useToken} onCheckedChange={handleTokenToggle} />
-            <Label>Create Your Own Token</Label>
+            <Switch checked={newConnection.enabled} onCheckedChange={(checked) => setNewConnection((prev) => ({ ...prev, enabled: checked }))} />
+            <Label>{newConnection.enabled ? 'Enabled' : 'Disabled'}</Label>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right">Generate Token</Label>
+          <div className="flex items-center space-x-2 col-span-3">
+            <Switch checked={!useToken} onCheckedChange={(checked) => handleTokenToggle(!checked)} />
           </div>
         </div>
         {useToken && (
@@ -183,24 +217,35 @@ export const CreateConnectionModal = ({ onClose, onSave, isPending }: CreateConn
           </div>
         )}
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label className="text-right">Status</Label>
-          <div className="flex items-center space-x-2 col-span-3">
-            <Switch checked={newConnection.enabled} onCheckedChange={(checked) => setNewConnection((prev) => ({ ...prev, enabled: checked }))} />
-            <Label>Enabled</Label>
-          </div>
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
           <Label className="text-right">Browser Check</Label>
           <div className="flex items-center space-x-2 col-span-3">
             <Switch checked={newConnection.allowNoBrowserConnection} onCheckedChange={handleAllowedDomainsChange} />
-            <Label>Allow No Browser Connection</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Allow connections without browser validation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label className="text-right">Origin Check</Label>
           <div className="flex items-center space-x-2 col-span-3">
             <Switch checked={newConnection.allowNoOriginConnection} onCheckedChange={handleAllowedOriginsChange} />
-            <Label>Allow No Origin Connection</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Allow connections without origin validation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">

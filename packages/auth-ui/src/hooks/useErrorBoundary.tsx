@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { Component, ReactNode } from 'react';
 import { ErrorPage } from '../pages/error';
 
 interface ErrorBoundaryProps {
@@ -6,29 +6,35 @@ interface ErrorBoundaryProps {
   fallback?: ReactNode;
 }
 
-export const ErrorBoundary = ({ children, fallback }: ErrorBoundaryProps) => {
-  const [hasError, setHasError] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
 
-  useEffect(() => {
-    const handleError = (event: ErrorEvent) => {
-      setHasError(true);
-      setError(event.error);
-      // Prevent the error from propagating
-      event.preventDefault();
-    };
-
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
-  }, []);
-
-  if (hasError) {
-    if (fallback) {
-      return <>{fallback}</>;
-    }
-
-    return <ErrorPage title="Application Error" message={error?.message || 'An unexpected error occurred in the application.'} code="500" />;
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
   }
 
-  return <>{children}</>;
-};
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+      return (
+        <ErrorPage title="Application Error" message={this.state.error?.message || 'An unexpected error occurred in the application.'} code="500" />
+      );
+    }
+
+    return this.props.children;
+  }
+}

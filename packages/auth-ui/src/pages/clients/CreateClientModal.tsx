@@ -18,6 +18,10 @@ interface CreateClientModalProps {
   isPending: boolean;
 }
 
+const isHebrewText = (text: string): boolean => {
+  return /^[\u0590-\u05FF0-9\s]+$/.test(text);
+};
+
 export const CreateClientModal = ({ onClose, onCreateClient, isPending }: CreateClientModalProps) => {
   const [newClient, setNewClient] = useState<Partial<Client>>({
     name: '',
@@ -29,6 +33,7 @@ export const CreateClientModal = ({ onClose, onCreateClient, isPending }: Create
 
   const [newTag, setNewTag] = useState('');
   const [selectedSites, setSelectedSites] = useState<string[]>(availableSites);
+  const [hebNameError, setHebNameError] = useState<string | null>(null);
 
   const handleAddNewTag = () => {
     if (newTag.trim() && !newClient.tags?.includes(newTag.trim())) {
@@ -47,9 +52,30 @@ export const CreateClientModal = ({ onClose, onCreateClient, isPending }: Create
     }));
   };
 
+  const handleHebNameChange = (value: string) => {
+    setNewClient((prev) => ({ ...prev, hebName: value }));
+
+    if (!value.trim()) {
+      setHebNameError(null);
+      return;
+    }
+
+    if (!isHebrewText(value)) {
+      setHebNameError('Hebrew Name must contain only Hebrew characters and numbers');
+    } else {
+      setHebNameError(null);
+    }
+  };
+
   const handleCreateClient = async () => {
     if (!newClient.name || !newClient.hebName) {
       toast.error('Name and Hebrew Name are required');
+      return;
+    }
+
+    if (!isHebrewText(newClient.hebName)) {
+      setHebNameError('Hebrew Name must contain only Hebrew characters and numbers');
+      toast.error('Hebrew Name must contain only Hebrew characters and numbers');
       return;
     }
 
@@ -82,13 +108,16 @@ export const CreateClientModal = ({ onClose, onCreateClient, isPending }: Create
           <Label htmlFor="hebName" className="text-right">
             Hebrew Name
           </Label>
-          <Input
-            id="hebName"
-            value={newClient.hebName}
-            onChange={(e) => setNewClient((prev) => ({ ...prev, hebName: e.target.value }))}
-            className="col-span-3"
-            placeholder="Hebrew name"
-          />
+          <div className="col-span-3 space-y-1">
+            <Input
+              id="hebName"
+              value={newClient.hebName}
+              onChange={(e) => handleHebNameChange(e.target.value)}
+              className={hebNameError ? 'border-red-500' : ''}
+              placeholder="Hebrew name"
+            />
+            {hebNameError && <p className="text-sm text-red-500">{hebNameError}</p>}
+          </div>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="description" className="text-right">
@@ -161,7 +190,7 @@ export const CreateClientModal = ({ onClose, onCreateClient, isPending }: Create
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleCreateClient} disabled={isPending || selectedSites.length === 0}>
+        <Button onClick={handleCreateClient} disabled={isPending || selectedSites.length === 0 || !!hebNameError}>
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

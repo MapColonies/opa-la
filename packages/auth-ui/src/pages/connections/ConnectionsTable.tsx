@@ -1,12 +1,44 @@
 import { useState, useMemo } from 'react';
 import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
-import { Pencil, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Pencil, ArrowUpDown, ArrowUp, ArrowDown, Copy, Check } from 'lucide-react';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '../../components/ui/table';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getSortedRowModel, SortingState, Column } from '@tanstack/react-table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
+import { toast } from 'sonner';
 
 type Connection = components['schemas']['connection'];
+
+const CopyTokenButton = ({ token }: { token: string }) => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopyToken = async () => {
+    try {
+      await navigator.clipboard.writeText(token);
+      setIsCopied(true);
+      toast.success('Token copied to clipboard');
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      toast.error('Failed to copy token');
+    }
+  };
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="sm" onClick={handleCopyToken} className={isCopied ? 'text-green-500' : ''}>
+            {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{isCopied ? 'Copied!' : 'Copy token'}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 interface ConnectionsTableProps {
   connections: Connection[];
@@ -131,9 +163,12 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
         cell: ({ row }) => {
           const connection = row.original;
           return (
-            <Button variant="ghost" size="sm" onClick={() => onEditConnection(connection)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              <CopyTokenButton token={connection.token} />
+              <Button variant="ghost" size="sm" onClick={() => onEditConnection(connection)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </div>
           );
         },
       },
@@ -153,9 +188,9 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="h-full flex flex-col">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 bg-background z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -164,7 +199,7 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
+        <TableBody className="overflow-auto">
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
@@ -181,7 +216,6 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
             </TableRow>
           )}
         </TableBody>
-        <TableCaption className="mt-4 mb-2">A list of your connections and their configurations.</TableCaption>
       </Table>
     </div>
   );

@@ -166,9 +166,9 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="h-full flex flex-col">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 bg-background z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -177,7 +177,7 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
+        <TableBody className="overflow-auto">
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
@@ -194,7 +194,6 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
             </TableRow>
           )}
         </TableBody>
-        <TableCaption className="mt-4 mb-2">A list of your clients and their descriptions.</TableCaption>
       </Table>
     </div>
   );

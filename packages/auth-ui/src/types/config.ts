@@ -1,6 +1,9 @@
 export interface SiteConfig {
   url: string;
-  envs: Array<'prod' | 'np' | 'stage'>;
+  envs: Array<{
+    envKey: string;
+    opalaUrl: string;
+  }>;
   name: string;
 }
 

@@ -2,11 +2,29 @@
   "8080": {
     "name": "localhost 8080",
     "url": "http://localhost:8080",
-    "envs": ["prod", "np", "stage"]
+    "envs": [
+      {
+        "envKey": "prod",
+        "opalaUrl": "https://opa-dev-infra-services.apps.j1lk3njp.eastus.aroapp.io/"
+      },
+      {
+        "envKey": "np",
+        "opalaUrl": "EDIT THIS TO A VALID URL IN config.json     "
+      },
+      {
+        "envKey": "stage",
+        "opalaUrl": "EDIT THIS TO A VALID URL IN config.json     "
+      }
+    ]
   },
   "8083": {
     "name": "localhost 8083",
     "url": "http://localhost:8083",
-    "envs": ["prod"]
+    "envs": [
+      {
+        "envKey": "prod",
+        "opalaUrl": "EDIT THIS TO A VALID URL IN config.json     "
+      }
+    ]
   }
 }

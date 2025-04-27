@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/pop
 import { Calendar as CalendarComponent } from '../../components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '../../lib/utils';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Client = components['schemas']['client'];
 type NamelessClient = components['schemas']['namelessClient'];
@@ -29,6 +30,7 @@ type Filters = {
 };
 
 export const ClientsPage = () => {
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<Filters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -50,6 +52,8 @@ export const ClientsPage = () => {
     params: {
       query: filters,
     },
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   const [isCreatePending, setIsCreatePending] = useState(false);
@@ -60,6 +64,7 @@ export const ClientsPage = () => {
       const createMutation = siteApis?.[site]?.useMutation('post', '/client', {
         onSuccess: () => {
           toast.success(`Client created successfully on ${site}`);
+          queryClient.invalidateQueries({ queryKey: ['get', '/client'] });
         },
         onError: (error) => {
           console.error(`Error creating client on site: ${site}`, error);
@@ -70,6 +75,7 @@ export const ClientsPage = () => {
       const updateMutation = siteApis?.[site]?.useMutation('patch', '/client/{clientName}', {
         onSuccess: () => {
           toast.success(`Client updated successfully on ${site}`);
+          queryClient.invalidateQueries({ queryKey: ['get', '/client'] });
         },
         onError: (error) => {
           console.error(`Error updating client on site: ${site}`, error);
@@ -135,7 +141,6 @@ export const ClientsPage = () => {
           });
 
         if (successfulSites.length > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 0));
           setIsCreateDialogOpen(false);
           await refetch();
         }
@@ -196,7 +201,6 @@ export const ClientsPage = () => {
           });
 
         if (successfulSites.length > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 0));
           setIsEditDialogOpen(false);
           setSelectedClient(null);
           await refetch();
@@ -252,6 +256,10 @@ export const ClientsPage = () => {
     setFilters(newFilters);
   }, [debouncedSearchTerm, createdAfterDate, createdBeforeDate, updatedAfterDate, updatedBeforeDate, selectedTags]);
 
+  useEffect(() => {
+    refetch();
+  }, [refetch, filters]);
+
   const openEditDialog = (client: Client) => {
     setSelectedClient({ ...client });
     setIsEditDialogOpen(true);
@@ -300,151 +308,136 @@ export const ClientsPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="flex flex-col h-full p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Clients</h1>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Client
+        </Button>
+      </div>
+
       <div className="mb-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">Clients</h2>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Client
-              </Button>
-            </DialogTrigger>
-            {isCreateDialogOpen && (
-              <CreateClientModal
-                onClose={() => setIsCreateDialogOpen(false)}
-                onCreateClient={createClientMutation.mutate}
-                isPending={createClientMutation.isPending}
-              />
-            )}
-          </Dialog>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search by branch..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            <Button variant="outline" onClick={resetFilters}>
-              Reset
-            </Button>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search by branch..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-2">
-              <Label>Created After</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn('w-full justify-start text-left font-normal', !createdAfterDate && 'text-muted-foreground')}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {createdAfterDate ? format(createdAfterDate, 'PPP') : 'Pick a date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <CalendarComponent mode="single" selected={createdAfterDate} onSelect={setCreatedAfterDate} initialFocus />
-                </PopoverContent>
-              </Popover>
-            </div>
+          <Button variant="outline" onClick={resetFilters}>
+            Reset
+          </Button>
+        </div>
 
-            <div className="space-y-2">
-              <Label>Created Before</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn('w-full justify-start text-left font-normal', !createdBeforeDate && 'text-muted-foreground')}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {createdBeforeDate ? format(createdBeforeDate, 'PPP') : 'Pick a date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <CalendarComponent mode="single" selected={createdBeforeDate} onSelect={setCreatedBeforeDate} initialFocus />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Updated After</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn('w-full justify-start text-left font-normal', !updatedAfterDate && 'text-muted-foreground')}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {updatedAfterDate ? format(updatedAfterDate, 'PPP') : 'Pick a date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <CalendarComponent mode="single" selected={updatedAfterDate} onSelect={setUpdatedAfterDate} initialFocus />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Updated Before</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn('w-full justify-start text-left font-normal', !updatedBeforeDate && 'text-muted-foreground')}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {updatedBeforeDate ? format(updatedBeforeDate, 'PPP') : 'Pick a date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <CalendarComponent mode="single" selected={updatedBeforeDate} onSelect={setUpdatedBeforeDate} initialFocus />
-                </PopoverContent>
-              </Popover>
-            </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2">
+            <Label>Created After</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !createdAfterDate && 'text-muted-foreground')}>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {createdAfterDate ? format(createdAfterDate, 'PPP') : 'Pick a date'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <CalendarComponent mode="single" selected={createdAfterDate} onSelect={setCreatedAfterDate} initialFocus />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="space-y-2">
-            <Label>Tags</Label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {selectedTags.map((tag) => (
-                <div key={tag} className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md">
-                  <span>{tag}</span>
-                  <button onClick={() => removeTag(tag)} className="text-secondary-foreground hover:text-destructive">
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add tag..."
-                value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-              />
-              <Button onClick={addTag}>Add</Button>
-            </div>
+            <Label>Created Before</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !createdBeforeDate && 'text-muted-foreground')}>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {createdBeforeDate ? format(createdBeforeDate, 'PPP') : 'Pick a date'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <CalendarComponent mode="single" selected={createdBeforeDate} onSelect={setCreatedBeforeDate} initialFocus />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Updated After</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !updatedAfterDate && 'text-muted-foreground')}>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {updatedAfterDate ? format(updatedAfterDate, 'PPP') : 'Pick a date'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <CalendarComponent mode="single" selected={updatedAfterDate} onSelect={setUpdatedAfterDate} initialFocus />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Updated Before</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !updatedBeforeDate && 'text-muted-foreground')}>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {updatedBeforeDate ? format(updatedBeforeDate, 'PPP') : 'Pick a date'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <CalendarComponent mode="single" selected={updatedBeforeDate} onSelect={setUpdatedBeforeDate} initialFocus />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Tags</Label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {selectedTags.map((tag) => (
+              <div key={tag} className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md">
+                <span>{tag}</span>
+                <button onClick={() => removeTag(tag)} className="text-secondary-foreground hover:text-destructive">
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Add tag..."
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addTag();
+                }
+              }}
+            />
+            <Button onClick={addTag}>Add</Button>
           </div>
         </div>
       </div>
 
-      <ClientsTable clients={clients} onEditClient={openEditDialog} />
-
+      <div className="flex-1 min-h-0 overflow-hidden border rounded-md">
+        <ClientsTable clients={clients} onEditClient={openEditDialog} />
+      </div>
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        {isCreateDialogOpen && (
+          <CreateClientModal
+            onClose={() => setIsCreateDialogOpen(false)}
+            onCreateClient={createClientMutation.mutate}
+            isPending={createClientMutation.isPending}
+          />
+        )}
+      </Dialog>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         {isEditDialogOpen && (
           <EditClientModal

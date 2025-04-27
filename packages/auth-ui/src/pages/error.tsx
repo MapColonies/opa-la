@@ -26,9 +26,9 @@ export const ErrorPage = ({
         <h1 className="text-4xl font-bold text-primary mb-2">{code}</h1>
         <h2 className="text-2xl font-semibold mb-2">{title}</h2>
         <p className="text-muted-foreground mb-6">{message}</p>
-        <Button asChild variant="outline">
-          <Link to={actionHref}>{actionText}</Link>
-        </Button>
+        <Link to={actionHref}>
+          <Button variant="outline">{actionText}</Button>
+        </Link>
       </div>
     </div>
   );

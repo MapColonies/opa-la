@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, HelpCircle } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Badge } from '../../components/ui/badge';
@@ -9,6 +9,7 @@ import { Switch } from '../../components/ui/switch';
 import { toast } from 'sonner';
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
 import { $api } from '../../fetch';
 
 type Connection = components['schemas']['connection'];
@@ -145,6 +146,11 @@ export const EditConnectionModal = ({ connection, onClose, onSave, isPending }: 
         if (!prev) return prev;
         return { ...prev, token: '' };
       });
+    } else {
+      setEditedConnection((prev) => {
+        if (!prev) return prev;
+        return { ...prev, token: connection?.token || '' };
+      });
     }
   };
 
@@ -196,10 +202,24 @@ export const EditConnectionModal = ({ connection, onClose, onSave, isPending }: 
           </Select>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label className="text-right">Use Token</Label>
+          <Label className="text-right">Status</Label>
           <div className="flex items-center space-x-2 col-span-3">
-            <Switch checked={useToken} onCheckedChange={handleTokenToggle} />
-            <Label>Create Your Own Token</Label>
+            <Switch
+              checked={editedConnection.enabled}
+              onCheckedChange={(checked) =>
+                setEditedConnection((prev) => {
+                  if (!prev) return prev;
+                  return { ...prev, enabled: checked };
+                })
+              }
+            />
+            <Label>{editedConnection.enabled ? 'Enabled' : 'Disabled'}</Label>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right">Generate Token</Label>
+          <div className="flex items-center space-x-2 col-span-3">
+            <Switch checked={!useToken} onCheckedChange={(checked) => handleTokenToggle(!checked)} />
           </div>
         </div>
         {useToken && (
@@ -222,32 +242,35 @@ export const EditConnectionModal = ({ connection, onClose, onSave, isPending }: 
           </div>
         )}
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label className="text-right">Status</Label>
-          <div className="flex items-center space-x-2 col-span-3">
-            <Switch
-              checked={editedConnection.enabled}
-              onCheckedChange={(checked) =>
-                setEditedConnection((prev) => {
-                  if (!prev) return prev;
-                  return { ...prev, enabled: checked };
-                })
-              }
-            />
-            <Label>Enabled</Label>
-          </div>
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
           <Label className="text-right">Browser Check</Label>
           <div className="flex items-center space-x-2 col-span-3">
             <Switch checked={editedConnection.allowNoBrowserConnection} onCheckedChange={handleAllowedDomainsChange} />
-            <Label>Allow No Browser Connection</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Allow connections without browser validation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label className="text-right">Origin Check</Label>
           <div className="flex items-center space-x-2 col-span-3">
             <Switch checked={editedConnection.allowNoOriginConnection} onCheckedChange={handleAllowedOriginsChange} />
-            <Label>Allow No Origin Connection</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Allow connections without origin validation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">

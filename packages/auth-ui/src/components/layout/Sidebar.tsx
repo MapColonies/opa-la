@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
-import { Users, Link as LinkIcon, Globe, Menu, X, Key } from 'lucide-react';
+import { Users, Link as LinkIcon, Globe, Menu, X, Key, Shield } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useState } from 'react';
 import { SiteSwitcher } from './SiteSwitcher';
@@ -33,6 +33,11 @@ export const Sidebar = ({ className }: SidebarProps) => {
       title: 'JWT Inspector',
       href: '/jwt-inspector',
       icon: Key,
+    },
+    {
+      title: 'OPA Validator',
+      href: '/opa-validator',
+      icon: Shield,
     },
   ];
 

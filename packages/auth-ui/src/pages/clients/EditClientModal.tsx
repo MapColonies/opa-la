@@ -19,15 +19,25 @@ interface EditClientModalProps {
   isPending: boolean;
 }
 
+// Hebrew character range: \u0590-\u05FF
+// Numbers: 0-9
+const isHebrewText = (text: string): boolean => {
+  // Check if the text contains only Hebrew characters and numbers
+  return /^[\u0590-\u05FF0-9\s]+$/.test(text);
+};
+
 export const EditClientModal = ({ client, onClose, onUpdateClient, isPending }: EditClientModalProps) => {
   const [editedClient, setEditedClient] = useState<Client | null>(null);
   const [editTag, setEditTag] = useState('');
   const [selectedSites, setSelectedSites] = useState<string[]>(availableSites);
+  const [hebNameError, setHebNameError] = useState<string | null>(null);
 
   useEffect(() => {
     if (client) {
       setEditedClient({ ...client });
       setSelectedSites(availableSites);
+      // Reset error state when client changes
+      setHebNameError(null);
     }
   }, [client]);
 
@@ -54,8 +64,29 @@ export const EditClientModal = ({ client, onClose, onUpdateClient, isPending }: 
     }
   };
 
+  const handleHebNameChange = (value: string) => {
+    if (!editedClient) return;
+
+    setEditedClient((prev) => (prev ? { ...prev, hebName: value } : null));
+    if (!value.trim()) {
+      setHebNameError(null);
+      return;
+    }
+
+    if (!isHebrewText(value)) {
+      setHebNameError('Hebrew Name must contain only Hebrew characters and numbers');
+    } else {
+      setHebNameError(null);
+    }
+  };
+
   const handleEditClient = async () => {
     if (!editedClient) return;
+
+    if (!isHebrewText(editedClient.hebName)) {
+      setHebNameError('Hebrew Name must contain only Hebrew characters and numbers');
+      return;
+    }
 
     onUpdateClient({
       params: {
@@ -96,13 +127,16 @@ export const EditClientModal = ({ client, onClose, onUpdateClient, isPending }: 
           <Label htmlFor="edit-hebName" className="text-right">
             Hebrew Name
           </Label>
-          <Input
-            id="edit-hebName"
-            value={editedClient.hebName}
-            onChange={(e) => setEditedClient((prev) => (prev ? { ...prev, hebName: e.target.value } : null))}
-            className="col-span-3"
-            placeholder="Hebrew name"
-          />
+          <div className="col-span-3 space-y-1">
+            <Input
+              id="edit-hebName"
+              value={editedClient.hebName}
+              onChange={(e) => handleHebNameChange(e.target.value)}
+              className={hebNameError ? 'border-red-500' : ''}
+              placeholder="Hebrew name"
+            />
+            {hebNameError && <p className="text-sm text-red-500">{hebNameError}</p>}
+          </div>
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="edit-description" className="text-right">
@@ -187,7 +221,7 @@ export const EditClientModal = ({ client, onClose, onUpdateClient, isPending }: 
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleEditClient} disabled={isPending || selectedSites.length === 0}>
+        <Button onClick={handleEditClient} disabled={isPending || selectedSites.length === 0 || !!hebNameError}>
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

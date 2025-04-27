@@ -7,6 +7,7 @@ import { DomainsPage } from './pages/domains';
 import { JWTInspectorPage } from './pages/jwt-inspector';
 import { NotFoundPage } from './pages/not-found';
 import { ErrorPage } from './pages/error';
+import { OPAValidatorPage } from './pages/opa-validator';
 import { Toaster } from './components/ui/sonner';
 import { ConfigProvider } from './contexts/ConfigProvider';
 import { ErrorBoundary } from './hooks/useErrorBoundary';
@@ -26,6 +27,7 @@ function App() {
                 <Route path="connections" element={<ConnectionsPage />} />
                 <Route path="domains" element={<DomainsPage />} />
                 <Route path="jwt-inspector" element={<JWTInspectorPage />} />
+                <Route path="opa-validator" element={<OPAValidatorPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
               <Route path="/error" element={<ErrorPage />} />

@@ -18,6 +18,13 @@ const getCurrentBaseUrl = (): string => {
 
   try {
     const config = JSON.parse(siteConfig);
+    const selectedEnv = localStorage.getItem('selectedEnv');
+    if (selectedEnv && config.envs) {
+      const envConfig = config.envs.find((env: any) => env.envKey === selectedEnv);
+      if (envConfig) {
+        return envConfig.opalaUrl;
+      }
+    }
     return config.url || DEFAULT_BASE_URL;
   } catch (e) {
     return DEFAULT_BASE_URL;
@@ -44,8 +51,18 @@ export const createApiClientsFromConfig = (config: NetworkConfig) => {
   const siteApis: Record<string, typeof $api> = {};
 
   Object.entries(config).forEach(([siteName, siteConfig]) => {
+    const selectedEnv = localStorage.getItem('selectedEnv');
+    let baseUrl = siteConfig.url;
+
+    if (selectedEnv && siteConfig.envs) {
+      const envConfig = siteConfig.envs.find((env) => env.envKey === selectedEnv);
+      if (envConfig) {
+        baseUrl = envConfig.opalaUrl;
+      }
+    }
+
     const fetchClient = createFetchClient<paths>({
-      baseUrl: siteConfig.url,
+      baseUrl,
     });
 
     siteApis[siteName] = createClient(fetchClient);

@@ -66,23 +66,25 @@ export const DomainsPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">Domains</h2>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Domain
-            </Button>
+    <div className="flex flex-col h-full p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Domains</h1>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Domain
+          </Button>
+          {isCreateDialogOpen && (
             <CreateDomainModal
               onClose={() => setIsCreateDialogOpen(false)}
               onCreateDomain={createDomainMutation.mutate}
               isPending={createDomainMutation.isPending}
             />
-          </Dialog>
-        </div>
+          )}
+        </Dialog>
+      </div>
 
+      <div className="mb-6 space-y-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -97,7 +99,9 @@ export const DomainsPage = () => {
         </div>
       </div>
 
-      <DomainsTable domains={domains.length > 0 ? domains : data || []} />
+      <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
+        <DomainsTable domains={domains.length > 0 ? domains : data || []} />
+      </div>
     </div>
   );
 };
