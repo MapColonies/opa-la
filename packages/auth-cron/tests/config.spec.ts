@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { isConfigError } from '@map-colonies/config';
 import { getConfig } from '@src/config';
 
@@ -11,8 +10,10 @@ describe('config.ts', function () {
     it('should throw if no cron is configured', async function () {
       expect.assertions(2);
       await jest.isolateModulesAsync(async () => {
+        /* eslint-disable @typescript-eslint/no-require-imports */
         const { initConfig } = require('../src/config') as typeof import('../src/config');
         const configModule = require('@map-colonies/config') as typeof import('@map-colonies/config');
+        /* eslint-enable @typescript-eslint/no-require-imports */
 
         const configSpy = jest.spyOn(configModule, 'config');
         configSpy.mockImplementationOnce(async (params) => {

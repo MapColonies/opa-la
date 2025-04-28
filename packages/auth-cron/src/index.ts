@@ -51,7 +51,6 @@ const main = async (): Promise<void> => {
 
   createTerminus(server, {
     healthChecks: {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       '/liveness': async () => {
         await dataSource.query('SELECT 1');
       },
