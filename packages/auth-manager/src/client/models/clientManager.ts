@@ -22,7 +22,6 @@ export class ClientManager {
     this.logger.debug({ msg: 'search parameters', searchParams });
 
     // eslint doesn't recognize this as valid because its in the type definition
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     let findOptions: Parameters<typeof this.clientRepository.find>[0] = undefined;
     if (searchParams !== undefined) {
       const { branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = searchParams;

@@ -88,7 +88,6 @@ describe('AssetManager', () => {
       jest.resetAllMocks();
       const repo = { manager: { transaction: jest.fn() } };
       repo.manager.transaction.mockImplementation(async (fn: (a: unknown) => Promise<unknown>) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return fn({ withRepository: jest.fn().mockReturnValue(transactionRepo) });
       });
 

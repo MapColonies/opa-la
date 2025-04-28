@@ -6,11 +6,11 @@ import { DataSource } from 'typeorm';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
 import { Domain } from '@map-colonies/auth-core';
+import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
 import { initConfig } from '@src/common/config';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { paths, operations } from '@openapi';
 
 describe('domain', function () {
   const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file

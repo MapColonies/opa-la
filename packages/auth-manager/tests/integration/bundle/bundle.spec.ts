@@ -54,7 +54,6 @@ describe('bundle', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(res.body).toSatisfyAll((b: Bundle) => b.environment === Environment.NP);
       });
 

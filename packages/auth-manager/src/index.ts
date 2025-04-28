@@ -1,4 +1,3 @@
-/* eslint-disable import/first */
 // this import must be called before the first import of tsyringe
 import 'reflect-metadata';
 import { createServer } from 'http';
@@ -14,7 +13,6 @@ void getApp()
     const port: number = config.get('server.port');
     const logger = container.resolve<Logger>(SERVICES.LOGGER);
     const healthCheck = container.resolve<HealthCheck>(SERVICES.HEALTHCHECK);
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const server = createTerminus(createServer(app), { healthChecks: { '/liveness': healthCheck, onSignal: container.resolve('onSignal') } });
 
     server.listen(port, () => {

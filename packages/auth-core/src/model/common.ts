@@ -1,4 +1,5 @@
 /** The possible authentication deployment environments. */
+/* eslint-disable @typescript-eslint/naming-convention */
 export const Environment = {
   /** Non production, may also be called dev. */
   NP: 'np',
@@ -7,5 +8,6 @@ export const Environment = {
   /** The production environment. */
   PRODUCTION: 'prod',
 } as const;
+/* eslint-enable @typescript-eslint/naming-convention */
 
 export type Environments = (typeof Environment)[keyof typeof Environment];

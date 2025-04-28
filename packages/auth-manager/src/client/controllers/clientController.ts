@@ -2,15 +2,14 @@ import { HttpError } from '@map-colonies/error-express-handler';
 import { type Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import type { TypedRequestHandlers, components, operations } from '@openapi';
 import { IClient } from '@map-colonies/auth-core';
+import type { TypedRequestHandlers, components, operations } from '@openapi';
 import { SERVICES } from '@common/constants';
 import { ClientManager } from '../models/clientManager';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
 import { ClientSearchParams } from '../models/client';
 
 function responseClientToOpenApi(client: IClient): components['schemas']['client'] {
-  const { createdAt, updatedAt, ...rest } = client;
   return {
     ...client,
     createdAt: (client.createdAt as Date).toISOString(),
@@ -23,10 +22,10 @@ function queryParamsToSearchParams(query: NonNullable<operations['getClients']['
   return {
     branch,
     tags,
-    createdAfter: createdAfter ? new Date(createdAfter) : undefined,
-    createdBefore: createdBefore ? new Date(createdBefore) : undefined,
-    updatedAfter: updatedAfter ? new Date(updatedAfter) : undefined,
-    updatedBefore: updatedBefore ? new Date(updatedBefore) : undefined,
+    createdAfter: createdAfter !== undefined ? new Date(createdAfter) : undefined,
+    createdBefore: createdBefore !== undefined ? new Date(createdBefore) : undefined,
+    updatedAfter: updatedAfter !== undefined ? new Date(updatedAfter) : undefined,
+    updatedBefore: updatedBefore !== undefined ? new Date(updatedBefore) : undefined,
   };
 }
 

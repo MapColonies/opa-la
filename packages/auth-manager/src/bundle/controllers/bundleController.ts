@@ -23,8 +23,8 @@ export class BundleController {
       const query = req.query as NonNullable<operations['getBundles']['parameters']['query']>;
       const searchParams = {
         ...query,
-        createdBefore: query.createdBefore ? new Date(query.createdBefore) : undefined,
-        createdAfter: query.createdAfter ? new Date(query.createdAfter) : undefined,
+        createdBefore: query.createdBefore !== undefined ? new Date(query.createdBefore) : undefined,
+        createdAfter: query.createdAfter !== undefined ? new Date(query.createdAfter) : undefined,
       };
       const bundles = await this.manager.getBundles(searchParams);
       return res.status(httpStatus.OK).json(bundles.map(responseBundleToOpenApi));

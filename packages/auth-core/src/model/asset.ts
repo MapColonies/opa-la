@@ -9,6 +9,7 @@ export const AssetType = {
   /** OPA data files, name should end with .json or .yaml. */
   DATA: 'DATA',
 } as const;
+/* eslint-enable @typescript-eslint/naming-convention */
 
 export type AssetTypes = (typeof AssetType)[keyof typeof AssetType];
 
