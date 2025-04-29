@@ -1,18 +1,5 @@
 import { Environments } from './common';
 
-/**
- * All the different types of possible assets.
- */
-// export enum AssetType {
-//   /** OPA test files. */
-//   TEST = 'TEST',
-//   TEST_DATA = 'TEST_DATA',
-//   /** OPA policy files. */
-//   POLICY = 'POLICY',
-//   /** OPA data files, name should end with .json or .yaml. */
-//   DATA = 'DATA',
-// }
-
 export const AssetType = {
   /** OPA test files. */
   TEST: 'TEST',
