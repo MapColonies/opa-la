@@ -11,7 +11,7 @@ import { BundleDatabase } from '@map-colonies/auth-bundler';
 import { getJob } from './job';
 import { getConfig } from './config';
 import { emptyDir } from './util';
-import { logger } from './logger';
+import { logger } from './telemetry/logger';
 
 const LIVENESS_PORT = 8080;
 
