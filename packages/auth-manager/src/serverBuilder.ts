@@ -5,11 +5,11 @@ import { OpenapiViewerRouter, OpenapiRouterConfig } from '@map-colonies/openapi-
 import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
 import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { inject, injectable } from 'tsyringe';
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import httpLogger from '@map-colonies/express-access-log-middleware';
 import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
 import { SERVICES } from './common/constants';
-import { IConfig } from './common/interfaces';
+import { type IConfig } from './common/interfaces';
 import { DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import { CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
 import { KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';

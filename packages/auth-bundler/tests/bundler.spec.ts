@@ -5,10 +5,10 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import jsLogger from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
-import { createBundleDirectoryStructure } from '../src/bundler';
-import { setLogger } from '../src/logger';
-import { BundleContent } from '../src/types';
-import { MissingPolicyFilesError } from '../src/errors';
+import { createBundleDirectoryStructure } from '@src/bundler';
+import { setLogger } from '@src/logger';
+import { BundleContent } from '@src/types';
+import { MissingPolicyFilesError } from '@src/errors';
 import { getFakeBundleContent } from './utils/bundle';
 
 const bundleContent = getFakeBundleContent();
@@ -55,7 +55,8 @@ describe('bundler.ts', function () {
 
       const content: BundleContent = {
         environment: Environment.PRODUCTION,
-        assets: [bundleContent.assets[1]],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        assets: [bundleContent.assets[1]!],
         connections: [],
       };
 

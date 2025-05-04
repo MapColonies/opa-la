@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { createTerminus } from '@godaddy/terminus';
 import { CatchCallbackFn, Cron } from 'croner';
 import { DataSource, Repository } from 'typeorm';
-import { Bundle, Environment, initConnection } from '@map-colonies/auth-core';
+import { Bundle, Environments, initConnection } from '@map-colonies/auth-core';
 import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { BundleDatabase } from '@map-colonies/auth-bundler';
 import { getJob } from './job';
@@ -35,7 +35,7 @@ const main = async (): Promise<void> => {
     logger?.info({ msg: 'initializing new update bundle job', bundleEnv: env });
 
     const workdir = mkdtempSync(path.join(tmpdir(), `authbundler-${env}-`));
-    const job = getJob(bundleRepository, bundleDatabase, env as Environment, workdir);
+    const job = getJob(bundleRepository, bundleDatabase, env as Environments, workdir);
 
     return Cron(value.pattern, { unref: false, protect: true, catch: errorHandler, name: env }, async () => {
       logger?.info({ msg: 'running new update job', bundleEnv: env });

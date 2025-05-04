@@ -1,12 +1,12 @@
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains, QueryFailedError } from 'typeorm';
 import { DatabaseError } from 'pg';
-import { IClient } from '@map-colonies/auth-core';
-import { SERVICES } from '../../common/constants';
-import { PgErrorCodes } from '../../common/db/constants';
-import { createDatesComparison } from '../../common/db/utils';
-import { ClientRepository } from '../DAL/clientRepository';
+import { type IClient } from '@map-colonies/auth-core';
+import { SERVICES } from '@common/constants';
+import { PgErrorCodes } from '@common/db/constants';
+import { createDatesComparison } from '@common/db/utils';
+import { type ClientRepository } from '../DAL/clientRepository';
 import { ClientSearchParams } from './client';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
 
@@ -75,7 +75,7 @@ export class ClientManager {
     }
   }
 
-  public async updateClient(name: string, client: Omit<IClient, 'name'>): Promise<IClient> {
+  public async updateClient(name: string, client: Omit<IClient, 'name' | 'createdAt' | 'updatedAt'>): Promise<IClient> {
     this.logger.info({ msg: 'updating client', name });
 
     this.logger.debug({ msg: 'updating client with following data', name, client });

@@ -1,51 +1,47 @@
 import { HttpError } from '@map-colonies/error-express-handler';
-import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { Logger } from '@map-colonies/js-logger';
-import { Environment, IKey } from '@map-colonies/auth-core';
+import { type Logger } from '@map-colonies/js-logger';
+import type { TypedRequestHandlers, components } from '@openapi';
+import { SERVICES } from '@common/constants';
 import { KeyManager } from '../models/keyManager';
 import { KeyNotFoundError, KeyVersionMismatchError } from '../models/errors';
-import { SERVICES } from '../../common/constants';
-
-interface KeyPathParams {
-  environment: Environment;
-}
-
-type CreateKeyHandler = RequestHandler<undefined, IKey, IKey>;
-type GetLatestKeysHandler = RequestHandler<undefined, IKey[]>;
-type GetKeysHandler = RequestHandler<KeyPathParams, IKey[]>;
-type GetKeyHandler = RequestHandler<KeyPathParams & { version: number }, IKey>;
 
 @injectable()
 export class KeyController {
-  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger, @inject(KeyManager) private readonly manager: KeyManager) {}
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(KeyManager) private readonly manager: KeyManager
+  ) {}
 
-  public getLatestKeys: GetLatestKeysHandler = async (req, res, next) => {
+  public getLatestKeys: TypedRequestHandlers['getLastestKeys'] = async (req, res, next) => {
     this.logger.debug('executing #getLatestKeys handler');
 
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getLatestKeys());
+      const keys = await this.manager.getLatestKeys();
+      return res.status(httpStatus.OK).json(keys);
     } catch (error) {
       return next(error);
     }
   };
 
-  public getKeys: GetKeysHandler = async (req, res, next) => {
+  public getKeys: TypedRequestHandlers['getKeys'] = async (req, res, next) => {
     this.logger.debug('executing #getKeys handler');
 
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getEnvKeys(req.params.environment));
+      const keys = await this.manager.getEnvKeys(req.params.environment);
+      return res.status(httpStatus.OK).json(keys);
     } catch (error) {
       return next(error);
     }
   };
 
-  public getKey: GetKeyHandler = async (req, res, next) => {
+  public getKey: TypedRequestHandlers['getSpecificKey'] = async (req, res, next) => {
     this.logger.debug('executing #getKey handler');
 
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getKey(req.params.environment, req.params.version));
+      const key = await this.manager.getKey(req.params.environment, req.params.version);
+      return res.status(httpStatus.OK).json(key);
     } catch (error) {
       if (error instanceof KeyNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;
@@ -54,7 +50,7 @@ export class KeyController {
     }
   };
 
-  public upsertKey: CreateKeyHandler = async (req, res, next) => {
+  public upsertKey: TypedRequestHandlers['upsertKey'] = async (req, res, next) => {
     this.logger.debug('executing #upsertKey handler');
 
     try {

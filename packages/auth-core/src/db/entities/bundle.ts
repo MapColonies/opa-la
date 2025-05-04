@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import { Environment, IBundle } from '../../model';
+import { Environment, type Environments, IBundle } from '../../model';
 
 /**
  * The typeorm implementation of the IBundle interface.
@@ -13,7 +13,7 @@ export class Bundle implements IBundle {
   public hash?: string;
 
   @Column({ type: 'enum', enum: Environment, enumName: 'environment_enum' })
-  public environment!: Environment;
+  public environment!: Environments;
 
   @Column({ type: 'jsonb', nullable: true })
   public metadata?: Record<string, unknown>;

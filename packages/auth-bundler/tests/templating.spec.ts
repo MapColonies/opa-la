@@ -1,4 +1,4 @@
-import { render } from '../src/templating';
+import { render } from '@src/templating';
 
 describe('templating.ts', function () {
   describe('#render', function () {

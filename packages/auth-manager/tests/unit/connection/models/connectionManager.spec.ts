@@ -52,7 +52,7 @@ describe('ConnectionManager', () => {
       async (inputName, inputValue, filterProperty) => {
         await connectionManager.getConnections({ [inputName]: inputValue });
 
-        const call = mockedConnectionRepository.find.mock.calls[0][0];
+        const call = mockedConnectionRepository.find.mock.calls[0]?.[0];
         expect(call?.where).toHaveProperty(filterProperty);
       }
     );

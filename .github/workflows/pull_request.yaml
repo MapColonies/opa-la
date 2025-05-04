@@ -2,19 +2,17 @@ name: pull_request
 
 on: [pull_request, workflow_dispatch]
 
-env: 
+env:
   DB_HOST: localhost
-  
 
 jobs:
-
   eslint:
     name: Run TS Project eslint
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node: [18.x, 20.x]
+        node: [20.x, 22.x]
 
     steps:
       - name: Check out TS Project Git repository
@@ -66,20 +64,17 @@ jobs:
         run: npx lerna run build
 
       - name: OpenAPI Lint Checks
-        uses: nwestfall/openapi-action@v1.0.2
-        with:
-         github_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ./packages/${{ matrix.package }}/openapi3.yaml
+        run: npx @redocly/cli lint --format=github-actions ./packages/${{ matrix.package }}/openapi3.yaml
 
   security:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master
-      continue-on-error: true
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   tests:
     name: Run Tests
@@ -87,7 +82,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [18.x, 20.x]
+        node: [20.x, 22.x]
         package: [auth-manager, '@map-colonies/auth-bundler', 'auth-cron']
 
     services:

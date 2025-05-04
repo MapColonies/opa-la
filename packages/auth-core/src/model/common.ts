@@ -1,9 +1,11 @@
 /** The possible authentication deployment environments. */
-export enum Environment {
+export const Environment = {
   /** Non production, may also be called dev. */
-  NP = 'np',
+  NP: 'np',
   /** The staging environment, may also be called integration. */
-  STAGE = 'stage',
+  STAGE: 'stage',
   /** The production environment. */
-  PRODUCTION = 'prod',
-}
+  PRODUCTION: 'prod',
+} as const;
+
+export type Environments = (typeof Environment)[keyof typeof Environment];

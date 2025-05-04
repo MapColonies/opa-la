@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { isConfigError } from '@map-colonies/config';
-import { getConfig } from '../src/config';
+import { getConfig } from '@src/config';
 
 describe('config.ts', function () {
   describe('#getConfig', function () {

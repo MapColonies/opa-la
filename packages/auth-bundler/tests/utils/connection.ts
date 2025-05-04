@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker';
 import { Connection, Environment, IConnection } from '@map-colonies/auth-core';
+import { faker } from '@faker-js/faker';
 
 const EIGHT = 8;
 
@@ -8,13 +8,13 @@ export function getFakeConnection(): Connection {
     createdAt: faker.date.past(),
     environment: Environment.NP,
     version: 1,
-    name: faker.random.alphaNumeric(EIGHT),
+    name: faker.string.sample(EIGHT),
     allowNoBrowserConnection: faker.datatype.boolean(),
     allowNoOriginConnection: faker.datatype.boolean(),
     domains: ['alpha', 'bravo'],
     origins: ['c', 'd'],
     enabled: true,
-    token: faker.datatype.string(),
+    token: faker.string.alpha(),
   };
 }
 

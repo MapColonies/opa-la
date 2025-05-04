@@ -1,45 +1,60 @@
 import { HttpError } from '@map-colonies/error-express-handler';
-import { Logger } from '@map-colonies/js-logger';
-import { IClient } from '@map-colonies/auth-core';
-import { RequestHandler } from 'express';
+import { type Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { SERVICES } from '../../common/constants';
-import { ClientSearchParams } from '../models/client';
+import type { TypedRequestHandlers, components, operations } from '@openapi';
+import { IClient } from '@map-colonies/auth-core';
+import { SERVICES } from '@common/constants';
 import { ClientManager } from '../models/clientManager';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
+import { ClientSearchParams } from '../models/client';
 
-type CreateClientHandler = RequestHandler<undefined, IClient, IClient>;
-type UpdateClientHandler = RequestHandler<ClientNameParam, Omit<IClient, 'name'>, IClient>;
-type GetClientsHandler = RequestHandler<undefined, IClient[], undefined, ClientSearchParams>;
-type GetClientHandler = RequestHandler<ClientNameParam, IClient>;
+function responseClientToOpenApi(client: IClient): components['schemas']['client'] {
+  const { createdAt, updatedAt, ...rest } = client;
+  return {
+    ...client,
+    createdAt: (client.createdAt as Date).toISOString(),
+    updatedAt: (client.updatedAt as Date).toISOString(),
+  };
+}
 
-export interface ClientNameParam {
-  clientName: string;
+function queryParamsToSearchParams(query: NonNullable<operations['getClients']['parameters']['query']>): ClientSearchParams {
+  const { branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = query;
+  return {
+    branch,
+    tags,
+    createdAfter: createdAfter ? new Date(createdAfter) : undefined,
+    createdBefore: createdBefore ? new Date(createdBefore) : undefined,
+    updatedAfter: updatedAfter ? new Date(updatedAfter) : undefined,
+    updatedBefore: updatedBefore ? new Date(updatedBefore) : undefined,
+  };
 }
 
 @injectable()
 export class ClientController {
-  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger, @inject(ClientManager) private readonly manager: ClientManager) {}
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(ClientManager) private readonly manager: ClientManager
+  ) {}
 
-  public getClients: GetClientsHandler = async (req, res, next) => {
+  public getClients: TypedRequestHandlers['getClients'] = async (req, res, next) => {
     try {
       this.logger.debug('executing #getClients handler');
 
-      const clients = await this.manager.getClients(req.query);
-
-      res.json(clients);
+      const clients = await this.manager.getClients(
+        queryParamsToSearchParams(req.query as NonNullable<operations['getClients']['parameters']['query']>)
+      );
+      return res.status(httpStatus.OK).json(clients.map(responseClientToOpenApi));
     } catch (error) {
-      next(error);
+      return next(error);
     }
   };
 
-  public getClient: GetClientHandler = async (req, res, next) => {
+  public getClient: TypedRequestHandlers['getClient'] = async (req, res, next) => {
     try {
       this.logger.debug('executing #getClient handler');
-
       const client = await this.manager.getClient(req.params.clientName);
-      return res.json(client);
+      return res.status(httpStatus.OK).json(responseClientToOpenApi(client));
     } catch (error) {
       if (error instanceof ClientNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;
@@ -48,12 +63,13 @@ export class ClientController {
     }
   };
 
-  public createClient: CreateClientHandler = async (req, res, next) => {
+  public createClient: TypedRequestHandlers['createClient'] = async (req, res, next) => {
     try {
       this.logger.debug('executing #createClient handler');
+      const { createdAt, updatedAt, ...reqClient } = req.body;
 
-      const createdDomain = await this.manager.createClient(req.body);
-      return res.status(httpStatus.CREATED).json(createdDomain);
+      const createdClient = await this.manager.createClient(reqClient);
+      return res.status(httpStatus.CREATED).json(responseClientToOpenApi(createdClient));
     } catch (error) {
       if (error instanceof ClientAlreadyExistsError) {
         (error as HttpError).status = httpStatus.CONFLICT;
@@ -62,12 +78,11 @@ export class ClientController {
     }
   };
 
-  public updateClient: UpdateClientHandler = async (req, res, next) => {
+  public updateClient: TypedRequestHandlers['updateClient'] = async (req, res, next) => {
     try {
       this.logger.debug('executing #updateClient handler');
-
-      const createdDomain = await this.manager.updateClient(req.params.clientName, req.body);
-      return res.json(createdDomain);
+      const updatedClient = await this.manager.updateClient(req.params.clientName, req.body);
+      return res.status(httpStatus.OK).json(responseClientToOpenApi(updatedClient));
     } catch (error) {
       if (error instanceof ClientNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;

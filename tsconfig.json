@@ -1,15 +1,5 @@
 {
-  "compilerOptions": {
-    "target": "es2021",
-    "module": "NodeNext",
-    "declaration": true,
-    "outDir": "dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "NodeNext",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "skipLibCheck": true
-  }
+  "extends": "@map-colonies/tsconfig/tsconfig-app",
+  "include": ["${configDir}/src", "${configDir}/tests"],
+  "exclude": ["${configDir}/node_modules", "${configDir}/dist"]
 }

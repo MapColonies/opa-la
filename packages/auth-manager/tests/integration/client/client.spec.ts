@@ -7,22 +7,20 @@ import { faker } from '@faker-js/faker';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
 import { Client } from '@map-colonies/auth-core';
+import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { paths, operations } from '@openapi';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { getFakeClient } from '../../utils/client';
-import { ClientRepository } from '../../../src/client/DAL/clientRepository';
 import { initConfig } from '../../../src/common/config';
-import { ClientRequestSender } from './helpers/requestSender';
+import { ClientRepository } from '@src/client/DAL/clientRepository';
 
 describe('client', function () {
-  let requestSender: ClientRequestSender;
+  let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
 
   beforeAll(async function () {
     await initConfig();
-  });
-
-  beforeEach(async function () {
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -30,11 +28,11 @@ describe('client', function () {
       ],
       useChild: true,
     });
-    requestSender = new ClientRequestSender(app);
+    requestSender = await createRequestSender<paths, operations>('openapi3.yaml', app);
     depContainer = container;
   });
 
-  afterEach(async function () {
+  afterAll(async function () {
     await depContainer.resolve(DataSource).destroy();
   });
 
@@ -52,13 +50,35 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
         expect(res.body).toIncludeAllPartialMembers(clients);
       });
+
+      it('should support filtering by dates', async function () {
+        const clients = [
+          { ...getFakeClient(false), createdAt: new Date('2022-12-01') },
+          { ...getFakeClient(false), createdAt: new Date('2023-01-01') },
+          { ...getFakeClient(false), createdAt: new Date('2023-02-01') },
+        ];
+
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Client).insert(clients.map((c) => ({ ...c })));
+
+        const res = await requestSender.getClients({
+          queryParams: {
+            createdAfter: new Date('2022-12-31').toISOString(),
+            createdBefore: new Date('2023-03-31').toISOString(),
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toBeArrayOfSize(2);
+      });
     });
 
     describe('POST /client', function () {
       it('should return 201 status code and the created client', async function () {
         const client = getFakeClient(false);
 
-        const res = await requestSender.createClient(client);
+        const res = await requestSender.createClient({ requestBody: client });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CREATED);
         expect(res).toSatisfyApiSpec();
@@ -73,7 +93,7 @@ describe('client', function () {
         const connection = depContainer.resolve(DataSource);
         await connection.getRepository(Client).insert({ ...client });
 
-        const res = await requestSender.getClient(client.name);
+        const res = await requestSender.getClient({ pathParams: { clientName: client.name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -88,7 +108,10 @@ describe('client', function () {
         const connection = depContainer.resolve(DataSource);
         await connection.getRepository(Client).insert({ ...client });
 
-        const res = await requestSender.updateClient(client.name, { ...client, description: 'xd', tags: ['a', 'b'] });
+        const res = await requestSender.updateClient({
+          pathParams: { clientName: client.name },
+          requestBody: { ...client, description: 'xd', tags: ['a', 'b'] },
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
@@ -96,13 +119,14 @@ describe('client', function () {
       });
     });
   });
+
   describe('Bad Path', function () {
     describe('POST /client', function () {
       it('should return 400 status code if the name is too short', async function () {
         const client = getFakeClient(false);
         client.name = 'a';
 
-        const res = await requestSender.createClient(client);
+        const res = await requestSender.createClient({ requestBody: client });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -111,9 +135,9 @@ describe('client', function () {
 
       it('should return 400 status code if the name is too long', async function () {
         const client = getFakeClient(false);
-        client.name = faker.datatype.string(33);
+        client.name = faker.string.alpha(33);
 
-        const res = await requestSender.createClient(client);
+        const res = await requestSender.createClient({ requestBody: client });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -123,11 +147,11 @@ describe('client', function () {
       it('should return 409 status code if client with the same name already exists', async function () {
         const client = getFakeClient(false);
 
-        const res1 = await requestSender.createClient(client);
+        const res1 = await requestSender.createClient({ requestBody: client });
 
         expect(res1).toHaveProperty('status', httpStatusCodes.CREATED);
 
-        const res2 = await requestSender.createClient(client);
+        const res2 = await requestSender.createClient({ requestBody: client });
 
         expect(res2).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res2).toSatisfyApiSpec();
@@ -136,7 +160,7 @@ describe('client', function () {
     });
     describe('GET /client/:clientName', function () {
       it('should return 404 status code if the client was not found', async function () {
-        const res = await requestSender.getClient('lol');
+        const res = await requestSender.getClient({ pathParams: { clientName: 'lol' } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
         expect(res).toSatisfyApiSpec();
@@ -148,7 +172,10 @@ describe('client', function () {
       it('should return 404 status code if the client was not found', async function () {
         const client = getFakeClient(false);
 
-        const res = await requestSender.updateClient('lol', client);
+        const res = await requestSender.updateClient({
+          pathParams: { clientName: 'lol' },
+          requestBody: client,
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
         expect(res).toSatisfyApiSpec();
@@ -177,7 +204,7 @@ describe('client', function () {
         const repo = depContainer.resolve<ClientRepository>(SERVICES.CLIENT_REPOSITORY);
         jest.spyOn(repo, 'insert').mockRejectedValue(new Error());
 
-        const res = await requestSender.createClient(getFakeClient(false));
+        const res = await requestSender.createClient({ requestBody: getFakeClient(false) });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
@@ -188,7 +215,7 @@ describe('client', function () {
           const repo = depContainer.resolve<ClientRepository>(SERVICES.CLIENT_REPOSITORY);
           jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
-          const res = await requestSender.getClient('avi');
+          const res = await requestSender.getClient({ pathParams: { clientName: 'avi' } });
 
           expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
           expect(res).toSatisfyApiSpec();
@@ -200,7 +227,10 @@ describe('client', function () {
           const repo = depContainer.resolve<ClientRepository>(SERVICES.CLIENT_REPOSITORY);
           jest.spyOn(repo, 'updateAndReturn').mockRejectedValue(new Error());
 
-          const res = await requestSender.updateClient('avi', getFakeClient(false));
+          const res = await requestSender.updateClient({
+            pathParams: { clientName: 'avi' },
+            requestBody: getFakeClient(false),
+          });
 
           expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
           expect(res).toSatisfyApiSpec();

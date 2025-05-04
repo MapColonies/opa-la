@@ -1,5 +1,1 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-npx --no -- commitlint --edit $1
-# commitlint -e HUSKY_GIT_PARAMS
+npx pretty-quick --staged

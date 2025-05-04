@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
-import { Bundle, Environment } from '@map-colonies/auth-core';
+import { Bundle, Environments } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import { getS3Client } from './s3';
 import { compareVersionsToBundle } from './util';
@@ -9,7 +9,7 @@ import { logger } from './logger';
 export function getJob(
   bundleRepository: Repository<Bundle>,
   bundleDatabase: BundleDatabase,
-  environment: Environment,
+  environment: Environments,
   workdir: string
 ): () => Promise<void> {
   return async () => {

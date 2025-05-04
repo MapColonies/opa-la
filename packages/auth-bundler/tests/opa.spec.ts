@@ -1,8 +1,8 @@
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
-import * as execa from '../src/wrappers/execa';
-import { checkFilesCommand, createBundleCommand, testCommand, testCoverageCommand, validateBinaryExistCommand } from '../src/opa';
+import * as execa from '@src/wrappers/execa';
+import { checkFilesCommand, createBundleCommand, testCommand, testCoverageCommand, validateBinaryExistCommand } from '@src/opa';
 
 jest.mock('../src/wrappers/execa', () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return

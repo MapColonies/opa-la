@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { FactoryFunction } from 'tsyringe';
-import { ConnectionController } from '../../connection/controllers/connectionController';
+import { ConnectionController } from '@connection/controllers/connectionController';
 import { ClientController } from '../controllers/clientController';
 
 export const clientRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
