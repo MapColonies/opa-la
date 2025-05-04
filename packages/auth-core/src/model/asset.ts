@@ -1,5 +1,6 @@
 import { Environments } from './common';
 
+/* eslint-disable @typescript-eslint/naming-convention */
 export const AssetType = {
   /** OPA test files. */
   TEST: 'TEST',
