@@ -23,10 +23,9 @@ export default async (): Promise<void> => {
     forcePathStyle: true,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   try {
     await s3client.send(new HeadBucketCommand({ Bucket: cronOptions?.s3.bucket as string }));
-  } catch (error) {
+  } catch {
     await s3client.send(new CreateBucketCommand({ Bucket: cronOptions?.s3.bucket as string }));
   }
 };

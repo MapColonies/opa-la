@@ -104,7 +104,7 @@ export class ConnectionManager {
 
     const key = (await transactionKeyRepo.getLatestKeys()).find((key) => key.environment === connection.environment);
 
-    if (key === undefined || key.privateKey === undefined) {
+    if (key?.privateKey === undefined) {
       this.logger.warn({
         msg: 'no private key found for connection, could not create token',
         connection: { name: connection.name, environment: connection.environment },

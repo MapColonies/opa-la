@@ -55,7 +55,6 @@ describe('bundler.ts', function () {
 
       const content: BundleContent = {
         environment: Environment.PRODUCTION,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         assets: [bundleContent.assets[1]!],
         connections: [],
       };

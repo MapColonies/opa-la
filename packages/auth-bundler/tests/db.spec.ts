@@ -2,8 +2,8 @@
 
 import { Asset, Connection, Environment, Key, createConnectionOptions } from '@map-colonies/auth-core';
 import { DataSource } from 'typeorm';
-import { BundleDatabase } from '@src/db';
 import { ConnectionNotInitializedError } from '@src';
+import { BundleDatabase } from '@src/db';
 import { getMockKeys } from './utils/key';
 import { getFakeAsset } from './utils/asset';
 import { getFakeConnection } from './utils/connection';

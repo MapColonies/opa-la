@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class RequiredKeys1745474706009 implements MigrationInterface {
-  name = 'RequiredKeys1745474706009';
+  public name = 'RequiredKeys1745474706009';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`ALTER TABLE "auth_manager"."key" ALTER COLUMN "private_key" SET NOT NULL`);

@@ -1,4 +1,4 @@
-import * as supertest from 'supertest';
+import supertest from 'supertest';
 import { Application } from 'express';
 
 export class DocsRequestSender {

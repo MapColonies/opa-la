@@ -9,7 +9,7 @@ export function compareVersionsToBundle(bundle: Bundle, versions: BundleContentV
     assert.deepStrictEqual(bundle.connections, versions.connections);
     assert.deepStrictEqual(bundle.assets, versions.assets);
     return bundle.environment === versions.environment && bundle.keyVersion === versions.keyVersion;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

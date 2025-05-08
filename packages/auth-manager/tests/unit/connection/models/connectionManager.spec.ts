@@ -1,17 +1,17 @@
 import jsLogger from '@map-colonies/js-logger';
 import { FindOptionsWhere } from 'typeorm';
 import { Connection, Environment } from '@map-colonies/auth-core';
-import { ConnectionManager } from '../../../../src/connection/models/connectionManager';
-import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../../../../src/connection/models/errors';
-import { ConnectionRepository } from '../../../../src/connection/DAL/connectionRepository';
-import { getFakeConnection } from '../../../utils/connection';
-import { DomainRepository } from '../../../../src/domain/DAL/domainRepository';
-import { ConnectionSearchParams } from '../../../../src/connection/models/connection';
-import { ClientNotFoundError } from '../../../../src/client/models/errors';
-import { DomainNotFoundError } from '../../../../src/domain/models/errors';
-import { KeyRepository } from '../../../../src/key/DAL/keyRepository';
-import { getRealKeys } from '../../../utils/key';
-import { KeyNotFoundError } from '../../../../src/key/models/errors';
+import { ConnectionManager } from '@src/connection/models/connectionManager';
+import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/connection/models/errors';
+import { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
+import { getFakeConnection } from '@tests/utils/connection';
+import { DomainRepository } from '@src/domain/DAL/domainRepository';
+import { ConnectionSearchParams } from '@src/connection/models/connection';
+import { ClientNotFoundError } from '@src/client/models/errors';
+import { DomainNotFoundError } from '@src/domain/models/errors';
+import { KeyRepository } from '@src/key/DAL/keyRepository';
+import { getRealKeys } from '@tests/utils/key';
+import { KeyNotFoundError } from '@src/key/models/errors';
 
 describe('ConnectionManager', () => {
   let connectionManager: ConnectionManager;
@@ -115,7 +115,6 @@ describe('ConnectionManager', () => {
       const domainRepo = {};
       const keysRepo = {};
       connectionRepo.manager.transaction.mockImplementation(async (fn: (a: unknown) => Promise<unknown>) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return fn({
           withRepository: jest.fn().mockImplementation((callValue) => {
             switch (callValue) {

@@ -9,10 +9,10 @@ import { DataSource } from 'typeorm';
 import { Client } from '@map-colonies/auth-core';
 import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { paths, operations } from '@openapi';
-import { getApp } from '../../../src/app';
-import { SERVICES } from '../../../src/common/constants';
-import { getFakeClient } from '../../utils/client';
-import { initConfig } from '../../../src/common/config';
+import { getApp } from '@src/app';
+import { SERVICES } from '@common/constants';
+import { getFakeClient } from '@tests/utils/client';
+import { initConfig } from '@common/config';
 import { ClientRepository } from '@src/client/DAL/clientRepository';
 
 describe('client', function () {

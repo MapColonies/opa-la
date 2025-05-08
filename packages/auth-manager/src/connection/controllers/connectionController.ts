@@ -2,8 +2,8 @@ import { HttpError } from '@map-colonies/error-express-handler';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
-import type { TypedRequestHandlers, components } from '@openapi';
 import { IConnection } from '@map-colonies/auth-core';
+import type { TypedRequestHandlers, components } from '@openapi';
 import { SERVICES } from '@common/constants';
 import { ClientNotFoundError } from '@client/models/errors';
 import { DomainNotFoundError } from '@domain/models/errors';
@@ -77,12 +77,13 @@ export class ConnectionController {
     this.logger.debug('executing #upsertConnection handler');
 
     try {
-      const reqConnection = { ...req.body, createdAt: req.body.createdAt ? new Date(req.body.createdAt) : undefined };
+      const reqConnection = { ...req.body, createdAt: req.body.createdAt !== undefined ? new Date(req.body.createdAt) : undefined };
       const createdConnection = await this.manager.upsertConnection(reqConnection, req.query?.shouldIgnoreTokenErrors);
 
       const returnStatus = createdConnection.version === 1 ? httpStatus.CREATED : httpStatus.OK;
       return res.status(returnStatus).json(responseConnectionToOpenApi(createdConnection));
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (true) {
         case error instanceof KeyNotFoundError:
           (error as HttpError).status = httpStatus.BAD_REQUEST;

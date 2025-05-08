@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /// <reference types="jest-extended" />
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
@@ -8,17 +7,17 @@ import 'jest-openapi';
 import { DataSource } from 'typeorm';
 import { Client, Connection, Domain, Environment, Environments, IConnection, Key } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
+import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
-import { SERVICES } from '@src/common/constants';
+import { SERVICES } from '@common/constants';
 import { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
 import { getFakeConnection, getFakeIConnection } from '@tests/utils/connection';
 import { KeyRepository } from '@src/key/DAL/keyRepository';
 import { DomainRepository } from '@src/domain/DAL/domainRepository';
 import { getFakeClient } from '@tests/utils/client';
 import { getRealKeys } from '@tests/utils/key';
-import { initConfig } from '@src/common/config';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { paths, operations } from '@openapi';
+import { initConfig } from '@common/config';
 
 describe('connection', function () {
   const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
@@ -63,7 +62,6 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(res.body).toBeArray();
       });
 
