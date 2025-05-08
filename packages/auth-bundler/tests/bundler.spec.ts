@@ -49,7 +49,7 @@ describe('bundler.ts', function () {
       });
 
       const warn = jest.spyOn(logger, 'warn');
-      jest.spyOn(logger, 'child').mockReturnValue(logger);
+      jest.spyOn(logger, 'child').mockReturnValue(logger as unknown as ReturnType<(typeof logger)['child']>);
 
       setLogger(logger);
 
