@@ -11,7 +11,7 @@ import { getJob } from '@src/job';
 import { getConfig, initConfig } from '@src/config';
 
 jest.mock('@map-colonies/auth-bundler');
-jest.mock('../src/logger', () => {
+jest.mock('../src/telemetry/logger', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,

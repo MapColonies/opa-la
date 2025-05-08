@@ -3,7 +3,9 @@
     "logger": {
       "level": "info",
       "prettyPrint": false
-    }
+    },
+    "tracing": {},
+    "shared": {}
   },
   "db": {
     "host": "localhost",

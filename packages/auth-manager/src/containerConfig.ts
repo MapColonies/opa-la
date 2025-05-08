@@ -1,4 +1,4 @@
-import { getOtelMixin, Metrics } from '@map-colonies/telemetry';
+import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
 import { instanceCachingFactory } from 'tsyringe';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
@@ -6,8 +6,8 @@ import jsLogger from '@map-colonies/js-logger';
 import { DataSource } from 'typeorm';
 import { HealthCheck } from '@godaddy/terminus';
 import { Bundle, initConnection } from '@map-colonies/auth-core';
+import { Registry } from 'prom-client';
 import { DB_CONNECTION_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
-import { tracing } from './common/tracing';
 import { domainRouterFactory, DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { promiseTimeout } from './common/utils/promiseTimeout';
@@ -22,6 +22,7 @@ import { connectionRouterFactory, CONNECTION_ROUTER_SYMBOL } from './connection/
 import { domainRepositoryFactory } from './domain/DAL/domainRepository';
 import { bundleRouterFactory, BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
 import { getConfig } from './common/config';
+import { getTracing } from './common/tracing';
 
 const healthCheck = (connection: DataSource): HealthCheck => {
   return async (): Promise<void> => {
@@ -47,16 +48,15 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   const dataSourceOptions = configInstance.get('db');
   const connection = await initConnection(dataSourceOptions);
 
-  const metrics = new Metrics();
-  metrics.start();
-
-  tracing.start();
   const tracer = trace.getTracer(SERVICE_NAME);
+  const metricsRegistry = new Registry();
+  configInstance.initializeMetrics(metricsRegistry);
 
   const dependencies: InjectionObject<unknown>[] = [
     { token: SERVICES.CONFIG, provider: { useValue: configInstance } },
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
+    { token: SERVICES.METRICS, provider: { useValue: metricsRegistry } },
     { token: DataSource, provider: { useValue: connection } },
     {
       token: SERVICES.HEALTHCHECK,
@@ -104,7 +104,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
       provider: {
         useValue: {
           useValue: async (): Promise<void> => {
-            await Promise.all([tracing.stop(), metrics.stop(), connection.destroy()]);
+            await Promise.all([getTracing().stop(), connection.destroy()]);
           },
         },
       },

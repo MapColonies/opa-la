@@ -1,4 +1,4 @@
-import { isConfigError } from '@map-colonies/config';
+import { ConfigErrors } from '@map-colonies/config';
 import { getConfig } from '@src/config';
 
 describe('config.ts', function () {
@@ -24,11 +24,11 @@ describe('config.ts', function () {
         const action = initConfig();
         await expect(action).rejects.toThrow('Config validation error');
         await action.catch((err) => {
-          if (isConfigError(err, 'configValidationError')) {
-            const filtered = err.payload?.filter((error) => error.message === "property 'cron' must match a schema in anyOf");
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(filtered).toHaveLength(1);
-          }
+          const validationErr = err as ConfigErrors['configValidationError'];
+
+          const filtered = validationErr.payload.filter((error) => error.message === "property 'cron' must match a schema in anyOf");
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(filtered).toHaveLength(1);
         });
       });
     });

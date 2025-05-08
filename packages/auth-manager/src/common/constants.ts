@@ -15,7 +15,7 @@ export const SERVICES = {
   LOGGER: Symbol('Logger'),
   CONFIG: Symbol('Config'),
   TRACER: Symbol('Tracer'),
-  METER: Symbol('Meter'),
+  METRICS: Symbol('Metrics'),
   HEALTHCHECK: Symbol('Healthcheck'),
   DOMAIN_REPOSITORY: Symbol('DOMAIN_REPO'),
   CLIENT_REPOSITORY: Symbol('CLIENT_REPO'),

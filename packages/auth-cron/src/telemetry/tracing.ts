@@ -1,7 +1,8 @@
 import { Tracing } from '@map-colonies/telemetry';
-import { IGNORED_INCOMING_TRACE_ROUTES, IGNORED_OUTGOING_TRACE_ROUTES } from './constants';
 
 let tracing: Tracing | undefined;
+export const IGNORED_OUTGOING_TRACE_ROUTES = [/^.*\/v1\/metrics.*$/];
+export const IGNORED_INCOMING_TRACE_ROUTES = [/^.*\/docs.*$/];
 
 export function tracingFactory(options: ConstructorParameters<typeof Tracing>[0]): Tracing {
   tracing = new Tracing({

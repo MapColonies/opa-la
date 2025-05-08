@@ -11,7 +11,7 @@ module.exports = {
   setupFilesAfterEnv: ['jest-extended/all'],
   globalSetup: '<rootDir>/tests/configurations/jest.globalSetup.ts',
   globalTeardown: '<rootDir>/tests/configurations/jest.globalTeardown.ts',
-  collectCoverageFrom: ['src/**/*.ts', '!src/index.ts', '!**/*.d.ts', '!src/**/logger.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/index.ts', '!**/*.d.ts', '!src/telemetry/**/*.ts'],
   reporters: [
     'default',
     ['jest-html-reporters', { multipleReportsUnitePath: './reports', pageTitle: 'tests', publicPath: './reports', filename: 'tests.html' }],

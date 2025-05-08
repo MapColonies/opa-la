@@ -4,7 +4,7 @@ import { Bundle, Environments } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import { getS3Client } from './s3';
 import { compareVersionsToBundle } from './util';
-import { logger } from './logger';
+import { logger } from './telemetry/logger';
 
 export function getJob(
   bundleRepository: Repository<Bundle>,

@@ -12,7 +12,7 @@ import { initConfig, getConfig } from '@src/config';
 import { getS3Client } from '@src/s3';
 import * as appConfig from '@src/config';
 
-jest.mock('../src/logger', () => {
+jest.mock('../src/telemetry/logger', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
