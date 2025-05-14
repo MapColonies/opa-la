@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { $api } from '../../fetch';
+import { $api, siteApis } from '../../fetch';
 import { Button } from '../../components/ui/button';
 import { Loader2, Plus, Search } from 'lucide-react';
 import { Input } from '../../components/ui/input';
@@ -9,6 +9,7 @@ import { DomainsTable } from './DomainsTable';
 import { CreateDomainModal } from './CreateDomainModal';
 import { toast } from 'sonner';
 import { useDebounce } from '../../hooks/useDebounce';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Domain = components['schemas']['domain'];
 
@@ -16,6 +17,10 @@ export const DomainsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [domains, setDomains] = useState<Domain[]>([]);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createSuccess, setCreateSuccess] = useState(false);
+  const [isOtherSitesPending, setIsOtherSitesPending] = useState(false);
+  const queryClient = useQueryClient();
 
   const debouncedSearchTerm = useDebounce(searchTerm);
 
@@ -23,15 +28,22 @@ export const DomainsPage = () => {
 
   const createDomainMutation = $api.useMutation('post', '/domain', {
     onSuccess: () => {
-      setIsCreateDialogOpen(false);
-      toast.success('Domain created successfully');
+      setCreateSuccess(true);
+      queryClient.invalidateQueries({ queryKey: ['get', '/domain'] });
       refetch();
     },
     onError: (error) => {
       console.error('Error creating domain:', error);
-      toast.error(error.message);
+      setCreateError(error.message);
     },
   });
+
+  useEffect(() => {
+    if (!isCreateDialogOpen) {
+      setCreateError(null);
+      setCreateSuccess(false);
+    }
+  }, [isCreateDialogOpen]);
 
   useEffect(() => {
     if (data) {
@@ -42,6 +54,65 @@ export const DomainsPage = () => {
       }
     }
   }, [data, debouncedSearchTerm]);
+
+  const handleCreateDomain = (data: { body: Domain }) => {
+    setCreateError(null);
+    createDomainMutation.mutate(data);
+  };
+
+  const handleSendToOtherSites = async (data: { body: Domain; sites: string[] }) => {
+    if (!data.sites.length) return;
+    
+    setIsOtherSitesPending(true);
+    
+    try {
+      const results = await Promise.allSettled(
+        data.sites.map(async (site) => {
+          const siteApi = siteApis?.[site];
+          if (siteApi) {
+            try {
+              const mutation = siteApi.useMutation('post', '/domain');
+              await mutation.mutate({
+                body: data.body,
+              });
+              return { site, success: true };
+            } catch (error) {
+              console.error(`Error sending domain to site ${site}:`, error);
+              return { site, success: false, error };
+            }
+          }
+          return { site, success: false, error: 'Site API not available' };
+        })
+      );
+
+      const successfulSites = results
+        .filter((result) => result.status === 'fulfilled' && result.value.success)
+        .map((result) => (result as PromiseFulfilledResult<{ site: string }>).value.site);
+
+      const failedSites = results
+        .filter((result) => result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success))
+        .map((result) => {
+          if (result.status === 'rejected') {
+            return 'unknown';
+          }
+          return (result as PromiseFulfilledResult<{ site: string; success: boolean }>).value.site;
+        });
+
+      if (successfulSites.length > 0) {
+        toast.success(`Domain successfully sent to: ${successfulSites.join(', ')}`);
+        queryClient.invalidateQueries({ queryKey: ['get', '/domain'] });
+      }
+
+      if (failedSites.length > 0) {
+        toast.error(`Failed to send domain to: ${failedSites.join(', ')}`);
+      }
+    } catch (error) {
+      console.error('Error in multi-site domain send:', error);
+      toast.error('Error sending domain to other sites');
+    } finally {
+      setIsOtherSitesPending(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -77,8 +148,13 @@ export const DomainsPage = () => {
           {isCreateDialogOpen && (
             <CreateDomainModal
               onClose={() => setIsCreateDialogOpen(false)}
-              onCreateDomain={createDomainMutation.mutate}
+              onCreateDomain={handleCreateDomain}
+              onSendToOtherSites={handleSendToOtherSites}
               isPending={createDomainMutation.isPending}
+              isOtherSitesPending={isOtherSitesPending}
+              error={createError}
+              success={createSuccess}
+              onOpenChange={setIsCreateDialogOpen}
             />
           )}
         </Dialog>

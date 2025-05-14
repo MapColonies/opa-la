@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { $api } from '../../fetch';
+import { $api, siteApis } from '../../fetch';
 import { Button } from '../../components/ui/button';
 import { Loader2, Plus } from 'lucide-react';
 import { Dialog } from '../../components/ui/dialog';
@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Label } from '../../components/ui/label';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Connection = components['schemas']['connection'];
 type Environment = components['schemas']['environment'];
@@ -24,6 +25,7 @@ interface Filters {
 }
 
 export const ConnectionsPage = () => {
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<Filters>({});
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -32,6 +34,12 @@ export const ConnectionsPage = () => {
   const [isEnabled, setIsEnabled] = useState<boolean | undefined>(undefined);
   const [isNoBrowser, setIsNoBrowser] = useState<boolean | undefined>(undefined);
   const [isNoOrigin, setIsNoOrigin] = useState<boolean | undefined>(undefined);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [createSuccess, setCreateSuccess] = useState(false);
+  const [editSuccess, setEditSuccess] = useState(false);
+  const [isOtherSitesPending, setIsOtherSitesPending] = useState(false);
+  
 
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/connection', {
     params: {
@@ -41,17 +49,28 @@ export const ConnectionsPage = () => {
 
   const upsertConnectionMutation = $api.useMutation('post', '/connection', {
     onSuccess: () => {
-      setIsCreateDialogOpen(false);
-      setIsEditDialogOpen(false);
-      setSelectedConnection(null);
-      toast.success('Connection saved successfully');
+      setCreateSuccess(true);
+      setEditSuccess(true);
       refetch();
     },
     onError: (error) => {
       console.error('Error saving connection:', error);
-      toast.error(error.message);
+      setCreateError(error.message);
+      setEditError(error.message);
     },
   });
+
+  useEffect(() => {
+    if (!isCreateDialogOpen) {
+      setCreateError(null);
+      setCreateSuccess(false);
+    }
+    if (!isEditDialogOpen) {
+      setEditError(null);
+      setEditSuccess(false);
+      setSelectedConnection(null);
+    }
+  }, [isCreateDialogOpen, isEditDialogOpen]);
 
   useEffect(() => {
     const newFilters: Filters = {};
@@ -74,6 +93,70 @@ export const ConnectionsPage = () => {
 
     setFilters(newFilters);
   }, [selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin]);
+
+  const handleCreateConnection = (data: { body: Connection }) => {
+    setCreateError(null);
+    upsertConnectionMutation.mutate(data);
+  };
+
+  const handleUpdateConnection = (data: { body: Connection }) => {
+    setEditError(null);
+    upsertConnectionMutation.mutate(data);
+  };
+
+  const handleSendToOtherSites = async (data: { body: Connection; sites: string[] }) => {
+    if (!data.sites.length) return;
+    
+    setIsOtherSitesPending(true);
+    
+    try {
+      const results = await Promise.allSettled(
+        data.sites.map(async (site) => {
+          const siteApi = siteApis?.[site];
+          if (siteApi) {
+            try {
+              const mutation = siteApi.useMutation('post', '/connection');
+              await mutation.mutate({
+                body: data.body,
+              });
+              return { site, success: true };
+            } catch (error) {
+              console.error(`Error sending connection to site ${site}:`, error);
+              return { site, success: false, error };
+            }
+          }
+          return { site, success: false, error: 'Site API not available' };
+        })
+      );
+
+      const successfulSites = results
+        .filter((result) => result.status === 'fulfilled' && result.value.success)
+        .map((result) => (result as PromiseFulfilledResult<{ site: string }>).value.site);
+
+      const failedSites = results
+        .filter((result) => result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success))
+        .map((result) => {
+          if (result.status === 'rejected') {
+            return 'unknown';
+          }
+          return (result as PromiseFulfilledResult<{ site: string; success: boolean }>).value.site;
+        });
+
+      if (successfulSites.length > 0) {
+        toast.success(`Connection successfully sent to: ${successfulSites.join(', ')}`);
+        queryClient.invalidateQueries({ queryKey: ['get', '/connection'] });
+      }
+
+      if (failedSites.length > 0) {
+        toast.error(`Failed to send connection to: ${failedSites.join(', ')}`);
+      }
+    } catch (error) {
+      console.error('Error in multi-site connection send:', error);
+      toast.error('Error sending connection to other sites');
+    } finally {
+      setIsOtherSitesPending(false);
+    }
+  };
 
   const openEditDialog = (connection: Connection) => {
     setSelectedConnection({ ...connection });
@@ -121,8 +204,13 @@ export const ConnectionsPage = () => {
           {isCreateDialogOpen && (
             <CreateConnectionModal
               onClose={() => setIsCreateDialogOpen(false)}
-              onSave={upsertConnectionMutation.mutate}
+              onCreateConnection={handleCreateConnection}
+              onSendToOtherSites={handleSendToOtherSites}
               isPending={upsertConnectionMutation.isPending}
+              isOtherSitesPending={isOtherSitesPending}
+              error={createError}
+              success={createSuccess}
+              onOpenChange={setIsCreateDialogOpen}
             />
           )}
         </Dialog>
@@ -186,8 +274,13 @@ export const ConnectionsPage = () => {
           <EditConnectionModal
             connection={selectedConnection}
             onClose={() => setIsEditDialogOpen(false)}
-            onSave={upsertConnectionMutation.mutate}
+            onUpdateConnection={handleUpdateConnection}
+            onSendToOtherSites={handleSendToOtherSites}
             isPending={upsertConnectionMutation.isPending}
+            isOtherSitesPending={isOtherSitesPending}
+            error={editError}
+            success={editSuccess}
+            onOpenChange={setIsEditDialogOpen}
           />
         )}
       </Dialog>

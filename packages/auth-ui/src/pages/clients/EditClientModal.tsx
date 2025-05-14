@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
 import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, AlertCircle, ArrowRight, Check } from 'lucide-react';
 import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Badge } from '../../components/ui/badge';
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import { useForm } from 'react-hook-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 import { SiteSelection, availableSites } from '../../components/SiteSelection';
+import { isEqual } from 'lodash';
 
 type Client = components['schemas']['client'];
 type NamelessClient = components['schemas']['namelessClient'];
@@ -15,223 +20,475 @@ type NamelessClient = components['schemas']['namelessClient'];
 interface EditClientModalProps {
   client: Client | null;
   onClose: () => void;
-  onUpdateClient: (data: { params: { path: { clientName: string } }; body: NamelessClient; sites: string[] }) => void;
+  onUpdateClient: (data: { params: { path: { clientName: string } }; body: NamelessClient }) => void;
+  onSendToOtherSites?: (data: { params: { path: { clientName: string } }; body: NamelessClient; sites: string[] }) => void;
   isPending: boolean;
+  isOtherSitesPending?: boolean;
+  error?: string | null;
+  success?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-// Hebrew character range: \u0590-\u05FF
-// Numbers: 0-9
+type Step = 'edit' | 'send';
+
 const isHebrewText = (text: string): boolean => {
-  // Check if the text contains only Hebrew characters and numbers
   return /^[\u0590-\u05FF0-9\s]+$/.test(text);
 };
 
-export const EditClientModal = ({ client, onClose, onUpdateClient, isPending }: EditClientModalProps) => {
-  const [editedClient, setEditedClient] = useState<Client | null>(null);
+const formSchema = z.object({
+  name: z.string(),
+  hebName: z.string().min(1, 'Hebrew Name is required').refine(isHebrewText, {
+    message: 'Hebrew Name must contain only Hebrew characters and numbers',
+  }),
+  description: z.string().optional(),
+  branch: z.string().optional(),
+  tags: z.array(z.string()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+export const EditClientModal = ({ 
+  client, 
+  onClose, 
+  onUpdateClient, 
+  onSendToOtherSites,
+  isPending, 
+  isOtherSitesPending = false,
+  error,
+  success = false,
+}: EditClientModalProps) => {
   const [editTag, setEditTag] = useState('');
-  const [selectedSites, setSelectedSites] = useState<string[]>(availableSites);
-  const [hebNameError, setHebNameError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedSites, setSelectedSites] = useState<string[]>([]);
+  const [currentStep, setCurrentStep] = useState<Step>('edit');
+  const [originalValues, setOriginalValues] = useState<FormValues | null>(null);
+  const [formChanged, setFormChanged] = useState(false);
+  const currentSite = localStorage.getItem('selectedSite') || '';
+
+  const otherSites = availableSites.filter(site => site !== currentSite);
+
+
+  useEffect(() => {
+    if (success && currentStep === 'edit' && otherSites.length > 0) {
+      setCurrentStep('send');
+    }
+  }, [success, currentStep, otherSites.length]);
+
+  useEffect(() => {
+    if (error) {
+      setFormError(error);
+      setIsSubmitting(false);
+    } else if (!isPending && isSubmitting) {
+      setFormError(null);
+      setIsSubmitting(false);
+    }
+    
+    if (success) {
+      setFormError(null);
+    }
+  }, [error, isPending, isSubmitting, success]);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      hebName: '',
+      description: '',
+      branch: '',
+      tags: [],
+      createdAt: '',
+      updatedAt: '',
+    },
+    mode: 'onChange',
+  });
 
   useEffect(() => {
     if (client) {
-      setEditedClient({ ...client });
-      setSelectedSites(availableSites);
-      // Reset error state when client changes
-      setHebNameError(null);
+      const initialValues = {
+        name: client.name,
+        hebName: client.hebName,
+        description: client.description || '',
+        branch: client.branch || '',
+        tags: client.tags || [],
+        createdAt: client.createdAt,
+        updatedAt: client.updatedAt,
+      };
+      
+      setOriginalValues(initialValues);
+      form.reset(initialValues);
+      
+      if (!error && !isPending) {
+        setFormError(null);
+      }
     }
-  }, [client]);
+  }, [client, form, error, isPending]);
+
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (originalValues) {
+        const currentValues = value as FormValues;
+        const hasChanges = !isEqual({
+          hebName: currentValues.hebName,
+          description: currentValues.description,
+          branch: currentValues.branch,
+          tags: currentValues.tags
+        }, {
+          hebName: originalValues.hebName,
+          description: originalValues.description,
+          branch: originalValues.branch,
+          tags: originalValues.tags
+        });
+        
+        setFormChanged(hasChanges);
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form, originalValues]);
 
   const handleAddEditTag = () => {
-    if (editTag.trim() && editedClient && !editedClient.tags?.includes(editTag.trim())) {
-      setEditedClient((prev) =>
-        prev
-          ? {
-              ...prev,
-              tags: [...(prev.tags || []), editTag.trim()],
-            }
-          : null
-      );
+    if (editTag.trim() && !form.getValues('tags').includes(editTag.trim())) {
+      const currentTags = form.getValues('tags');
+      form.setValue('tags', [...currentTags, editTag.trim()], { shouldDirty: true });
       setEditTag('');
     }
   };
 
   const handleRemoveEditTag = (tagToRemove: string) => {
-    if (editedClient) {
-      setEditedClient({
-        ...editedClient,
-        tags: editedClient.tags?.filter((tag) => tag !== tagToRemove) || [],
+    const currentTags = form.getValues('tags');
+    form.setValue('tags', currentTags.filter((tag) => tag !== tagToRemove), { shouldDirty: true });
+  };
+
+  const onSubmit = (data: FormValues) => {
+    if (isPending || isSubmitting || !formChanged) return;
+    
+    try {
+      setIsSubmitting(true);
+      onUpdateClient({
+        params: {
+          path: {
+            clientName: data.name,
+          },
+        },
+        body: {
+          hebName: data.hebName,
+          description: data.description,
+          branch: data.branch,
+          tags: data.tags,
+        } as NamelessClient,
       });
+    } catch (error) {
+      if (error instanceof Error) {
+        setFormError(error.message);
+      } else {
+        setFormError('An unknown error occurred while updating the client');
+      }
+      setIsSubmitting(false);
     }
   };
 
-  const handleHebNameChange = (value: string) => {
-    if (!editedClient) return;
-
-    setEditedClient((prev) => (prev ? { ...prev, hebName: value } : null));
-    if (!value.trim()) {
-      setHebNameError(null);
+  const handleSendToOtherSites = () => {
+    if (selectedSites.length === 0 || !onSendToOtherSites || !client) {
       return;
     }
 
-    if (!isHebrewText(value)) {
-      setHebNameError('Hebrew Name must contain only Hebrew characters and numbers');
-    } else {
-      setHebNameError(null);
-    }
-  };
-
-  const handleEditClient = async () => {
-    if (!editedClient) return;
-
-    if (!isHebrewText(editedClient.hebName)) {
-      setHebNameError('Hebrew Name must contain only Hebrew characters and numbers');
-      return;
-    }
-
-    onUpdateClient({
+    const formData = form.getValues();
+    
+    onSendToOtherSites({
       params: {
         path: {
-          clientName: editedClient.name,
+          clientName: formData.name,
         },
       },
       body: {
-        hebName: editedClient.hebName,
-        description: editedClient.description,
-        branch: editedClient.branch,
-        tags: editedClient.tags,
-        techPointOfContact: editedClient.techPointOfContact || undefined,
-        productPointOfContact: editedClient.productPointOfContact || undefined,
+        hebName: formData.hebName,
+        description: formData.description,
+        branch: formData.branch,
+        tags: formData.tags,
       } as NamelessClient,
-      sites: selectedSites,
+      sites: selectedSites
     });
   };
 
-  if (!editedClient) {
+  if (!client) {
     return null;
   }
 
-  return (
-    <DialogContent className="sm:max-w-[600px]">
-      <DialogHeader>
-        <DialogTitle>Edit Client</DialogTitle>
-        <DialogDescription>Update the client details.</DialogDescription>
-      </DialogHeader>
-      <div className="grid gap-4 py-4">
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-name" className="text-right">
-            Name
-          </Label>
-          <Input id="edit-name" value={editedClient.name} disabled={true} className="col-span-3 bg-muted" placeholder="Client name" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-hebName" className="text-right">
-            Hebrew Name
-          </Label>
-          <div className="col-span-3 space-y-1">
-            <Input
-              id="edit-hebName"
-              value={editedClient.hebName}
-              onChange={(e) => handleHebNameChange(e.target.value)}
-              className={hebNameError ? 'border-red-500' : ''}
-              placeholder="Hebrew name"
-            />
-            {hebNameError && <p className="text-sm text-red-500">{hebNameError}</p>}
-          </div>
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-description" className="text-right">
-            Description
-          </Label>
-          <Textarea
-            id="edit-description"
-            value={editedClient.description}
-            onChange={(e) => setEditedClient((prev) => (prev ? { ...prev, description: e.target.value } : null))}
-            className="col-span-3"
-            placeholder="Client description"
+  const renderEditStep = () => (
+    <>
+      {formError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{formError}</AlertDescription>
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
+          <Check className="h-4 w-4" />
+          <AlertDescription>Client updated successfully on {currentSite}.</AlertDescription>
+        </Alert>
+      )}
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled className="bg-muted" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-branch" className="text-right">
-            Branch
-          </Label>
-          <Input
-            id="edit-branch"
-            value={editedClient.branch}
-            onChange={(e) => setEditedClient((prev) => (prev ? { ...prev, branch: e.target.value } : null))}
-            className="col-span-3"
-            placeholder="Branch name"
-          />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-createdAt" className="text-right">
-            Created At
-          </Label>
-          <Input id="edit-createdAt" value={editedClient.createdAt} disabled={true} className="col-span-3 bg-muted" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-updatedAt" className="text-right">
-            Updated At
-          </Label>
-          <Input id="edit-updatedAt" value={editedClient.updatedAt} disabled={true} className="col-span-3 bg-muted" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="edit-tags" className="text-right">
-            Tags
-          </Label>
-          <div className="col-span-3 space-y-2">
-            <div className="flex gap-2">
-              <Input
-                id="edit-tags"
-                value={editTag}
-                onChange={(e) => setEditTag(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddEditTag();
-                  }
-                }}
-                placeholder="Add a tag"
-              />
-              <Button type="button" variant="outline" onClick={handleAddEditTag}>
-                Add
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {editedClient.tags?.map((tag) => (
-                <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                  {tag}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-4 w-4 p-0 hover:bg-transparent"
-                    onClick={() => handleRemoveEditTag(tag)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        <SiteSelection selectedSites={selectedSites} setSelectedSites={setSelectedSites} />
+          <FormField
+            control={form.control}
+            name="hebName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Hebrew Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Hebrew name" {...field} disabled={success} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Client description" {...field} disabled={success} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="branch"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Branch</FormLabel>
+                <FormControl>
+                  <Input placeholder="Branch name" {...field} disabled={success} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="createdAt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Created At</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled className="bg-muted" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="updatedAt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Updated At</FormLabel>
+                <FormControl>
+                  <Input {...field} disabled className="bg-muted" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tags"
+            render={() => (
+              <FormItem>
+                <FormLabel>Tags</FormLabel>
+                <FormControl>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        value={editTag}
+                        onChange={(e) => setEditTag(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddEditTag();
+                          }
+                        }}
+                        placeholder="Add a tag"
+                        disabled={success}
+                      />
+                      <Button type="button" variant="outline" onClick={handleAddEditTag} disabled={success}>
+                        Add
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {form.getValues('tags').map((tag) => (
+                        <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                          {tag}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-4 w-4 p-0 hover:bg-transparent"
+                            onClick={() => handleRemoveEditTag(tag)}
+                            disabled={success}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <DialogFooter>
+            <p className="text-sm text-muted-foreground mr-auto">
+              You'll be able to send this client to other sites after updating.
+            </p>
+            <Button variant="outline" type="button" onClick={onClose}>
+              {success && otherSites.length === 0 ? 'Close' : 'Cancel'}
+            </Button>
+            {!success && (
+              <Button 
+                type="submit" 
+                disabled={isPending || isSubmitting || !formChanged}
+                className={formChanged ? "" : "opacity-50 cursor-not-allowed"}
+              >
+                {isPending || isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  'Update Client'
+                )}
+              </Button>
+            )}
+            {success && otherSites.length > 0 && (
+              <Button 
+                type="button" 
+                onClick={() => setCurrentStep('send')}
+                className="gap-2"
+              >
+                Send to Other Sites
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            )}
+          </DialogFooter>
+        </form>
+      </Form>
+    </>
+  );
+
+  const renderSendStep = () => (
+    <>
+      <div className="mb-6">
+        <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
+          <Check className="h-4 w-4" />
+          <AlertDescription>Client updated successfully on {currentSite}.</AlertDescription>
+        </Alert>
+        
+        <h3 className="text-base font-medium mb-2">Send to Other Sites</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Choose additional sites to send this client to:
+        </p>
+        
+        <div className="bg-muted/30 p-4 rounded-lg">
+          <SiteSelection 
+            selectedSites={selectedSites} 
+            setSelectedSites={setSelectedSites} 
+          />
+        </div>
       </div>
-      <DialogFooter>
-        <Button variant="outline" onClick={onClose}>
-          Cancel
+
+      <DialogFooter className="flex justify-between">
+        <Button 
+          type="button" 
+          variant="outline"
+          onClick={onClose}
+        >
+          Close
         </Button>
-        <Button onClick={handleEditClient} disabled={isPending || selectedSites.length === 0 || !!hebNameError}>
-          {isPending ? (
+        <Button 
+          type="button" 
+          onClick={handleSendToOtherSites} 
+          disabled={selectedSites.length === 0 || isOtherSitesPending}
+          className="min-w-[150px]"
+        >
+          {isOtherSitesPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Updating...
+              Sending...
             </>
           ) : (
-            'Update Client'
+            'Send to Selected Sites'
           )}
         </Button>
       </DialogFooter>
+    </>
+  );
+
+  const getDialogTitle = () => {
+    if (currentStep === 'edit') {
+      return 'Edit Client';
+    } else {
+      return 'Send Client to Other Sites';
+    }
+  };
+
+  const getDialogDescription = () => {
+    if (currentStep === 'edit') {
+      return 'Update the client details.';
+    } else {
+      return 'Select the sites you want to send this client to.';
+    }
+  };
+
+  return (
+    <DialogContent 
+      className="sm:max-w-[600px]"
+      onInteractOutside={(e) => {
+        e.preventDefault();
+      }}
+      onEscapeKeyDown={(e) => {
+        if (currentStep === 'send' && isOtherSitesPending) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <DialogHeader>
+        <DialogTitle>{getDialogTitle()}</DialogTitle>
+        <DialogDescription>{getDialogDescription()}</DialogDescription>
+      </DialogHeader>
+      
+      {currentStep === 'edit' ? renderEditStep() : renderSendStep()}
     </DialogContent>
   );
 };

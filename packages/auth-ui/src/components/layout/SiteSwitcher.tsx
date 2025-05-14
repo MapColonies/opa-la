@@ -19,12 +19,21 @@ export const SiteSwitcher = () => {
   };
 
   const selectedSite = localStorage.getItem('selectedSite') || Object.keys(config)[0];
+  const selectedSiteConfig = selectedSite ? config[selectedSite] : null;
 
   return (
     <div className="flex items-center gap-2">
       <Select defaultValue={selectedSite} onValueChange={handleSiteChange}>
         <SelectTrigger className="w-[200px]">
-          <SelectValue>{selectedSite}</SelectValue>
+          <SelectValue>
+            {selectedSiteConfig ? (
+              <div className="flex flex-col">
+                <span>{selectedSiteConfig.name}</span>
+              </div>
+            ) : (
+              selectedSite
+            )}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {Object.entries(config).map(([siteKey, siteConfig]) => (
