@@ -4,7 +4,7 @@ import { HeadBucketCommand, HeadObjectCommand, NotFound, PutObjectCommand, S3Cli
 import { Environments } from '@map-colonies/auth-core';
 import type { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { getConfig } from './config';
-import { logger } from './logger';
+import { logger } from './telemetry/logger';
 
 type CronS3Type = Exclude<infraOpalaCronV1Type['cron']['np'], undefined>['s3'];
 
