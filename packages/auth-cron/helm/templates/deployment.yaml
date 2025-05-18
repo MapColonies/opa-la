@@ -13,9 +13,12 @@ metadata:
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
-    environment: {{ include "auth-cron.environment" . }}
     release: {{ $releaseName }}
     {{- include "auth-cron.labels" . | nindent 4 }}
+    {{- include "common-labels-and-annotations.labels" . | nindent 4 }}
+  annotations:
+    {{- include "common-labels-and-annotations.annotations" . | nindent 4 }}
+
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -35,7 +38,7 @@ spec:
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- if .Values.additionalPodAnnotations }}
-        {{- toYaml .Values.additionalPodAnnotations | nindent 8}}
+        {{- toYaml .Values.additionalPodAnnotations | nindent 8 }}
         {{- end }}
       {{- end }}
     spec:

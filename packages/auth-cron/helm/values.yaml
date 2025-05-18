@@ -2,10 +2,15 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  environment: ''
+  commonLabelsAndAnnotations:
+    environment: "development"
+
+commonLabelsAndAnnotations:
+  component: "backend"
+  partOf: "authentication"
+  owner: "infra"
 
 enabled: true
-environment: development
 replicaCount: 1
 initialDelaySeconds: 60
 nodePort: 30030 #for minikube deployment only

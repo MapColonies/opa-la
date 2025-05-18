@@ -54,17 +54,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Returns the environment from global if exists or from the chart's values, defaults to development
-*/}}
-{{- define "auth-manager.environment" -}}
-{{- if .Values.global.environment }}
-    {{- .Values.global.environment -}}
-{{- else -}}
-    {{- .Values.environment | default "development" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Returns the cloud provider name from global if exists or from the chart's values, defaults to minikube
 */}}
 {{- define "auth-manager.cloudProviderFlavor" -}}

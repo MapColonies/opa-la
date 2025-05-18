@@ -2,9 +2,12 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  environment: ''
+  commonLabelsAndAnnotations:
+    environment: "development"
+    component: "backend"
+    partOf: "authentication"
+    owner: "infra"
 
-environment: &environment development
 configServerUrl: &configServerUrl 'http://localhost/api'
 offlineMode: &configOfflineMode false
 
@@ -34,7 +37,6 @@ caKey: &caKey 'ca.crt'
 
 opa:
   cloudProvider: *cloudProvider
-  environment: *environment
   caSecretName: *caSecretName 
   caPath: *caPath
   caKey: *caKey
@@ -93,7 +95,6 @@ opa:
 
 auth-cron:
   enabled: true
-  environment: *environment
   initialDelaySeconds: 60
   resetOnConfigChange: true
 
@@ -165,7 +166,6 @@ auth-cron:
 
 auth-manager:
   enabled: true
-  environment: *environment
   replicaCount: 1
   initialDelaySeconds: 60
   resetOnConfigChange: true

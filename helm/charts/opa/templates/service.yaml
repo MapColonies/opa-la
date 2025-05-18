@@ -9,9 +9,11 @@ metadata:
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
-    environment: {{ include "opa.environment" . }}
     release: {{ $releaseName }}
     {{- include "opa.labels" . | nindent 4 }}
+    {{ include "common-labels-and-annotations.serviceLabels" . | nindent 4 }}
+  annotations:
+    {{- include "common-labels-and-annotations.serviceAnnotations" . | nindent 4 }}
 spec:
   {{- if eq $cloudProviderFlavor "minikube" }}
   type: NodePort
