@@ -12,9 +12,11 @@ metadata:
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
-    environment: {{ include "auth-manager.environment" . }}
     release: {{ $releaseName }}
     {{- include "auth-manager.labels" . | nindent 4 }}
+    {{- include "common-labels-and-annotations.labels" . | nindent 4 }}
+  annotations:
+    {{- include "common-labels-and-annotations.annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:

@@ -65,17 +65,6 @@ Create service name as used by the service name label.
 {{- end }}
 
 {{/*
-Returns the environment from global if exists or from the chart's values, defaults to development
-*/}}
-{{- define "opa.environment" -}}
-{{- if .Values.global.environment }}
-    {{- .Values.global.environment -}}
-{{- else -}}
-    {{- .Values.environment | default "development" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Returns the cloud provider name from global if exists or from the chart's values, defaults to minikube
 */}}
 {{- define "opa.cloudProviderFlavor" -}}

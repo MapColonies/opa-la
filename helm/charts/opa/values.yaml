@@ -2,7 +2,13 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  environment: ''
+  commonLabelsAndAnnotations:
+    environment: "development"
+
+commonLabelsAndAnnotations:
+  component: "backend"
+  partOf: "authentication"
+  owner: "infra"
 
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
@@ -48,8 +54,8 @@ tracing:
   type: grpc
   endpoint: localhost:4317
   # samplePercentage: 1
-  # resources:
-    # namespace: NAMESPACE
+  resources:
+    namespace: NAMESPACE
 
 storage:
   autoCreate: true
