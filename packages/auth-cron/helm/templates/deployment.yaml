@@ -11,31 +11,23 @@ kind: Deployment
 metadata:
   name: {{ $releaseName }}-{{ $chartName }}
   labels:
-    app: {{ $chartName }}
-    component: {{ $chartName }}
-    environment: {{ include "auth-cron.environment" . }}
-    release: {{ $releaseName }}
     {{- include "auth-cron.labels" . | nindent 4 }}
+  annotations:
+    {{ include "common-labels-and-annotations.metricsAnnotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ $chartName }}
-      release: {{ $releaseName }}
-      run: {{ $releaseName }}-{{ $chartName }}
       {{- include "auth-cron.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ $chartName }}
-        release: {{ $releaseName }}
-        run: {{ $releaseName }}-{{ $chartName }}
         {{- include "auth-cron.selectorLabels" . | nindent 8 }}
       {{- if .Values.resetOnConfigChange }}
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- if .Values.additionalPodAnnotations }}
-        {{- toYaml .Values.additionalPodAnnotations | nindent 8}}
+        {{- toYaml .Values.additionalPodAnnotations | nindent 8 }}
         {{- end }}
       {{- end }}
     spec:
