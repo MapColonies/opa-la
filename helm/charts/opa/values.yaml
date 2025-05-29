@@ -15,9 +15,11 @@ cloudProvider:
   imagePullSecretName: 'my-registry-secret'
   flavor: openshift
 
-caSecretName: ''
-caPath: '/usr/local/share/ca-certificates'
-caKey: 'ca.crt'
+ca:
+  enabled: false
+  secretName: ''
+  path: '/usr/local/share/ca-certificates'
+  key: 'ca.crt'
 
 image:
   repository: openpolicyagent/opa
@@ -50,12 +52,10 @@ decisionLogs:
   maxBufferSize: 5242880 # 5MB
 
 tracing:
-  enabled: true
+  enabled: false
   type: grpc
   endpoint: localhost:4317
-  # samplePercentage: 1
-  resources:
-    namespace: NAMESPACE
+  # samplePercentage: 1 # Default is 100%
 
 storage:
   autoCreate: true

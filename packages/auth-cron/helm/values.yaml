@@ -28,9 +28,11 @@ cloudProvider:
   imagePullSecretName: 'my-registry-secret'
   flavor: openshift
 
-caSecretName: ''
-caPath: '/usr/local/share/ca-certificates'
-caKey: 'ca.crt'
+ca:
+  enabled: false
+  secretName: 'root-ca'
+  path: '/usr/local/share/ca-certificates'
+  key: 'ca.crt'
 
 image:
   repository: auth-cron
@@ -52,12 +54,11 @@ dbConfig:
   username: postgres
   password: postgres
   database: auth-manager
-  # port: 5432
-  externalSecretName: ''
-  useExternalSecret: false  
+  port: 5432
+  secretName: ''
+  useExternalSecret: true  
   sslAuth:
     enabled: false
-    secretName: secret-name
     certFileName: cert.pem
     keyFileName: key.pem
     caFileName: ca.crt

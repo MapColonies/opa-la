@@ -16,40 +16,28 @@ cloudProvider: &cloudProvider
   imagePullSecretName: 'my-registry-secret'
   flavor: openshift
 
-caSecretName: &caSecretName ''
-caPath: &caPath '/usr/local/share/ca-certificates'
-caKey: &caKey 'ca.crt'
+ca: &ca
+  enabled: true
+  secretName: 'root-ca'
+  path: '/usr/local/share/ca-certificates'
+  key: 'ca.crt'
 
-# dbConfig: &dbConfig
-#   host: localhost
-#   username: postgres
-#   password: postgres
-#   database: auth-manager
-#   # port: 5432
-#   externalSecretName: ''
-#   useExternalSecret: true
-#   sslAuth:
-#     enabled: false
-#     secretName: secret-name
-#     certFileName: postgresql.crt
-#     keyFileName: postgresql.key
-#     caFileName: root.crt
+dbConfig: &dbConfig
+  secretName: 'postgres-secret'
+  sslAuth:
+    enabled: true
 
 opa:
   cloudProvider: *cloudProvider
-  caSecretName: *caSecretName 
-  caPath: *caPath
-  caKey: *caKey
+  environment: *environment
+  ca: *ca
 
   image:
     repository: openpolicyagent/opa
     # tag: 1.0.1
 
   enabled: true
-  replicaCount: 2
-
-  tracing:
-    enabled: false
+  replicaCount: 1
 
   s3:
     endpoint: http://localhost:9000/opa
@@ -66,19 +54,8 @@ opa:
         cpu: 100m
         memory: 300Mi
 
-  additionalPodAnnotations: {}
-
-  # hpa:
-  #   enabled: true
-  #   minReplicas: 2
-  #   maxReplicas: 10
-  #   metrics:
-  #   - type: Resource
-  #     resource:
-  #       name: cpu
-  #       target:
-  #         type: Utilization
-  #         averageUtilization: 75
+  hpa:
+    enabled: false
 
   route:
     enabled: false
@@ -88,29 +65,13 @@ opa:
       enabled: true # defaults to 30s by openshift
       duration: 60s # supported units (us, ms, s, m, h, d)
 
-  ingress:
-    enabled: false
-    path: /
-    host: 'localhost'
-
 auth-cron:
   enabled: true
-  initialDelaySeconds: 60
-  resetOnConfigChange: true
-
-  additionalPodAnnotations: {}
-  extraEnvVars: []
-  # extraEnvVars:
-  #   - name: DB_HOST
-  #     value: localhost
-  #   - name: DB_NAME
-  #     value: postgres
+  environment: *environment
 
   cloudProvider: *cloudProvider
 
-  caSecretName: *caSecretName 
-  caPath: *caPath
-  caKey: *caKey
+  ca: *ca
 
   image:
     repository: infra/auth-cron
@@ -118,34 +79,16 @@ auth-cron:
 
   env:
     logLevel: info
-    logPrettyPrintEnabled: false
 
     configManager:
       offlineMode: *configOfflineMode
       serverUrl: *configServerUrl
       configName: 'infra-auth-cron'
   
-  # dbConfig: *dbConfig
+  dbConfig: *dbConfig
 
   # cronConfig:
-  #   {}
     # np:
-    #   pattern: '* * * * * *'
-    #   s3:
-    #     accessKey: access-key-value
-    #     secretKey: secret-key-value
-    #     endpoint: http://url-to-s3
-    #     bucket: bucket-name
-    #     key: key-name
-    # stage:
-    #   pattern: '* * * * * *'
-    #   s3:
-    #     accessKey: access-key-value
-    #     secretKey: secret-key-value
-    #     endpoint: http://url-to-s3
-    #     bucket: bucket-name
-    #     key: key-name
-    # prod:
     #   pattern: '* * * * * *'
     #   s3:
     #     accessKey: access-key-value
@@ -168,20 +111,10 @@ auth-manager:
   enabled: true
   replicaCount: 1
   initialDelaySeconds: 60
-  resetOnConfigChange: true
 
-  additionalPodAnnotations: {}
-  extraEnvVars: []
-  # extraEnvVars:
-  #   - name: DB_HOST
-  #     value: localhost
-  #   - name: DB_NAME
-  #     value: postgres
   cloudProvider: *cloudProvider
 
-  caSecretName: *caSecretName
-  caPath: *caPath
-  caKey: *caKey
+  ca: *ca
 
   image:
     repository: infra/auth-manager
@@ -191,22 +124,13 @@ auth-manager:
     port: 8080
     targetPort: 8080
     logLevel: info
-    logPrettyPrintEnabled: false
-    responseCompressionEnabled: true
-    requestPayloadLimit: 1mb
-    tracing:
-      enabled: false
-      url: http://localhost:55681/v1/trace
-    metrics:
-      enabled: false
-      url: http://localhost:55681/v1/metrics
 
     configManager:
       offlineMode: *configOfflineMode
       serverUrl: *configServerUrl
       configName: 'infra-auth-manager'
 
-  # dbConfig: *dbConfig
+  dbConfig: *dbConfig
 
   resources:
     enabled: true
@@ -224,8 +148,3 @@ auth-manager:
     timeout:
       enabled: false # defaults to 30s by openshift
       duration: 60s # supported units (us, ms, s, m, h, d)
-
-  ingress:
-    enabled: false
-    path: /
-    host: 'localhost'
