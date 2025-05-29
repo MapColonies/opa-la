@@ -3,7 +3,7 @@
 {{- $cloudProviderDockerRegistryUrl := include "auth-manager.cloudProviderDockerRegistryUrl" . -}}
 {{- $cloudProviderImagePullSecretName := include "auth-manager.cloudProviderImagePullSecretName" . -}}
 {{- $imageTag := include "auth-manager.tag" . -}}
-{{ $postgresSecretName := ternary .Values.dbConfig.externalSecretName (printf "%s%s" .Release.Name "-postgres-secret") .Values.dbConfig.useExternalSecret }}
+{{ $postgresSecretName := ternary .Values.dbConfig.secretName (printf "%s%s" .Release.Name "-postgres-secret") .Values.dbConfig.useExternalSecret }}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -48,27 +48,21 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $imageTag }}
           {{- end }}
           volumeMounts:
-            {{- if .Values.caSecretName }}
-            - mountPath: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+            {{- if .Values.ca.enabled }}
+            - mountPath: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
               name: root-ca
-              subPath: {{ quote .Values.caKey }}
+              subPath: {{ quote .Values.ca.key }}
             {{- end }}
             {{- if .Values.dbConfig.sslAuth.enabled }}
-            {{- if .Values.dbConfig.sslAuth.caFileKey }}
             - name: ca-file
               mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.caFileName }}
               subPath: {{ .Values.dbConfig.sslAuth.caFileName }}
-            {{- end }}
-            {{- if .Values.dbConfig.sslAuth.keyFileKey }}
             - name: key-file
               mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.keyFileName }}
               subPath: {{ .Values.dbConfig.sslAuth.keyFileName }}
-            {{- end }}
-            {{- if .Values.dbConfig.sslAuth.certFileKey }}
             - name: cert-file
               mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.certFileName }}
               subPath: {{ .Values.dbConfig.sslAuth.certFileName }}
-            {{- end }}
             {{- end }}            
           env:
             {{- if .Values.env.configManager.offlineMode }}
@@ -87,11 +81,11 @@ spec:
             {{- end }}
             - name: SERVER_PORT
               value: {{ .Values.env.targetPort | quote }}
-            {{- if .Values.caSecretName }}
+            {{- if .Values.ca.enabled }}
             - name: REQUESTS_CA_BUNDLE
-              value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
             - name: NODE_EXTRA_CA_CERTS
-              value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
             {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
@@ -113,29 +107,24 @@ spec:
             {{- toYaml .Values.resources.value | nindent 12 }}
           {{- end }}
       volumes:
-        {{- if .Values.caSecretName }}
+        {{- if .Values.ca.enabled }}
         - name: root-ca
           secret:
-            secretName: {{ .Values.caSecretName }}
+            secretName: {{ .Values.ca.secretName }}
         {{- end }}
         {{- if .Values.dbConfig.sslAuth.enabled }}
-        {{- if .Values.dbConfig.sslAuth.caFileName }}
         - name: ca-file
           secret:
             secretName: {{ $postgresSecretName }}
             items:
               - key: {{ .Values.dbConfig.sslAuth.caFileName }}
                 path: ca.crt
-        {{- end }}
-        {{- if .Values.dbConfig.sslAuth.keyFileName }}
         - name: key-file
           secret:
             secretName: {{ $postgresSecretName }}
             items:
               - key: {{ .Values.dbConfig.sslAuth.keyFileName }}
                 path: key.pem
-        {{- end }}
-        {{- if .Values.dbConfig.sslAuth.certFileName }}
         - name: cert-file
           secret:
             secretName: {{ $postgresSecretName }}
@@ -143,5 +132,4 @@ spec:
               - key: {{ .Values.dbConfig.sslAuth.certFileName }}
                 path: cert.pem
         {{- end }}
-        {{- end }}        
 {{- end -}}

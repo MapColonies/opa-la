@@ -45,11 +45,11 @@ spec:
         - name: {{ $cloudProviderImagePullSecretName | quote }}
     {{- end }}
       volumes:
-          {{- if .Values.caSecretName }}
-          - name: root-ca
-            secret:
-              secretName: {{ .Values.caSecretName }}
-          {{- end }}
+        {{- if .Values.ca.enabled }}
+        - name: root-ca
+          secret:
+            secretName: {{ .Values.ca.secretName }}
+        {{- end }}
         - name: opa-configfile
           configMap:
             name: {{ .Release.Name }}-{{ $chartName }}-configmap
@@ -62,10 +62,10 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $imageTag }}
           {{- end }}
           volumeMounts:
-          {{- if .Values.caSecretName }}
+          {{- if .Values.ca.enabled }}
           - name: root-ca
-            mountPath: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
-            subPath: {{ .Values.caKey | quote }}
+            mountPath: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
+            subPath: {{ .Values.ca.key | quote }}
           {{- end }}
           - name: opa-configfile
             mountPath: /etc/opa-config.yaml
@@ -96,9 +96,9 @@ spec:
                   key: secretAccessKey
             - name: AWS_REGION
               value: ' ' # Region is hardcoded since we don't use real AWS S3          
-            {{- if .Values.caSecretName }}
+            {{- if .Values.ca.enabled }}
             - name: SSL_CERT_FILE
-              value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
             {{- end }}
           livenessProbe:
             httpGet:
