@@ -27,9 +27,6 @@ distributed_tracing:
   type: {{ .Values.tracing.type }}
   address: {{ .Values.tracing.endpoint }}
   sample_percentage: {{ .Values.tracing.samplePercentage | default 100 }}
-  resource:
-    service_namespace: {{ .Values.tracing.resources.namespace }}
-    # service_version: {{ include "opa.tag" . }}
 {{ end }}
 
 storage:
