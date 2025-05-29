@@ -6,9 +6,9 @@ global:
     environment: "development"
 
 commonLabelsAndAnnotations:
-  component: "backend"
-  partOf: "authentication"
-  owner: "infra"
+  component: infrastructure
+  owner: infra
+  partOf: authentication
 
 enabled: true
 replicaCount: 1

@@ -6,9 +6,10 @@ global:
     environment: "development"
 
 commonLabelsAndAnnotations:
-  component: "backend"
-  partOf: "authentication"
-  owner: "infra"
+  component: infrastructure
+  owner: infra
+  partOf: authentication
+  metricsPort: 8181
 
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io

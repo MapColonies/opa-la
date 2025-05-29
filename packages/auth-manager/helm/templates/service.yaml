@@ -6,13 +6,7 @@ kind: Service
 metadata:
   name: {{ $releaseName }}-{{ $chartName }}
   labels:
-    app: {{ $chartName }}
-    component: {{ $chartName }}
-    release: {{ $releaseName }}
     {{- include "auth-manager.labels" . | nindent 4 }}
-    {{ include "common-labels-and-annotations.serviceLabels" . | nindent 4 }}
-  annotations:
-    {{- include "common-labels-and-annotations.serviceAnnotations" . | nindent 4 }}
 spec:
   ports:
     - port: {{ .Values.env.port }}
@@ -20,8 +14,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: {{ $chartName }}
-    release: {{ $releaseName }}
-    run: {{ $releaseName }}-{{ $chartName }}
     {{- include "auth-manager.selectorLabels" . | nindent 4 }}
 {{- end }}

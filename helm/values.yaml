@@ -3,10 +3,7 @@ global:
   tracing: {}
   metrics: {}
   commonLabelsAndAnnotations:
-    environment: "development"
-    component: "backend"
-    partOf: "authentication"
-    owner: "infra"
+    environment: development
 
 configServerUrl: &configServerUrl 'http://localhost/api'
 offlineMode: &configOfflineMode false
@@ -29,7 +26,6 @@ dbConfig: &dbConfig
 
 opa:
   cloudProvider: *cloudProvider
-  environment: *environment
   ca: *ca
 
   image:
@@ -67,7 +63,6 @@ opa:
 
 auth-cron:
   enabled: true
-  environment: *environment
 
   cloudProvider: *cloudProvider
 
