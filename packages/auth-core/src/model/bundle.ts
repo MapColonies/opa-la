@@ -20,4 +20,6 @@ export interface IBundle {
   createdAt?: Date;
   /** The version of the key that is part of the bundle. */
   keyVersion?: number;
+  /** The version of the OPA cli that was used to create the bundle. */
+  opaVersion: string;
 }
