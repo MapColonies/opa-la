@@ -34,6 +34,7 @@ export function getFakeBundle(includeCreated?: boolean): IBundle {
     assets: [{ name: 'aaaa', version: 1 }],
     connections: [{ name: 'bbb', version: 2 }],
     metadata: { ccc: 123 },
+    opaVersion: '0.52.0',
   };
 }
 

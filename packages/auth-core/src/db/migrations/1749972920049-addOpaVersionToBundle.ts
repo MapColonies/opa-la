@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class AddOpaVersionToBundle1749972920049 implements MigrationInterface {
-  name = 'AddOpaVersionToBundle1749972920049';
+  public name = 'AddOpaVersionToBundle1749972920049';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Add the column as nullable first

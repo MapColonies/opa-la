@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
+import { BundleDatabase, createBundle, getVersionCommand } from '@map-colonies/auth-bundler';
 import { Bundle, Environments } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import { getS3Client } from './s3';
@@ -16,10 +16,12 @@ export function getJob(
     logger?.debug({ msg: 'fetching bundle information from the database', bundleEnv: environment });
     const latestBundle = await bundleRepository.findOne({ where: { environment }, order: { id: 'DESC' } });
     const latestVersions = await bundleDatabase.getLatestVersions(environment);
+    const currentOpaVersion = await getVersionCommand();
 
     let shouldSaveBundleToDb = true;
-
-    if (latestBundle !== null && compareVersionsToBundle(latestBundle, latestVersions)) {
+    console.log('currentOpaVersion', currentOpaVersion);
+    console.log('latestBundle', latestBundle?.opaVersion);
+    if (latestBundle !== null && currentOpaVersion === latestBundle.opaVersion && compareVersionsToBundle(latestBundle, latestVersions)) {
       if (latestBundle.hash === (await getS3Client(environment).getObjectHash())) {
         logger?.info({ msg: 's3 bundle is up to date with the database', bundleEnv: environment });
         return;
