@@ -79,3 +79,28 @@ export async function createBundleCommand(filesPath: string, bundlePath: string)
   }
   return [false, res.stdout];
 }
+
+/**
+ * Gets the OPA version from the CLI
+ * @returns The OPA version string (e.g., "0.52.0")
+ * @see {@link https://www.openpolicyagent.org/docs/latest/cli/#opa-version}
+ * @ignore
+ */
+export async function getVersionCommand(): Promise<string> {
+  const res = await execa('opa', ['version']);
+
+  // Extract version from first line: "Version: X.Y.Z"
+  const versionLine = res.stdout.split('\n')[0];
+
+  if (!versionLine) {
+    throw new Error('Unable to read OPA version output');
+  }
+
+  const versionMatch = versionLine.match(/Version:\s*(\d+\.\d+\.\d+)/);
+
+  if (!versionMatch || !versionMatch[1]) {
+    throw new Error('Unable to parse OPA version from output');
+  }
+
+  return versionMatch[1];
+}
