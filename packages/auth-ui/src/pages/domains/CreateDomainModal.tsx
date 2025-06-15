@@ -13,6 +13,12 @@ import { SiteSelection, availableSites } from '../../components/SiteSelection';
 
 type Domain = components['schemas']['domain'];
 
+type SiteResult = {
+  site: string;
+  success: boolean;
+  error?: string;
+};
+
 interface CreateDomainModalProps {
   onClose: () => void;
   onCreateDomain: (data: { body: Domain }) => void;
@@ -21,6 +27,7 @@ interface CreateDomainModalProps {
   isOtherSitesPending?: boolean;
   error?: string | null;
   success?: boolean;
+  siteResults?: SiteResult[];
   onOpenChange?: (open: boolean) => void;
 }
 
@@ -40,6 +47,7 @@ export const CreateDomainModal = ({
   isOtherSitesPending = false,
   error,
   success = false,
+  siteResults = [],
   onOpenChange
 }: CreateDomainModalProps) => {
   const [formError, setFormError] = useState<string | null>(null);
@@ -197,6 +205,24 @@ export const CreateDomainModal = ({
             setSelectedSites={setSelectedSites} 
           />
         </div>
+
+        {siteResults.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium mb-2">Results:</h4>
+            <div className="space-y-2">
+              {siteResults.map((result) => (
+                <div key={result.site} className="flex items-center justify-between p-2 bg-background rounded border">
+                  <span className="text-sm font-medium">{result.site}:</span>
+                  {result.success ? (
+                    <span className="text-sm text-green-600 font-medium">Success</span>
+                  ) : (
+                    <span className="text-sm text-red-600">Error - {result.error}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <DialogFooter className="flex justify-between">

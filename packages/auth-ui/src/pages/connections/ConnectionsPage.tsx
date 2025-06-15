@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { $api, siteApis } from '../../fetch';
 import { Button } from '../../components/ui/button';
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus, Filter, X, Search, ChevronDown } from 'lucide-react';
+import { Input } from '../../components/ui/input';
 import { Dialog } from '../../components/ui/dialog';
 import { components } from '../../types/schema';
 import { ConnectionsTable } from './ConnectionsTable';
@@ -12,9 +13,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Checkbox } from '../../components/ui/checkbox';
 import { Label } from '../../components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
+import { availableSites } from '../../components/SiteSelection';
+import { Badge } from '../../components/ui/badge';
+import { useDebounce } from '../../hooks/useDebounce';
+import { cn } from '../../lib/utils';
 
 type Connection = components['schemas']['connection'];
 type Environment = components['schemas']['environment'];
+
+type SiteResult = {
+  site: string;
+  success: boolean;
+  error?: string;
+};
 
 interface Filters {
   environment?: Environment[];
@@ -34,18 +45,30 @@ export const ConnectionsPage = () => {
   const [isEnabled, setIsEnabled] = useState<boolean | undefined>(undefined);
   const [isNoBrowser, setIsNoBrowser] = useState<boolean | undefined>(undefined);
   const [isNoOrigin, setIsNoOrigin] = useState<boolean | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
   const [createSuccess, setCreateSuccess] = useState(false);
   const [editSuccess, setEditSuccess] = useState(false);
   const [isOtherSitesPending, setIsOtherSitesPending] = useState(false);
+  const [siteResults, setSiteResults] = useState<SiteResult[]>([]);
   
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/connection', {
     params: {
       query: filters,
     },
   });
+
+  const siteMutations = availableSites.reduce((acc, site) => {
+    const siteApi = siteApis?.[site];
+    if (siteApi) {
+      acc[site] = siteApi.useMutation('post', '/connection');
+    }
+    return acc;
+  }, {} as Record<string, any>);
 
   const upsertConnectionMutation = $api.useMutation('post', '/connection', {
     onSuccess: () => {
@@ -64,11 +87,13 @@ export const ConnectionsPage = () => {
     if (!isCreateDialogOpen) {
       setCreateError(null);
       setCreateSuccess(false);
+      setSiteResults([]);
     }
     if (!isEditDialogOpen) {
       setEditError(null);
       setEditSuccess(false);
       setSelectedConnection(null);
+      setSiteResults([]);
     }
   }, [isCreateDialogOpen, isEditDialogOpen]);
 
@@ -108,39 +133,54 @@ export const ConnectionsPage = () => {
     if (!data.sites.length) return;
     
     setIsOtherSitesPending(true);
+    setSiteResults([]);
     
     try {
       const results = await Promise.allSettled(
         data.sites.map(async (site) => {
-          const siteApi = siteApis?.[site];
-          if (siteApi) {
-            try {
-              const mutation = siteApi.useMutation('post', '/connection');
-              await mutation.mutate({
-                body: data.body,
-              });
-              return { site, success: true };
-            } catch (error) {
-              console.error(`Error sending connection to site ${site}:`, error);
-              return { site, success: false, error };
-            }
+          const mutation = siteMutations[site];
+          if (!mutation) {
+            return { site, success: false, error: 'Site API not available' };
           }
-          return { site, success: false, error: 'Site API not available' };
+
+          try {
+            await mutation.mutateAsync({
+              body: data.body,
+            });
+            return { site, success: true };
+          } catch (error) {
+            console.error(`Error sending connection to site ${site}:`, error);
+            const errorMessage = error instanceof Error 
+              ? error.message 
+              : typeof error === 'object' && error !== null && 'message' in error
+              ? String(error.message)
+              : JSON.stringify(error);
+            return { site, success: false, error: errorMessage };
+          }
         })
       );
 
-      const successfulSites = results
-        .filter((result) => result.status === 'fulfilled' && result.value.success)
-        .map((result) => (result as PromiseFulfilledResult<{ site: string }>).value.site);
+      const siteResultsData: SiteResult[] = results.map((result) => {
+        if (result.status === 'fulfilled') {
+          return result.value;
+        } else {
+          return {
+            site: 'unknown',
+            success: false,
+            error: result.reason?.message || 'Promise rejected'
+          };
+        }
+      });
 
-      const failedSites = results
-        .filter((result) => result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success))
-        .map((result) => {
-          if (result.status === 'rejected') {
-            return 'unknown';
-          }
-          return (result as PromiseFulfilledResult<{ site: string; success: boolean }>).value.site;
-        });
+      setSiteResults(siteResultsData);
+
+      const successfulSites = siteResultsData
+        .filter((result) => result.success)
+        .map((result) => result.site);
+
+      const failedSites = siteResultsData
+        .filter((result) => !result.success)
+        .map((result) => result.site);
 
       if (successfulSites.length > 0) {
         toast.success(`Connection successfully sent to: ${successfulSites.join(', ')}`);
@@ -163,12 +203,51 @@ export const ConnectionsPage = () => {
     setIsEditDialogOpen(true);
   };
 
-  const resetFilters = () => {
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (selectedEnvironment !== 'all') count++;
+    if (isEnabled !== undefined) count++;
+    if (isNoBrowser !== undefined) count++;
+    if (isNoOrigin !== undefined) count++;
+    return count;
+  };
+
+  const hasActiveFilters = getActiveFiltersCount() > 0;
+
+  const clearAllFilters = () => {
     setSelectedEnvironment('all');
     setIsEnabled(undefined);
     setIsNoBrowser(undefined);
     setIsNoOrigin(undefined);
+    setSearchTerm('');
   };
+
+  const removeFilter = (filterType: string) => {
+    switch (filterType) {
+      case 'environment':
+        setSelectedEnvironment('all');
+        break;
+      case 'enabled':
+        setIsEnabled(undefined);
+        break;
+      case 'noBrowser':
+        setIsNoBrowser(undefined);
+        break;
+      case 'noOrigin':
+        setIsNoOrigin(undefined);
+        break;
+    }
+  };
+
+  const filteredData = data?.filter((connection) => {
+    if (!debouncedSearchTerm) return true;
+    const searchLower = debouncedSearchTerm.toLowerCase();
+    return (
+      connection.name?.toLowerCase().includes(searchLower) ||
+      connection.environment?.toLowerCase().includes(searchLower) ||
+      connection.token?.toLowerCase().includes(searchLower)
+    );
+  });
 
   if (isLoading) {
     return (
@@ -210,6 +289,7 @@ export const ConnectionsPage = () => {
               isOtherSitesPending={isOtherSitesPending}
               error={createError}
               success={createSuccess}
+              siteResults={siteResults}
               onOpenChange={setIsCreateDialogOpen}
             />
           )}
@@ -217,56 +297,142 @@ export const ConnectionsPage = () => {
       </div>
 
       <div className="mb-6 space-y-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <Select value={selectedEnvironment} onValueChange={(value) => setSelectedEnvironment(value as Environment | 'all')}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select environment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Environments</SelectItem>
-                <SelectItem value="np">Non-Production</SelectItem>
-                <SelectItem value="stage">Stage</SelectItem>
-                <SelectItem value="prod">Production</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isEnabled"
-              checked={isEnabled === true}
-              onCheckedChange={(checked: boolean | 'indeterminate') => setIsEnabled(checked === true ? true : undefined)}
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search connections..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Label htmlFor="isEnabled">Enabled</Label>
           </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isNoBrowser"
-              checked={isNoBrowser === true}
-              onCheckedChange={(checked: boolean | 'indeterminate') => setIsNoBrowser(checked === true ? true : undefined)}
-            />
-            <Label htmlFor="isNoBrowser">No Browser</Label>
+          
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className={cn(
+                "gap-2",
+                hasActiveFilters && "border-primary text-primary"
+              )}
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
+                  {getActiveFiltersCount()}
+                </Badge>
+              )}
+              <ChevronDown className={cn("h-4 w-4 transition-transform", showAdvancedFilters && "rotate-180")} />
+            </Button>
+            
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1">
+                <X className="h-3 w-3" />
+                Clear
+              </Button>
+            )}
           </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="isNoOrigin"
-              checked={isNoOrigin === true}
-              onCheckedChange={(checked: boolean | 'indeterminate') => setIsNoOrigin(checked === true ? true : undefined)}
-            />
-            <Label htmlFor="isNoOrigin">No Origin</Label>
-          </div>
-
-          <Button variant="outline" onClick={resetFilters}>
-            Reset
-          </Button>
         </div>
+
+        {hasActiveFilters && (
+          <div className="flex flex-wrap gap-2">
+            {selectedEnvironment !== 'all' && (
+              <Badge variant="secondary" className="gap-1">
+                Environment: {selectedEnvironment}
+                <button onClick={() => removeFilter('environment')} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {isEnabled !== undefined && (
+              <Badge variant="secondary" className="gap-1">
+                Enabled: {isEnabled ? 'Yes' : 'No'}
+                <button onClick={() => removeFilter('enabled')} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {isNoBrowser !== undefined && (
+              <Badge variant="secondary" className="gap-1">
+                No Browser: {isNoBrowser ? 'Yes' : 'No'}
+                <button onClick={() => removeFilter('noBrowser')} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {isNoOrigin !== undefined && (
+              <Badge variant="secondary" className="gap-1">
+                No Origin: {isNoOrigin ? 'Yes' : 'No'}
+                <button onClick={() => removeFilter('noOrigin')} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+          </div>
+        )}
+
+        {showAdvancedFilters && (
+          <div className="rounded-lg border bg-muted/50 p-4 space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Filter className="h-4 w-4" />
+              Advanced Filters
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Environment</Label>
+                <Select value={selectedEnvironment} onValueChange={(value) => setSelectedEnvironment(value as Environment | 'all')}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Environments</SelectItem>
+                    <SelectItem value="np">Non-Production</SelectItem>
+                    <SelectItem value="stage">Stage</SelectItem>
+                    <SelectItem value="prod">Production</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Status Filters</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="isEnabled"
+                      checked={isEnabled === true}
+                      onCheckedChange={(checked: boolean | 'indeterminate') => setIsEnabled(checked === true ? true : undefined)}
+                    />
+                    <Label htmlFor="isEnabled" className="text-sm">Enabled</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="isNoBrowser"
+                      checked={isNoBrowser === true}
+                      onCheckedChange={(checked: boolean | 'indeterminate') => setIsNoBrowser(checked === true ? true : undefined)}
+                    />
+                    <Label htmlFor="isNoBrowser" className="text-sm">No Browser</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="isNoOrigin"
+                      checked={isNoOrigin === true}
+                      onCheckedChange={(checked: boolean | 'indeterminate') => setIsNoOrigin(checked === true ? true : undefined)}
+                    />
+                    <Label htmlFor="isNoOrigin" className="text-sm">No Origin</Label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
-        <ConnectionsTable connections={data || []} onEditConnection={openEditDialog} />
+        <ConnectionsTable connections={filteredData || []} onEditConnection={openEditDialog} />
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -280,6 +446,7 @@ export const ConnectionsPage = () => {
             isOtherSitesPending={isOtherSitesPending}
             error={editError}
             success={editSuccess}
+            siteResults={siteResults}
             onOpenChange={setIsEditDialogOpen}
           />
         )}

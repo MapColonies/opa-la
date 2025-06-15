@@ -16,7 +16,7 @@
     "shared": {}
   },
   "server": {
-    "port": 8080,
+    "port": 8083,
     "request": {
       "payload": {
         "limit": "1mb"
@@ -36,7 +36,7 @@
     "ssl": {
       "enabled": false
     },
-    "database": "infra-auth-dup",
+    "database": "infra-auth-manager-2",
     "schema": "auth_manager"
   }
 }

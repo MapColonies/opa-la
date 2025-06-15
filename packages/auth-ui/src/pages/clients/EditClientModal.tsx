@@ -17,6 +17,12 @@ import { isEqual } from 'lodash';
 type Client = components['schemas']['client'];
 type NamelessClient = components['schemas']['namelessClient'];
 
+type SiteResult = {
+  site: string;
+  success: boolean;
+  error?: string;
+};
+
 interface EditClientModalProps {
   client: Client | null;
   onClose: () => void;
@@ -26,6 +32,7 @@ interface EditClientModalProps {
   isOtherSitesPending?: boolean;
   error?: string | null;
   success?: boolean;
+  siteResults?: SiteResult[];
   onOpenChange?: (open: boolean) => void;
 }
 
@@ -58,6 +65,7 @@ export const EditClientModal = ({
   isOtherSitesPending = false,
   error,
   success = false,
+  siteResults = [],
 }: EditClientModalProps) => {
   const [editTag, setEditTag] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -426,6 +434,24 @@ export const EditClientModal = ({
             setSelectedSites={setSelectedSites} 
           />
         </div>
+
+        {siteResults.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium mb-2">Results:</h4>
+            <div className="space-y-2">
+              {siteResults.map((result) => (
+                <div key={result.site} className="flex items-center justify-between p-2 bg-background rounded border">
+                  <span className="text-sm font-medium">{result.site}:</span>
+                  {result.success ? (
+                    <span className="text-sm text-green-600 font-medium">Success</span>
+                  ) : (
+                    <span className="text-sm text-red-600">Error - {result.error}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <DialogFooter className="flex justify-between">

@@ -1,7 +1,7 @@
 import { $api, siteApis } from '../../fetch';
 import { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/button';
-import { Loader2, Plus, Search, Calendar } from 'lucide-react';
+import { Loader2, Plus, Search, Calendar, Filter, X, ChevronDown } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Dialog } from '../../components/ui/dialog';
 import { components } from '../../types/schema';
@@ -16,9 +16,17 @@ import { Calendar as CalendarComponent } from '../../components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '../../lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
+import { availableSites } from '../../components/SiteSelection';
+import { Badge } from '../../components/ui/badge';
 
 type Client = components['schemas']['client'];
 type NamelessClient = components['schemas']['namelessClient'];
+
+type SiteResult = {
+  site: string;
+  success: boolean;
+  error?: string;
+};
 
 type Filters = {
   branch?: string;
@@ -42,6 +50,8 @@ export const ClientsPage = () => {
   const [createSuccess, setCreateSuccess] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [isOtherSitesPending, setIsOtherSitesPending] = useState(false);
+  const [createSiteResults, setCreateSiteResults] = useState<SiteResult[]>([]);
+  const [updateSiteResults, setUpdateSiteResults] = useState<SiteResult[]>([]);
 
   const [createdAfterDate, setCreatedAfterDate] = useState<Date | undefined>(undefined);
   const [createdBeforeDate, setCreatedBeforeDate] = useState<Date | undefined>(undefined);
@@ -50,6 +60,7 @@ export const ClientsPage = () => {
 
   const [tagsInput, setTagsInput] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const debouncedSearchTerm = useDebounce<string>(searchTerm);
 
@@ -60,6 +71,22 @@ export const ClientsPage = () => {
     staleTime: 0,
     cacheTime: 0,
   });
+
+  const siteCreateMutations = availableSites.reduce((acc, site) => {
+    const siteApi = siteApis?.[site];
+    if (siteApi) {
+      acc[site] = siteApi.useMutation('post', '/client');
+    }
+    return acc;
+  }, {} as Record<string, any>);
+
+  const siteUpdateMutations = availableSites.reduce((acc, site) => {
+    const siteApi = siteApis?.[site];
+    if (siteApi) {
+      acc[site] = siteApi.useMutation('patch', '/client/{clientName}');
+    }
+    return acc;
+  }, {} as Record<string, any>);
 
   const createClientMutation = $api.useMutation('post', '/client', {
     onSuccess: () => {
@@ -91,6 +118,7 @@ export const ClientsPage = () => {
     if (!isCreateDialogOpen) {
       setCreateError(null);
       setCreateSuccess(false);
+      setCreateSiteResults([]);
     }
   }, [isCreateDialogOpen]);
 
@@ -99,6 +127,7 @@ export const ClientsPage = () => {
       setUpdateError(null);
       setUpdateSuccess(false);
       setSelectedClient(null);
+      setUpdateSiteResults([]);
     }
   }, [isEditDialogOpen]);
 
@@ -165,7 +194,21 @@ export const ClientsPage = () => {
     setUpdatedAfterDate(undefined);
     setUpdatedBeforeDate(undefined);
     setSelectedTags([]);
+    setShowAdvancedFilters(false);
   };
+
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (searchTerm) count++;
+    if (createdAfterDate) count++;
+    if (createdBeforeDate) count++;
+    if (updatedAfterDate) count++;
+    if (updatedBeforeDate) count++;
+    if (selectedTags.length > 0) count++;
+    return count;
+  };
+
+  const hasActiveFilters = getActiveFiltersCount() > 0;
 
   const handleCreateClient = (data: { body: Client }) => {
 
@@ -185,39 +228,54 @@ export const ClientsPage = () => {
     if (!data.sites.length) return;
     
     setIsOtherSitesPending(true);
+    setCreateSiteResults([]);
     
     try {
       const results = await Promise.allSettled(
         data.sites.map(async (site) => {
-          const siteApi = siteApis?.[site];
-          if (siteApi) {
-            try {
-              const mutation = siteApi.useMutation('post', '/client');
-              await mutation.mutate({
-                body: data.body,
-              });
-              return { site, success: true };
-            } catch (error) {
-              console.error(`Error creating client on site ${site}:`, error);
-              return { site, success: false, error };
-            }
+          const mutation = siteCreateMutations[site];
+          if (!mutation) {
+            return { site, success: false, error: 'Site API not available' };
           }
-          return { site, success: false, error: 'Site API not available' };
+
+          try {
+            await mutation.mutateAsync({
+              body: data.body,
+            });
+            return { site, success: true };
+          } catch (error) {
+            console.error(`Error creating client on site ${site}:`, error);
+            const errorMessage = error instanceof Error 
+              ? error.message 
+              : typeof error === 'object' && error !== null && 'message' in error
+              ? String(error.message)
+              : JSON.stringify(error);
+            return { site, success: false, error: errorMessage };
+          }
         })
       );
 
-      const successfulSites = results
-        .filter((result) => result.status === 'fulfilled' && result.value.success)
-        .map((result) => (result as PromiseFulfilledResult<{ site: string }>).value.site);
+      const siteResultsData: SiteResult[] = results.map((result) => {
+        if (result.status === 'fulfilled') {
+          return result.value;
+        } else {
+          return {
+            site: 'unknown',
+            success: false,
+            error: result.reason?.message || 'Promise rejected'
+          };
+        }
+      });
 
-      const failedSites = results
-        .filter((result) => result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success))
-        .map((result) => {
-          if (result.status === 'rejected') {
-            return 'unknown';
-          }
-          return (result as PromiseFulfilledResult<{ site: string; success: boolean }>).value.site;
-        });
+      setCreateSiteResults(siteResultsData);
+
+      const successfulSites = siteResultsData
+        .filter((result) => result.success)
+        .map((result) => result.site);
+
+      const failedSites = siteResultsData
+        .filter((result) => !result.success)
+        .map((result) => result.site);
 
       if (successfulSites.length > 0) {
         toast.success(`Client successfully created on: ${successfulSites.join(', ')}`);
@@ -239,40 +297,55 @@ export const ClientsPage = () => {
     if (!data.sites.length) return;
     
     setIsOtherSitesPending(true);
+    setUpdateSiteResults([]);
     
     try {
       const results = await Promise.allSettled(
         data.sites.map(async (site) => {
-          const siteApi = siteApis?.[site];
-          if (siteApi) {
-            try {
-              const mutation = siteApi.useMutation('patch', '/client/{clientName}');
-              await mutation.mutate({
-                params: data.params,
-                body: data.body,
-              });
-              return { site, success: true };
-            } catch (error) {
-              console.error(`Error updating client on site ${site}:`, error);
-              return { site, success: false, error };
-            }
+          const mutation = siteUpdateMutations[site];
+          if (!mutation) {
+            return { site, success: false, error: 'Site API not available' };
           }
-          return { site, success: false, error: 'Site API not available' };
+
+          try {
+            await mutation.mutateAsync({
+              params: data.params,
+              body: data.body,
+            });
+            return { site, success: true };
+          } catch (error) {
+            console.error(`Error updating client on site ${site}:`, error);
+            const errorMessage = error instanceof Error 
+              ? error.message 
+              : typeof error === 'object' && error !== null && 'message' in error
+              ? String(error.message)
+              : JSON.stringify(error);
+            return { site, success: false, error: errorMessage };
+          }
         })
       );
 
-      const successfulSites = results
-        .filter((result) => result.status === 'fulfilled' && result.value.success)
-        .map((result) => (result as PromiseFulfilledResult<{ site: string }>).value.site);
+      const siteResultsData: SiteResult[] = results.map((result) => {
+        if (result.status === 'fulfilled') {
+          return result.value;
+        } else {
+          return {
+            site: 'unknown',
+            success: false,
+            error: result.reason?.message || 'Promise rejected'
+          };
+        }
+      });
 
-      const failedSites = results
-        .filter((result) => result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success))
-        .map((result) => {
-          if (result.status === 'rejected') {
-            return 'unknown';
-          }
-          return (result as PromiseFulfilledResult<{ site: string; success: boolean }>).value.site;
-        });
+      setUpdateSiteResults(siteResultsData);
+
+      const successfulSites = siteResultsData
+        .filter((result) => result.success)
+        .map((result) => result.site);
+
+      const failedSites = siteResultsData
+        .filter((result) => !result.success)
+        .map((result) => result.site);
 
       if (successfulSites.length > 0) {
         toast.success(`Client successfully updated on: ${successfulSites.join(', ')}`);
@@ -323,7 +396,8 @@ export const ClientsPage = () => {
       </div>
 
       <div className="mb-6 space-y-4">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+        {/* Main Filter Bar */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -335,100 +409,225 @@ export const ClientsPage = () => {
             />
           </div>
 
-          <Button variant="outline" onClick={resetFilters}>
-            Reset
-          </Button>
-        </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className={cn(
+                "gap-2",
+                hasActiveFilters && "border-primary text-primary"
+              )}
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
+                  {getActiveFiltersCount()}
+                </Badge>
+              )}
+              <ChevronDown className={cn("h-4 w-4 transition-transform", showAdvancedFilters && "rotate-180")} />
+            </Button>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2">
-            <Label>Created After</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !createdAfterDate && 'text-muted-foreground')}>
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {createdAfterDate ? format(createdAfterDate, 'PPP') : 'Pick a date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <CalendarComponent mode="single" selected={createdAfterDate} onSelect={setCreatedAfterDate} initialFocus />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Created Before</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !createdBeforeDate && 'text-muted-foreground')}>
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {createdBeforeDate ? format(createdBeforeDate, 'PPP') : 'Pick a date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <CalendarComponent mode="single" selected={createdBeforeDate} onSelect={setCreatedBeforeDate} initialFocus />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Updated After</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !updatedAfterDate && 'text-muted-foreground')}>
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {updatedAfterDate ? format(updatedAfterDate, 'PPP') : 'Pick a date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <CalendarComponent mode="single" selected={updatedAfterDate} onSelect={setUpdatedAfterDate} initialFocus />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Updated Before</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !updatedBeforeDate && 'text-muted-foreground')}>
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {updatedBeforeDate ? format(updatedBeforeDate, 'PPP') : 'Pick a date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <CalendarComponent mode="single" selected={updatedBeforeDate} onSelect={setUpdatedBeforeDate} initialFocus />
-              </PopoverContent>
-            </Popover>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={resetFilters} className="gap-1">
+                <X className="h-3 w-3" />
+                Clear
+              </Button>
+            )}
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Tags</Label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {selectedTags.map((tag) => (
-              <div key={tag} className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md">
-                <span>{tag}</span>
-                <button onClick={() => removeTag(tag)} className="text-secondary-foreground hover:text-destructive">
-                  ×
+        {/* Active Filters Summary */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap gap-2">
+            {searchTerm && (
+              <Badge variant="secondary" className="gap-1">
+                Branch: {searchTerm}
+                <button onClick={() => setSearchTerm('')} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
                 </button>
-              </div>
+              </Badge>
+            )}
+            {createdAfterDate && (
+              <Badge variant="secondary" className="gap-1">
+                Created after: {format(createdAfterDate, 'MMM d, yyyy')}
+                <button onClick={() => setCreatedAfterDate(undefined)} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {createdBeforeDate && (
+              <Badge variant="secondary" className="gap-1">
+                Created before: {format(createdBeforeDate, 'MMM d, yyyy')}
+                <button onClick={() => setCreatedBeforeDate(undefined)} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {updatedAfterDate && (
+              <Badge variant="secondary" className="gap-1">
+                Updated after: {format(updatedAfterDate, 'MMM d, yyyy')}
+                <button onClick={() => setUpdatedAfterDate(undefined)} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {updatedBeforeDate && (
+              <Badge variant="secondary" className="gap-1">
+                Updated before: {format(updatedBeforeDate, 'MMM d, yyyy')}
+                <button onClick={() => setUpdatedBeforeDate(undefined)} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {selectedTags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="gap-1">
+                Tag: {tag}
+                <button onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
             ))}
           </div>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Add tag..."
-              value={tagsInput}
-              onChange={(e) => setTagsInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  addTag();
-                }
-              }}
-            />
-            <Button onClick={addTag}>Add</Button>
+        )}
+
+        {/* Advanced Filters Panel */}
+        {showAdvancedFilters && (
+          <div className="rounded-lg border bg-muted/50 p-4 space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Filter className="h-4 w-4" />
+              Advanced Filters
+            </div>
+
+            {/* Date Filters */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Date Range</Label>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Created</Label>
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={cn(
+                            'flex-1 justify-start text-left font-normal',
+                            !createdAfterDate && 'text-muted-foreground'
+                          )}
+                        >
+                          <Calendar className="mr-2 h-3 w-3" />
+                          {createdAfterDate ? format(createdAfterDate, 'MMM d') : 'From'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <CalendarComponent mode="single" selected={createdAfterDate} onSelect={setCreatedAfterDate} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={cn(
+                            'flex-1 justify-start text-left font-normal',
+                            !createdBeforeDate && 'text-muted-foreground'
+                          )}
+                        >
+                          <Calendar className="mr-2 h-3 w-3" />
+                          {createdBeforeDate ? format(createdBeforeDate, 'MMM d') : 'To'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <CalendarComponent mode="single" selected={createdBeforeDate} onSelect={setCreatedBeforeDate} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Updated</Label>
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={cn(
+                            'flex-1 justify-start text-left font-normal',
+                            !updatedAfterDate && 'text-muted-foreground'
+                          )}
+                        >
+                          <Calendar className="mr-2 h-3 w-3" />
+                          {updatedAfterDate ? format(updatedAfterDate, 'MMM d') : 'From'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <CalendarComponent mode="single" selected={updatedAfterDate} onSelect={setUpdatedAfterDate} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className={cn(
+                            'flex-1 justify-start text-left font-normal',
+                            !updatedBeforeDate && 'text-muted-foreground'
+                          )}
+                        >
+                          <Calendar className="mr-2 h-3 w-3" />
+                          {updatedBeforeDate ? format(updatedBeforeDate, 'MMM d') : 'To'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <CalendarComponent mode="single" selected={updatedBeforeDate} onSelect={setUpdatedBeforeDate} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-3">
+              <div className="border-b border-muted mb-3"></div>
+            </div>
+
+            {/* Tags Filter */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Tags</Label>
+              {selectedTags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {selectedTags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="gap-1 text-xs">
+                      {tag}
+                      <button onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
+                        <X className="h-2 w-2" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add tag..."
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <Button size="sm" onClick={addTag} disabled={!tagsInput.trim()}>
+                  Add
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="flex-1 min-h-0 overflow-hidden border rounded-md">
@@ -452,6 +651,7 @@ export const ClientsPage = () => {
             isOtherSitesPending={isOtherSitesPending}
             error={createError}
             success={createSuccess}
+            siteResults={createSiteResults}
             onOpenChange={(open) => {
               if (!isOtherSitesPending) {
                 setIsCreateDialogOpen(open);
@@ -478,6 +678,7 @@ export const ClientsPage = () => {
             isOtherSitesPending={isOtherSitesPending}
             error={updateError}
             success={updateSuccess}
+            siteResults={updateSiteResults}
             onOpenChange={(open) => {
               if (!isOtherSitesPending) {
                 setIsEditDialogOpen(open);
