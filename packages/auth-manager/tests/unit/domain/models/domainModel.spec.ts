@@ -6,7 +6,7 @@ import { DomainAlreadyExistsError } from '../../../../src/domain/models/errors';
 describe('DomainManager', () => {
   let domainManager: DomainManager;
   const mockedRepository = {
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     insert: jest.fn(),
   };
   beforeEach(function () {
@@ -15,7 +15,7 @@ describe('DomainManager', () => {
   });
   describe('#getDomains', () => {
     it('should return the array of domains', async function () {
-      mockedRepository.find.mockResolvedValue([{ name: 'avi' }]);
+      mockedRepository.findAndCount.mockResolvedValue([{ name: 'avi' }]);
 
       const domainPromise = domainManager.getDomains();
 
@@ -23,7 +23,7 @@ describe('DomainManager', () => {
     });
 
     it('should throw an error if thrown by the ORM', async function () {
-      mockedRepository.find.mockRejectedValue(new Error());
+      mockedRepository.findAndCount.mockRejectedValue(new Error());
 
       const domainPromise = domainManager.getDomains();
 

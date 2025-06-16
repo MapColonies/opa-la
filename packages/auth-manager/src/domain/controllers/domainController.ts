@@ -1,9 +1,18 @@
 import { HttpError } from '@map-colonies/error-express-handler';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
+import { Domain } from '@map-colonies/auth-core';
 import type { TypedRequestHandlers } from '@openapi';
+import { sortOptionParser } from '@src/common/db/sort';
+import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
 import { DomainManager } from '../models/domainManager';
 import { DomainAlreadyExistsError } from '../models/errors';
+
+const domainSortMap = new Map<string, keyof Domain>(
+  Object.entries({
+    domain: 'name',
+  })
+);
 
 @injectable()
 export class DomainController {
@@ -11,7 +20,19 @@ export class DomainController {
 
   public getDomains: TypedRequestHandlers['getDomains'] = async (req, res, next) => {
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getDomains());
+      const paginationParams = {
+        /* istanbul ignore next */
+        page: req.query?.page ?? 1,
+        /* istanbul ignore next */
+        pageSize: req.query?.page_size ?? DEFAULT_PAGE_SIZE,
+      };
+
+      /* istanbul ignore next */
+      const sortParams = sortOptionParser(req.query?.sort, domainSortMap);
+
+      const [domains, count] = await this.manager.getDomains(paginationParams, sortParams);
+
+      return res.status(httpStatus.OK).json({ items: domains, total: count });
     } catch (error) {
       return next(error);
     }
