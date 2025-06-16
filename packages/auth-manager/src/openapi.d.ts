@@ -456,10 +456,13 @@ export type components = {
     };
   };
   parameters: {
-    /** @description page number for pagination */
+    /** @description page number for pagination. The value is 1-based, meaning the first page is 1.
+     *     If the value is greater than the total number of pages, an empty array will be returned.
+     *     This simplifies the pagination logic on the client side.
+     *      */
     page: number;
     /** @description number of items per page */
-    page_size: number;
+    pageSize: number;
     clientParam: string;
     assetParam: string;
     versionParam: components['schemas']['version'];
@@ -490,18 +493,27 @@ export interface operations {
         /**
          * @description Sorts the results based on the value of one or more properties.
          *     The value is a comma-separated list of property names and sort order.
-         *     properties should be separated by a colon and sort order should be either asc or desc. For example: createdAt:asc,name:asc
+         *     properties should be separated by a colon and sort order should be either asc or desc. For example: created-at:asc,name:asc
          *     The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+         *     The available properties are:
+         *     - created-at
+         *     - updated-at
+         *     - name
+         *     - heb-name
+         *     - branch
          * @example [
-         *       "createdAt:asc",
+         *       "created-at:asc",
          *       "name:asc"
          *     ]
          */
         sort?: string[];
-        /** @description page number for pagination */
+        /** @description page number for pagination. The value is 1-based, meaning the first page is 1.
+         *     If the value is greater than the total number of pages, an empty array will be returned.
+         *     This simplifies the pagination logic on the client side.
+         *      */
         page?: components['parameters']['page'];
         /** @description number of items per page */
-        pageSize?: components['parameters']['page_size'];
+        page_size?: components['parameters']['pageSize'];
       };
       header?: never;
       path?: never;
@@ -692,6 +704,30 @@ export interface operations {
         isNoBrowser?: boolean;
         isNoOrigin?: boolean;
         domains?: string[];
+        /**
+         * @description Sorts the results based on the value of one or more properties.
+         *     The value is a comma-separated list of property names and sort order.
+         *     properties should be separated by a colon and sort order should be either asc or desc. For example: created-at:asc,name:asc
+         *     The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+         *     The available properties are:
+         *     - created-at
+         *     - name
+         *     - version
+         *     - enabled
+         *     - environment
+         * @example [
+         *       "created-at:asc",
+         *       "name:asc"
+         *     ]
+         */
+        sort?: string[];
+        /** @description page number for pagination. The value is 1-based, meaning the first page is 1.
+         *     If the value is greater than the total number of pages, an empty array will be returned.
+         *     This simplifies the pagination logic on the client side.
+         *      */
+        page?: components['parameters']['page'];
+        /** @description number of items per page */
+        page_size?: components['parameters']['pageSize'];
       };
       header?: never;
       path?: never;
@@ -705,7 +741,10 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['connection'][];
+          'application/json': components['schemas']['paginationResponse'] & {
+            /** @description list of clients */
+            items: components['schemas']['connection'][];
+          };
         };
       };
       400: components['responses']['400BadRequest'];
