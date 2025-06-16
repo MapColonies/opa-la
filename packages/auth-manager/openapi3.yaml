@@ -929,3 +929,6 @@ components:
           readOnly: true
         keyVersion:
           $ref: '#/components/schemas/version'
+        opaVersion:
+          type: string
+          description: OPA version used to generate the bundle

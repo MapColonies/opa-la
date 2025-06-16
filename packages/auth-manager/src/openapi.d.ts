@@ -394,6 +394,8 @@ export type components = {
       /** Format: date-time */
       readonly createdAt?: string;
       keyVersion?: components['schemas']['version'];
+      /** @description OPA version used to generate the bundle */
+      opaVersion?: string;
     };
   };
   responses: {

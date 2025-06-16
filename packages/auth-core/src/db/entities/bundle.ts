@@ -29,4 +29,7 @@ export class Bundle implements IBundle {
 
   @Column({ name: 'key_version', type: 'integer', nullable: true })
   public keyVersion?: number;
+
+  @Column({ name: 'opa_version', type: 'text', nullable: false })
+  public opaVersion!: string;
 }
