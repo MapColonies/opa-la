@@ -5,7 +5,7 @@ import { DependencyContainer } from 'tsyringe';
 import { DataSource } from 'typeorm';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
-import { Domain } from '@map-colonies/auth-core';
+import { Domain, IDomain } from '@map-colonies/auth-core';
 import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
@@ -46,7 +46,9 @@ describe('domain', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toEqual(expect.arrayContaining([{ name: 'avi' }, { name: 'iva' }]));
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        const returnedItems = res.body.items as IDomain[];
+        expect(returnedItems).toEqual(expect.arrayContaining([{ name: 'avi' }, { name: 'iva' }]));
       });
     });
 

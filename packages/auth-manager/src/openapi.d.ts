@@ -403,9 +403,6 @@ export type components = {
        * @description total number of items
        */
       total: number;
-      items: {
-        [key: string]: unknown;
-      }[];
     };
   };
   responses: {
@@ -1069,7 +1066,27 @@ export interface operations {
   };
   getDomains: {
     parameters: {
-      query?: never;
+      query?: {
+        /**
+         * @description Sorts the results based on the value of one or more properties.
+         *     The value is a comma-separated list of property names and sort order.
+         *     properties should be separated by a colon and sort order should be either asc or desc. For example: domain:asc
+         *     The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+         *     The available properties are:
+         *     - domain
+         * @example [
+         *       "domain:asc"
+         *     ]
+         */
+        sort?: string[];
+        /** @description page number for pagination. The value is 1-based, meaning the first page is 1.
+         *     If the value is greater than the total number of pages, an empty array will be returned.
+         *     This simplifies the pagination logic on the client side.
+         *      */
+        page?: components['parameters']['page'];
+        /** @description number of items per page */
+        page_size?: components['parameters']['pageSize'];
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -1082,7 +1099,10 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['domain'][];
+          'application/json': components['schemas']['paginationResponse'] & {
+            /** @description list of clients */
+            items: components['schemas']['domain'][];
+          };
         };
       };
       415: components['responses']['415UnsupportedMediaType'];

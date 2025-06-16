@@ -623,6 +623,31 @@ paths:
           $ref: '#/components/responses/500InternalServerError'
   /domain:
     get:
+      parameters:
+        - in: query
+          name: sort
+          description: |-
+            Sorts the results based on the value of one or more properties.
+            The value is a comma-separated list of property names and sort order.
+            properties should be separated by a colon and sort order should be either asc or desc. For example: domain:asc
+            The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+            The available properties are:
+            - domain
+          example:
+            - domain:asc
+          required: false
+          explode: false
+          schema:
+            default: [domain:asc]
+            type: array
+            uniqueItems: true
+            items:
+              example: domain:asc
+              type: string
+              pattern: >-
+                ^(domain)(:asc|:desc){0,1}$
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
       operationId: getDomains
       summary: get all the domains
       tags:
@@ -633,9 +658,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/domain'
+                allOf:
+                  - $ref: '#/components/schemas/paginationResponse'
+                  - type: object
+                    required:
+                      - items
+                    properties:
+                      items:
+                        description: list of clients
+                        type: array
+                        uniqueItems: true
+                        minItems: 0
+                        items:
+                          $ref: '#/components/schemas/domain'
         '415':
           $ref: '#/components/responses/415UnsupportedMediaType'
         '500':
@@ -1037,15 +1072,9 @@ components:
     paginationResponse:
       type: object
       required:
-        - items
         - total
       properties:
         total:
           type: integer
           format: int32
           description: total number of items
-        items:
-          type: array
-          items:
-            type: object
-            additionalProperties: true
