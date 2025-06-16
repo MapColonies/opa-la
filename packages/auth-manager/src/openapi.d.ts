@@ -397,6 +397,16 @@ export type components = {
       /** @description OPA version used to generate the bundle */
       opaVersion?: string;
     };
+    paginationResponse: {
+      /**
+       * Format: int32
+       * @description total number of items
+       */
+      total: number;
+      items: {
+        [key: string]: unknown;
+      }[];
+    };
   };
   responses: {
     /** @description BadRequest */
@@ -446,6 +456,10 @@ export type components = {
     };
   };
   parameters: {
+    /** @description page number for pagination */
+    page: number;
+    /** @description number of items per page */
+    page_size: number;
     clientParam: string;
     assetParam: string;
     versionParam: components['schemas']['version'];
@@ -473,6 +487,21 @@ export interface operations {
         updatedAfter?: string;
         /** @description filters based on tags */
         tags?: string[];
+        /**
+         * @description Sorts the results based on the value of one or more properties.
+         *     The value is a comma-separated list of property names and sort order.
+         *     properties should be separated by a colon and sort order should be either asc or desc. For example: createdAt:asc,name:asc
+         *     The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+         * @example [
+         *       "createdAt:asc",
+         *       "name:asc"
+         *     ]
+         */
+        sort?: string[];
+        /** @description page number for pagination */
+        page?: components['parameters']['page'];
+        /** @description number of items per page */
+        pageSize?: components['parameters']['page_size'];
       };
       header?: never;
       path?: never;
@@ -486,7 +515,10 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['client'][];
+          'application/json': components['schemas']['paginationResponse'] & {
+            /** @description list of clients */
+            items: components['schemas']['client'][];
+          };
         };
       };
       400: components['responses']['400BadRequest'];

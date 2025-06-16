@@ -5,25 +5,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [1.3.0](https://github.com/MapColonies/opa-la/compare/v1.2.0...v1.3.0) (2025-01-29)
 
-
 ### Reverts
 
-* Revert "v1.3.0" ([46da5ec](https://github.com/MapColonies/opa-la/commit/46da5ecd82107d5a49631b5a96738cb5766131c0))
-
-
-
-
+- Revert "v1.3.0" ([46da5ec](https://github.com/MapColonies/opa-la/commit/46da5ecd82107d5a49631b5a96738cb5766131c0))
 
 # [1.2.0](https://github.com/MapColonies/opa-la/compare/v1.1.0...v1.2.0) (2024-12-05)
 
-
 ### Features
 
-* integrate with mapcolonies config manager ([#43](https://github.com/MapColonies/opa-la/issues/43)) ([c532aa9](https://github.com/MapColonies/opa-la/commit/c532aa9c1fcad5644a04a7c4cf551454a2c8106d))
-
-
-
-
+- integrate with mapcolonies config manager ([#43](https://github.com/MapColonies/opa-la/issues/43)) ([c532aa9](https://github.com/MapColonies/opa-la/commit/c532aa9c1fcad5644a04a7c4cf551454a2c8106d))
 
 # 1.0.0 (2023-07-27)
 

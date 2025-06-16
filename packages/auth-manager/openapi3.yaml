@@ -51,15 +51,55 @@ paths:
             uniqueItems: true
             items:
               type: string
+        - in: query
+          name: sort
+          description: |-
+            Sorts the results based on the value of one or more properties.
+            The value is a comma-separated list of property names and sort order.
+            properties should be separated by a colon and sort order should be either asc or desc. For example: created-at:asc,name:asc
+            The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+            The available properties are:
+            - created-at
+            - updated-at
+            - name
+            - heb-name
+            - branch
+          example:
+            - created-at:asc
+            - name:asc
+          required: false
+          explode: false
+          schema:
+            default: [name:asc]
+            type: array
+            uniqueItems: true
+            items:
+              example: name:asc
+              type: string
+              pattern: >-
+                ^(created-at|updated-at|name|heb-name|branch)(:asc|:desc){0,1}$
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/page_size'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/client'
+                allOf:
+                  - $ref: '#/components/schemas/paginationResponse'
+                  - type: object
+                    required:
+                      - items
+                    properties:
+                      items:
+                        description: list of clients
+                        type: array
+                        uniqueItems: true
+                        minItems: 0
+                        maxItems: 1000
+                        items:
+                          $ref: '#/components/schemas/client'
         '400':
           $ref: '#/components/responses/400BadRequest'
         '500':
@@ -618,6 +658,28 @@ components:
           schema:
             $ref: '#/components/schemas/error'
   parameters:
+    page:
+      name: page
+      in: query
+      description: |
+        page number for pagination. The value is 1-based, meaning the first page is 1.
+        If the value is greater than the total number of pages, an empty array will be returned.
+        This simplifies the pagination logic on the client side.
+      schema:
+        type: integer
+        format: int32
+        default: 1
+        minimum: 1
+    page_size:
+      name: pageSize
+      in: query
+      description: number of items per page
+      schema:
+        type: integer
+        format: int32
+        default: 10
+        maximum: 100
+        minimum: 1
     clientParam:
       name: clientName
       in: path
@@ -932,3 +994,18 @@ components:
         opaVersion:
           type: string
           description: OPA version used to generate the bundle
+    paginationResponse:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        total:
+          type: integer
+          format: int32
+          description: total number of items
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
