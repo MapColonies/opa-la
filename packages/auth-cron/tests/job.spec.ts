@@ -54,7 +54,7 @@ describe('job.ts', function () {
     });
 
     afterEach(function () {
-      jest.clearAllMocks();
+      jest.resetAllMocks();
     });
 
     afterAll(function () {
