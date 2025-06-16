@@ -18,14 +18,18 @@ export function getJob(
     const latestVersions = await bundleDatabase.getLatestVersions(environment);
     const currentOpaVersion = await getVersionCommand();
 
+    logger?.debug({ msg: 'latest bundle from db', bundleEnv: environment, latestBundle, latestVersions });
+
+    logger?.debug({ msg: 'checking if bundle is up to date', bundleEnv: environment, currentOpaVersion });
+
     let shouldSaveBundleToDb = true;
-    console.log('currentOpaVersion', currentOpaVersion);
-    console.log('latestBundle', latestBundle?.opaVersion);
     if (latestBundle !== null && currentOpaVersion === latestBundle.opaVersion && compareVersionsToBundle(latestBundle, latestVersions)) {
+      logger?.info({ msg: 'bundle is up to date with the database, checking s3', bundleEnv: environment });
       if (latestBundle.hash === (await getS3Client(environment).getObjectHash())) {
         logger?.info({ msg: 's3 bundle is up to date with the database', bundleEnv: environment });
         return;
       }
+      logger?.info({ msg: 's3 bundle is not up to date with the database, creating new bundle', bundleEnv: environment });
       shouldSaveBundleToDb = false;
     }
 
