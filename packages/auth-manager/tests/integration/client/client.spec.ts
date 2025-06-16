@@ -94,7 +94,8 @@ describe('client', function () {
         const res = await requestSender.getClients({
           queryParams: {
             page: TARGET_PAGE,
-            pageSize: PAGE_SIZE,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            page_size: PAGE_SIZE,
           },
         });
 
@@ -123,7 +124,8 @@ describe('client', function () {
         const res = await requestSender.getClients({
           queryParams: {
             page: SECOND_PAGE,
-            pageSize: PAGE_SIZE,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            page_size: PAGE_SIZE,
           },
         });
 
@@ -153,7 +155,8 @@ describe('client', function () {
         const res = await requestSender.getClients({
           queryParams: {
             page: LAST_PAGE,
-            pageSize: PAGE_SIZE,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            page_size: PAGE_SIZE,
           },
         });
 
@@ -289,7 +292,8 @@ describe('client', function () {
         const res = await requestSender.getClients({
           queryParams: {
             page: TARGET_PAGE,
-            pageSize: PAGE_SIZE,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            page_size: PAGE_SIZE,
             sort: ['name:asc'],
           },
         });
@@ -325,7 +329,8 @@ describe('client', function () {
         const res = await requestSender.getClients({
           queryParams: {
             page: BEYOND_AVAILABLE_PAGE,
-            pageSize: PAGE_SIZE,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            page_size: PAGE_SIZE,
           },
         });
 

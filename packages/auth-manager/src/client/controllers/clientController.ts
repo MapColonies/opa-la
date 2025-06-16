@@ -54,10 +54,12 @@ export class ClientController {
       const searchParams = queryParamsToSearchParams(req.query as NonNullable<operations['getClients']['parameters']['query']>);
 
       const paginationParams = {
+        /* istanbul ignore next */
         page: req.query?.page ?? 1,
-        pageSize: req.query?.pageSize ?? DEFAULT_PAGE_SIZE,
+        /* istanbul ignore next */
+        pageSize: req.query?.page_size ?? DEFAULT_PAGE_SIZE,
       };
-
+      /* istanbul ignore next */
       const sortParams = sortOptionParser(req.query?.sort, clientSortMap);
 
       const [clients, count] = await this.manager.getClients(searchParams, paginationParams, sortParams);

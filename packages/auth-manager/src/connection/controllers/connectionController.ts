@@ -6,7 +6,9 @@ import { IConnection } from '@map-colonies/auth-core';
 import type { TypedRequestHandlers, components } from '@openapi';
 import { SERVICES } from '@common/constants';
 import { ClientNotFoundError } from '@client/models/errors';
+import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
 import { DomainNotFoundError } from '@domain/models/errors';
+import { sortOptionParser } from '@src/common/db/sort';
 import { KeyNotFoundError } from '@key/models/errors';
 import { ConnectionManager } from '../models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../models/errors';
@@ -18,6 +20,14 @@ function responseConnectionToOpenApi(connection: IConnection): components['schem
   };
 }
 
+const connectionSortMap = new Map<string, keyof IConnection>([
+  ['name', 'name'],
+  ['environment', 'environment'],
+  ['version', 'version'],
+  ['created-at', 'createdAt'],
+  ['enabled', 'enabled'],
+]);
+
 @injectable()
 export class ConnectionController {
   public constructor(
@@ -28,9 +38,20 @@ export class ConnectionController {
   public getConnections: TypedRequestHandlers['getConnections'] = async (req, res, next) => {
     this.logger.debug('executing #getConnections handler');
 
+    const paginationParams = {
+      /* istanbul ignore next */
+      page: req.query?.page ?? 1,
+      /* istanbul ignore next */
+      pageSize: req.query?.page_size ?? DEFAULT_PAGE_SIZE,
+    };
+
+    /* istanbul ignore next */
+    const sortParams = sortOptionParser(req.query?.sort, connectionSortMap);
+
     try {
-      const connections = await this.manager.getConnections(req.query ?? {});
-      return res.status(httpStatus.OK).json(connections.map(responseConnectionToOpenApi));
+      const [connections, count] = await this.manager.getConnections(req.query ?? {}, paginationParams, sortParams);
+
+      return res.status(httpStatus.OK).json({ total: count, items: connections.map(responseConnectionToOpenApi) });
     } catch (error) {
       return next(error);
     }
@@ -40,7 +61,7 @@ export class ConnectionController {
     this.logger.debug('executing #getNamedConnections handler');
 
     try {
-      const connections = await this.manager.getConnections({ name: req.params.clientName });
+      const [connections] = await this.manager.getConnections({ name: req.params.clientName });
       return res.status(httpStatus.OK).json(connections.map(responseConnectionToOpenApi));
     } catch (error) {
       return next(error);
@@ -51,7 +72,7 @@ export class ConnectionController {
     this.logger.debug('executing #getNamedEnvConnections handler');
 
     try {
-      const connections = await this.manager.getConnections({ name: req.params.clientName, environment: [req.params.environment] });
+      const [connections] = await this.manager.getConnections({ name: req.params.clientName, environment: [req.params.environment] });
 
       return res.status(httpStatus.OK).json(connections.map(responseConnectionToOpenApi));
     } catch (error) {

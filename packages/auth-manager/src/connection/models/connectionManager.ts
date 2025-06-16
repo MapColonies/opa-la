@@ -1,7 +1,7 @@
 import { type Logger } from '@map-colonies/js-logger';
-import { Client, Environments, IConnection } from '@map-colonies/auth-core';
+import { Client, Connection, Environments, IConnection } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { ArrayContains, In } from 'typeorm';
+import { ArrayContains, FindManyOptions, In } from 'typeorm';
 import { JWK } from 'jose';
 import { ClientNotFoundError } from '@client/models/errors';
 import { SERVICES } from '@common/constants';
@@ -9,7 +9,9 @@ import { type DomainRepository } from '@domain/DAL/domainRepository';
 import { DomainNotFoundError } from '@domain/models/errors';
 import { type KeyRepository } from '@key/DAL/keyRepository';
 import { generateToken } from '@common/crypto';
+import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/pagination';
 import { KeyNotFoundError } from '@key/models/errors';
+import { SortOptions } from '@src/common/db/sort';
 import { type ConnectionRepository } from '../DAL/connectionRepository';
 import { ConnectionSearchParams } from './connection';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
@@ -23,10 +25,15 @@ export class ConnectionManager {
     @inject(SERVICES.KEY_REPOSITORY) private readonly keyRepository: KeyRepository
   ) {}
 
-  public async getConnections(searchParams: ConnectionSearchParams): Promise<IConnection[]> {
+  public async getConnections(
+    searchParams: ConnectionSearchParams,
+    paginationParams?: PaginationParams,
+    sortParams?: SortOptions<Connection>
+  ): Promise<[IConnection[], number]> {
     this.logger.info({ msg: 'fetching connections', searchParams });
     const { environment, domains, isEnabled, isNoBrowser, isNoOrigin, name } = searchParams;
-    return this.connectionRepository.find({
+
+    const findOptions: FindManyOptions<Connection> = {
       where: {
         environment: environment ? In(environment) : undefined,
         allowNoBrowserConnection: isNoBrowser ?? undefined,
@@ -35,8 +42,17 @@ export class ConnectionManager {
         domains: domains ? ArrayContains(domains) : undefined,
         enabled: isEnabled ?? undefined,
       },
-      order: { name: 'ASC', environment: 'ASC', version: 'DESC' },
-    });
+    };
+
+    if (paginationParams !== undefined) {
+      Object.assign(findOptions, paginationParamsToFindOptions(paginationParams));
+    }
+
+    if (sortParams !== undefined) {
+      findOptions.order = sortParams;
+    }
+
+    return this.connectionRepository.findAndCount(findOptions);
   }
 
   public async getConnection(name: string, environment: Environments, version: number): Promise<IConnection> {
