@@ -1,11 +1,11 @@
-import HandleBars, { HelperOptions } from 'handlebars';
+import handleBars, { HelperOptions } from 'handlebars';
 import { logger } from './logger';
 
-HandleBars.registerHelper('escapeJson', (value: string) => {
-  return new HandleBars.SafeString(JSON.stringify(value));
+handleBars.registerHelper('escapeJson', (value: string) => {
+  return new handleBars.SafeString(JSON.stringify(value));
 });
 
-HandleBars.registerHelper('delimitedEach', (context: unknown[], options: HelperOptions) => {
+handleBars.registerHelper('delimitedEach', (context: unknown[], options: HelperOptions) => {
   return context.map((v) => options.fn(v)).join(',');
 });
 
@@ -19,6 +19,6 @@ HandleBars.registerHelper('delimitedEach', (context: unknown[], options: HelperO
  */
 export function render(templateString: string, context: unknown): string {
   logger?.debug({ msg: 'rendering template', template: templateString, context });
-  const template = HandleBars.compile(templateString, { noEscape: true, strict: true });
+  const template = handleBars.compile(templateString, { noEscape: true, strict: true });
   return template(context, {});
 }

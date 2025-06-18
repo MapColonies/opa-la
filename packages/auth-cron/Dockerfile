@@ -1,4 +1,4 @@
-FROM node:20 as build
+FROM node:20.19.1-slim as build
 
 ARG package=auth-cron
 
@@ -13,7 +13,7 @@ COPY . .
 RUN npx lerna run --include-dependencies --scope ${package} build
 RUN node scripts/docker-build.mjs -n ${package} -d /tmp/buildRes
 
-FROM node:20.3.1-alpine3.17 as production
+FROM node:20.19.1-alpine3.21 as production
 
 ARG package=auth-cron
 
@@ -28,7 +28,7 @@ WORKDIR /usr/src/app
 
 COPY --chown=node:node --from=build /tmp/buildRes .
 
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --ignore-scripts
 
 WORKDIR /usr/src/app/packages/${package}
 

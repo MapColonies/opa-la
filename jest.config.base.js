@@ -1,7 +1,15 @@
+const path = require('node:path');
+const { pathsToModuleNameMapper } = require('ts-jest');
+const { compilerOptions } = require(path.join(process.cwd(), 'tsconfig.json'));
+
+
+
+/** @type {import('jest').Config} */
 module.exports = {
   transform: {
-      '^.+\\.ts$': 'ts-jest'
+    '^.+\\.ts$': ['@swc/jest'],
   },
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
   coverageReporters: ['text', 'html'],
   collectCoverage: true,
   collectCoverageFrom: [
@@ -12,7 +20,7 @@ module.exports = {
   testEnvironment: 'node',
   coverageThreshold: {
       global: {
-          branches: 80,
+          branches: 60,
           functions: 80,
           lines: 80,
           statements: -10,

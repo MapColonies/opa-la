@@ -1,4 +1,3 @@
-/* eslint-disable import/first */
 // this import must be called before the first import of tsyringe
 import 'reflect-metadata';
 import { createServer } from 'http';
@@ -17,25 +16,7 @@ void getApp()
     const port: number = config.get('server.port');
     const logger = container.resolve<Logger>(SERVICES.LOGGER);
     const healthCheck = container.resolve<HealthCheck>(SERVICES.HEALTHCHECK);
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const server = createTerminus(createServer(app), {
-      healthChecks: {
-        [HEALTH_CHECK_PATH]: healthCheck,
-        onSignal: container.resolve('onSignal'),
-      },
-      beforeShutdown: async () => {
-        return new Promise((resolve) => {
-          setTimeout(resolve, SHUTDOWN_TIMEOUT_MS);
-        });
-      },
-      headers: {
-        /* eslint-disable @typescript-eslint/naming-convention */
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        /* eslint-enable @typescript-eslint/naming-convention */
-      },
-    });
+    const server = createTerminus(createServer(app), { healthChecks: { '/liveness': healthCheck, onSignal: container.resolve('onSignal') } });
 
     server.listen(port, () => {
       logger.info(`app started on port ${port}`);

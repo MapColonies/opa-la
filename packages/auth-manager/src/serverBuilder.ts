@@ -6,11 +6,13 @@ import { OpenapiViewerRouter, OpenapiRouterConfig } from '@map-colonies/openapi-
 import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
 import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { inject, injectable } from 'tsyringe';
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import httpLogger from '@map-colonies/express-access-log-middleware';
-import { defaultMetricsMiddleware, getTraceContexHeaderMiddleware as getTraceContextHeaderMiddleware } from '@map-colonies/telemetry';
+import { getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
+import { collectMetricsExpressMiddleware } from '@map-colonies/telemetry/prom-metrics';
+import type { Registry } from 'prom-client';
 import { SERVICES } from './common/constants';
-import { IConfig } from './common/interfaces';
+import { type IConfig } from './common/interfaces';
 import { DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import { CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
 import { KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';
@@ -30,7 +32,8 @@ export class ServerBuilder {
     @inject(KEY_ROUTER_SYMBOL) private readonly keyRouter: Router,
     @inject(ASSET_ROUTER_SYMBOL) private readonly assetRouter: Router,
     @inject(CONNECTION_ROUTER_SYMBOL) private readonly connectionRouter: Router,
-    @inject(BUNDLE_ROUTER_SYMBOL) private readonly bundleRouter: Router
+    @inject(BUNDLE_ROUTER_SYMBOL) private readonly bundleRouter: Router,
+    @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
   ) {
     this.serverInstance = express();
   }
@@ -63,8 +66,7 @@ export class ServerBuilder {
   }
 
   private registerPreRoutesMiddleware(): void {
-    this.serverInstance.use(cors());
-    this.serverInstance.use('/metrics', defaultMetricsMiddleware());
+    this.serverInstance.use(collectMetricsExpressMiddleware({ registry: this.metricsRegistry }));
     this.serverInstance.use(httpLogger({ logger: this.logger, ignorePaths: ['/metrics'] }));
 
     if (this.config.get<boolean>('server.response.compression.enabled')) {
@@ -72,7 +74,7 @@ export class ServerBuilder {
     }
 
     this.serverInstance.use(bodyParser.json(this.config.get<bodyParser.Options>('server.request.payload')));
-    this.serverInstance.use(getTraceContextHeaderMiddleware());
+    this.serverInstance.use(getTraceContexHeaderMiddleware());
 
     const ignorePathRegex = new RegExp(`^${this.config.get<string>('openapiConfig.basePath')}/.*`, 'i');
     const apiSpecPath = this.config.get<string>('openapiConfig.filePath');

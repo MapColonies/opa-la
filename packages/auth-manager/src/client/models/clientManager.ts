@@ -1,12 +1,14 @@
-import { Logger } from '@map-colonies/js-logger';
+import { type Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains, QueryFailedError } from 'typeorm';
 import { DatabaseError } from 'pg';
-import { IClient } from '@map-colonies/auth-core';
-import { SERVICES } from '../../common/constants';
-import { PgErrorCodes } from '../../common/db/constants';
-import { createDatesComparison } from '../../common/db/utils';
-import { ClientRepository } from '../DAL/clientRepository';
+import { Client, type IClient } from '@map-colonies/auth-core';
+import { SERVICES } from '@common/constants';
+import { PgErrorCodes } from '@common/db/constants';
+import { createDatesComparison } from '@common/db/utils';
+import { SortOptions } from '@src/common/db/sort';
+import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/pagination';
+import { type ClientRepository } from '../DAL/clientRepository';
 import { ClientSearchParams } from './client';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
 
@@ -17,13 +19,16 @@ export class ClientManager {
     @inject(SERVICES.CLIENT_REPOSITORY) private readonly clientRepository: ClientRepository
   ) {}
 
-  public async getClients(searchParams?: ClientSearchParams): Promise<IClient[]> {
+  public async getClients(
+    searchParams?: ClientSearchParams,
+    paginationParams?: PaginationParams,
+    sortParams?: SortOptions<Client>
+  ): Promise<[IClient[], number]> {
     this.logger.info({ msg: 'fetching clients' });
     this.logger.debug({ msg: 'search parameters', searchParams });
 
     // eslint doesn't recognize this as valid because its in the type definition
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    let findOptions: Parameters<typeof this.clientRepository.find>[0] = undefined;
+    let findOptions: Parameters<typeof this.clientRepository.find>[0] = {};
     if (searchParams !== undefined) {
       const { branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = searchParams;
       findOptions = {
@@ -36,7 +41,18 @@ export class ClientManager {
       };
     }
 
-    return this.clientRepository.find(findOptions);
+    if (paginationParams !== undefined) {
+      findOptions = {
+        ...findOptions,
+        ...paginationParamsToFindOptions(paginationParams),
+      };
+    }
+
+    if (sortParams !== undefined) {
+      findOptions.order = sortParams;
+    }
+
+    return this.clientRepository.findAndCount({ ...findOptions });
   }
 
   public async getClient(name: string): Promise<IClient> {
@@ -75,7 +91,7 @@ export class ClientManager {
     }
   }
 
-  public async updateClient(name: string, client: Omit<IClient, 'name'>): Promise<IClient> {
+  public async updateClient(name: string, client: Omit<IClient, 'name' | 'createdAt' | 'updatedAt'>): Promise<IClient> {
     this.logger.info({ msg: 'updating client', name });
 
     this.logger.debug({ msg: 'updating client with following data', name, client });

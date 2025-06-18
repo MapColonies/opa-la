@@ -2,16 +2,17 @@ import { tmpdir } from 'node:os';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
+import * as authBundler from '@map-colonies/auth-bundler';
 import { Bundle, Environment } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import jsLogger from '@map-colonies/js-logger';
 import { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getJob } from '../src/job';
-import { getConfig, initConfig } from '../src/config';
+import { getJob } from '@src/job';
+import { getConfig, initConfig } from '@src/config';
 
 jest.mock('@map-colonies/auth-bundler');
-jest.mock('../src/logger', () => {
+jest.mock('../src/telemetry/logger', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
@@ -30,6 +31,7 @@ describe('job.ts', function () {
     const createBundleMock = jest.mocked(createBundle);
     let s3client: S3Client;
     let cronOptions: Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
+    let getVersionCommandSpy: jest.SpyInstance<Promise<string>, []>;
 
     beforeAll(async function () {
       await initConfig();
@@ -37,6 +39,7 @@ describe('job.ts', function () {
       createBundleMock.mockImplementation(async (content, workdir, filePath) => {
         await writeFile(path.join(workdir, filePath), 'aviavi');
       });
+      getVersionCommandSpy = jest.spyOn(authBundler, 'getVersionCommand');
 
       s3client = new S3Client({
         credentials: { accessKeyId: cronOptions.s3.accessKeyId, secretAccessKey: cronOptions.s3.secretAccessKey },
@@ -46,8 +49,16 @@ describe('job.ts', function () {
       });
     });
 
+    beforeEach(function () {
+      getVersionCommandSpy.mockResolvedValue('0.52.0');
+    });
+
     afterEach(function () {
       jest.resetAllMocks();
+    });
+
+    afterAll(function () {
+      jest.restoreAllMocks();
     });
 
     it('should create a bundle if no bundle exists', async function () {
@@ -73,6 +84,7 @@ describe('job.ts', function () {
         environment: Environment.NP,
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 2,
+        opaVersion: '0.52.0',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -96,6 +108,7 @@ describe('job.ts', function () {
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 1,
         hash: 'avi',
+        opaVersion: '0.52.0',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -122,6 +135,7 @@ describe('job.ts', function () {
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 1,
         hash: res.ETag,
+        opaVersion: '0.52.0',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -135,6 +149,32 @@ describe('job.ts', function () {
       await expect(promise).resolves.not.toThrow();
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bundleDbMock.saveBundle).toHaveBeenCalledTimes(0);
+    });
+
+    it('should create a bundle if the opa version is different than the one in the db', async function () {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const res = await s3client.send(new PutObjectCommand({ Bucket: cronOptions.s3.bucket, Key: cronOptions.s3.key }));
+      bundleRepoMock.findOne.mockResolvedValueOnce({
+        id: 1,
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+        hash: res.ETag,
+        opaVersion: '0.51.0',
+      });
+      bundleDbMock.getLatestVersions.mockResolvedValue({
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+      });
+
+      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+
+      await expect(promise).resolves.not.toThrow();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bundleDbMock.saveBundle).toHaveBeenCalledTimes(1);
     });
   });
 });

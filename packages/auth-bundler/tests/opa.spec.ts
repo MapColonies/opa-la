@@ -1,8 +1,8 @@
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
-import * as execa from '../src/wrappers/execa';
-import { checkFilesCommand, createBundleCommand, testCommand, testCoverageCommand, validateBinaryExistCommand } from '../src/opa';
+import * as execa from '@src/wrappers/execa';
+import { checkFilesCommand, createBundleCommand, getVersionCommand, testCommand, testCoverageCommand, validateBinaryExistCommand } from '@src/opa';
 
 jest.mock('../src/wrappers/execa', () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -137,6 +137,35 @@ describe('opa.ts', function () {
       expect(res).toBe(false);
 
       expect(err).toBe('oh no');
+    });
+  });
+
+  describe('#getVersionCommand', function () {
+    it('should return the version string when command succeeds', async function () {
+      const VERSION_OUTPUT = 'Version: 0.52.0\nBuild Commit: 8d2c137662560cac83d9cf24cbdaecc934910333\nBuild Timestamp: 2023-04-27T17:57:23Z';
+      jest.spyOn(execa, 'execa').mockResolvedValue({ stdout: VERSION_OUTPUT } as ExecaChildProcess);
+
+      const version = await getVersionCommand();
+
+      expect(version).toBe('0.52.0');
+    });
+
+    it('should throw error when output is empty', async function () {
+      jest.spyOn(execa, 'execa').mockResolvedValue({ stdout: '' } as ExecaChildProcess);
+
+      await expect(getVersionCommand()).rejects.toThrow('Unable to read OPA version output');
+    });
+
+    it('should throw error when output format is invalid', async function () {
+      jest.spyOn(execa, 'execa').mockResolvedValue({ stdout: 'Invalid output format' } as ExecaChildProcess);
+
+      await expect(getVersionCommand()).rejects.toThrow('Unable to parse OPA version from output');
+    });
+
+    it('should throw error when version line has no version', async function () {
+      jest.spyOn(execa, 'execa').mockResolvedValue({ stdout: 'Version: \nOther info' } as ExecaChildProcess);
+
+      await expect(getVersionCommand()).rejects.toThrow('Unable to parse OPA version from output');
     });
   });
 });

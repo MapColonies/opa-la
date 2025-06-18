@@ -1,4 +1,4 @@
-import { Environment } from './common';
+import { Environments } from './common';
 
 /**
  * A connection is the object describing the details of
@@ -13,7 +13,7 @@ export interface IConnection {
    */
   version: number;
   /** The environment this connection relates to. */
-  environment: Environment;
+  environment: Environments;
   /** Automatically generated date of when the given connection version was created at. */
   createdAt?: Date;
   /** Is the connection enabled. If it is not, it wwill be ignored when creating a new bundle. */

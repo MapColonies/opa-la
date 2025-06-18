@@ -1,9 +1,17 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "dist"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "tests"]
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@src": ["./src/index.ts"],
+      "@common/*": ["./src/common/*"],
+      "@tests/*": ["./tests/*"],
+      "@client/*": ["./src/client/*"],
+      "@domain/*": ["./src/domain/*"],
+      "@key/*": ["./src/key/*"],
+      "@connection/*": ["./src/connection/*"],
+      "@openapi": ["src/openapi"]
+    }
+  }
 }

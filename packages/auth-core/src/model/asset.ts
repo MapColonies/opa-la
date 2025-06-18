@@ -1,17 +1,18 @@
-import { Environment } from './common';
+import { Environments } from './common';
 
-/**
- * All the different types of possible assets.
- */
-export enum AssetType {
+/* eslint-disable @typescript-eslint/naming-convention */
+export const AssetType = {
   /** OPA test files. */
-  TEST = 'TEST',
-  TEST_DATA = 'TEST_DATA',
+  TEST: 'TEST',
+  TEST_DATA: 'TEST_DATA',
   /** OPA policy files. */
-  POLICY = 'POLICY',
+  POLICY: 'POLICY',
   /** OPA data files, name should end with .json or .yaml. */
-  DATA = 'DATA',
-}
+  DATA: 'DATA',
+} as const;
+/* eslint-enable @typescript-eslint/naming-convention */
+
+export type AssetTypes = (typeof AssetType)[keyof typeof AssetType];
 
 /**
  * Describes the metadata and content of assets - files that will be part of the bundle.
@@ -31,9 +32,9 @@ export interface IAsset {
   /** The path inside the bundle the asset will be in. use / for the root of the bundle. */
   uri: string;
   /** The asset type. */
-  type: AssetType;
+  type: AssetTypes;
   /** The environments the asset belongs do. It will be deployed only to the specified environments. */
-  environment: Environment[];
+  environment: Environments[];
   /** Whether the file contains a template that should be rendered before inserting to the bundle. */
   isTemplate: boolean;
 }

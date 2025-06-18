@@ -1,30 +1,32 @@
 import { HttpError } from '@map-colonies/error-express-handler';
-import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { Logger } from '@map-colonies/js-logger';
-import { Environment, IConnection } from '@map-colonies/auth-core';
-import { ConnectionSearchParams } from '../models/connection';
+import { type Logger } from '@map-colonies/js-logger';
+import { IConnection } from '@map-colonies/auth-core';
+import type { TypedRequestHandlers, components } from '@openapi';
+import { SERVICES } from '@common/constants';
+import { ClientNotFoundError } from '@client/models/errors';
+import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
+import { DomainNotFoundError } from '@domain/models/errors';
+import { sortOptionParser } from '@src/common/db/sort';
+import { KeyNotFoundError } from '@key/models/errors';
 import { ConnectionManager } from '../models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../models/errors';
-import { SERVICES } from '../../common/constants';
-import { ClientNotFoundError } from '../../client/models/errors';
-import { DomainNotFoundError } from '../../domain/models/errors';
-import { KeyNotFoundError } from '../../key/models/errors';
 
-interface ConnectionNamePathParams {
-  clientName: string;
+function responseConnectionToOpenApi(connection: IConnection): components['schemas']['connection'] {
+  return {
+    ...connection,
+    createdAt: connection.createdAt?.toISOString(),
+  };
 }
 
-type EnvConnectionPathParams = {
-  environment: Environment;
-} & ConnectionNamePathParams;
-
-type UpsertConnectionHandler = RequestHandler<undefined, IConnection, IConnection, { shouldIgnoreTokenErrors?: boolean }>;
-type GetConnectionsHandler = RequestHandler<undefined, IConnection[], undefined, ConnectionSearchParams>;
-type GetNamedConnectionsHandler = RequestHandler<ConnectionNamePathParams, IConnection[]>;
-type GetNamedEnvConnectionsHandler = RequestHandler<EnvConnectionPathParams, IConnection[]>;
-type GetConnectionHandler = RequestHandler<EnvConnectionPathParams & { version: number }, IConnection>;
+const connectionSortMap = new Map<string, keyof IConnection>([
+  ['name', 'name'],
+  ['environment', 'environment'],
+  ['version', 'version'],
+  ['created-at', 'createdAt'],
+  ['enabled', 'enabled'],
+]);
 
 @injectable()
 export class ConnectionController {
@@ -33,43 +35,57 @@ export class ConnectionController {
     @inject(ConnectionManager) private readonly manager: ConnectionManager
   ) {}
 
-  public getConnections: GetConnectionsHandler = async (req, res, next) => {
+  public getConnections: TypedRequestHandlers['getConnections'] = async (req, res, next) => {
     this.logger.debug('executing #getConnections handler');
 
+    const paginationParams = {
+      /* istanbul ignore next */
+      page: req.query?.page ?? 1,
+      /* istanbul ignore next */
+      pageSize: req.query?.page_size ?? DEFAULT_PAGE_SIZE,
+    };
+
+    /* istanbul ignore next */
+    const sortParams = sortOptionParser(req.query?.sort, connectionSortMap);
+
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getConnections(req.query));
+      const [connections, count] = await this.manager.getConnections(req.query ?? {}, paginationParams, sortParams);
+
+      return res.status(httpStatus.OK).json({ total: count, items: connections.map(responseConnectionToOpenApi) });
     } catch (error) {
       return next(error);
     }
   };
 
-  public getNamedConnections: GetNamedConnectionsHandler = async (req, res, next) => {
+  public getNamedConnections: TypedRequestHandlers['getClientConnections'] = async (req, res, next) => {
     this.logger.debug('executing #getNamedConnections handler');
 
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getConnections({ name: req.params.clientName }));
+      const [connections] = await this.manager.getConnections({ name: req.params.clientName });
+      return res.status(httpStatus.OK).json(connections.map(responseConnectionToOpenApi));
     } catch (error) {
       return next(error);
     }
   };
 
-  public getNamedEnvConnections: GetNamedEnvConnectionsHandler = async (req, res, next) => {
+  public getNamedEnvConnections: TypedRequestHandlers['getClientEnvironmentConnections'] = async (req, res, next) => {
     this.logger.debug('executing #getNamedEnvConnections handler');
 
     try {
-      return res
-        .status(httpStatus.OK)
-        .json(await this.manager.getConnections({ name: req.params.clientName, environment: [req.params.environment] }));
+      const [connections] = await this.manager.getConnections({ name: req.params.clientName, environment: [req.params.environment] });
+
+      return res.status(httpStatus.OK).json(connections.map(responseConnectionToOpenApi));
     } catch (error) {
       return next(error);
     }
   };
 
-  public getConnection: GetConnectionHandler = async (req, res, next) => {
+  public getConnection: TypedRequestHandlers['getClientVersionedConnection'] = async (req, res, next) => {
     this.logger.debug('executing #getConnection handler');
 
     try {
-      return res.status(httpStatus.OK).json(await this.manager.getConnection(req.params.clientName, req.params.environment, req.params.version));
+      const connection = await this.manager.getConnection(req.params.clientName, req.params.environment, req.params.version);
+      return res.status(httpStatus.OK).json(responseConnectionToOpenApi(connection));
     } catch (error) {
       if (error instanceof ConnectionNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;
@@ -78,15 +94,17 @@ export class ConnectionController {
     }
   };
 
-  public upsertConnection: UpsertConnectionHandler = async (req, res, next) => {
+  public upsertConnection: TypedRequestHandlers['upsertConnection'] = async (req, res, next) => {
     this.logger.debug('executing #upsertConnection handler');
 
     try {
-      const createdConnection = await this.manager.upsertConnection(req.body, req.query.shouldIgnoreTokenErrors);
+      const reqConnection = { ...req.body, createdAt: req.body.createdAt !== undefined ? new Date(req.body.createdAt) : undefined };
+      const createdConnection = await this.manager.upsertConnection(reqConnection, req.query?.shouldIgnoreTokenErrors);
 
       const returnStatus = createdConnection.version === 1 ? httpStatus.CREATED : httpStatus.OK;
-      return res.status(returnStatus).json(createdConnection);
+      return res.status(returnStatus).json(responseConnectionToOpenApi(createdConnection));
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (true) {
         case error instanceof KeyNotFoundError:
           (error as HttpError).status = httpStatus.BAD_REQUEST;

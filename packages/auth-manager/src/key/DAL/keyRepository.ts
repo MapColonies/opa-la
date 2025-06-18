@@ -1,9 +1,9 @@
-import { Environment, Key } from '@map-colonies/auth-core';
+import { Environments, Key } from '@map-colonies/auth-core';
 import { FactoryFunction } from 'tsyringe';
 import { DataSource, Repository } from 'typeorm';
 
 export type KeyRepository = Repository<Key> & {
-  getMaxVersionWithLock: (env: Environment) => Promise<number | null>;
+  getMaxVersionWithLock: (env: Environments) => Promise<number | null>;
   getLatestKeys: () => Promise<Key[]>;
 };
 
@@ -11,7 +11,7 @@ export const keyRepositoryFactory: FactoryFunction<KeyRepository> = (container) 
   const dataSource = container.resolve(DataSource);
 
   return dataSource.getRepository(Key).extend({
-    async getMaxVersionWithLock(env: Environment): Promise<number | null> {
+    async getMaxVersionWithLock(env: Environments): Promise<number | null> {
       const result = await this.createQueryBuilder()
         .select('version')
         .where('environment = :environment')

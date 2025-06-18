@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import { IClient, PointOfContact } from '../../model';
+import { IClient, type PointOfContact } from '../../model';
 
 /**
  * The typeorm implementation of the IClient interface.

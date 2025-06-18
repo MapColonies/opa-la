@@ -18,6 +18,7 @@ export * from './errors';
 export { setLogger } from './logger';
 export { BundleDatabase } from './db';
 export * from './types';
+export { getVersionCommand } from './opa';
 
 /**
  * This function creates an opa bundle tarball from the given content

@@ -1,7 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "sourceMap": true,
-    "skipLibCheck": true
-  }
+  "exclude": ["${configDir}/tests"]
 }

@@ -5,21 +5,21 @@ const THREE = 3;
 
 export function getMockKeys(): [JWKPrivateKey, JWKPublicKey] {
   const publicKey: JWKPublicKey = {
-    alg: faker.datatype.string(THREE),
-    e: faker.datatype.string(THREE),
-    kid: faker.datatype.string(THREE),
-    kty: faker.datatype.string(THREE),
-    n: faker.datatype.string(THREE),
+    alg: faker.string.alpha(THREE),
+    e: faker.string.alpha(THREE),
+    kid: faker.string.alpha(THREE),
+    kty: faker.string.alpha(THREE),
+    n: faker.string.alpha(THREE),
   };
   return [
     {
       ...publicKey,
-      d: faker.datatype.string(THREE),
-      dp: faker.datatype.string(THREE),
-      dq: faker.datatype.string(THREE),
-      p: faker.datatype.string(THREE),
-      q: faker.datatype.string(THREE),
-      qi: faker.datatype.string(THREE),
+      d: faker.string.alpha(THREE),
+      dp: faker.string.alpha(THREE),
+      dq: faker.string.alpha(THREE),
+      p: faker.string.alpha(THREE),
+      q: faker.string.alpha(THREE),
+      qi: faker.string.alpha(THREE),
     },
     publicKey,
   ];

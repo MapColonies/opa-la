@@ -1,4 +1,4 @@
-import { Asset, Connection, Environment, Key } from '@map-colonies/auth-core';
+import { Asset, Connection, Environments, Key } from '@map-colonies/auth-core';
 
 /**
  * Interface for describing bundle versions
@@ -11,7 +11,7 @@ export interface BundleContentVersions {
   /** Name and version pairs of the assets */
   keyVersion?: number;
   /** The environment of the versions   */
-  environment: Environment;
+  environment: Environments;
 }
 
 /**
@@ -25,7 +25,7 @@ export interface BundleContent {
   /** The key of the bundle */
   key?: Key;
   /** The environment of the bundle  */
-  environment: Environment;
+  environment: Environments;
 }
 
 /**

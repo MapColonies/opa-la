@@ -6,7 +6,7 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { Asset, AssetType, Key } from '@map-colonies/auth-core';
+import { Asset, type AssetTypes, Key } from '@map-colonies/auth-core';
 import { render } from './templating';
 import { BundleContent } from './types';
 import { logger } from './logger';
@@ -57,7 +57,11 @@ async function handleAsset(basePath: string, asset: Asset, context: unknown): Pr
 
   if (asset.type === 'DATA') {
     // consider a different way to do this, we do this because OPA required data files to be called data.
-    fileName = 'data.' + fileName.split('.')[1];
+    const extension = fileName.split('.')[1];
+    if (extension === undefined) {
+      throw new Error('data file name is missing extension');
+    }
+    fileName = 'data.' + extension;
   }
 
   await saveFile(assetPath, fileName, value);
@@ -71,7 +75,7 @@ async function handleAsset(basePath: string, asset: Asset, context: unknown): Pr
  * @ignore
  */
 export async function createBundleDirectoryStructure(bundle: BundleContent, path: string): Promise<void> {
-  const hasAssetType: Record<AssetType, boolean> = {
+  const hasAssetType: Record<AssetTypes, boolean> = {
     /* eslint-disable @typescript-eslint/naming-convention */
     DATA: false,
     POLICY: false,

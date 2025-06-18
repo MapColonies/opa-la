@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import { Environment, IConnection } from '../../model';
+import { Environment, IConnection, type Environments } from '../../model';
 
 /**
  * The typeorm implementation of the IConnection interface.
@@ -13,7 +13,7 @@ export class Connection implements IConnection {
   public version!: number;
 
   @PrimaryColumn({ type: 'enum', enum: Environment, enumName: 'environment_enum' })
-  public environment!: Environment;
+  public environment!: Environments;
 
   @Column({ type: 'boolean' })
   public enabled!: boolean;

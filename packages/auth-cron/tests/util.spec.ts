@@ -3,8 +3,17 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { BundleContentVersions } from '@map-colonies/auth-bundler';
 import { Bundle } from '@map-colonies/auth-core';
-import { compareVersionsToBundle, emptyDir } from '../src/util';
+import jsLogger from '@map-colonies/js-logger';
+import { compareVersionsToBundle, emptyDir } from '@src/util';
 import { getFakeBundle } from './utils/bundle';
+
+jest.mock('../src/telemetry/logger', () => {
+  return {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    __esModule: true,
+    logger: jsLogger({ enabled: false }),
+  };
+});
 
 describe('util.ts', function () {
   describe('#emptyDir', function () {
