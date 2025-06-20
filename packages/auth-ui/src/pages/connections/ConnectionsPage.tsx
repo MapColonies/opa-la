@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { $api, siteApis } from '../../fetch';
 import { Button } from '../../components/ui/button';
-import { Loader2, Plus, Filter, X, Search, ChevronDown } from 'lucide-react';
+import { Loader2, Plus, Filter, X, Search, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Dialog } from '../../components/ui/dialog';
 import { components } from '../../types/schema';
@@ -35,30 +35,106 @@ interface Filters {
   domains?: string[];
 }
 
+type SortField = 'created-at' | 'name' | 'version' | 'enabled' | 'environment';
+type SortDirection = 'asc' | 'desc';
+
+interface SortState {
+  field: SortField;
+  direction: SortDirection;
+}
+
+const updateURL = (params: Record<string, string | number | boolean | string[]>) => {
+  const url = new URL(window.location.href);
+  
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)) {
+      url.searchParams.delete(key);
+    } else if (Array.isArray(value)) {
+      url.searchParams.set(key, value.join(','));
+    } else {
+      url.searchParams.set(key, value.toString());
+    }
+  });
+  
+  window.history.replaceState({}, '', url.toString());
+};
+
+const getURLParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    page: parseInt(params.get('page') || '1', 10),
+    pageSize: parseInt(params.get('pageSize') || '10', 10),
+    environment: params.get('environment') || 'all',
+    isEnabled: params.get('isEnabled') ? params.get('isEnabled') === 'true' : undefined,
+    isNoBrowser: params.get('isNoBrowser') ? params.get('isNoBrowser') === 'true' : undefined,
+    isNoOrigin: params.get('isNoOrigin') ? params.get('isNoOrigin') === 'true' : undefined,
+    searchTerm: params.get('search') || '',
+    sort: params.get('sort') ? params.get('sort')!.split(',').map(s => {
+      const [field, direction] = s.split(':');
+      return { field: field as SortField, direction: (direction || 'asc') as SortDirection };
+    }) : [
+      { field: 'name' as SortField, direction: 'asc' as SortDirection },
+      { field: 'environment' as SortField, direction: 'asc' as SortDirection },
+      { field: 'version' as SortField, direction: 'desc' as SortDirection }
+    ],
+    showAdvancedFilters: params.get('showFilters') === 'true'
+  };
+};
+
 export const ConnectionsPage = () => {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<Filters>({});
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
-  const [selectedEnvironment, setSelectedEnvironment] = useState<Environment | 'all'>('all');
-  const [isEnabled, setIsEnabled] = useState<boolean | undefined>(undefined);
-  const [isNoBrowser, setIsNoBrowser] = useState<boolean | undefined>(undefined);
-  const [isNoOrigin, setIsNoOrigin] = useState<boolean | undefined>(undefined);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
   const [createSuccess, setCreateSuccess] = useState(false);
   const [editSuccess, setEditSuccess] = useState(false);
   const [isOtherSitesPending, setIsOtherSitesPending] = useState(false);
   const [siteResults, setSiteResults] = useState<SiteResult[]>([]);
+  const [currentCreateStep, setCurrentCreateStep] = useState<'create' | 'send'>('create');
+  
+  const urlParams = getURLParams();
+  const [selectedEnvironment, setSelectedEnvironment] = useState<Environment | 'all'>(urlParams.environment as Environment | 'all');
+  const [isEnabled, setIsEnabled] = useState<boolean | undefined>(urlParams.isEnabled);
+  const [isNoBrowser, setIsNoBrowser] = useState<boolean | undefined>(urlParams.isNoBrowser);
+  const [isNoOrigin, setIsNoOrigin] = useState<boolean | undefined>(urlParams.isNoOrigin);
+  const [searchTerm, setSearchTerm] = useState(urlParams.searchTerm);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(urlParams.showAdvancedFilters);
+  const [page, setPage] = useState(urlParams.page);
+  const [pageSize, setPageSize] = useState(urlParams.pageSize);
+  const [sort, setSort] = useState<SortState[]>(urlParams.sort);
+  
+  const isInitialRender = useRef(true);
   
   const debouncedSearchTerm = useDebounce(searchTerm);
 
+  useEffect(() => {
+    const sortParams = sort.map(s => `${s.field}:${s.direction}`);
+    updateURL({
+      page,
+      pageSize,
+      environment: selectedEnvironment === 'all' ? '' : selectedEnvironment,
+      isEnabled: isEnabled !== undefined ? isEnabled : '',
+      isNoBrowser: isNoBrowser !== undefined ? isNoBrowser : '',
+      isNoOrigin: isNoOrigin !== undefined ? isNoOrigin : '',
+      search: searchTerm,
+      sort: sortParams,
+      showFilters: showAdvancedFilters
+    });
+  }, [page, pageSize, selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin, searchTerm, sort, showAdvancedFilters]);
+
+  const queryParams = {
+    ...filters,
+    page,
+    page_size: pageSize,
+    sort: sort.map(s => `${s.field}:${s.direction}`)
+  };
+
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/connection', {
     params: {
-      query: filters,
+      query: queryParams,
     },
   });
 
@@ -74,7 +150,7 @@ export const ConnectionsPage = () => {
     onSuccess: () => {
       setCreateSuccess(true);
       setEditSuccess(true);
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ['get', '/connection'] });
     },
     onError: (error) => {
       console.error('Error saving connection:', error);
@@ -88,6 +164,7 @@ export const ConnectionsPage = () => {
       setCreateError(null);
       setCreateSuccess(false);
       setSiteResults([]);
+      setCurrentCreateStep('create');
     }
     if (!isEditDialogOpen) {
       setEditError(null);
@@ -117,7 +194,15 @@ export const ConnectionsPage = () => {
     }
 
     setFilters(newFilters);
+    
+    if (!isInitialRender.current) {
+      setPage(1);
+    }
   }, [selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin]);
+
+  useEffect(() => {
+    isInitialRender.current = false;
+  }, []);
 
   const handleCreateConnection = (data: { body: Connection }) => {
     setCreateError(null);
@@ -220,6 +305,7 @@ export const ConnectionsPage = () => {
     setIsNoBrowser(undefined);
     setIsNoOrigin(undefined);
     setSearchTerm('');
+    setPage(1);
   };
 
   const removeFilter = (filterType: string) => {
@@ -237,9 +323,38 @@ export const ConnectionsPage = () => {
         setIsNoOrigin(undefined);
         break;
     }
+    setPage(1);
   };
 
-  const filteredData = data?.filter((connection) => {
+  const handleSort = (field: SortField) => {
+    setSort(prevSort => {
+      const existingSort = prevSort.find(s => s.field === field);
+      if (existingSort) {
+        if (existingSort.direction === 'asc') {
+          return prevSort.map(s => 
+            s.field === field ? { ...s, direction: 'desc' as SortDirection } : s
+          );
+        } else {
+          return prevSort.filter(s => s.field !== field);
+        }
+      } else {
+        return [{ field, direction: 'asc' as SortDirection }, ...prevSort];
+      }
+    });
+    setPage(1);
+  };
+
+  const getSortDirection = (field: SortField): SortDirection | null => {
+    const sortItem = sort.find(s => s.field === field);
+    return sortItem?.direction || null;
+  };
+
+  const handlePageSizeChange = (newPageSize: string) => {
+    setPageSize(Number(newPageSize));
+    setPage(1);
+  };
+
+  const filteredData = data?.items?.filter((connection) => {
     if (!debouncedSearchTerm) return true;
     const searchLower = debouncedSearchTerm.toLowerCase();
     return (
@@ -247,7 +362,11 @@ export const ConnectionsPage = () => {
       connection.environment?.toLowerCase().includes(searchLower) ||
       connection.token?.toLowerCase().includes(searchLower)
     );
-  });
+  }) || [];
+
+  const totalPages = data?.total ? Math.ceil(data.total / pageSize) : 0;
+  const startItem = (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, data?.total || 0);
 
   if (isLoading) {
     return (
@@ -275,7 +394,12 @@ export const ConnectionsPage = () => {
     <div className="flex flex-col h-full p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Connections</h1>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
+          if (!open && currentCreateStep === 'send') {
+            return;
+          }
+          setIsCreateDialogOpen(open);
+        }}>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Connection
@@ -291,6 +415,7 @@ export const ConnectionsPage = () => {
               success={createSuccess}
               siteResults={siteResults}
               onOpenChange={setIsCreateDialogOpen}
+              onStepChange={setCurrentCreateStep}
             />
           )}
         </Dialog>
@@ -432,7 +557,73 @@ export const ConnectionsPage = () => {
       </div>
 
       <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
-        <ConnectionsTable connections={filteredData || []} onEditConnection={openEditDialog} />
+        <ConnectionsTable 
+          connections={filteredData} 
+          onEditConnection={openEditDialog}
+          onSort={handleSort}
+          sortDirection={getSortDirection}
+        />
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-2 py-4">
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {startItem}-{endItem} of {data?.total || 0} results
+          </p>
+          <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+            <SelectTrigger className="w-[70px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-sm text-muted-foreground">per page</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(1)}
+            disabled={page === 1}
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-1">
+            <p className="text-sm font-medium">
+              Page {page} of {totalPages}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(totalPages)}
+            disabled={page === totalPages}
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

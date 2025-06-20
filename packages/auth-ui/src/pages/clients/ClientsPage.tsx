@@ -1,7 +1,7 @@
 import { $api, siteApis } from '../../fetch';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '../../components/ui/button';
-import { Loader2, Plus, Search, Calendar, Filter, X, ChevronDown } from 'lucide-react';
+import { Loader2, Plus, Search, Calendar, Filter, X, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Dialog } from '../../components/ui/dialog';
 import { components } from '../../types/schema';
@@ -18,6 +18,7 @@ import { cn } from '../../lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { availableSites } from '../../components/SiteSelection';
 import { Badge } from '../../components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 
 type Client = components['schemas']['client'];
 type NamelessClient = components['schemas']['namelessClient'];
@@ -37,14 +38,57 @@ type Filters = {
   tags?: string[];
 };
 
+type SortField = 'created-at' | 'updated-at' | 'name' | 'heb-name' | 'branch';
+type SortDirection = 'asc' | 'desc';
+
+interface SortState {
+  field: SortField;
+  direction: SortDirection;
+}
+
+const updateURL = (params: Record<string, string | number | boolean | string[]>) => {
+  const url = new URL(window.location.href);
+  
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)) {
+      url.searchParams.delete(key);
+    } else if (Array.isArray(value)) {
+      url.searchParams.set(key, value.join(','));
+    } else {
+      url.searchParams.set(key, value.toString());
+    }
+  });
+  
+  window.history.replaceState({}, '', url.toString());
+};
+
+const getURLParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    page: parseInt(params.get('page') || '1', 10),
+    pageSize: parseInt(params.get('pageSize') || '10', 10),
+    branch: params.get('branch') || '',
+    createdAfter: params.get('createdAfter') || '',
+    createdBefore: params.get('createdBefore') || '',
+    updatedAfter: params.get('updatedAfter') || '',
+    updatedBefore: params.get('updatedBefore') || '',
+    tags: params.get('tags') ? params.get('tags')!.split(',') : [],
+    sort: params.get('sort') ? params.get('sort')!.split(',').map(s => {
+      const [field, direction] = s.split(':');
+      return { field: field as SortField, direction: (direction || 'asc') as SortDirection };
+    }) : [
+      { field: 'name' as SortField, direction: 'asc' as SortDirection }
+    ],
+    showAdvancedFilters: params.get('showFilters') === 'true'
+  };
+};
+
 export const ClientsPage = () => {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<Filters>({});
-  const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [clients, setClients] = useState<Client[]>([]);
   const [createError, setCreateError] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [createSuccess, setCreateSuccess] = useState(false);
@@ -52,24 +96,61 @@ export const ClientsPage = () => {
   const [isOtherSitesPending, setIsOtherSitesPending] = useState(false);
   const [createSiteResults, setCreateSiteResults] = useState<SiteResult[]>([]);
   const [updateSiteResults, setUpdateSiteResults] = useState<SiteResult[]>([]);
+  const [currentEditStep, setCurrentEditStep] = useState<'edit' | 'send'>('edit');
 
-  const [createdAfterDate, setCreatedAfterDate] = useState<Date | undefined>(undefined);
-  const [createdBeforeDate, setCreatedBeforeDate] = useState<Date | undefined>(undefined);
-  const [updatedAfterDate, setUpdatedAfterDate] = useState<Date | undefined>(undefined);
-  const [updatedBeforeDate, setUpdatedBeforeDate] = useState<Date | undefined>(undefined);
+  const urlParams = getURLParams();
+  const [searchTerm, setSearchTerm] = useState(urlParams.branch);
+  const [createdAfterDate, setCreatedAfterDate] = useState<Date | undefined>(
+    urlParams.createdAfter ? new Date(urlParams.createdAfter) : undefined
+  );
+  const [createdBeforeDate, setCreatedBeforeDate] = useState<Date | undefined>(
+    urlParams.createdBefore ? new Date(urlParams.createdBefore) : undefined
+  );
+  const [updatedAfterDate, setUpdatedAfterDate] = useState<Date | undefined>(
+    urlParams.updatedAfter ? new Date(urlParams.updatedAfter) : undefined
+  );
+  const [updatedBeforeDate, setUpdatedBeforeDate] = useState<Date | undefined>(
+    urlParams.updatedBefore ? new Date(urlParams.updatedBefore) : undefined
+  );
+  const [selectedTags, setSelectedTags] = useState<string[]>(urlParams.tags);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(urlParams.showAdvancedFilters);
+  const [page, setPage] = useState(urlParams.page);
+  const [pageSize, setPageSize] = useState(urlParams.pageSize);
+  const [sort, setSort] = useState<SortState[]>(urlParams.sort);
 
   const [tagsInput, setTagsInput] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  const isInitialRender = useRef(true);
 
   const debouncedSearchTerm = useDebounce<string>(searchTerm);
 
+  useEffect(() => {
+    const sortParams = sort.map(s => `${s.field}:${s.direction}`);
+    updateURL({
+      page,
+      pageSize,
+      branch: searchTerm,
+      createdAfter: createdAfterDate?.toISOString() || '',
+      createdBefore: createdBeforeDate?.toISOString() || '',
+      updatedAfter: updatedAfterDate?.toISOString() || '',
+      updatedBefore: updatedBeforeDate?.toISOString() || '',
+      tags: selectedTags,
+      sort: sortParams,
+      showFilters: showAdvancedFilters
+    });
+  }, [page, pageSize, searchTerm, createdAfterDate, createdBeforeDate, updatedAfterDate, updatedBeforeDate, selectedTags, sort, showAdvancedFilters]);
+
+  const queryParams = {
+    ...filters,
+    page,
+    page_size: pageSize,
+    sort: sort.map(s => `${s.field}:${s.direction}`)
+  };
+
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/client', {
     params: {
-      query: filters,
+      query: queryParams,
     },
-    staleTime: 0,
-    cacheTime: 0,
   });
 
   const siteCreateMutations = availableSites.reduce((acc, site) => {
@@ -128,14 +209,9 @@ export const ClientsPage = () => {
       setUpdateSuccess(false);
       setSelectedClient(null);
       setUpdateSiteResults([]);
+      setCurrentEditStep('edit');
     }
   }, [isEditDialogOpen]);
-
-  useEffect(() => {
-    if (data) {
-      setClients(data);
-    }
-  }, [data]);
 
   useEffect(() => {
     const newFilters: Filters = {};
@@ -165,11 +241,15 @@ export const ClientsPage = () => {
     }
 
     setFilters(newFilters);
+    
+    if (!isInitialRender.current) {
+      setPage(1);
+    }
   }, [debouncedSearchTerm, createdAfterDate, createdBeforeDate, updatedAfterDate, updatedBeforeDate, selectedTags]);
 
   useEffect(() => {
-    refetch();
-  }, [refetch, filters]);
+    isInitialRender.current = false;
+  }, []);
 
   const openEditDialog = (client: Client) => {
     setSelectedClient({ ...client });
@@ -195,6 +275,7 @@ export const ClientsPage = () => {
     setUpdatedBeforeDate(undefined);
     setSelectedTags([]);
     setShowAdvancedFilters(false);
+    setPage(1);
   };
 
   const getActiveFiltersCount = () => {
@@ -210,15 +291,41 @@ export const ClientsPage = () => {
 
   const hasActiveFilters = getActiveFiltersCount() > 0;
 
-  const handleCreateClient = (data: { body: Client }) => {
+  const handleSort = (field: SortField) => {
+    setSort(prevSort => {
+      const existingSort = prevSort.find(s => s.field === field);
+      if (existingSort) {
+        if (existingSort.direction === 'asc') {
+          return prevSort.map(s => 
+            s.field === field ? { ...s, direction: 'desc' as SortDirection } : s
+          );
+        } else {
+          return prevSort.filter(s => s.field !== field);
+        }
+      } else {
+        return [{ field, direction: 'asc' as SortDirection }, ...prevSort];
+      }
+    });
+    setPage(1);
+  };
 
+  const getSortDirection = (field: SortField): SortDirection | null => {
+    const sortItem = sort.find(s => s.field === field);
+    return sortItem?.direction || null;
+  };
+
+  const handlePageSizeChange = (newPageSize: string) => {
+    setPageSize(Number(newPageSize));
+    setPage(1);
+  };
+
+  const handleCreateClient = (data: { body: Client }) => {
     if (!createClientMutation.isPending) {
       createClientMutation.mutate(data);
     }
   };
 
   const handleUpdateClient = (data: { params: { path: { clientName: string } }; body: NamelessClient }) => {
-
     if (!updateClientMutation.isPending) {
       updateClientMutation.mutate(data);
     }
@@ -362,6 +469,10 @@ export const ClientsPage = () => {
       setIsOtherSitesPending(false);
     }
   };
+
+  const totalPages = data?.total ? Math.ceil(data.total / pageSize) : 0;
+  const startItem = (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, data?.total || 0);
 
   if (isLoading) {
     return (
@@ -630,13 +741,79 @@ export const ClientsPage = () => {
         )}
       </div>
 
-      <div className="flex-1 min-h-0 overflow-hidden border rounded-md">
-        <ClientsTable clients={clients} onEditClient={openEditDialog} />
+      <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
+        <ClientsTable 
+          clients={data?.items || []} 
+          onEditClient={openEditDialog}
+          onSort={handleSort}
+          sortDirection={getSortDirection}
+        />
       </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-2 py-4">
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {startItem}-{endItem} of {data?.total || 0} results
+          </p>
+          <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+            <SelectTrigger className="w-[70px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-sm text-muted-foreground">per page</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(1)}
+            disabled={page === 1}
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-1">
+            <p className="text-sm font-medium">
+              Page {page} of {totalPages}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(totalPages)}
+            disabled={page === totalPages}
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       <Dialog 
         open={isCreateDialogOpen} 
         onOpenChange={(open) => {
-      
           if (!isOtherSitesPending) {
             setIsCreateDialogOpen(open);
           }
@@ -663,9 +840,10 @@ export const ClientsPage = () => {
       <Dialog 
         open={isEditDialogOpen} 
         onOpenChange={(open) => {
-          if (!isOtherSitesPending) {
-            setIsEditDialogOpen(open);
+          if (!open && currentEditStep === 'send') {
+            return;
           }
+          setIsEditDialogOpen(open);
         }}
       >
         {isEditDialogOpen && (
@@ -679,11 +857,8 @@ export const ClientsPage = () => {
             error={updateError}
             success={updateSuccess}
             siteResults={updateSiteResults}
-            onOpenChange={(open) => {
-              if (!isOtherSitesPending) {
-                setIsEditDialogOpen(open);
-              }
-            }}
+            onOpenChange={setIsEditDialogOpen}
+            onStepChange={setCurrentEditStep}
           />
         )}
       </Dialog>

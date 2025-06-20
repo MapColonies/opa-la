@@ -4,11 +4,13 @@ import { Button } from '../../components/ui/button';
 import { Pencil, ArrowUpDown, ArrowUp, ArrowDown, Copy, Check } from 'lucide-react';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '../../components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getSortedRowModel, SortingState, Column } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Column } from '@tanstack/react-table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
 import { toast } from 'sonner';
 
 type Connection = components['schemas']['connection'];
+type SortField = 'created-at' | 'name' | 'version' | 'enabled' | 'environment';
+type SortDirection = 'asc' | 'desc';
 
 const CopyTokenButton = ({ token }: { token: string }) => {
   const [isCopied, setIsCopied] = useState(false);
@@ -43,22 +45,23 @@ const CopyTokenButton = ({ token }: { token: string }) => {
 interface ConnectionsTableProps {
   connections: Connection[];
   onEditConnection: (connection: Connection) => void;
+  onSort: (field: SortField) => void;
+  sortDirection: (field: SortField) => SortDirection | null;
 }
 
-export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsTableProps) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-
+export const ConnectionsTable = ({ connections, onEditConnection, onSort, sortDirection }: ConnectionsTableProps) => {
   const columns: ColumnDef<Connection>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
         header: ({ column }: { column: Column<Connection> }) => {
+          const currentSort = sortDirection('name');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('name')}>
               Name
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -70,12 +73,13 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
       {
         accessorKey: 'environment',
         header: ({ column }: { column: Column<Connection> }) => {
+          const currentSort = sortDirection('environment');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('environment')}>
               Environment
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -91,12 +95,13 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
       {
         accessorKey: 'version',
         header: ({ column }: { column: Column<Connection> }) => {
+          const currentSort = sortDirection('version');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('version')}>
               Version
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -108,12 +113,13 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
       {
         accessorKey: 'enabled',
         header: ({ column }: { column: Column<Connection> }) => {
+          const currentSort = sortDirection('enabled');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('enabled')}>
               Status
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -173,18 +179,14 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
         },
       },
     ],
-    [onEditConnection]
+    [onEditConnection, onSort, sortDirection]
   );
 
   const table = useReactTable({
     data: connections,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
+    manualSorting: true,
   });
 
   return (
@@ -199,8 +201,8 @@ export const ConnectionsTable = ({ connections, onEditConnection }: ConnectionsT
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className="overflow-auto">
-          {table.getRowModel().rows?.length ? (
+        <TableBody>
+          {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                 {row.getVisibleCells().map((cell) => (

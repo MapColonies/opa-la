@@ -4,29 +4,32 @@ import { Button } from '../../components/ui/button';
 import { Pencil, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '../../components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getSortedRowModel, SortingState, Column, Row } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Column, Row } from '@tanstack/react-table';
 
 type Client = components['schemas']['client'];
+type SortField = 'created-at' | 'updated-at' | 'name' | 'heb-name' | 'branch';
+type SortDirection = 'asc' | 'desc';
 
 interface ClientsTableProps {
   clients: Client[];
   onEditClient: (client: Client) => void;
+  onSort: (field: SortField) => void;
+  sortDirection: (field: SortField) => SortDirection | null;
 }
 
-export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-
+export const ClientsTable = ({ clients, onEditClient, onSort, sortDirection }: ClientsTableProps) => {
   const columns: ColumnDef<Client>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
         header: ({ column }: { column: Column<Client> }) => {
+          const currentSort = sortDirection('name');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('name')}>
               Name
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -38,12 +41,13 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
       {
         accessorKey: 'hebName',
         header: ({ column }: { column: Column<Client> }) => {
+          const currentSort = sortDirection('heb-name');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('heb-name')}>
               Hebrew Name
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -59,12 +63,13 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
       {
         accessorKey: 'branch',
         header: ({ column }: { column: Column<Client> }) => {
+          const currentSort = sortDirection('branch');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('branch')}>
               Branch
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -76,12 +81,13 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
       {
         accessorKey: 'createdAt',
         header: ({ column }: { column: Column<Client> }) => {
+          const currentSort = sortDirection('created-at');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('created-at')}>
               Created At
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -101,12 +107,13 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
       {
         accessorKey: 'updatedAt',
         header: ({ column }: { column: Column<Client> }) => {
+          const currentSort = sortDirection('updated-at');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('updated-at')}>
               Updated At
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -151,18 +158,14 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
         },
       },
     ],
-    [onEditClient]
+    [onEditClient, onSort, sortDirection]
   );
 
   const table = useReactTable({
     data: clients,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
+    manualSorting: true,
   });
 
   return (
@@ -177,8 +180,8 @@ export const ClientsTable = ({ clients, onEditClient }: ClientsTableProps) => {
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className="overflow-auto">
-          {table.getRowModel().rows?.length ? (
+        <TableBody>
+          {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                 {row.getVisibleCells().map((cell) => (

@@ -29,6 +29,7 @@ interface CreateDomainModalProps {
   success?: boolean;
   siteResults?: SiteResult[];
   onOpenChange?: (open: boolean) => void;
+  onStepChange?: (step: Step) => void;
 }
 
 type Step = 'create' | 'send';
@@ -48,7 +49,8 @@ export const CreateDomainModal = ({
   error,
   success = false,
   siteResults = [],
-  onOpenChange
+  onOpenChange,
+  onStepChange
 }: CreateDomainModalProps) => {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,6 +65,10 @@ export const CreateDomainModal = ({
       setCurrentStep('send');
     }
   }, [success, currentStep, otherSites.length]);
+
+  useEffect(() => {
+    onStepChange?.(currentStep);
+  }, [currentStep, onStepChange]);
 
   useEffect(() => {
     if (error) {
@@ -271,19 +277,9 @@ export const CreateDomainModal = ({
   return (
     <DialogContent 
       className="sm:max-w-[600px]"
-      onInteractOutside={(e) => {
-        if (currentStep === 'send' && isOtherSitesPending) {
-          e.preventDefault();
-        } else {
-          e.preventDefault();
-          onOpenChange?.(false);
-        }
-      }}
       onEscapeKeyDown={(e) => {
         if (currentStep === 'send' && isOtherSitesPending) {
           e.preventDefault();
-        } else {
-          onOpenChange?.(false);
         }
       }}
     >

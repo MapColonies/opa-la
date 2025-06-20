@@ -34,6 +34,7 @@ interface EditClientModalProps {
   success?: boolean;
   siteResults?: SiteResult[];
   onOpenChange?: (open: boolean) => void;
+  onStepChange?: (step: Step) => void;
 }
 
 type Step = 'edit' | 'send';
@@ -66,6 +67,7 @@ export const EditClientModal = ({
   error,
   success = false,
   siteResults = [],
+  onStepChange
 }: EditClientModalProps) => {
   const [editTag, setEditTag] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -74,6 +76,7 @@ export const EditClientModal = ({
   const [currentStep, setCurrentStep] = useState<Step>('edit');
   const [originalValues, setOriginalValues] = useState<FormValues | null>(null);
   const [formChanged, setFormChanged] = useState(false);
+  const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null);
   const currentSite = localStorage.getItem('selectedSite') || '';
 
   const otherSites = availableSites.filter(site => site !== currentSite);
@@ -84,6 +87,10 @@ export const EditClientModal = ({
       setCurrentStep('send');
     }
   }, [success, currentStep, otherSites.length]);
+
+  useEffect(() => {
+    onStepChange?.(currentStep);
+  }, [currentStep, onStepChange]);
 
   useEffect(() => {
     if (error) {
@@ -175,6 +182,7 @@ export const EditClientModal = ({
     
     try {
       setIsSubmitting(true);
+      setLastSubmittedData(data);
       onUpdateClient({
         params: {
           path: {
@@ -203,19 +211,19 @@ export const EditClientModal = ({
       return;
     }
 
-    const formData = form.getValues();
+    const dataToSend = lastSubmittedData || form.getValues();
     
     onSendToOtherSites({
       params: {
         path: {
-          clientName: formData.name,
+          clientName: dataToSend.name,
         },
       },
       body: {
-        hebName: formData.hebName,
-        description: formData.description,
-        branch: formData.branch,
-        tags: formData.tags,
+        hebName: dataToSend.hebName,
+        description: dataToSend.description,
+        branch: dataToSend.branch,
+        tags: dataToSend.tags,
       } as NamelessClient,
       sites: selectedSites
     });
@@ -500,9 +508,6 @@ export const EditClientModal = ({
   return (
     <DialogContent 
       className="sm:max-w-[600px]"
-      onInteractOutside={(e) => {
-        e.preventDefault();
-      }}
       onEscapeKeyDown={(e) => {
         if (currentStep === 'send' && isOtherSitesPending) {
           e.preventDefault();

@@ -17,7 +17,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { SiteSelection, availableSites } from '../../components/SiteSelection';
 import { isEqual } from 'lodash';
-
 type Connection = components['schemas']['connection'];
 type Domain = components['schemas']['domain'];
 
@@ -76,6 +75,7 @@ export const EditConnectionModal = ({
   const [currentStep, setCurrentStep] = useState<Step>('edit');
   const [originalValues, setOriginalValues] = useState<FormValues | null>(null);
   const [formChanged, setFormChanged] = useState(false);
+  const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null);
   const currentSite = localStorage.getItem('selectedSite') || '';
   
   const otherSites = availableSites.filter(site => site !== currentSite);
@@ -224,6 +224,7 @@ export const EditConnectionModal = ({
       const { createdAt, ...dataToSubmit } = finalData;
       
       setIsSubmitting(true);
+      setLastSubmittedData(finalData);
       onUpdateConnection({
         body: dataToSubmit as Connection,
       });
@@ -242,8 +243,8 @@ export const EditConnectionModal = ({
       return;
     }
 
-    const formData = form.getValues();
-    const { createdAt, ...dataToSubmit } = formData;
+    const dataToSend = lastSubmittedData || form.getValues();
+    const { createdAt, ...dataToSubmit } = dataToSend;
     
     onSendToOtherSites({
       body: dataToSubmit as Connection,
@@ -445,7 +446,7 @@ export const EditConnectionModal = ({
                         <SelectValue placeholder="Select a domain" />
                       </SelectTrigger>
                       <SelectContent className="max-h-[200px] overflow-y-auto">
-                        {domains?.map((domain: Domain) => (
+                        {domains?.items?.map((domain: Domain) => (
                           <SelectItem key={domain.name} value={domain.name}>
                             {domain.name}
                           </SelectItem>

@@ -40,6 +40,7 @@ interface CreateConnectionModalProps {
   success?: boolean;
   siteResults?: SiteResult[];
   onOpenChange?: (open: boolean) => void;
+  onStepChange?: (step: Step) => void;
 }
 
 type Step = 'create' | 'send';
@@ -67,7 +68,8 @@ export const CreateConnectionModal = ({
   error,
   success = false,
   siteResults = [],
-  onOpenChange
+  onOpenChange,
+  onStepChange
 }: CreateConnectionModalProps) => {
   const [newOrigin, setNewOrigin] = useState('');
   const [useToken, setUseToken] = useState(false);
@@ -88,6 +90,10 @@ export const CreateConnectionModal = ({
       setCurrentStep('send');
     }
   }, [success, currentStep, otherSites.length]);
+
+  useEffect(() => {
+    onStepChange?.(currentStep);
+  }, [currentStep, onStepChange]);
 
   useEffect(() => {
     if (error) {
@@ -233,7 +239,7 @@ export const CreateConnectionModal = ({
                   <CommandInput placeholder="Search client..." />
                   <CommandEmpty>No client found.</CommandEmpty>
                   <CommandGroup className="max-h-[200px] overflow-y-auto">
-                    {clients?.map((client: Client) => (
+                    {clients?.items?.map((client: Client) => (
                       <CommandItem
                         key={client.name}
                         value={client.name}
@@ -392,7 +398,7 @@ export const CreateConnectionModal = ({
                         <SelectValue placeholder="Select a domain" />
                       </SelectTrigger>
                       <SelectContent className="max-h-[200px] overflow-y-auto">
-                        {domains?.map((domain: Domain) => (
+                        {domains?.items?.map((domain: Domain) => (
                           <SelectItem key={domain.name} value={domain.name}>
                             {domain.name}
                           </SelectItem>
@@ -603,9 +609,6 @@ export const CreateConnectionModal = ({
   return (
     <DialogContent 
       className="sm:max-w-[600px]"
-      onInteractOutside={(e) => {
-        e.preventDefault();
-      }}
       onEscapeKeyDown={(e) => {
         if (currentStep === 'send' && isOtherSitesPending) {
           e.preventDefault();

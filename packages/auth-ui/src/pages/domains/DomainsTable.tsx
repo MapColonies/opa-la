@@ -1,30 +1,33 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '../../components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getSortedRowModel, SortingState, Column } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Column } from '@tanstack/react-table';
 
 type Domain = components['schemas']['domain'];
+type SortField = 'domain';
+type SortDirection = 'asc' | 'desc';
 
 interface DomainsTableProps {
   domains: Domain[];
+  onSort: (field: SortField) => void;
+  sortDirection: (field: SortField) => SortDirection | null;
 }
 
-export const DomainsTable = ({ domains }: DomainsTableProps) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-
+export const DomainsTable = ({ domains, onSort, sortDirection }: DomainsTableProps) => {
   const columns: ColumnDef<Domain>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
         header: ({ column }: { column: Column<Domain> }) => {
+          const currentSort = sortDirection('domain');
           return (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+            <Button variant="ghost" onClick={() => onSort('domain')}>
               Name
-              {column.getIsSorted() === 'asc' ? (
+              {currentSort === 'asc' ? (
                 <ArrowUp className="ml-2 h-4 w-4" />
-              ) : column.getIsSorted() === 'desc' ? (
+              ) : currentSort === 'desc' ? (
                 <ArrowDown className="ml-2 h-4 w-4" />
               ) : (
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -34,18 +37,14 @@ export const DomainsTable = ({ domains }: DomainsTableProps) => {
         },
       },
     ],
-    []
+    [onSort, sortDirection]
   );
 
   const table = useReactTable({
     data: domains,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
+    manualSorting: true,
   });
 
   return (
@@ -60,8 +59,8 @@ export const DomainsTable = ({ domains }: DomainsTableProps) => {
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className="overflow-auto">
-          {table.getRowModel().rows?.length ? (
+        <TableBody>
+          {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                 {row.getVisibleCells().map((cell) => (
