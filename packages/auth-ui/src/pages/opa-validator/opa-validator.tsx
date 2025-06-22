@@ -86,7 +86,7 @@ export function OPAValidatorPage() {
   );
 
   const currentSiteQuery = site ? siteQueries[site] : null;
-  const domains = currentSiteQuery?.data;
+  const domains = currentSiteQuery?.data?.items;
   const isLoadingDomains = currentSiteQuery?.isLoading ?? false;
 
   useEffect(() => {
