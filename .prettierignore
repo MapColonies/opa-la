@@ -1,11 +1,8 @@
 **/dist
 CHANGELOG.md
 package-lock.json
-README.md
-tsbuildconfig.json
 node_modules
 *.html
 coverage
 helm
 reports
-jest.config*.js

@@ -102,6 +102,13 @@ spec:
             httpGet:
               path: /liveness
               port: {{ .Values.env.targetPort }}
+              httpHeaders:
+                - name: Access-Control-Allow-Origin
+                  value: "*"
+                - name: Access-Control-Allow-Methods
+                  value: "GET, OPTIONS"
+                - name: Access-Control-Allow-Headers
+                  value: "Content-Type, Authorization"
           {{- if .Values.resources.enabled }}
           resources:
             {{- toYaml .Values.resources.value | nindent 12 }}

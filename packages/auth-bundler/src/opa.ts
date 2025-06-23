@@ -98,7 +98,7 @@ export async function getVersionCommand(): Promise<string> {
 
   const versionMatch = versionLine.match(/Version:\s*(\d+\.\d+\.\d+)/);
 
-  if (!versionMatch || !versionMatch[1]) {
+  if (!versionMatch?.[1]) {
     throw new Error('Unable to parse OPA version from output');
   }
 
