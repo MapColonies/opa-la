@@ -41,11 +41,11 @@ config: |
   {
     "8080": {
       "name": "localhost 8080",
-      "url": "https://auth-manager-infra-dev.apps.j1lk3njp.eastus.aroapp.io",
+      "url": "https://auth-manager-service",
       "envs": [
         {
           "envKey": "prod",
-          "opaUrl": "https://opa-la-infra-dev.apps.j1lk3njp.eastus.aroapp.io"
+          "opaUrl": "https://opa-la-service"
         }
       ]
     }
