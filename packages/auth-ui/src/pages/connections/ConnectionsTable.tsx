@@ -3,8 +3,8 @@ import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
 import { Pencil, ArrowUpDown, ArrowUp, ArrowDown, Copy, Check } from 'lucide-react';
 import { Badge } from '../../components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '../../components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Column } from '@tanstack/react-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
 import { toast } from 'sonner';
 
@@ -54,7 +54,7 @@ export const ConnectionsTable = ({ connections, onEditConnection, onSort, sortDi
     () => [
       {
         accessorKey: 'name',
-        header: ({ column }: { column: Column<Connection> }) => {
+        header: () => {
           const currentSort = sortDirection('name');
           return (
             <Button variant="ghost" onClick={() => onSort('name')}>
@@ -72,7 +72,7 @@ export const ConnectionsTable = ({ connections, onEditConnection, onSort, sortDi
       },
       {
         accessorKey: 'environment',
-        header: ({ column }: { column: Column<Connection> }) => {
+        header: () => {
           const currentSort = sortDirection('environment');
           return (
             <Button variant="ghost" onClick={() => onSort('environment')}>
@@ -94,7 +94,7 @@ export const ConnectionsTable = ({ connections, onEditConnection, onSort, sortDi
       },
       {
         accessorKey: 'version',
-        header: ({ column }: { column: Column<Connection> }) => {
+        header: () => {
           const currentSort = sortDirection('version');
           return (
             <Button variant="ghost" onClick={() => onSort('version')}>
@@ -112,7 +112,7 @@ export const ConnectionsTable = ({ connections, onEditConnection, onSort, sortDi
       },
       {
         accessorKey: 'enabled',
-        header: ({ column }: { column: Column<Connection> }) => {
+        header: () => {
           const currentSort = sortDirection('enabled');
           return (
             <Button variant="ghost" onClick={() => onSort('enabled')}>

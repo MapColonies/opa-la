@@ -68,4 +68,14 @@ export const updateApiBaseUrl = (baseUrl: string) => {
   window.location.reload();
 };
 
-export const siteApis = await createSiteApis();
+export let siteApis: Record<string, typeof $api> = {};
+
+export const initializeSiteApis = (config: NetworkConfig) => {
+  siteApis = createApiClientsFromConfig(config);
+};
+
+configLoader.loadConfig().then((config) => {
+  initializeSiteApis(config);
+}).catch((error) => {
+  console.error('Failed to initialize site APIs:', error);
+});

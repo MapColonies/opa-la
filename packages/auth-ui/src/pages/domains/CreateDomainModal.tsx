@@ -28,7 +28,6 @@ interface CreateDomainModalProps {
   error?: string | null;
   success?: boolean;
   siteResults?: SiteResult[];
-  onOpenChange?: (open: boolean) => void;
   onStepChange?: (step: Step) => void;
 }
 
@@ -49,7 +48,6 @@ export const CreateDomainModal = ({
   error,
   success = false,
   siteResults = [],
-  onOpenChange,
   onStepChange
 }: CreateDomainModalProps) => {
   const [formError, setFormError] = useState<string | null>(null);

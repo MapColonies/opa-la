@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
 import { Pencil, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '../../components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '../../components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Column, Row } from '@tanstack/react-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Row } from '@tanstack/react-table';
 
 type Client = components['schemas']['client'];
 type SortField = 'created-at' | 'updated-at' | 'name' | 'heb-name' | 'branch';
@@ -22,7 +22,7 @@ export const ClientsTable = ({ clients, onEditClient, onSort, sortDirection }: C
     () => [
       {
         accessorKey: 'name',
-        header: ({ column }: { column: Column<Client> }) => {
+        header: () => {
           const currentSort = sortDirection('name');
           return (
             <Button variant="ghost" onClick={() => onSort('name')}>
@@ -40,7 +40,7 @@ export const ClientsTable = ({ clients, onEditClient, onSort, sortDirection }: C
       },
       {
         accessorKey: 'hebName',
-        header: ({ column }: { column: Column<Client> }) => {
+        header: () => {
           const currentSort = sortDirection('heb-name');
           return (
             <Button variant="ghost" onClick={() => onSort('heb-name')}>
@@ -62,7 +62,7 @@ export const ClientsTable = ({ clients, onEditClient, onSort, sortDirection }: C
       },
       {
         accessorKey: 'branch',
-        header: ({ column }: { column: Column<Client> }) => {
+        header: () => {
           const currentSort = sortDirection('branch');
           return (
             <Button variant="ghost" onClick={() => onSort('branch')}>
@@ -80,7 +80,7 @@ export const ClientsTable = ({ clients, onEditClient, onSort, sortDirection }: C
       },
       {
         accessorKey: 'createdAt',
-        header: ({ column }: { column: Column<Client> }) => {
+        header: () => {
           const currentSort = sortDirection('created-at');
           return (
             <Button variant="ghost" onClick={() => onSort('created-at')}>
@@ -106,7 +106,7 @@ export const ClientsTable = ({ clients, onEditClient, onSort, sortDirection }: C
       },
       {
         accessorKey: 'updatedAt',
-        header: ({ column }: { column: Column<Client> }) => {
+        header: () => {
           const currentSort = sortDirection('updated-at');
           return (
             <Button variant="ghost" onClick={() => onSort('updated-at')}>

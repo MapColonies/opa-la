@@ -414,7 +414,6 @@ export const ConnectionsPage = () => {
               error={createError}
               success={createSuccess}
               siteResults={siteResults}
-              onOpenChange={setIsCreateDialogOpen}
               onStepChange={setCurrentCreateStep}
             />
           )}

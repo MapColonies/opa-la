@@ -39,7 +39,6 @@ interface CreateConnectionModalProps {
   error?: string | null;
   success?: boolean;
   siteResults?: SiteResult[];
-  onOpenChange?: (open: boolean) => void;
   onStepChange?: (step: Step) => void;
 }
 
@@ -68,7 +67,6 @@ export const CreateConnectionModal = ({
   error,
   success = false,
   siteResults = [],
-  onOpenChange,
   onStepChange
 }: CreateConnectionModalProps) => {
   const [newOrigin, setNewOrigin] = useState('');

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { $api, siteApis } from '../../fetch';
 import { Button } from '../../components/ui/button';
-import { Loader2, Plus, Search, Filter, X, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Loader2, Plus, Search, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Dialog } from '../../components/ui/dialog';
 import { components } from '../../types/schema';
@@ -311,7 +311,6 @@ export const DomainsPage = () => {
               error={createError}
               success={createSuccess}
               siteResults={siteResults}
-              onOpenChange={setIsCreateDialogOpen}
               onStepChange={setCurrentCreateStep}
             />
           )}

@@ -1,5 +1,5 @@
 {
-  "name": "auth-ui",
+  "name": "@map-colonies/auth-ui",
   "private": true,
   "version": "0.0.0",
   "type": "module",

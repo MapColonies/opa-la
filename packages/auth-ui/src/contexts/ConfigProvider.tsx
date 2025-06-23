@@ -49,7 +49,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             setSelectedConfig(siteConfig);
             if (storedEnv) {
               setSelectedEnvState(storedEnv);
-            } else if (siteConfig.envs && siteConfig.envs.length > 0) {
+            } else if (siteConfig.envs && siteConfig.envs.length > 0 && siteConfig.envs[0]?.envKey) {
               setSelectedEnv(siteConfig.envs[0].envKey);
             }
           }

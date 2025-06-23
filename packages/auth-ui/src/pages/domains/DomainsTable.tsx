@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '../../components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Column } from '@tanstack/react-table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
 type Domain = components['schemas']['domain'];
 type SortField = 'domain';
@@ -20,7 +20,7 @@ export const DomainsTable = ({ domains, onSort, sortDirection }: DomainsTablePro
     () => [
       {
         accessorKey: 'name',
-        header: ({ column }: { column: Column<Domain> }) => {
+        header: () => {
           const currentSort = sortDirection('domain');
           return (
             <Button variant="ghost" onClick={() => onSort('domain')}>
