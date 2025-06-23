@@ -51,15 +51,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export const CreateClientModal = ({ 
-  onClose, 
-  onCreateClient, 
+export const CreateClientModal = ({
+  onClose,
+  onCreateClient,
   onSendToOtherSites,
-  isPending, 
+  isPending,
   isOtherSitesPending = false,
   error,
   success = false,
-  siteResults = []
+  siteResults = [],
 }: CreateClientModalProps) => {
   const [newTag, setNewTag] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -67,8 +67,8 @@ export const CreateClientModal = ({
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState<Step>('create');
   const currentSite = localStorage.getItem('selectedSite') || '';
-  
-  const otherSites = availableSites.filter(site => site !== currentSite);
+
+  const otherSites = availableSites.filter((site) => site !== currentSite);
 
   useEffect(() => {
     if (success && currentStep === 'create' && otherSites.length > 0) {
@@ -84,7 +84,7 @@ export const CreateClientModal = ({
       setFormError(null);
       setIsSubmitting(false);
     }
-    
+
     if (success) {
       setFormError(null);
     }
@@ -111,14 +111,17 @@ export const CreateClientModal = ({
 
   const handleRemoveNewTag = (tagToRemove: string) => {
     const currentTags = form.getValues('tags');
-    form.setValue('tags', currentTags.filter((tag) => tag !== tagToRemove));
+    form.setValue(
+      'tags',
+      currentTags.filter((tag) => tag !== tagToRemove)
+    );
   };
 
   const onSubmit = (data: FormValues) => {
     if (isPending || isSubmitting) return;
-    
+
     try {
-      setIsSubmitting(true); 
+      setIsSubmitting(true);
       onCreateClient({
         body: data as Client,
       });
@@ -139,7 +142,7 @@ export const CreateClientModal = ({
 
     onSendToOtherSites({
       body: form.getValues() as Client,
-      sites: selectedSites
+      sites: selectedSites,
     });
   };
 
@@ -151,14 +154,14 @@ export const CreateClientModal = ({
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       )}
-      
+
       {success && (
         <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
           <Check className="h-4 w-4" />
           <AlertDescription>Client created successfully on {currentSite}.</AlertDescription>
         </Alert>
       )}
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -267,9 +270,7 @@ export const CreateClientModal = ({
           />
 
           <DialogFooter>
-            <p className="text-sm text-muted-foreground mr-auto">
-              You'll be able to send this client to other sites after creation.
-            </p>
+            <p className="text-sm text-muted-foreground mr-auto">You'll be able to send this client to other sites after creation.</p>
             <Button variant="outline" type="button" onClick={onClose}>
               {success && otherSites.length === 0 ? 'Close' : 'Cancel'}
             </Button>
@@ -286,11 +287,7 @@ export const CreateClientModal = ({
               </Button>
             )}
             {success && otherSites.length > 0 && (
-              <Button 
-                type="button" 
-                onClick={() => setCurrentStep('send')}
-                className="gap-2"
-              >
+              <Button type="button" onClick={() => setCurrentStep('send')} className="gap-2">
                 Send to Other Sites
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -308,17 +305,12 @@ export const CreateClientModal = ({
           <Check className="h-4 w-4" />
           <AlertDescription>Client created successfully on {currentSite}.</AlertDescription>
         </Alert>
-        
+
         <h3 className="text-base font-medium mb-2">Send to Other Sites</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Choose additional sites to send this client to:
-        </p>
-        
+        <p className="text-sm text-muted-foreground mb-4">Choose additional sites to send this client to:</p>
+
         <div className="bg-muted/30 p-4 rounded-lg">
-          <SiteSelection 
-            selectedSites={selectedSites} 
-            setSelectedSites={setSelectedSites} 
-          />
+          <SiteSelection selectedSites={selectedSites} setSelectedSites={setSelectedSites} />
         </div>
 
         {siteResults.length > 0 && (
@@ -341,19 +333,10 @@ export const CreateClientModal = ({
       </div>
 
       <DialogFooter className="flex justify-between">
-        <Button 
-          type="button" 
-          variant="outline"
-          onClick={onClose}
-        >
+        <Button type="button" variant="outline" onClick={onClose}>
           Close
         </Button>
-        <Button 
-          type="button" 
-          onClick={handleSendToOtherSites} 
-          disabled={selectedSites.length === 0 || isOtherSitesPending}
-          className="min-w-[150px]"
-        >
+        <Button type="button" onClick={handleSendToOtherSites} disabled={selectedSites.length === 0 || isOtherSitesPending} className="min-w-[150px]">
           {isOtherSitesPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -384,7 +367,7 @@ export const CreateClientModal = ({
   };
 
   return (
-    <DialogContent 
+    <DialogContent
       className="sm:max-w-[600px]"
       onInteractOutside={(e) => {
         e.preventDefault();
@@ -399,7 +382,7 @@ export const CreateClientModal = ({
         <DialogTitle>{getDialogTitle()}</DialogTitle>
         <DialogDescription>{getDialogDescription()}</DialogDescription>
       </DialogHeader>
-      
+
       {currentStep === 'create' ? renderCreateStep() : renderSendStep()}
     </DialogContent>
   );

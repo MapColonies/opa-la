@@ -57,17 +57,17 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export const EditClientModal = ({ 
-  client, 
-  onClose, 
-  onUpdateClient, 
+export const EditClientModal = ({
+  client,
+  onClose,
+  onUpdateClient,
   onSendToOtherSites,
-  isPending, 
+  isPending,
   isOtherSitesPending = false,
   error,
   success = false,
   siteResults = [],
-  onStepChange
+  onStepChange,
 }: EditClientModalProps) => {
   const [editTag, setEditTag] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -79,8 +79,7 @@ export const EditClientModal = ({
   const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null);
   const currentSite = localStorage.getItem('selectedSite') || '';
 
-  const otherSites = availableSites.filter(site => site !== currentSite);
-
+  const otherSites = availableSites.filter((site) => site !== currentSite);
 
   useEffect(() => {
     if (success && currentStep === 'edit' && otherSites.length > 0) {
@@ -100,7 +99,7 @@ export const EditClientModal = ({
       setFormError(null);
       setIsSubmitting(false);
     }
-    
+
     if (success) {
       setFormError(null);
     }
@@ -131,10 +130,10 @@ export const EditClientModal = ({
         createdAt: client.createdAt,
         updatedAt: client.updatedAt,
       };
-      
+
       setOriginalValues(initialValues);
       form.reset(initialValues);
-      
+
       if (!error && !isPending) {
         setFormError(null);
       }
@@ -145,22 +144,25 @@ export const EditClientModal = ({
     const subscription = form.watch((value) => {
       if (originalValues) {
         const currentValues = value as FormValues;
-        const hasChanges = !isEqual({
-          hebName: currentValues.hebName,
-          description: currentValues.description,
-          branch: currentValues.branch,
-          tags: currentValues.tags
-        }, {
-          hebName: originalValues.hebName,
-          description: originalValues.description,
-          branch: originalValues.branch,
-          tags: originalValues.tags
-        });
-        
+        const hasChanges = !isEqual(
+          {
+            hebName: currentValues.hebName,
+            description: currentValues.description,
+            branch: currentValues.branch,
+            tags: currentValues.tags,
+          },
+          {
+            hebName: originalValues.hebName,
+            description: originalValues.description,
+            branch: originalValues.branch,
+            tags: originalValues.tags,
+          }
+        );
+
         setFormChanged(hasChanges);
       }
     });
-    
+
     return () => subscription.unsubscribe();
   }, [form, originalValues]);
 
@@ -174,12 +176,16 @@ export const EditClientModal = ({
 
   const handleRemoveEditTag = (tagToRemove: string) => {
     const currentTags = form.getValues('tags');
-    form.setValue('tags', currentTags.filter((tag) => tag !== tagToRemove), { shouldDirty: true });
+    form.setValue(
+      'tags',
+      currentTags.filter((tag) => tag !== tagToRemove),
+      { shouldDirty: true }
+    );
   };
 
   const onSubmit = (data: FormValues) => {
     if (isPending || isSubmitting || !formChanged) return;
-    
+
     try {
       setIsSubmitting(true);
       setLastSubmittedData(data);
@@ -212,7 +218,7 @@ export const EditClientModal = ({
     }
 
     const dataToSend = lastSubmittedData || form.getValues();
-    
+
     onSendToOtherSites({
       params: {
         path: {
@@ -225,7 +231,7 @@ export const EditClientModal = ({
         branch: dataToSend.branch,
         tags: dataToSend.tags,
       } as NamelessClient,
-      sites: selectedSites
+      sites: selectedSites,
     });
   };
 
@@ -241,14 +247,14 @@ export const EditClientModal = ({
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       )}
-      
+
       {success && (
         <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
           <Check className="h-4 w-4" />
           <AlertDescription>Client updated successfully on {currentSite}.</AlertDescription>
         </Alert>
       )}
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -385,17 +391,15 @@ export const EditClientModal = ({
           />
 
           <DialogFooter>
-            <p className="text-sm text-muted-foreground mr-auto">
-              You'll be able to send this client to other sites after updating.
-            </p>
+            <p className="text-sm text-muted-foreground mr-auto">You'll be able to send this client to other sites after updating.</p>
             <Button variant="outline" type="button" onClick={onClose}>
               {success && otherSites.length === 0 ? 'Close' : 'Cancel'}
             </Button>
             {!success && (
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isPending || isSubmitting || !formChanged}
-                className={formChanged ? "" : "opacity-50 cursor-not-allowed"}
+                className={formChanged ? '' : 'opacity-50 cursor-not-allowed'}
               >
                 {isPending || isSubmitting ? (
                   <>
@@ -408,11 +412,7 @@ export const EditClientModal = ({
               </Button>
             )}
             {success && otherSites.length > 0 && (
-              <Button 
-                type="button" 
-                onClick={() => setCurrentStep('send')}
-                className="gap-2"
-              >
+              <Button type="button" onClick={() => setCurrentStep('send')} className="gap-2">
                 Send to Other Sites
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -430,17 +430,12 @@ export const EditClientModal = ({
           <Check className="h-4 w-4" />
           <AlertDescription>Client updated successfully on {currentSite}.</AlertDescription>
         </Alert>
-        
+
         <h3 className="text-base font-medium mb-2">Send to Other Sites</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Choose additional sites to send this client to:
-        </p>
-        
+        <p className="text-sm text-muted-foreground mb-4">Choose additional sites to send this client to:</p>
+
         <div className="bg-muted/30 p-4 rounded-lg">
-          <SiteSelection 
-            selectedSites={selectedSites} 
-            setSelectedSites={setSelectedSites} 
-          />
+          <SiteSelection selectedSites={selectedSites} setSelectedSites={setSelectedSites} />
         </div>
 
         {siteResults.length > 0 && (
@@ -463,19 +458,10 @@ export const EditClientModal = ({
       </div>
 
       <DialogFooter className="flex justify-between">
-        <Button 
-          type="button" 
-          variant="outline"
-          onClick={onClose}
-        >
+        <Button type="button" variant="outline" onClick={onClose}>
           Close
         </Button>
-        <Button 
-          type="button" 
-          onClick={handleSendToOtherSites} 
-          disabled={selectedSites.length === 0 || isOtherSitesPending}
-          className="min-w-[150px]"
-        >
+        <Button type="button" onClick={handleSendToOtherSites} disabled={selectedSites.length === 0 || isOtherSitesPending} className="min-w-[150px]">
           {isOtherSitesPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -506,7 +492,7 @@ export const EditClientModal = ({
   };
 
   return (
-    <DialogContent 
+    <DialogContent
       className="sm:max-w-[600px]"
       onEscapeKeyDown={(e) => {
         if (currentStep === 'send' && isOtherSitesPending) {
@@ -518,7 +504,7 @@ export const EditClientModal = ({
         <DialogTitle>{getDialogTitle()}</DialogTitle>
         <DialogDescription>{getDialogDescription()}</DialogDescription>
       </DialogHeader>
-      
+
       {currentStep === 'edit' ? renderEditStep() : renderSendStep()}
     </DialogContent>
   );

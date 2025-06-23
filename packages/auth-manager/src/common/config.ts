@@ -13,7 +13,6 @@ let configInstance: ConfigType | undefined;
 async function initConfig(): Promise<void> {
   configInstance = await config({
     schema: infraOpalaManagerV1,
-    offlineMode: true,
   });
 }
 

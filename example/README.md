@@ -1,6 +1,6 @@
 # End to end example
 
-*Before starting make sure you have auth-manager and auth-cron deployed.*
+_Before starting make sure you have auth-manager and auth-cron deployed._
 
 1. Post all the files in the data folder into the auth-manager api.
 

@@ -32,7 +32,7 @@ interface SortState {
 
 const updateURL = (params: Record<string, string | number | boolean | string[]>) => {
   const url = new URL(window.location.href);
-  
+
   Object.entries(params).forEach(([key, value]) => {
     if (value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)) {
       url.searchParams.delete(key);
@@ -42,7 +42,7 @@ const updateURL = (params: Record<string, string | number | boolean | string[]>)
       url.searchParams.set(key, value.toString());
     }
   });
-  
+
   window.history.replaceState({}, '', url.toString());
 };
 
@@ -52,13 +52,16 @@ const getURLParams = () => {
     page: parseInt(params.get('page') || '1', 10),
     pageSize: parseInt(params.get('pageSize') || '10', 10),
     search: params.get('search') || '',
-    sort: params.get('sort') ? params.get('sort')!.split(',').map(s => {
-      const [field, direction] = s.split(':');
-      return { field: field as SortField, direction: (direction || 'asc') as SortDirection };
-    }) : [
-      { field: 'domain' as SortField, direction: 'asc' as SortDirection }
-    ],
-    showAdvancedFilters: params.get('showFilters') === 'true'
+    sort: params.get('sort')
+      ? params
+          .get('sort')!
+          .split(',')
+          .map((s) => {
+            const [field, direction] = s.split(':');
+            return { field: field as SortField, direction: (direction || 'asc') as SortDirection };
+          })
+      : [{ field: 'domain' as SortField, direction: 'asc' as SortDirection }],
+    showAdvancedFilters: params.get('showFilters') === 'true',
   };
 };
 
@@ -82,7 +85,7 @@ export const DomainsPage = () => {
   const debouncedSearchTerm = useDebounce(searchTerm);
 
   useEffect(() => {
-    const sortParams = sort.map(s => `${s.field}:${s.direction}`);
+    const sortParams = sort.map((s) => `${s.field}:${s.direction}`);
     updateURL({
       page,
       pageSize,
@@ -94,7 +97,7 @@ export const DomainsPage = () => {
   const queryParams = {
     page,
     page_size: pageSize,
-    sort: sort.map(s => `${s.field}:${s.direction}`)
+    sort: sort.map((s) => `${s.field}:${s.direction}`),
   };
 
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/domain', {
@@ -124,13 +127,16 @@ export const DomainsPage = () => {
     setPage(1);
   };
 
-  const siteMutations = availableSites.reduce((acc, site) => {
-    const siteApi = siteApis?.[site];
-    if (siteApi) {
-      acc[site] = siteApi.useMutation('post', '/domain');
-    }
-    return acc;
-  }, {} as Record<string, any>);
+  const siteMutations = availableSites.reduce(
+    (acc, site) => {
+      const siteApi = siteApis?.[site];
+      if (siteApi) {
+        acc[site] = siteApi.useMutation('post', '/domain');
+      }
+      return acc;
+    },
+    {} as Record<string, any>
+  );
 
   const createDomainMutation = $api.useMutation('post', '/domain', {
     onSuccess: () => {
@@ -158,15 +164,13 @@ export const DomainsPage = () => {
   };
 
   const handleSort = (field: SortField) => {
-    setSort(prevSort => {
-      const existingSort = prevSort.find(s => s.field === field);
+    setSort((prevSort) => {
+      const existingSort = prevSort.find((s) => s.field === field);
       if (existingSort) {
         if (existingSort.direction === 'asc') {
-          return prevSort.map(s => 
-            s.field === field ? { ...s, direction: 'desc' as SortDirection } : s
-          );
+          return prevSort.map((s) => (s.field === field ? { ...s, direction: 'desc' as SortDirection } : s));
         } else {
-          return prevSort.filter(s => s.field !== field);
+          return prevSort.filter((s) => s.field !== field);
         }
       } else {
         return [{ field, direction: 'asc' as SortDirection }, ...prevSort];
@@ -176,7 +180,7 @@ export const DomainsPage = () => {
   };
 
   const getSortDirection = (field: SortField): SortDirection | null => {
-    const sortItem = sort.find(s => s.field === field);
+    const sortItem = sort.find((s) => s.field === field);
     return sortItem?.direction || null;
   };
 
@@ -187,10 +191,10 @@ export const DomainsPage = () => {
 
   const handleSendToOtherSites = async (data: { body: Domain; sites: string[] }) => {
     if (!data.sites.length) return;
-    
+
     setIsOtherSitesPending(true);
     setSiteResults([]);
-    
+
     try {
       const results = await Promise.allSettled(
         data.sites.map(async (site) => {
@@ -206,11 +210,12 @@ export const DomainsPage = () => {
             return { site, success: true };
           } catch (error) {
             console.error(`Error sending domain to site ${site}:`, error);
-            const errorMessage = error instanceof Error 
-              ? error.message 
-              : typeof error === 'object' && error !== null && 'message' in error
-              ? String(error.message)
-              : JSON.stringify(error);
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : typeof error === 'object' && error !== null && 'message' in error
+                  ? String(error.message)
+                  : JSON.stringify(error);
             return { site, success: false, error: errorMessage };
           }
         })
@@ -223,20 +228,16 @@ export const DomainsPage = () => {
           return {
             site: 'unknown',
             success: false,
-            error: result.reason?.message || 'Promise rejected'
+            error: result.reason?.message || 'Promise rejected',
           };
         }
       });
 
       setSiteResults(siteResultsData);
 
-      const successfulSites = siteResultsData
-        .filter((result) => result.success)
-        .map((result) => result.site);
+      const successfulSites = siteResultsData.filter((result) => result.success).map((result) => result.site);
 
-      const failedSites = siteResultsData
-        .filter((result) => !result.success)
-        .map((result) => result.site);
+      const failedSites = siteResultsData.filter((result) => !result.success).map((result) => result.site);
 
       if (successfulSites.length > 0) {
         toast.success(`Domain successfully sent to: ${successfulSites.join(', ')}`);
@@ -254,11 +255,12 @@ export const DomainsPage = () => {
     }
   };
 
-  const filteredData = data?.items?.filter((domain) => {
-    if (!debouncedSearchTerm) return true;
-    const searchLower = debouncedSearchTerm.toLowerCase();
-    return domain.name?.toLowerCase().includes(searchLower);
-  }) || [];
+  const filteredData =
+    data?.items?.filter((domain) => {
+      if (!debouncedSearchTerm) return true;
+      const searchLower = debouncedSearchTerm.toLowerCase();
+      return domain.name?.toLowerCase().includes(searchLower);
+    }) || [];
 
   const totalPages = data?.total ? Math.ceil(data.total / pageSize) : 0;
   const startItem = (page - 1) * pageSize + 1;
@@ -291,12 +293,15 @@ export const DomainsPage = () => {
     <div className="flex flex-col h-full p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Domains</h1>
-        <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
-          if (!open && currentCreateStep === 'send') {
-            return;
-          }
-          setIsCreateDialogOpen(open);
-        }}>
+        <Dialog
+          open={isCreateDialogOpen}
+          onOpenChange={(open) => {
+            if (!open && currentCreateStep === 'send') {
+              return;
+            }
+            setIsCreateDialogOpen(open);
+          }}
+        >
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Domain
@@ -329,7 +334,7 @@ export const DomainsPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1">
@@ -355,11 +360,7 @@ export const DomainsPage = () => {
       </div>
 
       <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
-        <DomainsTable 
-          domains={filteredData} 
-          onSort={handleSort}
-          sortDirection={getSortDirection}
-        />
+        <DomainsTable domains={filteredData} onSort={handleSort} sortDirection={getSortDirection} />
       </div>
 
       {/* Pagination Controls */}
@@ -383,20 +384,10 @@ export const DomainsPage = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(1)}
-            disabled={page === 1}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(1)} disabled={page === 1}>
             <ChevronsLeft className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-1">
@@ -404,20 +395,10 @@ export const DomainsPage = () => {
               Page {page} of {totalPages}
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page + 1)}
-            disabled={page === totalPages}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(totalPages)}
-            disabled={page === totalPages}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(totalPages)} disabled={page === totalPages}>
             <ChevronsRight className="h-4 w-4" />
           </Button>
         </div>

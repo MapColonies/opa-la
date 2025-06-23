@@ -39,24 +39,24 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export const CreateDomainModal = ({ 
-  onClose, 
-  onCreateDomain, 
+export const CreateDomainModal = ({
+  onClose,
+  onCreateDomain,
   onSendToOtherSites,
-  isPending, 
+  isPending,
   isOtherSitesPending = false,
   error,
   success = false,
   siteResults = [],
-  onStepChange
+  onStepChange,
 }: CreateDomainModalProps) => {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState<Step>('create');
   const currentSite = localStorage.getItem('selectedSite') || '';
-  
-  const otherSites = availableSites.filter(site => site !== currentSite);
+
+  const otherSites = availableSites.filter((site) => site !== currentSite);
 
   useEffect(() => {
     if (success && currentStep === 'create' && otherSites.length > 0) {
@@ -76,7 +76,7 @@ export const CreateDomainModal = ({
       setFormError(null);
       setIsSubmitting(false);
     }
-    
+
     if (success) {
       setFormError(null);
     }
@@ -92,7 +92,7 @@ export const CreateDomainModal = ({
 
   const onSubmit = (data: FormValues) => {
     if (isPending || isSubmitting) return;
-    
+
     try {
       setIsSubmitting(true);
       onCreateDomain({
@@ -115,7 +115,7 @@ export const CreateDomainModal = ({
 
     onSendToOtherSites({
       body: form.getValues() as Domain,
-      sites: selectedSites
+      sites: selectedSites,
     });
   };
 
@@ -127,14 +127,14 @@ export const CreateDomainModal = ({
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       )}
-      
+
       {success && (
         <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
           <Check className="h-4 w-4" />
           <AlertDescription>Domain created successfully on {currentSite}.</AlertDescription>
         </Alert>
       )}
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -144,21 +144,15 @@ export const CreateDomainModal = ({
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="Domain name" 
-                    {...field} 
-                    disabled={success}
-                  />
+                  <Input placeholder="Domain name" {...field} disabled={success} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
+
           <DialogFooter>
-            <p className="text-sm text-muted-foreground mr-auto">
-              You'll be able to send this domain to other sites after creation.
-            </p>
+            <p className="text-sm text-muted-foreground mr-auto">You'll be able to send this domain to other sites after creation.</p>
             <Button variant="outline" type="button" onClick={onClose}>
               {success && otherSites.length === 0 ? 'Close' : 'Cancel'}
             </Button>
@@ -175,11 +169,7 @@ export const CreateDomainModal = ({
               </Button>
             )}
             {success && otherSites.length > 0 && (
-              <Button 
-                type="button" 
-                onClick={() => setCurrentStep('send')}
-                className="gap-2"
-              >
+              <Button type="button" onClick={() => setCurrentStep('send')} className="gap-2">
                 Send to Other Sites
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -197,17 +187,12 @@ export const CreateDomainModal = ({
           <Check className="h-4 w-4" />
           <AlertDescription>Domain created successfully on {currentSite}.</AlertDescription>
         </Alert>
-        
+
         <h3 className="text-base font-medium mb-2">Send to Other Sites</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Choose additional sites to send this domain to:
-        </p>
-        
+        <p className="text-sm text-muted-foreground mb-4">Choose additional sites to send this domain to:</p>
+
         <div className="bg-muted/30 p-4 rounded-lg">
-          <SiteSelection 
-            selectedSites={selectedSites} 
-            setSelectedSites={setSelectedSites} 
-          />
+          <SiteSelection selectedSites={selectedSites} setSelectedSites={setSelectedSites} />
         </div>
 
         {siteResults.length > 0 && (
@@ -230,19 +215,10 @@ export const CreateDomainModal = ({
       </div>
 
       <DialogFooter className="flex justify-between">
-        <Button 
-          type="button" 
-          variant="outline"
-          onClick={onClose}
-        >
+        <Button type="button" variant="outline" onClick={onClose}>
           Close
         </Button>
-        <Button 
-          type="button" 
-          onClick={handleSendToOtherSites} 
-          disabled={selectedSites.length === 0 || isOtherSitesPending}
-          className="min-w-[150px]"
-        >
+        <Button type="button" onClick={handleSendToOtherSites} disabled={selectedSites.length === 0 || isOtherSitesPending} className="min-w-[150px]">
           {isOtherSitesPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -273,7 +249,7 @@ export const CreateDomainModal = ({
   };
 
   return (
-    <DialogContent 
+    <DialogContent
       className="sm:max-w-[600px]"
       onEscapeKeyDown={(e) => {
         if (currentStep === 'send' && isOtherSitesPending) {
@@ -285,7 +261,7 @@ export const CreateDomainModal = ({
         <DialogTitle>{getDialogTitle()}</DialogTitle>
         <DialogDescription>{getDialogDescription()}</DialogDescription>
       </DialogHeader>
-      
+
       {currentStep === 'create' ? renderCreateStep() : renderSendStep()}
     </DialogContent>
   );

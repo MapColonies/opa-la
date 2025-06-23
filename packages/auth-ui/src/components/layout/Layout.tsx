@@ -7,11 +7,7 @@ export const Layout = () => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar 
-        className={isCollapsed ? "w-16" : "w-64"} 
-        isCollapsed={isCollapsed}
-        onCollapse={setIsCollapsed}
-      />
+      <Sidebar className={isCollapsed ? 'w-16' : 'w-64'} isCollapsed={isCollapsed} onCollapse={setIsCollapsed} />
       <main className="flex-1 overflow-auto p-6">
         <Outlet />
       </main>

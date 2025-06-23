@@ -45,7 +45,7 @@ interface SortState {
 
 const updateURL = (params: Record<string, string | number | boolean | string[]>) => {
   const url = new URL(window.location.href);
-  
+
   Object.entries(params).forEach(([key, value]) => {
     if (value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)) {
       url.searchParams.delete(key);
@@ -55,7 +55,7 @@ const updateURL = (params: Record<string, string | number | boolean | string[]>)
       url.searchParams.set(key, value.toString());
     }
   });
-  
+
   window.history.replaceState({}, '', url.toString());
 };
 
@@ -69,15 +69,20 @@ const getURLParams = () => {
     isNoBrowser: params.get('isNoBrowser') ? params.get('isNoBrowser') === 'true' : undefined,
     isNoOrigin: params.get('isNoOrigin') ? params.get('isNoOrigin') === 'true' : undefined,
     searchTerm: params.get('search') || '',
-    sort: params.get('sort') ? params.get('sort')!.split(',').map(s => {
-      const [field, direction] = s.split(':');
-      return { field: field as SortField, direction: (direction || 'asc') as SortDirection };
-    }) : [
-      { field: 'name' as SortField, direction: 'asc' as SortDirection },
-      { field: 'environment' as SortField, direction: 'asc' as SortDirection },
-      { field: 'version' as SortField, direction: 'desc' as SortDirection }
-    ],
-    showAdvancedFilters: params.get('showFilters') === 'true'
+    sort: params.get('sort')
+      ? params
+          .get('sort')!
+          .split(',')
+          .map((s) => {
+            const [field, direction] = s.split(':');
+            return { field: field as SortField, direction: (direction || 'asc') as SortDirection };
+          })
+      : [
+          { field: 'name' as SortField, direction: 'asc' as SortDirection },
+          { field: 'environment' as SortField, direction: 'asc' as SortDirection },
+          { field: 'version' as SortField, direction: 'desc' as SortDirection },
+        ],
+    showAdvancedFilters: params.get('showFilters') === 'true',
   };
 };
 
@@ -94,7 +99,7 @@ export const ConnectionsPage = () => {
   const [isOtherSitesPending, setIsOtherSitesPending] = useState(false);
   const [siteResults, setSiteResults] = useState<SiteResult[]>([]);
   const [currentCreateStep, setCurrentCreateStep] = useState<'create' | 'send'>('create');
-  
+
   const urlParams = getURLParams();
   const [selectedEnvironment, setSelectedEnvironment] = useState<Environment | 'all'>(urlParams.environment as Environment | 'all');
   const [isEnabled, setIsEnabled] = useState<boolean | undefined>(urlParams.isEnabled);
@@ -105,13 +110,13 @@ export const ConnectionsPage = () => {
   const [page, setPage] = useState(urlParams.page);
   const [pageSize, setPageSize] = useState(urlParams.pageSize);
   const [sort, setSort] = useState<SortState[]>(urlParams.sort);
-  
+
   const isInitialRender = useRef(true);
-  
+
   const debouncedSearchTerm = useDebounce(searchTerm);
 
   useEffect(() => {
-    const sortParams = sort.map(s => `${s.field}:${s.direction}`);
+    const sortParams = sort.map((s) => `${s.field}:${s.direction}`);
     updateURL({
       page,
       pageSize,
@@ -121,7 +126,7 @@ export const ConnectionsPage = () => {
       isNoOrigin: isNoOrigin !== undefined ? isNoOrigin : '',
       search: searchTerm,
       sort: sortParams,
-      showFilters: showAdvancedFilters
+      showFilters: showAdvancedFilters,
     });
   }, [page, pageSize, selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin, searchTerm, sort, showAdvancedFilters]);
 
@@ -129,7 +134,7 @@ export const ConnectionsPage = () => {
     ...filters,
     page,
     page_size: pageSize,
-    sort: sort.map(s => `${s.field}:${s.direction}`)
+    sort: sort.map((s) => `${s.field}:${s.direction}`),
   };
 
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/connection', {
@@ -138,13 +143,16 @@ export const ConnectionsPage = () => {
     },
   });
 
-  const siteMutations = availableSites.reduce((acc, site) => {
-    const siteApi = siteApis?.[site];
-    if (siteApi) {
-      acc[site] = siteApi.useMutation('post', '/connection');
-    }
-    return acc;
-  }, {} as Record<string, any>);
+  const siteMutations = availableSites.reduce(
+    (acc, site) => {
+      const siteApi = siteApis?.[site];
+      if (siteApi) {
+        acc[site] = siteApi.useMutation('post', '/connection');
+      }
+      return acc;
+    },
+    {} as Record<string, any>
+  );
 
   const upsertConnectionMutation = $api.useMutation('post', '/connection', {
     onSuccess: () => {
@@ -194,7 +202,7 @@ export const ConnectionsPage = () => {
     }
 
     setFilters(newFilters);
-    
+
     if (!isInitialRender.current) {
       setPage(1);
     }
@@ -216,10 +224,10 @@ export const ConnectionsPage = () => {
 
   const handleSendToOtherSites = async (data: { body: Connection; sites: string[] }) => {
     if (!data.sites.length) return;
-    
+
     setIsOtherSitesPending(true);
     setSiteResults([]);
-    
+
     try {
       const results = await Promise.allSettled(
         data.sites.map(async (site) => {
@@ -235,11 +243,12 @@ export const ConnectionsPage = () => {
             return { site, success: true };
           } catch (error) {
             console.error(`Error sending connection to site ${site}:`, error);
-            const errorMessage = error instanceof Error 
-              ? error.message 
-              : typeof error === 'object' && error !== null && 'message' in error
-              ? String(error.message)
-              : JSON.stringify(error);
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : typeof error === 'object' && error !== null && 'message' in error
+                  ? String(error.message)
+                  : JSON.stringify(error);
             return { site, success: false, error: errorMessage };
           }
         })
@@ -252,20 +261,16 @@ export const ConnectionsPage = () => {
           return {
             site: 'unknown',
             success: false,
-            error: result.reason?.message || 'Promise rejected'
+            error: result.reason?.message || 'Promise rejected',
           };
         }
       });
 
       setSiteResults(siteResultsData);
 
-      const successfulSites = siteResultsData
-        .filter((result) => result.success)
-        .map((result) => result.site);
+      const successfulSites = siteResultsData.filter((result) => result.success).map((result) => result.site);
 
-      const failedSites = siteResultsData
-        .filter((result) => !result.success)
-        .map((result) => result.site);
+      const failedSites = siteResultsData.filter((result) => !result.success).map((result) => result.site);
 
       if (successfulSites.length > 0) {
         toast.success(`Connection successfully sent to: ${successfulSites.join(', ')}`);
@@ -327,15 +332,13 @@ export const ConnectionsPage = () => {
   };
 
   const handleSort = (field: SortField) => {
-    setSort(prevSort => {
-      const existingSort = prevSort.find(s => s.field === field);
+    setSort((prevSort) => {
+      const existingSort = prevSort.find((s) => s.field === field);
       if (existingSort) {
         if (existingSort.direction === 'asc') {
-          return prevSort.map(s => 
-            s.field === field ? { ...s, direction: 'desc' as SortDirection } : s
-          );
+          return prevSort.map((s) => (s.field === field ? { ...s, direction: 'desc' as SortDirection } : s));
         } else {
-          return prevSort.filter(s => s.field !== field);
+          return prevSort.filter((s) => s.field !== field);
         }
       } else {
         return [{ field, direction: 'asc' as SortDirection }, ...prevSort];
@@ -345,7 +348,7 @@ export const ConnectionsPage = () => {
   };
 
   const getSortDirection = (field: SortField): SortDirection | null => {
-    const sortItem = sort.find(s => s.field === field);
+    const sortItem = sort.find((s) => s.field === field);
     return sortItem?.direction || null;
   };
 
@@ -354,15 +357,16 @@ export const ConnectionsPage = () => {
     setPage(1);
   };
 
-  const filteredData = data?.items?.filter((connection) => {
-    if (!debouncedSearchTerm) return true;
-    const searchLower = debouncedSearchTerm.toLowerCase();
-    return (
-      connection.name?.toLowerCase().includes(searchLower) ||
-      connection.environment?.toLowerCase().includes(searchLower) ||
-      connection.token?.toLowerCase().includes(searchLower)
-    );
-  }) || [];
+  const filteredData =
+    data?.items?.filter((connection) => {
+      if (!debouncedSearchTerm) return true;
+      const searchLower = debouncedSearchTerm.toLowerCase();
+      return (
+        connection.name?.toLowerCase().includes(searchLower) ||
+        connection.environment?.toLowerCase().includes(searchLower) ||
+        connection.token?.toLowerCase().includes(searchLower)
+      );
+    }) || [];
 
   const totalPages = data?.total ? Math.ceil(data.total / pageSize) : 0;
   const startItem = (page - 1) * pageSize + 1;
@@ -394,12 +398,15 @@ export const ConnectionsPage = () => {
     <div className="flex flex-col h-full p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Connections</h1>
-        <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
-          if (!open && currentCreateStep === 'send') {
-            return;
-          }
-          setIsCreateDialogOpen(open);
-        }}>
+        <Dialog
+          open={isCreateDialogOpen}
+          onOpenChange={(open) => {
+            if (!open && currentCreateStep === 'send') {
+              return;
+            }
+            setIsCreateDialogOpen(open);
+          }}
+        >
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Connection
@@ -432,15 +439,12 @@ export const ConnectionsPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className={cn(
-                "gap-2",
-                hasActiveFilters && "border-primary text-primary"
-              )}
+              className={cn('gap-2', hasActiveFilters && 'border-primary text-primary')}
             >
               <Filter className="h-4 w-4" />
               Filters
@@ -449,9 +453,9 @@ export const ConnectionsPage = () => {
                   {getActiveFiltersCount()}
                 </Badge>
               )}
-              <ChevronDown className={cn("h-4 w-4 transition-transform", showAdvancedFilters && "rotate-180")} />
+              <ChevronDown className={cn('h-4 w-4 transition-transform', showAdvancedFilters && 'rotate-180')} />
             </Button>
-            
+
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1">
                 <X className="h-3 w-3" />
@@ -530,7 +534,9 @@ export const ConnectionsPage = () => {
                       checked={isEnabled === true}
                       onCheckedChange={(checked: boolean | 'indeterminate') => setIsEnabled(checked === true ? true : undefined)}
                     />
-                    <Label htmlFor="isEnabled" className="text-sm">Enabled</Label>
+                    <Label htmlFor="isEnabled" className="text-sm">
+                      Enabled
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -538,7 +544,9 @@ export const ConnectionsPage = () => {
                       checked={isNoBrowser === true}
                       onCheckedChange={(checked: boolean | 'indeterminate') => setIsNoBrowser(checked === true ? true : undefined)}
                     />
-                    <Label htmlFor="isNoBrowser" className="text-sm">No Browser</Label>
+                    <Label htmlFor="isNoBrowser" className="text-sm">
+                      No Browser
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -546,7 +554,9 @@ export const ConnectionsPage = () => {
                       checked={isNoOrigin === true}
                       onCheckedChange={(checked: boolean | 'indeterminate') => setIsNoOrigin(checked === true ? true : undefined)}
                     />
-                    <Label htmlFor="isNoOrigin" className="text-sm">No Origin</Label>
+                    <Label htmlFor="isNoOrigin" className="text-sm">
+                      No Origin
+                    </Label>
                   </div>
                 </div>
               </div>
@@ -556,12 +566,7 @@ export const ConnectionsPage = () => {
       </div>
 
       <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
-        <ConnectionsTable 
-          connections={filteredData} 
-          onEditConnection={openEditDialog}
-          onSort={handleSort}
-          sortDirection={getSortDirection}
-        />
+        <ConnectionsTable connections={filteredData} onEditConnection={openEditDialog} onSort={handleSort} sortDirection={getSortDirection} />
       </div>
 
       {/* Pagination Controls */}
@@ -585,20 +590,10 @@ export const ConnectionsPage = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(1)}
-            disabled={page === 1}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(1)} disabled={page === 1}>
             <ChevronsLeft className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-1">
@@ -606,20 +601,10 @@ export const ConnectionsPage = () => {
               Page {page} of {totalPages}
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page + 1)}
-            disabled={page === totalPages}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(totalPages)}
-            disabled={page === totalPages}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(totalPages)} disabled={page === totalPages}>
             <ChevronsRight className="h-4 w-4" />
           </Button>
         </div>

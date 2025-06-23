@@ -66,15 +66,17 @@ export class ServerBuilder {
   }
 
   private registerPreRoutesMiddleware(): void {
-    this.serverInstance.use(cors({
-      origin: true,
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-API-Key'],
-      exposedHeaders: ['Content-Length', 'X-Total-Count', 'X-API-Version'],
-      optionsSuccessStatus: 200
-    }));
-    
+    this.serverInstance.use(
+      cors({
+        origin: true,
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-API-Key'],
+        exposedHeaders: ['Content-Length', 'X-Total-Count', 'X-API-Version'],
+        optionsSuccessStatus: 200,
+      })
+    );
+
     this.serverInstance.use(collectMetricsExpressMiddleware({ registry: this.metricsRegistry }));
     this.serverInstance.use(httpLogger({ logger: this.logger, ignorePaths: ['/metrics'] }));
 

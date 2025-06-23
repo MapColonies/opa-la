@@ -45,12 +45,7 @@ export const Sidebar = ({ className, isCollapsed, onCollapse }: SidebarProps) =>
     <div className={cn('flex flex-col h-full border-r bg-background transition-all duration-300', className)}>
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className={cn('text-xl font-bold transition-all duration-300', isCollapsed ? 'hidden' : 'block')}>OPA Admin</h2>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => onCollapse(!isCollapsed)} 
-          className="h-8 w-8"
-        >
+        <Button variant="ghost" size="icon" onClick={() => onCollapse(!isCollapsed)} className="h-8 w-8">
           {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
         </Button>
       </div>
