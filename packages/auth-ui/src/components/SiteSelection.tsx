@@ -4,7 +4,7 @@ import { siteApis } from '../fetch';
 import { useSiteLiveness } from '../hooks/useSiteLiveness';
 import { LivenessIndicator } from './ui/liveness-indicator';
 
-const availableSites = Object.keys(siteApis || {});
+export const getAvailableSites = () => Object.keys(siteApis || {});
 
 interface SiteSelectionProps {
   selectedSites: string[];
@@ -13,6 +13,7 @@ interface SiteSelectionProps {
 
 export const SiteSelection = ({ selectedSites, setSelectedSites }: SiteSelectionProps) => {
   const currentSite = localStorage.getItem('selectedSite') || '';
+  const availableSites = getAvailableSites();
   const liveness = useSiteLiveness(availableSites);
 
   const handleSiteToggle = (site: string) => {
@@ -61,4 +62,4 @@ export const SiteSelection = ({ selectedSites, setSelectedSites }: SiteSelection
   );
 };
 
-export { availableSites };
+export const availableSites = getAvailableSites();

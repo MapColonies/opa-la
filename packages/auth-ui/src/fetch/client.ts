@@ -4,17 +4,32 @@ import type { paths } from '../types/schema';
 import { configLoader } from '../config/loader';
 import { NetworkConfig } from '../types/config';
 
-const DEFAULT_BASE_URL = 'http://localhost:8080/';
+const FALLBACK_BASE_URL = 'http://localhost:8080/';
+
+const getDefaultBaseUrl = (): string => {
+  try {
+    const config = configLoader.getConfig();
+    const firstSiteKey = Object.keys(config)[0];
+    if (firstSiteKey && config[firstSiteKey]?.url) {
+      console.log(`Using default base URL from config: ${config[firstSiteKey].url}`);
+      return config[firstSiteKey].url;
+    }
+  } catch (error) {
+    console.error('Failed to get default base URL:', error);
+  }
+  console.log(`Falling back to hardcoded URL: ${FALLBACK_BASE_URL}`);
+  return FALLBACK_BASE_URL;
+};
 
 const getCurrentBaseUrl = (): string => {
   const storedBaseUrl = localStorage.getItem('currentBaseUrl');
   if (storedBaseUrl) return storedBaseUrl;
 
   const selectedSite = localStorage.getItem('selectedSite');
-  if (!selectedSite) return DEFAULT_BASE_URL;
+  if (!selectedSite) return getDefaultBaseUrl();
 
   const siteConfig = localStorage.getItem(`siteConfig_${selectedSite}`);
-  if (!siteConfig) return DEFAULT_BASE_URL;
+  if (!siteConfig) return getDefaultBaseUrl();
 
   try {
     const config = JSON.parse(siteConfig);
@@ -25,21 +40,29 @@ const getCurrentBaseUrl = (): string => {
         return envConfig.opaUrl;
       }
     }
-    return config.url || DEFAULT_BASE_URL;
+    return config.url || getDefaultBaseUrl();
   } catch (e) {
-    return DEFAULT_BASE_URL;
+    return getDefaultBaseUrl();
   }
 };
 
-const defaultFetchClient = createFetchClient<paths>({
+let defaultFetchClient = createFetchClient<paths>({
   baseUrl: getCurrentBaseUrl(),
 });
 
-export const $api = createClient(defaultFetchClient);
+export let $api = createClient(defaultFetchClient);
+
+const recreateDefaultApi = () => {
+  defaultFetchClient = createFetchClient<paths>({
+    baseUrl: getCurrentBaseUrl(),
+  });
+  $api = createClient(defaultFetchClient);
+};
 
 export const createSiteApis = async () => {
   try {
     const config = await configLoader.loadConfig();
+    recreateDefaultApi();
     return createApiClientsFromConfig(config);
   } catch (error) {
     console.error('Failed to create site APIs:', error);
@@ -68,14 +91,4 @@ export const updateApiBaseUrl = (baseUrl: string) => {
   window.location.reload();
 };
 
-export let siteApis: Record<string, typeof $api> = {};
-
-export const initializeSiteApis = (config: NetworkConfig) => {
-  siteApis = createApiClientsFromConfig(config);
-};
-
-configLoader.loadConfig().then((config) => {
-  initializeSiteApis(config);
-}).catch((error) => {
-  console.error('Failed to initialize site APIs:', error);
-});
+export const siteApis = await createSiteApis();
