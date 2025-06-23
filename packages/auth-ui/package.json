@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "prepare": "husky",
     "generate-openapi": "openapi-typescript http://localhost:8080/docs/api.yaml -o src/types/schema.d.ts"
   },
   "overrides": {
