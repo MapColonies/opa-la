@@ -82,7 +82,7 @@ export function OPAValidatorPage() {
 
       return acc;
     },
-    {} as Record<string, ReturnType<typeof siteApis[string]['useQuery']>>
+    {} as Record<string, ReturnType<(typeof siteApis)[string]['useQuery']>>
   );
 
   const currentSiteQuery = site ? siteQueries[site] : null;
@@ -180,7 +180,7 @@ export function OPAValidatorPage() {
 
   const adjustInputWidth = () => {
     if (!inputRef.current) return;
-    
+
     const input = inputRef.current;
     const tempSpan = document.createElement('span');
     tempSpan.style.visibility = 'hidden';
@@ -188,11 +188,11 @@ export function OPAValidatorPage() {
     tempSpan.style.whiteSpace = 'pre';
     tempSpan.style.font = window.getComputedStyle(input).font;
     tempSpan.textContent = input.value || input.placeholder;
-    
+
     document.body.appendChild(tempSpan);
     const width = tempSpan.getBoundingClientRect().width;
     document.body.removeChild(tempSpan);
-    
+
     input.style.width = `${Math.max(100, width + 20)}px`;
   };
 
@@ -261,14 +261,14 @@ export function OPAValidatorPage() {
                             const value = e.target.value;
                             setValue('opaPath', value);
                             adjustInputWidth();
-                            
+
                             const result = validateOPAPath(value);
                             if (result !== true) {
                               setPathError(result);
                             } else {
                               setPathError(null);
                             }
-                          }
+                          },
                         })}
                         ref={(e) => {
                           const { ref } = register('opaPath');
@@ -331,13 +331,9 @@ export function OPAValidatorPage() {
                           <span className="text-purple-500">"domain"</span>
                           <span className="text-blue-500">:</span>
                           <div className="flex-1">
-                            <Select
-                              value={domain}
-                              onValueChange={(value) => setValue('domain', value)}
-                              disabled={isLoadingDomains || !site}
-                            >
+                            <Select value={domain} onValueChange={(value) => setValue('domain', value)} disabled={isLoadingDomains || !site}>
                               <SelectTrigger className="bg-white border border-gray-300 rounded-md h-8 focus-visible:ring-2 focus-visible:ring-primary/50 transition-shadow">
-                                <SelectValue placeholder={isLoadingDomains ? "Loading domains..." : "Select domain"} />
+                                <SelectValue placeholder={isLoadingDomains ? 'Loading domains...' : 'Select domain'} />
                               </SelectTrigger>
                               <SelectContent>
                                 {domains?.map((domain: Domain) => (
@@ -384,17 +380,9 @@ export function OPAValidatorPage() {
                   </div>
                 </div>
               </div>
-              <Button 
-                type="submit" 
-                disabled={!site || !env || !!pathError || isLoading}
-                className="relative"
-              >
-                {isLoading && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin absolute left-4" />
-                )}
-                <span className={isLoading ? 'ml-6' : ''}>
-                  Validate Request
-                </span>
+              <Button type="submit" disabled={!site || !env || !!pathError || isLoading} className="relative">
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin absolute left-4" />}
+                <span className={isLoading ? 'ml-6' : ''}>Validate Request</span>
               </Button>
             </form>
           </CardContent>
@@ -405,10 +393,10 @@ export function OPAValidatorPage() {
         <div className="w-full lg:w-1/2 p-6 flex flex-col h-full">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Validation Result</h3>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => copyToClipboard(validationResult)} 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => copyToClipboard(validationResult)}
               className="flex items-center gap-1"
               disabled={isLoading}
             >

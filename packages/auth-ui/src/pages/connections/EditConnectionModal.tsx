@@ -56,12 +56,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export const EditConnectionModal = ({ 
-  connection, 
-  onClose, 
+export const EditConnectionModal = ({
+  connection,
+  onClose,
   onUpdateConnection,
   onSendToOtherSites,
-  isPending, 
+  isPending,
   isOtherSitesPending = false,
   error,
   success = false,
@@ -77,8 +77,8 @@ export const EditConnectionModal = ({
   const [formChanged, setFormChanged] = useState(false);
   const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null);
   const currentSite = localStorage.getItem('selectedSite') || '';
-  
-  const otherSites = availableSites.filter(site => site !== currentSite);
+
+  const otherSites = availableSites.filter((site) => site !== currentSite);
 
   const { data: domains, isLoading: isLoadingDomains } = $api.useQuery('get', '/domain');
 
@@ -96,7 +96,7 @@ export const EditConnectionModal = ({
       setFormError(null);
       setIsSubmitting(false);
     }
-    
+
     if (success) {
       setFormError(null);
     }
@@ -131,13 +131,13 @@ export const EditConnectionModal = ({
         allowNoBrowserConnection: connection.allowNoBrowserConnection,
         allowNoOriginConnection: connection.allowNoOriginConnection,
         origins: connection.origins || [],
-        createdAt: connection.createdAt
+        createdAt: connection.createdAt,
       };
-      
+
       setOriginalValues(initialValues);
       form.reset(initialValues);
       setUseToken(!!connection.token);
-      
+
       if (!error && !isPending) {
         setFormError(null);
       }
@@ -148,28 +148,31 @@ export const EditConnectionModal = ({
     const subscription = form.watch((value) => {
       if (originalValues) {
         const currentValues = value as FormValues;
-        const hasChanges = !isEqual({
-          environment: currentValues.environment,
-          enabled: currentValues.enabled,
-          token: useToken ? currentValues.token : '',
-          domains: currentValues.domains,
-          allowNoBrowserConnection: currentValues.allowNoBrowserConnection,
-          allowNoOriginConnection: currentValues.allowNoOriginConnection,
-          origins: currentValues.origins
-        }, {
-          environment: originalValues.environment,
-          enabled: originalValues.enabled,
-          token: useToken ? originalValues.token : '',
-          domains: originalValues.domains,
-          allowNoBrowserConnection: originalValues.allowNoBrowserConnection,
-          allowNoOriginConnection: originalValues.allowNoOriginConnection,
-          origins: originalValues.origins
-        });
-        
+        const hasChanges = !isEqual(
+          {
+            environment: currentValues.environment,
+            enabled: currentValues.enabled,
+            token: useToken ? currentValues.token : '',
+            domains: currentValues.domains,
+            allowNoBrowserConnection: currentValues.allowNoBrowserConnection,
+            allowNoOriginConnection: currentValues.allowNoOriginConnection,
+            origins: currentValues.origins,
+          },
+          {
+            environment: originalValues.environment,
+            enabled: originalValues.enabled,
+            token: useToken ? originalValues.token : '',
+            domains: originalValues.domains,
+            allowNoBrowserConnection: originalValues.allowNoBrowserConnection,
+            allowNoOriginConnection: originalValues.allowNoOriginConnection,
+            origins: originalValues.origins,
+          }
+        );
+
         setFormChanged(hasChanges);
       }
     });
-    
+
     return () => subscription.unsubscribe();
   }, [form, originalValues, useToken]);
 
@@ -183,21 +186,29 @@ export const EditConnectionModal = ({
 
   const handleRemoveOrigin = (originToRemove: string) => {
     const currentOrigins = form.getValues('origins');
-    form.setValue('origins', currentOrigins.filter((origin) => origin !== originToRemove), { shouldDirty: true, shouldValidate: true });
+    form.setValue(
+      'origins',
+      currentOrigins.filter((origin) => origin !== originToRemove),
+      { shouldDirty: true, shouldValidate: true }
+    );
   };
-  
+
   const handleDomainSelect = (domainName: string) => {
     if (domainName && !form.getValues('domains').includes(domainName)) {
       const currentDomains = form.getValues('domains');
       form.setValue('domains', [...currentDomains, domainName], { shouldDirty: true, shouldValidate: true });
     }
   };
-  
+
   const handleRemoveDomain = (domainToRemove: string) => {
     const currentDomains = form.getValues('domains');
-    form.setValue('domains', currentDomains.filter((domain) => domain !== domainToRemove), { shouldDirty: true, shouldValidate: true });
+    form.setValue(
+      'domains',
+      currentDomains.filter((domain) => domain !== domainToRemove),
+      { shouldDirty: true, shouldValidate: true }
+    );
   };
-  
+
   const handleTokenToggle = (checked: boolean) => {
     setUseToken(checked);
     if (!checked) {
@@ -209,20 +220,20 @@ export const EditConnectionModal = ({
 
   const onSubmit = (data: FormValues) => {
     if (isPending || isSubmitting || !formChanged) return;
-    
+
     try {
       if (!data.allowNoOriginConnection && data.origins.length === 0) {
         setFormError('At least one origin is required when origin check is enabled');
         return;
       }
-      
+
       const finalData = {
         ...data,
         token: useToken ? data.token : '',
       };
-      
+
       const { createdAt, ...dataToSubmit } = finalData;
-      
+
       setIsSubmitting(true);
       setLastSubmittedData(finalData);
       onUpdateConnection({
@@ -245,10 +256,10 @@ export const EditConnectionModal = ({
 
     const dataToSend = lastSubmittedData || form.getValues();
     const { createdAt, ...dataToSubmit } = dataToSend;
-    
+
     onSendToOtherSites({
       body: dataToSubmit as Connection,
-      sites: selectedSites
+      sites: selectedSites,
     });
   };
 
@@ -264,14 +275,14 @@ export const EditConnectionModal = ({
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       )}
-      
+
       {success && (
         <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
           <Check className="h-4 w-4" />
           <AlertDescription>Connection updated successfully on {currentSite}.</AlertDescription>
         </Alert>
       )}
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -287,18 +298,14 @@ export const EditConnectionModal = ({
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="environment"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Environment</FormLabel>
-                <Select
-                  disabled={success}
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
+                <Select disabled={success} onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select environment" />
@@ -314,7 +321,7 @@ export const EditConnectionModal = ({
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="enabled"
@@ -324,27 +331,19 @@ export const EditConnectionModal = ({
                   <FormLabel>Status</FormLabel>
                 </div>
                 <FormControl>
-                  <Switch 
-                    checked={field.value} 
-                    onCheckedChange={field.onChange}
-                    disabled={success}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} disabled={success} />
                 </FormControl>
               </FormItem>
             )}
           />
-          
+
           <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
             <div className="space-y-0.5">
               <Label>Generate Token</Label>
             </div>
-            <Switch 
-              checked={!useToken} 
-              onCheckedChange={(checked) => handleTokenToggle(!checked)}
-              disabled={success}
-            />
+            <Switch checked={!useToken} onCheckedChange={(checked) => handleTokenToggle(!checked)} disabled={success} />
           </div>
-          
+
           {useToken && (
             <FormField
               control={form.control}
@@ -353,18 +352,14 @@ export const EditConnectionModal = ({
                 <FormItem>
                   <FormLabel>Token</FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field}
-                      placeholder="Connection token"
-                      disabled={success}
-                    />
+                    <Input {...field} placeholder="Connection token" disabled={success} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           )}
-          
+
           <FormField
             control={form.control}
             name="allowNoBrowserConnection"
@@ -387,16 +382,12 @@ export const EditConnectionModal = ({
                   </TooltipProvider>
                 </div>
                 <FormControl>
-                  <Switch 
-                    checked={field.value} 
-                    onCheckedChange={field.onChange}
-                    disabled={success}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} disabled={success} />
                 </FormControl>
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="allowNoOriginConnection"
@@ -419,16 +410,12 @@ export const EditConnectionModal = ({
                   </TooltipProvider>
                 </div>
                 <FormControl>
-                  <Switch 
-                    checked={field.value} 
-                    onCheckedChange={field.onChange}
-                    disabled={success}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} disabled={success} />
                 </FormControl>
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="domains"
@@ -437,11 +424,7 @@ export const EditConnectionModal = ({
                 <FormLabel>Domains</FormLabel>
                 <div className="space-y-2">
                   <div className="flex gap-2">
-                    <Select 
-                      value="" 
-                      onValueChange={handleDomainSelect} 
-                      disabled={isLoadingDomains || success}
-                    >
+                    <Select value="" onValueChange={handleDomainSelect} disabled={isLoadingDomains || success}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a domain" />
                       </SelectTrigger>
@@ -471,16 +454,12 @@ export const EditConnectionModal = ({
                       </Badge>
                     ))}
                   </div>
-                  {form.formState.errors.domains && (
-                    <p className="text-sm font-medium text-destructive">
-                      {form.formState.errors.domains.message}
-                    </p>
-                  )}
+                  {form.formState.errors.domains && <p className="text-sm font-medium text-destructive">{form.formState.errors.domains.message}</p>}
                 </div>
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="origins"
@@ -499,14 +478,9 @@ export const EditConnectionModal = ({
                         }
                       }}
                       placeholder="Add an origin"
-                      disabled={success || (form.watch('allowNoOriginConnection'))}
+                      disabled={success || form.watch('allowNoOriginConnection')}
                     />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={handleAddOrigin} 
-                      disabled={success || (form.watch('allowNoOriginConnection'))}
-                    >
+                    <Button type="button" variant="outline" onClick={handleAddOrigin} disabled={success || form.watch('allowNoOriginConnection')}>
                       Add
                     </Button>
                   </div>
@@ -528,27 +502,23 @@ export const EditConnectionModal = ({
                     ))}
                   </div>
                   {!form.watch('allowNoOriginConnection') && form.watch('origins').length === 0 && (
-                    <p className="text-sm font-medium text-destructive">
-                      At least one origin is required when origin check is enabled
-                    </p>
+                    <p className="text-sm font-medium text-destructive">At least one origin is required when origin check is enabled</p>
                   )}
                 </div>
               </FormItem>
             )}
           />
-          
+
           <DialogFooter>
-            <p className="text-sm text-muted-foreground mr-auto">
-              You'll be able to send this connection to other sites after updating.
-            </p>
+            <p className="text-sm text-muted-foreground mr-auto">You'll be able to send this connection to other sites after updating.</p>
             <Button variant="outline" type="button" onClick={onClose}>
               {success && otherSites.length === 0 ? 'Close' : 'Cancel'}
             </Button>
             {!success && (
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isPending || isSubmitting || !formChanged}
-                className={formChanged ? "" : "opacity-50 cursor-not-allowed"}
+                className={formChanged ? '' : 'opacity-50 cursor-not-allowed'}
               >
                 {isPending || isSubmitting ? (
                   <>
@@ -561,11 +531,7 @@ export const EditConnectionModal = ({
               </Button>
             )}
             {success && otherSites.length > 0 && (
-              <Button 
-                type="button" 
-                onClick={() => setCurrentStep('send')}
-                className="gap-2"
-              >
+              <Button type="button" onClick={() => setCurrentStep('send')} className="gap-2">
                 Send to Other Sites
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -583,17 +549,12 @@ export const EditConnectionModal = ({
           <Check className="h-4 w-4" />
           <AlertDescription>Connection updated successfully on {currentSite}.</AlertDescription>
         </Alert>
-        
+
         <h3 className="text-base font-medium mb-2">Send to Other Sites</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Choose additional sites to send this connection to:
-        </p>
-        
+        <p className="text-sm text-muted-foreground mb-4">Choose additional sites to send this connection to:</p>
+
         <div className="bg-muted/30 p-4 rounded-lg">
-          <SiteSelection 
-            selectedSites={selectedSites} 
-            setSelectedSites={setSelectedSites} 
-          />
+          <SiteSelection selectedSites={selectedSites} setSelectedSites={setSelectedSites} />
         </div>
 
         {siteResults.length > 0 && (
@@ -616,19 +577,10 @@ export const EditConnectionModal = ({
       </div>
 
       <DialogFooter className="flex justify-between">
-        <Button 
-          type="button" 
-          variant="outline"
-          onClick={onClose}
-        >
+        <Button type="button" variant="outline" onClick={onClose}>
           Close
         </Button>
-        <Button 
-          type="button" 
-          onClick={handleSendToOtherSites} 
-          disabled={selectedSites.length === 0 || isOtherSitesPending}
-          className="min-w-[150px]"
-        >
+        <Button type="button" onClick={handleSendToOtherSites} disabled={selectedSites.length === 0 || isOtherSitesPending} className="min-w-[150px]">
           {isOtherSitesPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -659,7 +611,7 @@ export const EditConnectionModal = ({
   };
 
   return (
-    <DialogContent 
+    <DialogContent
       className="sm:max-w-[600px]"
       onInteractOutside={(e) => {
         e.preventDefault();
@@ -674,7 +626,7 @@ export const EditConnectionModal = ({
         <DialogTitle>{getDialogTitle()}</DialogTitle>
         <DialogDescription>{getDialogDescription()}</DialogDescription>
       </DialogHeader>
-      
+
       {currentStep === 'edit' ? renderEditStep() : renderSendStep()}
     </DialogContent>
   );

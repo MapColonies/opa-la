@@ -7,9 +7,6 @@ import { SERVICES } from './common/constants';
 import { getApp } from './app';
 import { ConfigType } from './common/config';
 
-const SHUTDOWN_TIMEOUT_MS = 10000;
-const HEALTH_CHECK_PATH = '/liveness';
-
 void getApp()
   .then(([app, container]) => {
     const config = container.resolve<ConfigType>(SERVICES.CONFIG);

@@ -48,7 +48,7 @@ interface SortState {
 
 const updateURL = (params: Record<string, string | number | boolean | string[]>) => {
   const url = new URL(window.location.href);
-  
+
   Object.entries(params).forEach(([key, value]) => {
     if (value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0)) {
       url.searchParams.delete(key);
@@ -58,7 +58,7 @@ const updateURL = (params: Record<string, string | number | boolean | string[]>)
       url.searchParams.set(key, value.toString());
     }
   });
-  
+
   window.history.replaceState({}, '', url.toString());
 };
 
@@ -73,13 +73,16 @@ const getURLParams = () => {
     updatedAfter: params.get('updatedAfter') || '',
     updatedBefore: params.get('updatedBefore') || '',
     tags: params.get('tags') ? params.get('tags')!.split(',') : [],
-    sort: params.get('sort') ? params.get('sort')!.split(',').map(s => {
-      const [field, direction] = s.split(':');
-      return { field: field as SortField, direction: (direction || 'asc') as SortDirection };
-    }) : [
-      { field: 'name' as SortField, direction: 'asc' as SortDirection }
-    ],
-    showAdvancedFilters: params.get('showFilters') === 'true'
+    sort: params.get('sort')
+      ? params
+          .get('sort')!
+          .split(',')
+          .map((s) => {
+            const [field, direction] = s.split(':');
+            return { field: field as SortField, direction: (direction || 'asc') as SortDirection };
+          })
+      : [{ field: 'name' as SortField, direction: 'asc' as SortDirection }],
+    showAdvancedFilters: params.get('showFilters') === 'true',
   };
 };
 
@@ -100,15 +103,11 @@ export const ClientsPage = () => {
 
   const urlParams = getURLParams();
   const [searchTerm, setSearchTerm] = useState(urlParams.branch);
-  const [createdAfterDate, setCreatedAfterDate] = useState<Date | undefined>(
-    urlParams.createdAfter ? new Date(urlParams.createdAfter) : undefined
-  );
+  const [createdAfterDate, setCreatedAfterDate] = useState<Date | undefined>(urlParams.createdAfter ? new Date(urlParams.createdAfter) : undefined);
   const [createdBeforeDate, setCreatedBeforeDate] = useState<Date | undefined>(
     urlParams.createdBefore ? new Date(urlParams.createdBefore) : undefined
   );
-  const [updatedAfterDate, setUpdatedAfterDate] = useState<Date | undefined>(
-    urlParams.updatedAfter ? new Date(urlParams.updatedAfter) : undefined
-  );
+  const [updatedAfterDate, setUpdatedAfterDate] = useState<Date | undefined>(urlParams.updatedAfter ? new Date(urlParams.updatedAfter) : undefined);
   const [updatedBeforeDate, setUpdatedBeforeDate] = useState<Date | undefined>(
     urlParams.updatedBefore ? new Date(urlParams.updatedBefore) : undefined
   );
@@ -125,7 +124,7 @@ export const ClientsPage = () => {
   const debouncedSearchTerm = useDebounce<string>(searchTerm);
 
   useEffect(() => {
-    const sortParams = sort.map(s => `${s.field}:${s.direction}`);
+    const sortParams = sort.map((s) => `${s.field}:${s.direction}`);
     updateURL({
       page,
       pageSize,
@@ -136,7 +135,7 @@ export const ClientsPage = () => {
       updatedBefore: updatedBeforeDate?.toISOString() || '',
       tags: selectedTags,
       sort: sortParams,
-      showFilters: showAdvancedFilters
+      showFilters: showAdvancedFilters,
     });
   }, [page, pageSize, searchTerm, createdAfterDate, createdBeforeDate, updatedAfterDate, updatedBeforeDate, selectedTags, sort, showAdvancedFilters]);
 
@@ -144,7 +143,7 @@ export const ClientsPage = () => {
     ...filters,
     page,
     page_size: pageSize,
-    sort: sort.map(s => `${s.field}:${s.direction}`)
+    sort: sort.map((s) => `${s.field}:${s.direction}`),
   };
 
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/client', {
@@ -153,21 +152,27 @@ export const ClientsPage = () => {
     },
   });
 
-  const siteCreateMutations = availableSites.reduce((acc, site) => {
-    const siteApi = siteApis?.[site];
-    if (siteApi) {
-      acc[site] = siteApi.useMutation('post', '/client');
-    }
-    return acc;
-  }, {} as Record<string, any>);
+  const siteCreateMutations = availableSites.reduce(
+    (acc, site) => {
+      const siteApi = siteApis?.[site];
+      if (siteApi) {
+        acc[site] = siteApi.useMutation('post', '/client');
+      }
+      return acc;
+    },
+    {} as Record<string, any>
+  );
 
-  const siteUpdateMutations = availableSites.reduce((acc, site) => {
-    const siteApi = siteApis?.[site];
-    if (siteApi) {
-      acc[site] = siteApi.useMutation('patch', '/client/{clientName}');
-    }
-    return acc;
-  }, {} as Record<string, any>);
+  const siteUpdateMutations = availableSites.reduce(
+    (acc, site) => {
+      const siteApi = siteApis?.[site];
+      if (siteApi) {
+        acc[site] = siteApi.useMutation('patch', '/client/{clientName}');
+      }
+      return acc;
+    },
+    {} as Record<string, any>
+  );
 
   const createClientMutation = $api.useMutation('post', '/client', {
     onSuccess: () => {
@@ -241,7 +246,7 @@ export const ClientsPage = () => {
     }
 
     setFilters(newFilters);
-    
+
     if (!isInitialRender.current) {
       setPage(1);
     }
@@ -292,15 +297,13 @@ export const ClientsPage = () => {
   const hasActiveFilters = getActiveFiltersCount() > 0;
 
   const handleSort = (field: SortField) => {
-    setSort(prevSort => {
-      const existingSort = prevSort.find(s => s.field === field);
+    setSort((prevSort) => {
+      const existingSort = prevSort.find((s) => s.field === field);
       if (existingSort) {
         if (existingSort.direction === 'asc') {
-          return prevSort.map(s => 
-            s.field === field ? { ...s, direction: 'desc' as SortDirection } : s
-          );
+          return prevSort.map((s) => (s.field === field ? { ...s, direction: 'desc' as SortDirection } : s));
         } else {
-          return prevSort.filter(s => s.field !== field);
+          return prevSort.filter((s) => s.field !== field);
         }
       } else {
         return [{ field, direction: 'asc' as SortDirection }, ...prevSort];
@@ -310,7 +313,7 @@ export const ClientsPage = () => {
   };
 
   const getSortDirection = (field: SortField): SortDirection | null => {
-    const sortItem = sort.find(s => s.field === field);
+    const sortItem = sort.find((s) => s.field === field);
     return sortItem?.direction || null;
   };
 
@@ -333,10 +336,10 @@ export const ClientsPage = () => {
 
   const handleSendCreateToOtherSites = async (data: { body: Client; sites: string[] }) => {
     if (!data.sites.length) return;
-    
+
     setIsOtherSitesPending(true);
     setCreateSiteResults([]);
-    
+
     try {
       const results = await Promise.allSettled(
         data.sites.map(async (site) => {
@@ -352,11 +355,12 @@ export const ClientsPage = () => {
             return { site, success: true };
           } catch (error) {
             console.error(`Error creating client on site ${site}:`, error);
-            const errorMessage = error instanceof Error 
-              ? error.message 
-              : typeof error === 'object' && error !== null && 'message' in error
-              ? String(error.message)
-              : JSON.stringify(error);
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : typeof error === 'object' && error !== null && 'message' in error
+                  ? String(error.message)
+                  : JSON.stringify(error);
             return { site, success: false, error: errorMessage };
           }
         })
@@ -369,20 +373,16 @@ export const ClientsPage = () => {
           return {
             site: 'unknown',
             success: false,
-            error: result.reason?.message || 'Promise rejected'
+            error: result.reason?.message || 'Promise rejected',
           };
         }
       });
 
       setCreateSiteResults(siteResultsData);
 
-      const successfulSites = siteResultsData
-        .filter((result) => result.success)
-        .map((result) => result.site);
+      const successfulSites = siteResultsData.filter((result) => result.success).map((result) => result.site);
 
-      const failedSites = siteResultsData
-        .filter((result) => !result.success)
-        .map((result) => result.site);
+      const failedSites = siteResultsData.filter((result) => !result.success).map((result) => result.site);
 
       if (successfulSites.length > 0) {
         toast.success(`Client successfully created on: ${successfulSites.join(', ')}`);
@@ -402,10 +402,10 @@ export const ClientsPage = () => {
 
   const handleSendUpdateToOtherSites = async (data: { params: { path: { clientName: string } }; body: NamelessClient; sites: string[] }) => {
     if (!data.sites.length) return;
-    
+
     setIsOtherSitesPending(true);
     setUpdateSiteResults([]);
-    
+
     try {
       const results = await Promise.allSettled(
         data.sites.map(async (site) => {
@@ -422,11 +422,12 @@ export const ClientsPage = () => {
             return { site, success: true };
           } catch (error) {
             console.error(`Error updating client on site ${site}:`, error);
-            const errorMessage = error instanceof Error 
-              ? error.message 
-              : typeof error === 'object' && error !== null && 'message' in error
-              ? String(error.message)
-              : JSON.stringify(error);
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : typeof error === 'object' && error !== null && 'message' in error
+                  ? String(error.message)
+                  : JSON.stringify(error);
             return { site, success: false, error: errorMessage };
           }
         })
@@ -439,20 +440,16 @@ export const ClientsPage = () => {
           return {
             site: 'unknown',
             success: false,
-            error: result.reason?.message || 'Promise rejected'
+            error: result.reason?.message || 'Promise rejected',
           };
         }
       });
 
       setUpdateSiteResults(siteResultsData);
 
-      const successfulSites = siteResultsData
-        .filter((result) => result.success)
-        .map((result) => result.site);
+      const successfulSites = siteResultsData.filter((result) => result.success).map((result) => result.site);
 
-      const failedSites = siteResultsData
-        .filter((result) => !result.success)
-        .map((result) => result.site);
+      const failedSites = siteResultsData.filter((result) => !result.success).map((result) => result.site);
 
       if (successfulSites.length > 0) {
         toast.success(`Client successfully updated on: ${successfulSites.join(', ')}`);
@@ -521,13 +518,10 @@ export const ClientsPage = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className={cn(
-                "gap-2",
-                hasActiveFilters && "border-primary text-primary"
-              )}
+              className={cn('gap-2', hasActiveFilters && 'border-primary text-primary')}
             >
               <Filter className="h-4 w-4" />
               Filters
@@ -536,7 +530,7 @@ export const ClientsPage = () => {
                   {getActiveFiltersCount()}
                 </Badge>
               )}
-              <ChevronDown className={cn("h-4 w-4 transition-transform", showAdvancedFilters && "rotate-180")} />
+              <ChevronDown className={cn('h-4 w-4 transition-transform', showAdvancedFilters && 'rotate-180')} />
             </Button>
 
             {hasActiveFilters && (
@@ -619,13 +613,10 @@ export const ClientsPage = () => {
                   <div className="flex gap-2">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
-                          className={cn(
-                            'flex-1 justify-start text-left font-normal',
-                            !createdAfterDate && 'text-muted-foreground'
-                          )}
+                          className={cn('flex-1 justify-start text-left font-normal', !createdAfterDate && 'text-muted-foreground')}
                         >
                           <Calendar className="mr-2 h-3 w-3" />
                           {createdAfterDate ? format(createdAfterDate, 'MMM d') : 'From'}
@@ -637,13 +628,10 @@ export const ClientsPage = () => {
                     </Popover>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
-                          className={cn(
-                            'flex-1 justify-start text-left font-normal',
-                            !createdBeforeDate && 'text-muted-foreground'
-                          )}
+                          className={cn('flex-1 justify-start text-left font-normal', !createdBeforeDate && 'text-muted-foreground')}
                         >
                           <Calendar className="mr-2 h-3 w-3" />
                           {createdBeforeDate ? format(createdBeforeDate, 'MMM d') : 'To'}
@@ -661,13 +649,10 @@ export const ClientsPage = () => {
                   <div className="flex gap-2">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
-                          className={cn(
-                            'flex-1 justify-start text-left font-normal',
-                            !updatedAfterDate && 'text-muted-foreground'
-                          )}
+                          className={cn('flex-1 justify-start text-left font-normal', !updatedAfterDate && 'text-muted-foreground')}
                         >
                           <Calendar className="mr-2 h-3 w-3" />
                           {updatedAfterDate ? format(updatedAfterDate, 'MMM d') : 'From'}
@@ -679,13 +664,10 @@ export const ClientsPage = () => {
                     </Popover>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
-                          className={cn(
-                            'flex-1 justify-start text-left font-normal',
-                            !updatedBeforeDate && 'text-muted-foreground'
-                          )}
+                          className={cn('flex-1 justify-start text-left font-normal', !updatedBeforeDate && 'text-muted-foreground')}
                         >
                           <Calendar className="mr-2 h-3 w-3" />
                           {updatedBeforeDate ? format(updatedBeforeDate, 'MMM d') : 'To'}
@@ -742,12 +724,7 @@ export const ClientsPage = () => {
       </div>
 
       <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
-        <ClientsTable 
-          clients={data?.items || []} 
-          onEditClient={openEditDialog}
-          onSort={handleSort}
-          sortDirection={getSortDirection}
-        />
+        <ClientsTable clients={data?.items || []} onEditClient={openEditDialog} onSort={handleSort} sortDirection={getSortDirection} />
       </div>
 
       {/* Pagination Controls */}
@@ -771,20 +748,10 @@ export const ClientsPage = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(1)}
-            disabled={page === 1}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(1)} disabled={page === 1}>
             <ChevronsLeft className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(page - 1)} disabled={page === 1}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-1">
@@ -792,27 +759,17 @@ export const ClientsPage = () => {
               Page {page} of {totalPages}
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page + 1)}
-            disabled={page === totalPages}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(page + 1)} disabled={page === totalPages}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(totalPages)}
-            disabled={page === totalPages}
-          >
+          <Button variant="outline" size="sm" onClick={() => setPage(totalPages)} disabled={page === totalPages}>
             <ChevronsRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <Dialog 
-        open={isCreateDialogOpen} 
+      <Dialog
+        open={isCreateDialogOpen}
         onOpenChange={(open) => {
           if (!isOtherSitesPending) {
             setIsCreateDialogOpen(open);
@@ -837,8 +794,8 @@ export const ClientsPage = () => {
           />
         )}
       </Dialog>
-      <Dialog 
-        open={isEditDialogOpen} 
+      <Dialog
+        open={isEditDialogOpen}
         onOpenChange={(open) => {
           if (!open && currentEditStep === 'send') {
             return;

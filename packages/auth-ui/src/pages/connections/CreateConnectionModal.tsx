@@ -59,7 +59,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export const CreateConnectionModal = ({ 
+export const CreateConnectionModal = ({
   onClose,
   onCreateConnection,
   onSendToOtherSites,
@@ -69,7 +69,7 @@ export const CreateConnectionModal = ({
   success = false,
   siteResults = [],
   onOpenChange,
-  onStepChange
+  onStepChange,
 }: CreateConnectionModalProps) => {
   const [newOrigin, setNewOrigin] = useState('');
   const [useToken, setUseToken] = useState(false);
@@ -79,8 +79,8 @@ export const CreateConnectionModal = ({
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState<Step>('create');
   const currentSite = localStorage.getItem('selectedSite') || '';
-  
-  const otherSites = availableSites.filter(site => site !== currentSite);
+
+  const otherSites = availableSites.filter((site) => site !== currentSite);
 
   const { data: clients, isLoading: isLoadingClients } = $api.useQuery('get', '/client');
   const { data: domains, isLoading: isLoadingDomains } = $api.useQuery('get', '/domain');
@@ -103,7 +103,7 @@ export const CreateConnectionModal = ({
       setFormError(null);
       setIsSubmitting(false);
     }
-    
+
     if (success) {
       setFormError(null);
     }
@@ -124,7 +124,7 @@ export const CreateConnectionModal = ({
     },
     mode: 'onChange',
   });
-  
+
   const handleAddOrigin = () => {
     if (newOrigin.trim() && !form.getValues('origins').includes(newOrigin.trim())) {
       const currentOrigins = form.getValues('origins');
@@ -135,28 +135,36 @@ export const CreateConnectionModal = ({
 
   const handleRemoveOrigin = (originToRemove: string) => {
     const currentOrigins = form.getValues('origins');
-    form.setValue('origins', currentOrigins.filter((origin) => origin !== originToRemove), { shouldDirty: true, shouldValidate: true });
+    form.setValue(
+      'origins',
+      currentOrigins.filter((origin) => origin !== originToRemove),
+      { shouldDirty: true, shouldValidate: true }
+    );
   };
-  
+
   const handleDomainSelect = (domainName: string) => {
     if (domainName && !form.getValues('domains').includes(domainName)) {
       const currentDomains = form.getValues('domains');
       form.setValue('domains', [...currentDomains, domainName], { shouldDirty: true, shouldValidate: true });
     }
   };
-  
+
   const handleRemoveDomain = (domainToRemove: string) => {
     const currentDomains = form.getValues('domains');
-    form.setValue('domains', currentDomains.filter((domain) => domain !== domainToRemove), { shouldDirty: true, shouldValidate: true });
+    form.setValue(
+      'domains',
+      currentDomains.filter((domain) => domain !== domainToRemove),
+      { shouldDirty: true, shouldValidate: true }
+    );
   };
-  
+
   const handleTokenToggle = (checked: boolean) => {
     setUseToken(checked);
     if (!checked) {
       form.setValue('token', '', { shouldDirty: true, shouldValidate: true });
     }
   };
-  
+
   const handleClientSelect = (clientName: string) => {
     form.setValue('name', clientName, { shouldDirty: true, shouldValidate: true });
     setOpen(false);
@@ -164,18 +172,18 @@ export const CreateConnectionModal = ({
 
   const onSubmit = (data: FormValues) => {
     if (isPending || isSubmitting) return;
-    
+
     try {
       if (!data.allowNoOriginConnection && data.origins.length === 0) {
         setFormError('At least one origin is required when origin check is enabled');
         return;
       }
-      
+
       const finalData = {
         ...data,
         token: useToken ? data.token : '',
       };
-      
+
       setIsSubmitting(true);
       onCreateConnection({
         body: finalData as Connection,
@@ -197,7 +205,7 @@ export const CreateConnectionModal = ({
 
     onSendToOtherSites({
       body: form.getValues() as Connection,
-      sites: selectedSites
+      sites: selectedSites,
     });
   };
 
@@ -209,14 +217,14 @@ export const CreateConnectionModal = ({
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       )}
-      
+
       {success && (
         <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
           <Check className="h-4 w-4" />
           <AlertDescription>Connection created successfully on {currentSite}.</AlertDescription>
         </Alert>
       )}
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 gap-1">
@@ -240,11 +248,7 @@ export const CreateConnectionModal = ({
                   <CommandEmpty>No client found.</CommandEmpty>
                   <CommandGroup className="max-h-[200px] overflow-y-auto">
                     {clients?.items?.map((client: Client) => (
-                      <CommandItem
-                        key={client.name}
-                        value={client.name}
-                        onSelect={() => handleClientSelect(client.name)}
-                      >
+                      <CommandItem key={client.name} value={client.name} onSelect={() => handleClientSelect(client.name)}>
                         <Check className={cn('mr-2 h-4 w-4', form.watch('name') === client.name ? 'opacity-100' : 'opacity-0')} />
                         {client.name}
                       </CommandItem>
@@ -253,24 +257,16 @@ export const CreateConnectionModal = ({
                 </Command>
               </PopoverContent>
             </Popover>
-            {form.formState.errors.name && (
-              <p className="text-sm font-medium text-destructive">
-                {form.formState.errors.name.message}
-              </p>
-            )}
+            {form.formState.errors.name && <p className="text-sm font-medium text-destructive">{form.formState.errors.name.message}</p>}
           </div>
-          
+
           <FormField
             control={form.control}
             name="environment"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Environment</FormLabel>
-                <Select
-                  disabled={success}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+                <Select disabled={success} onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select environment" />
@@ -286,7 +282,7 @@ export const CreateConnectionModal = ({
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="enabled"
@@ -296,27 +292,19 @@ export const CreateConnectionModal = ({
                   <FormLabel>Status</FormLabel>
                 </div>
                 <FormControl>
-                  <Switch 
-                    checked={field.value} 
-                    onCheckedChange={field.onChange}
-                    disabled={success}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} disabled={success} />
                 </FormControl>
               </FormItem>
             )}
           />
-          
+
           <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
             <div className="space-y-0.5">
               <Label>Generate Token</Label>
             </div>
-            <Switch 
-              checked={!useToken} 
-              onCheckedChange={(checked) => handleTokenToggle(!checked)}
-              disabled={success}
-            />
+            <Switch checked={!useToken} onCheckedChange={(checked) => handleTokenToggle(!checked)} disabled={success} />
           </div>
-          
+
           {useToken && (
             <FormField
               control={form.control}
@@ -325,18 +313,14 @@ export const CreateConnectionModal = ({
                 <FormItem>
                   <FormLabel>Token</FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field}
-                      placeholder="Connection token"
-                      disabled={success}
-                    />
+                    <Input {...field} placeholder="Connection token" disabled={success} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           )}
-          
+
           <FormField
             control={form.control}
             name="allowNoBrowserConnection"
@@ -349,16 +333,12 @@ export const CreateConnectionModal = ({
                   </p>
                 </div>
                 <FormControl>
-                  <Switch 
-                    checked={field.value} 
-                    onCheckedChange={field.onChange}
-                    disabled={success}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} disabled={success} />
                 </FormControl>
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="allowNoOriginConnection"
@@ -371,16 +351,12 @@ export const CreateConnectionModal = ({
                   </p>
                 </div>
                 <FormControl>
-                  <Switch 
-                    checked={field.value} 
-                    onCheckedChange={field.onChange}
-                    disabled={success}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} disabled={success} />
                 </FormControl>
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="domains"
@@ -389,11 +365,7 @@ export const CreateConnectionModal = ({
                 <FormLabel>Domains</FormLabel>
                 <div className="space-y-2">
                   <div className="flex gap-2">
-                    <Select 
-                      value="" 
-                      onValueChange={handleDomainSelect} 
-                      disabled={isLoadingDomains || success}
-                    >
+                    <Select value="" onValueChange={handleDomainSelect} disabled={isLoadingDomains || success}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a domain" />
                       </SelectTrigger>
@@ -423,16 +395,12 @@ export const CreateConnectionModal = ({
                       </Badge>
                     ))}
                   </div>
-                  {form.formState.errors.domains && (
-                    <p className="text-sm font-medium text-destructive">
-                      {form.formState.errors.domains.message}
-                    </p>
-                  )}
+                  {form.formState.errors.domains && <p className="text-sm font-medium text-destructive">{form.formState.errors.domains.message}</p>}
                 </div>
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="origins"
@@ -451,14 +419,9 @@ export const CreateConnectionModal = ({
                         }
                       }}
                       placeholder="Add an origin"
-                      disabled={success || (form.watch('allowNoOriginConnection'))}
+                      disabled={success || form.watch('allowNoOriginConnection')}
                     />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={handleAddOrigin} 
-                      disabled={success || (form.watch('allowNoOriginConnection'))}
-                    >
+                    <Button type="button" variant="outline" onClick={handleAddOrigin} disabled={success || form.watch('allowNoOriginConnection')}>
                       Add
                     </Button>
                   </div>
@@ -480,19 +443,15 @@ export const CreateConnectionModal = ({
                     ))}
                   </div>
                   {!form.watch('allowNoOriginConnection') && form.watch('origins').length === 0 && (
-                    <p className="text-sm font-medium text-destructive">
-                      At least one origin is required when origin check is enabled
-                    </p>
+                    <p className="text-sm font-medium text-destructive">At least one origin is required when origin check is enabled</p>
                   )}
                 </div>
               </FormItem>
             )}
           />
-          
+
           <DialogFooter>
-            <p className="text-sm text-muted-foreground mr-auto">
-              You'll be able to send this connection to other sites after creation.
-            </p>
+            <p className="text-sm text-muted-foreground mr-auto">You'll be able to send this connection to other sites after creation.</p>
             <Button variant="outline" type="button" onClick={onClose}>
               {success && otherSites.length === 0 ? 'Close' : 'Cancel'}
             </Button>
@@ -509,11 +468,7 @@ export const CreateConnectionModal = ({
               </Button>
             )}
             {success && otherSites.length > 0 && (
-              <Button 
-                type="button" 
-                onClick={() => setCurrentStep('send')}
-                className="gap-2"
-              >
+              <Button type="button" onClick={() => setCurrentStep('send')} className="gap-2">
                 Send to Other Sites
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -531,17 +486,12 @@ export const CreateConnectionModal = ({
           <Check className="h-4 w-4" />
           <AlertDescription>Connection created successfully on {currentSite}.</AlertDescription>
         </Alert>
-        
+
         <h3 className="text-base font-medium mb-2">Send to Other Sites</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Choose additional sites to send this connection to:
-        </p>
-        
+        <p className="text-sm text-muted-foreground mb-4">Choose additional sites to send this connection to:</p>
+
         <div className="bg-muted/30 p-4 rounded-lg">
-          <SiteSelection 
-            selectedSites={selectedSites} 
-            setSelectedSites={setSelectedSites} 
-          />
+          <SiteSelection selectedSites={selectedSites} setSelectedSites={setSelectedSites} />
         </div>
 
         {siteResults.length > 0 && (
@@ -564,19 +514,10 @@ export const CreateConnectionModal = ({
       </div>
 
       <DialogFooter className="flex justify-between">
-        <Button 
-          type="button" 
-          variant="outline"
-          onClick={onClose}
-        >
+        <Button type="button" variant="outline" onClick={onClose}>
           Close
         </Button>
-        <Button 
-          type="button" 
-          onClick={handleSendToOtherSites} 
-          disabled={selectedSites.length === 0 || isOtherSitesPending}
-          className="min-w-[150px]"
-        >
+        <Button type="button" onClick={handleSendToOtherSites} disabled={selectedSites.length === 0 || isOtherSitesPending} className="min-w-[150px]">
           {isOtherSitesPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -607,7 +548,7 @@ export const CreateConnectionModal = ({
   };
 
   return (
-    <DialogContent 
+    <DialogContent
       className="sm:max-w-[600px]"
       onEscapeKeyDown={(e) => {
         if (currentStep === 'send' && isOtherSitesPending) {
@@ -619,7 +560,7 @@ export const CreateConnectionModal = ({
         <DialogTitle>{getDialogTitle()}</DialogTitle>
         <DialogDescription>{getDialogDescription()}</DialogDescription>
       </DialogHeader>
-      
+
       {currentStep === 'create' ? renderCreateStep() : renderSendStep()}
     </DialogContent>
   );
