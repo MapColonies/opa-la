@@ -146,3 +146,52 @@ auth-manager:
     timeout:
       enabled: false # defaults to 30s by openshift
       duration: 60s # supported units (us, ms, s, m, h, d)
+
+auth-ui:
+  enabled: true
+  environment: *environment
+  replicaCount: 1
+  initialDelaySeconds: 60
+
+  cloudProvider: *cloudProvider
+
+  ca: *ca
+
+  image:
+    repository: infra/auth-ui
+    # tag: v1.3.0
+
+  env:
+    port: 80
+    targetPort: 3000
+
+  config: |
+    {
+      "8080": {
+        "name": "Infra Dev Auth Manager",
+        "url": "https://infra-opala-auth-manager",
+        "envs": [
+          {
+            "envKey": "prod",
+            "opaUrl": "https://infra-opala-opa-service"
+          }
+        ]
+      }
+    }
+
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  route:
+    enabled: true
+    path: /
+    timeout:
+      enabled: false
+      duration: 60s
