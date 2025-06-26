@@ -11,8 +11,6 @@ metadata:
   name: {{ $releaseName }}-{{ $chartName }}
   labels:
     {{- include "opa.labels" . | nindent 4 }}
-  annotations:
-    {{ include "common-labels-and-annotations.metricsAnnotations" . | nindent 4 }}
 spec:
   {{ if not (.Values.hpa.enabled) -}}
   replicas: {{ .Values.replicaCount }}
@@ -25,6 +23,7 @@ spec:
       labels:
         {{- include "opa.selectorLabels" . | nindent 8 }}
       annotations:
+        {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}
         {{- if .Values.resetOnConfigChange }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- end }}

@@ -11,8 +11,6 @@ metadata:
   name: {{ $releaseName }}-{{ $chartName }}
   labels:
     {{- include "auth-manager.labels" . | nindent 4 }}
-  annotations:
-    {{ include "common-labels-and-annotations.metricsAnnotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -24,6 +22,7 @@ spec:
         {{- include "auth-manager.selectorLabels" . | nindent 8 }}
       {{- if .Values.resetOnConfigChange }}
       annotations:
+        {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- if .Values.additionalPodAnnotations }}
         {{- toYaml .Values.additionalPodAnnotations | nindent 8}}

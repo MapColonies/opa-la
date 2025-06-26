@@ -40,7 +40,7 @@ helm.sh/chart: {{ include "opa.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "common-labels-and-annotations.labels" . }}
+{{ include "mc-labels-and-annotations.labels" . }}
 {{- end }}
 
 {{/*
@@ -56,7 +56,7 @@ Selector labels
 {{- define "opa.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "opa.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{ include "common-labels-and-annotations.selectorLabels" . }}
+{{ include "mc-labels-and-annotations.selectorLabels" . }}
 {{- end }}
 
 {{/*

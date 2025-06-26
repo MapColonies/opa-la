@@ -36,7 +36,7 @@ helm.sh/chart: {{ include "auth-manager.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "common-labels-and-annotations.labels" . }}
+{{ include "mc-labels-and-annotations.labels" . }}
 {{- end }}
 
 {{/*
@@ -52,7 +52,7 @@ Selector labels
 {{- define "auth-manager.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "auth-manager.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{ include "common-labels-and-annotations.selectorLabels" . }}
+{{ include "mc-labels-and-annotations.selectorLabels" . }}
 {{- end }}
 
 {{/*

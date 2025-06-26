@@ -2,10 +2,10 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  commonLabelsAndAnnotations:
+  mcLabelsAndAnnotations:
     environment: "development"
 
-commonLabelsAndAnnotations:
+mcLabelsAndAnnotations:
   component: "backend"
   partOf: "authentication"
   owner: "infra"
