@@ -10,6 +10,9 @@ kind: Deployment
 metadata:
   name: {{ $releaseName }}-{{ $chartName }}
   labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    release: {{ $releaseName }}
     {{- include "opa.labels" . | nindent 4 }}
 spec:
   {{ if not (.Values.hpa.enabled) -}}
@@ -17,10 +20,16 @@ spec:
   {{- end }}
   selector:
     matchLabels:
+      app: {{ $chartName }}
+      release: {{ $releaseName }}
+      run: {{ $releaseName }}-{{ $chartName }}
       {{- include "opa.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
+        app: {{ $chartName }}
+        release: {{ $releaseName }}
+        run: {{ $releaseName }}-{{ $chartName }}
         {{- include "opa.selectorLabels" . | nindent 8 }}
       annotations:
         {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}

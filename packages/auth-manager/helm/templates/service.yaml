@@ -6,6 +6,9 @@ kind: Service
 metadata:
   name: {{ $releaseName }}-{{ $chartName }}
   labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    release: {{ $releaseName }}
     {{- include "auth-manager.labels" . | nindent 4 }}
 spec:
   ports:
@@ -14,5 +17,8 @@ spec:
       protocol: TCP
       name: http
   selector:
+    app: {{ $chartName }}
+    release: {{ $releaseName }}
+    run: {{ $releaseName }}-{{ $chartName }}
     {{- include "auth-manager.selectorLabels" . | nindent 4 }}
 {{- end }}

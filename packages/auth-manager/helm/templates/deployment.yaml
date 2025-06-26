@@ -10,15 +10,24 @@ kind: Deployment
 metadata:
   name: {{ $releaseName }}-{{ $chartName }}
   labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    release: {{ $releaseName }}
     {{- include "auth-manager.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
+      app: {{ $chartName }}
+      release: {{ $releaseName }}
+      run: {{ $releaseName }}-{{ $chartName }}
       {{- include "auth-manager.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
+        app: {{ $chartName }}
+        release: {{ $releaseName }}
+        run: {{ $releaseName }}-{{ $chartName }}
         {{- include "auth-manager.selectorLabels" . | nindent 8 }}
       {{- if .Values.resetOnConfigChange }}
       annotations:

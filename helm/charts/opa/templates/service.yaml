@@ -7,6 +7,9 @@ kind: Service
 metadata:
   name: {{ $serviceName }}
   labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    release: {{ $releaseName }}
     {{- include "opa.labels" . | nindent 4 }}
 spec:
   {{- if eq $cloudProviderFlavor "minikube" }}
@@ -21,4 +24,7 @@ spec:
       nodePort: {{ .Values.nodePort }}
       {{- end }}
   selector:
+    app: {{ $chartName }}
+    release: {{ $releaseName }}
+    run: {{ $releaseName }}-{{ $chartName }}
     {{- include "opa.selectorLabels" . | nindent 4 }}

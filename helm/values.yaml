@@ -2,7 +2,7 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  commonLabelsAndAnnotations:
+  mcLabelsAndAnnotations:
     environment: development
 
 configServerUrl: &configServerUrl 'http://localhost/api'
