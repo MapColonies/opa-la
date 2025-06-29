@@ -40,6 +40,7 @@ helm.sh/chart: {{ include "opa.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "mc-labels-and-annotations.labels" . }}
 {{- end }}
 
 {{/*
@@ -55,6 +56,7 @@ Selector labels
 {{- define "opa.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "opa.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{ include "mc-labels-and-annotations.selectorLabels" . }}
 {{- end }}
 
 {{/*
@@ -63,17 +65,6 @@ Create service name as used by the service name label.
 {{- define "service.fullname" -}}
 {{- printf "%s-%s-%s" .Release.Name "opa" "service" }}
 {{- end }}
-
-{{/*
-Returns the environment from global if exists or from the chart's values, defaults to development
-*/}}
-{{- define "opa.environment" -}}
-{{- if .Values.global.environment }}
-    {{- .Values.global.environment -}}
-{{- else -}}
-    {{- .Values.environment | default "development" -}}
-{{- end -}}
-{{- end -}}
 
 {{/*
 Returns the cloud provider name from global if exists or from the chart's values, defaults to minikube

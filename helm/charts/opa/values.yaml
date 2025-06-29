@@ -2,7 +2,14 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  environment: ''
+  mcLabelsAndAnnotations:
+    environment: "development"
+
+mcLabelsAndAnnotations:
+  component: infrastructure
+  owner: infra
+  partOf: authentication
+  metricsPort: 8181
 
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
