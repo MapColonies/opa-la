@@ -9,3 +9,5 @@ coverage
 helm
 reports
 jest.config*.js
+
+.nx/workspace-data/**
