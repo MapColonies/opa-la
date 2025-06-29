@@ -25,7 +25,7 @@ ca:
 
 image:
   repository: infra/auth-ui
-  tag: 'vrt'
+  # tag: ''
 
 env:
   port: 80
