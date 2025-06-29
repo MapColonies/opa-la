@@ -63,12 +63,19 @@ resources:
       cpu: 100m
       memory: 128Mi
 
-route:
-  enabled: true
-  path: /
-  timeout:
-    enabled: false # defaults to 30s by openshift
-    duration: 60s # supported units (us, ms, s, m, h, d)
+  route:
+    enabled: true
+    path: /
+    host: 
+    tls:
+      enabled: true
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+      useCerts: false
+      certificate:
+      key:
+      caCertificate:
+
 
 ingress:
   enabled: false

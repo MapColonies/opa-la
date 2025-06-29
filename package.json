@@ -37,7 +37,7 @@
     "jest-html-reporters": "^3.1.4",
     "jest-openapi": "^0.14.2",
     "just-safe-set": "4.2.1",
-    "lerna": "^6.5.1",
+    "lerna": "^8.2.2",
     "prettier": "^3.5.3",
     "pretty-quick": "^4.1.1",
     "ts-jest": "^29.0.5",

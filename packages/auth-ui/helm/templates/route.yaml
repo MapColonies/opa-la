@@ -13,9 +13,20 @@ metadata:
     {{- end }}
 spec:
   path:  {{ .Values.route.path | default "/" }}
+  {{- if .Values.route.host }}
+  host: {{ .Values.route.host }}
+  {{- end }}
   to:
     kind: Service
     name: {{ $releaseName }}-{{ $chartName }}
+  {{- if .Values.route.tls.enabled }}
   tls:
-    termination: edge
+    termination: {{ .Values.route.tls.termination | quote }}
+    insecureEdgeTerminationPolicy: {{ .Values.route.tls.insecureEdgeTerminationPolicy | quote }}
+    {{- if .Values.route.tls.useCerts }}
+    certificate: {{ .Values.route.tls.certificate | quote }}
+    key: {{ .Values.route.tls.key | quote }}
+    caCertificate: {{ .Values.route.tls.caCertificate | quote }}
+    {{- end }}
+  {{- end -}}
 {{- end -}}
