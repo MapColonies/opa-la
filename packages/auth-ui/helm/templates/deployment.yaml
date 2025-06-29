@@ -1,0 +1,99 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "auth-ui.name" . -}}
+{{- $cloudProviderDockerRegistryUrl := include "auth-ui.cloudProviderDockerRegistryUrl" . -}}
+{{- $cloudProviderImagePullSecretName := include "auth-ui.cloudProviderImagePullSecretName" . -}}
+{{- $imageTag := include "auth-ui.tag" . -}}
+{{- if .Values.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $releaseName }}-{{ $chartName }}
+  labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    environment: {{ include "auth-ui.environment" . }}
+    release: {{ $releaseName }}
+    {{- include "auth-ui.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $chartName }}
+      release: {{ $releaseName }}
+      run: {{ $releaseName }}-{{ $chartName }}
+      {{- include "auth-ui.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ $chartName }}
+        release: {{ $releaseName }}
+        run: {{ $releaseName }}-{{ $chartName }}
+        {{- include "auth-ui.selectorLabels" . | nindent 8 }}
+      {{- if .Values.resetOnConfigChange }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if .Values.additionalPodAnnotations }}
+        {{- toYaml .Values.additionalPodAnnotations | nindent 8}}
+        {{- end }}
+      {{- end }}
+    spec:
+    {{- if $cloudProviderImagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ $cloudProviderImagePullSecretName | quote }}
+    {{- end }}
+      containers:
+        - name: {{ $releaseName }}-{{ $chartName }}-deployment
+          {{- with .Values.image }}
+          image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $imageTag }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.ca.enabled }}
+            - mountPath: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
+              name: root-ca
+              subPath: {{ quote .Values.ca.key }}
+            {{- end }}
+            - name: config-volume
+              mountPath: /usr/src/app/packages/auth-ui/config.json
+              subPath: config.json
+          env:
+            - name: SERVER_PORT
+              value: {{ .Values.env.targetPort | quote }}
+            {{- if .Values.ca.enabled }}
+            - name: REQUESTS_CA_BUNDLE
+              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
+            - name: NODE_EXTRA_CA_CERTS
+              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
+            {{- end }}
+            {{- if .Values.extraEnvVars }}
+            {{- toYaml .Values.extraEnvVars | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.env.targetPort }}
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            httpGet:
+              path: /liveness
+              port: {{ .Values.env.targetPort }}
+              httpHeaders:
+                - name: Access-Control-Allow-Origin
+                  value: "*"
+                - name: Access-Control-Allow-Methods
+                  value: "GET, OPTIONS"
+                - name: Access-Control-Allow-Headers
+                  value: "Content-Type, Authorization"
+          {{- if .Values.resources.enabled }}
+          resources:
+            {{- toYaml .Values.resources.value | nindent 12 }}
+          {{- end }}
+      volumes:
+        {{- if .Values.ca.enabled }}
+        - name: root-ca
+          secret:
+            secretName: {{ .Values.ca.secretName }}
+        {{- end }}
+        - name: config-volume
+          configMap:
+            name: {{ $releaseName }}-{{ $chartName }}-configmap
+{{- end -}}

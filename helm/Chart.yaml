@@ -16,3 +16,7 @@ dependencies:
     repository: file://../packages/auth-manager/helm
     version: 1.3.0
     condition: auth-manager.enabled
+  - name: auth-ui
+    repository: file://../packages/auth-ui/helm
+    version: 1.3.0
+    condition: auth-ui.enabled
