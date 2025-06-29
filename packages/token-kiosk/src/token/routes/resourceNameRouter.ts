@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { FactoryFunction } from 'tsyringe';
-import { ResourceNameController } from '../controllers/resourceNameController';
+import { TokenController } from '../controllers/tokenController';
 
 const resourceNameRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
   const router = Router();
-  const controller = dependencyContainer.resolve(ResourceNameController);
+  const controller = dependencyContainer.resolve(TokenController);
 
   router.get('/', controller.getResource);
   router.post('/', controller.createResource);

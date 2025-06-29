@@ -1,12 +1,12 @@
 import { describe, beforeEach, it, expect } from 'vitest';
 import jsLogger from '@map-colonies/js-logger';
-import { ResourceNameManager } from '@src/resourceName/models/resourceNameManager';
+import { TokenManager } from '@src/token/models/tokenManager';
 
-let resourceNameManager: ResourceNameManager;
+let resourceNameManager: TokenManager;
 
 describe('ResourceNameManager', () => {
   beforeEach(function () {
-    resourceNameManager = new ResourceNameManager(jsLogger({ enabled: false }));
+    resourceNameManager = new TokenManager(jsLogger({ enabled: false }));
   });
   describe('#getResource', () => {
     it('return the resource of id 1', function () {

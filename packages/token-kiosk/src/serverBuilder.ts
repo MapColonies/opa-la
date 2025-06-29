@@ -1,4 +1,5 @@
 import express, { Router } from 'express';
+import { auth } from 'express-openid-connect';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import { OpenapiViewerRouter } from '@map-colonies/openapi-express-viewer';
@@ -7,13 +8,12 @@ import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { inject, injectable } from 'tsyringe';
 import type { Logger } from '@map-colonies/js-logger';
 import httpLogger from '@map-colonies/express-access-log-middleware';
-import { getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
 import { collectMetricsExpressMiddleware } from '@map-colonies/telemetry/prom-metrics';
 import { Registry } from 'prom-client';
 import type { ConfigType } from '@common/config';
 import { SERVICES } from '@common/constants';
-import { RESOURCE_NAME_ROUTER_SYMBOL } from './resourceName/routes/resourceNameRouter';
-import { ANOTHER_RESOURCE_ROUTER_SYMBOL } from './anotherResource/routes/anotherResourceRouter';
+import { RESOURCE_NAME_ROUTER_SYMBOL as TOKEN_ROUTER_SYMBOL } from './token/routes/resourceNameRouter';
+import { AUTH_ROUTER_SYMBOL } from './auth/routes/authRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -23,8 +23,8 @@ export class ServerBuilder {
     @inject(SERVICES.CONFIG) private readonly config: ConfigType,
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry,
-    @inject(RESOURCE_NAME_ROUTER_SYMBOL) private readonly resourceNameRouter: Router,
-    @inject(ANOTHER_RESOURCE_ROUTER_SYMBOL) private readonly anotherResourceRouter: Router
+    @inject(TOKEN_ROUTER_SYMBOL) private readonly tokenRouter: Router,
+    @inject(AUTH_ROUTER_SYMBOL) private readonly authRouter: Router
   ) {
     this.serverInstance = express();
   }
@@ -47,8 +47,12 @@ export class ServerBuilder {
   }
 
   private buildRoutes(): void {
-    this.serverInstance.use('/resourceName', this.resourceNameRouter);
-    this.serverInstance.use('/anotherResource', this.anotherResourceRouter);
+    const router = Router();
+    router.use('/auth', this.authRouter);
+    router.use('/token', this.tokenRouter);
+
+    this.serverInstance.use('/api', router);
+
     this.buildDocsRoutes();
   }
 
@@ -61,11 +65,31 @@ export class ServerBuilder {
     }
 
     this.serverInstance.use(bodyParser.json(this.config.get('server.request.payload')));
-    this.serverInstance.use(getTraceContexHeaderMiddleware());
+
+    this.serverInstance.use(
+      auth({
+        clientID: 'my-local-app',
+        issuerBaseURL: 'http://localhost:8080/realms/my-local-app',
+        baseURL: 'http://localhost:5173',
+        authRequired: true,
+        authorizationParams: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          response_type: 'code',
+          scope: 'openid profile email',
+        },
+        secret:
+          'sdnjsndkjasndkjsnamcxz mcnskjdnjwshuinsakjdnwandwaneiuajdnsjkndkjasbfhbuir34y8932h4421yh4hyu1bdyu12b34b213b213b7214n8712n483b184b123bh8wsndjisabndyu2b7843b12y4b2yu1b4hj12b4yu13b4y812h48y73bh128y74by12bndhbsydb7823bne47812bny384b12y4byu12byudbsnbd2h3by12bh4821h4',
+        clientSecret: 'Qn9KmSYd9aoU2UPRRpaltcNjsdsf9k8a',
+        auth0Logout: false,
+      })
+    );
 
     const ignorePathRegex = new RegExp(`^${this.config.get('openapiConfig.basePath')}/.*`, 'i');
     const apiSpecPath = this.config.get('openapiConfig.filePath');
-    this.serverInstance.use(OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex }));
+
+    this.serverInstance.use(
+      OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex, validateSecurity: false })
+    );
   }
 
   private registerPostRoutesMiddleware(): void {
