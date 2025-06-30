@@ -1,10 +1,8 @@
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
-import { siteApis } from '../fetch';
+import { getAvailableSites } from '../fetch';
 import { useSiteLiveness } from '../hooks/useSiteLiveness';
 import { LivenessIndicator } from './ui/liveness-indicator';
-
-export const getAvailableSites = () => Object.keys(siteApis || {});
 
 interface SiteSelectionProps {
   selectedSites: string[];
@@ -61,5 +59,3 @@ export const SiteSelection = ({ selectedSites, setSelectedSites }: SiteSelection
     </div>
   );
 };
-
-export const availableSites = getAvailableSites();
