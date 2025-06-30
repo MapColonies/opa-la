@@ -63,7 +63,7 @@ spec:
     info:
       title: auth-manager
       description: API server for managing all the authentication data
-      version: 1.3.0
+      version: 1.4.0
       license:
         name: MIT
         url: https://opensource.org/licenses/MIT
@@ -112,15 +112,64 @@ spec:
                 uniqueItems: true
                 items:
                   type: string
+            - in: query
+              name: sort
+              description: >-
+                Sorts the results based on the value of one or more properties.
+
+                The value is a comma-separated list of property names and sort order.
+
+                properties should be separated by a colon and sort order should be either asc or desc. For example: created-at:asc,name:asc
+
+                The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+
+                The available properties are:
+
+                - created-at
+
+                - updated-at
+
+                - name
+
+                - heb-name
+
+                - branch
+              example:
+                - created-at:asc
+                - name:asc
+              required: false
+              explode: false
+              schema:
+                default:
+                  - name:asc
+                type: array
+                uniqueItems: true
+                items:
+                  example: name:asc
+                  type: string
+                  pattern: ^(created-at|updated-at|name|heb-name|branch)(:asc|:desc){0,1}$
+            - $ref: "#/components/parameters/page"
+            - $ref: "#/components/parameters/pageSize"
           responses:
             "200":
               description: OK
               content:
                 application/json:
                   schema:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/client"
+                    allOf:
+                      - $ref: "#/components/schemas/paginationResponse"
+                      - type: object
+                        required:
+                          - items
+                        properties:
+                          items:
+                            description: list of clients
+                            type: array
+                            uniqueItems: true
+                            minItems: 0
+                            maxItems: 1000
+                            items:
+                              $ref: "#/components/schemas/client"
             "400":
               $ref: "#/components/responses/400BadRequest"
             "500":
@@ -291,15 +340,66 @@ spec:
                 uniqueItems: true
                 items:
                   type: string
+            - in: query
+              name: sort
+              description: >-
+                Sorts the results based on the value of one or more properties.
+
+                The value is a comma-separated list of property names and sort order.
+
+                properties should be separated by a colon and sort order should be either asc or desc. For example: created-at:asc,name:asc
+
+                The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+
+                The available properties are:
+
+                - created-at
+
+                - name
+
+                - version
+
+                - enabled
+
+                - environment
+              example:
+                - created-at:asc
+                - name:asc
+              required: false
+              explode: false
+              schema:
+                default:
+                  - name:asc
+                  - environment:asc
+                  - version:desc
+                type: array
+                uniqueItems: true
+                items:
+                  example: name:asc
+                  type: string
+                  pattern: ^(created-at|name|version|enabled|environment)(:asc|:desc){0,1}$
+            - $ref: "#/components/parameters/page"
+            - $ref: "#/components/parameters/pageSize"
           responses:
             "200":
               description: OK
               content:
                 application/json:
                   schema:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/connection"
+                    allOf:
+                      - $ref: "#/components/schemas/paginationResponse"
+                      - type: object
+                        required:
+                          - items
+                        properties:
+                          items:
+                            description: list of clients
+                            type: array
+                            uniqueItems: true
+                            minItems: 0
+                            maxItems: 1000
+                            items:
+                              $ref: "#/components/schemas/connection"
             "400":
               $ref: "#/components/responses/400BadRequest"
             "500":
@@ -357,6 +457,8 @@ spec:
                     type: array
                     items:
                       $ref: "#/components/schemas/key"
+            "415":
+              $ref: "#/components/responses/415UnsupportedMediaType"
             "500":
               $ref: "#/components/responses/500InternalServerError"
         post:
@@ -602,6 +704,36 @@ spec:
               $ref: "#/components/responses/500InternalServerError"
       /domain:
         get:
+          parameters:
+            - in: query
+              name: sort
+              description: >-
+                Sorts the results based on the value of one or more properties.
+
+                The value is a comma-separated list of property names and sort order.
+
+                properties should be separated by a colon and sort order should be either asc or desc. For example: domain:asc
+
+                The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+
+                The available properties are:
+
+                - domain
+              example:
+                - domain:asc
+              required: false
+              explode: false
+              schema:
+                default:
+                  - domain:asc
+                type: array
+                uniqueItems: true
+                items:
+                  example: domain:asc
+                  type: string
+                  pattern: ^(domain)(:asc|:desc){0,1}$
+            - $ref: "#/components/parameters/page"
+            - $ref: "#/components/parameters/pageSize"
           operationId: getDomains
           summary: get all the domains
           tags:
@@ -612,9 +744,21 @@ spec:
               content:
                 application/json:
                   schema:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/domain"
+                    allOf:
+                      - $ref: "#/components/schemas/paginationResponse"
+                      - type: object
+                        required:
+                          - items
+                        properties:
+                          items:
+                            description: list of clients
+                            type: array
+                            uniqueItems: true
+                            minItems: 0
+                            items:
+                              $ref: "#/components/schemas/domain"
+            "415":
+              $ref: "#/components/responses/415UnsupportedMediaType"
             "500":
               $ref: "#/components/responses/500InternalServerError"
         post:
@@ -662,6 +806,12 @@ spec:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+        415UnsupportedMediaType:
+          description: Unsupported Media Type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
         500InternalServerError:
           description: Internal Server Error
           content:
@@ -669,6 +819,31 @@ spec:
               schema:
                 $ref: "#/components/schemas/error"
       parameters:
+        page:
+          name: page
+          in: query
+          description: >
+            page number for pagination. The value is 1-based, meaning the first page
+            is 1.
+
+            If the value is greater than the total number of pages, an empty array will be returned.
+
+            This simplifies the pagination logic on the client side.
+          schema:
+            type: integer
+            format: int32
+            default: 1
+            minimum: 1
+        pageSize:
+          name: page_size
+          in: query
+          description: number of items per page
+          schema:
+            type: integer
+            format: int32
+            default: 10
+            maximum: 100
+            minimum: 1
         clientParam:
           name: clientName
           in: path
@@ -980,6 +1155,18 @@ spec:
               readOnly: true
             keyVersion:
               $ref: "#/components/schemas/version"
+            opaVersion:
+              type: string
+              description: OPA version used to generate the bundle
+        paginationResponse:
+          type: object
+          required:
+            - total
+          properties:
+            total:
+              type: integer
+              format: int32
+              description: total number of items
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Resource

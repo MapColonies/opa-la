@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: auth-manager
   description: API server for managing all the authentication data
-  version: 1.3.0
+  version: 1.4.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -53,16 +53,25 @@ paths:
               type: string
         - in: query
           name: sort
-          description: |-
+          description: >-
             Sorts the results based on the value of one or more properties.
+
             The value is a comma-separated list of property names and sort order.
+
             properties should be separated by a colon and sort order should be either asc or desc. For example: created-at:asc,name:asc
+
             The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+
             The available properties are:
+
             - created-at
+
             - updated-at
+
             - name
+
             - heb-name
+
             - branch
           example:
             - created-at:asc
@@ -70,14 +79,14 @@ paths:
           required: false
           explode: false
           schema:
-            default: [name:asc]
+            default:
+              - name:asc
             type: array
             uniqueItems: true
             items:
               example: name:asc
               type: string
-              pattern: >-
-                ^(created-at|updated-at|name|heb-name|branch)(:asc|:desc){0,1}$
+              pattern: ^(created-at|updated-at|name|heb-name|branch)(:asc|:desc){0,1}$
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/pageSize'
       responses:
@@ -272,16 +281,25 @@ paths:
               type: string
         - in: query
           name: sort
-          description: |-
+          description: >-
             Sorts the results based on the value of one or more properties.
+
             The value is a comma-separated list of property names and sort order.
+
             properties should be separated by a colon and sort order should be either asc or desc. For example: created-at:asc,name:asc
+
             The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+
             The available properties are:
+
             - created-at
+
             - name
+
             - version
+
             - enabled
+
             - environment
           example:
             - created-at:asc
@@ -289,14 +307,16 @@ paths:
           required: false
           explode: false
           schema:
-            default: [name:asc, environment:asc, version:desc]
+            default:
+              - name:asc
+              - environment:asc
+              - version:desc
             type: array
             uniqueItems: true
             items:
               example: name:asc
               type: string
-              pattern: >-
-                ^(created-at|name|version|enabled|environment)(:asc|:desc){0,1}$
+              pattern: ^(created-at|name|version|enabled|environment)(:asc|:desc){0,1}$
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/pageSize'
       responses:
@@ -626,26 +646,31 @@ paths:
       parameters:
         - in: query
           name: sort
-          description: |-
+          description: >-
             Sorts the results based on the value of one or more properties.
+
             The value is a comma-separated list of property names and sort order.
+
             properties should be separated by a colon and sort order should be either asc or desc. For example: domain:asc
+
             The default sort order is ascending. If the sort order is not specified, the default sort order is used. Each property is only allowed to appear once in the list.
+
             The available properties are:
+
             - domain
           example:
             - domain:asc
           required: false
           explode: false
           schema:
-            default: [domain:asc]
+            default:
+              - domain:asc
             type: array
             uniqueItems: true
             items:
               example: domain:asc
               type: string
-              pattern: >-
-                ^(domain)(:asc|:desc){0,1}$
+              pattern: ^(domain)(:asc|:desc){0,1}$
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/pageSize'
       operationId: getDomains
@@ -736,9 +761,12 @@ components:
     page:
       name: page
       in: query
-      description: |
-        page number for pagination. The value is 1-based, meaning the first page is 1.
+      description: >
+        page number for pagination. The value is 1-based, meaning the first page
+        is 1.
+
         If the value is greater than the total number of pages, an empty array will be returned.
+
         This simplifies the pagination logic on the client side.
       schema:
         type: integer
