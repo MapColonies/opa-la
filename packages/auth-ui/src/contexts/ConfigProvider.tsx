@@ -75,6 +75,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   return <ConfigContext.Provider value={{ config, selectedConfig, selectedEnv, loading, error, setSelectedEnv }}>{children}</ConfigContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useConfig = () => {
   const context = useContext(ConfigContext);
   if (context === undefined) {

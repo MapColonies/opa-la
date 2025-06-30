@@ -18,7 +18,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { SiteSelection, availableSites } from '../../components/SiteSelection';
+import { SiteSelection } from '../../components/SiteSelection';
+import { getAvailableSites } from '@/components/exports';
 
 type Connection = components['schemas']['connection'];
 type Client = components['schemas']['client'];
@@ -55,6 +56,8 @@ const formSchema = z.object({
   allowNoOriginConnection: z.boolean(),
   origins: z.array(z.string()),
 });
+
+const availableSites = getAvailableSites();
 
 type FormValues = z.infer<typeof formSchema>;
 

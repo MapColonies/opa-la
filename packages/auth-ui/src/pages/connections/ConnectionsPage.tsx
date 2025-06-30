@@ -13,10 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Checkbox } from '../../components/ui/checkbox';
 import { Label } from '../../components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
-import { availableSites } from '../../components/SiteSelection';
 import { Badge } from '../../components/ui/badge';
 import { useDebounce } from '../../hooks/useDebounce';
 import { cn } from '../../lib/utils';
+import { getAvailableSites } from '@/components/exports';
 
 type Connection = components['schemas']['connection'];
 type Environment = components['schemas']['environment'];
@@ -86,6 +86,8 @@ const getURLParams = () => {
   };
 };
 
+const availableSites = getAvailableSites();
+
 export const ConnectionsPage = () => {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<Filters>({});
@@ -143,16 +145,13 @@ export const ConnectionsPage = () => {
     },
   });
 
-  const siteMutations = availableSites.reduce(
-    (acc, site) => {
-      const siteApi = siteApis?.[site];
-      if (siteApi) {
-        acc[site] = siteApi.useMutation('post', '/connection');
-      }
-      return acc;
-    },
-    {} as Record<string, any>
-  );
+  const siteMutations = availableSites.reduce((acc, site) => {
+    const siteApi = siteApis?.[site];
+    if (siteApi) {
+      acc[site] = siteApi.useMutation('post', '/connection');
+    }
+    return acc;
+  }, {} as Record<string, any>);
 
   const upsertConnectionMutation = $api.useMutation('post', '/connection', {
     onSuccess: () => {
@@ -247,8 +246,8 @@ export const ConnectionsPage = () => {
               error instanceof Error
                 ? error.message
                 : typeof error === 'object' && error !== null && 'message' in error
-                  ? String(error.message)
-                  : JSON.stringify(error);
+                ? String(error.message)
+                : JSON.stringify(error);
             return { site, success: false, error: errorMessage };
           }
         })

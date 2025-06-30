@@ -10,9 +10,9 @@ import { CreateDomainModal } from './CreateDomainModal';
 import { toast } from 'sonner';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useQueryClient } from '@tanstack/react-query';
-import { availableSites } from '../../components/SiteSelection';
 import { Badge } from '../../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { getAvailableSites } from '@/components/exports';
 
 type Domain = components['schemas']['domain'];
 
@@ -64,6 +64,8 @@ const getURLParams = () => {
     showAdvancedFilters: params.get('showFilters') === 'true',
   };
 };
+
+const availableSites = getAvailableSites();
 
 export const DomainsPage = () => {
   const queryClient = useQueryClient();
@@ -127,16 +129,13 @@ export const DomainsPage = () => {
     setPage(1);
   };
 
-  const siteMutations = availableSites.reduce(
-    (acc, site) => {
-      const siteApi = siteApis?.[site];
-      if (siteApi) {
-        acc[site] = siteApi.useMutation('post', '/domain');
-      }
-      return acc;
-    },
-    {} as Record<string, any>
-  );
+  const siteMutations = availableSites.reduce((acc, site) => {
+    const siteApi = siteApis?.[site];
+    if (siteApi) {
+      acc[site] = siteApi.useMutation('post', '/domain');
+    }
+    return acc;
+  }, {} as Record<string, any>);
 
   const createDomainMutation = $api.useMutation('post', '/domain', {
     onSuccess: () => {
@@ -214,8 +213,8 @@ export const DomainsPage = () => {
               error instanceof Error
                 ? error.message
                 : typeof error === 'object' && error !== null && 'message' in error
-                  ? String(error.message)
-                  : JSON.stringify(error);
+                ? String(error.message)
+                : JSON.stringify(error);
             return { site, success: false, error: errorMessage };
           }
         })

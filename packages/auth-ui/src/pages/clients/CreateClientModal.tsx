@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, AlertDescription } from '../../components/ui/alert';
-import { SiteSelection, availableSites } from '../../components/SiteSelection';
+import { SiteSelection } from '../../components/SiteSelection';
 
 type Client = components['schemas']['client'];
 
