@@ -1,0 +1,86 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+  environment: ''
+
+enabled: true
+environment: development
+replicaCount: 1
+initialDelaySeconds: 60
+resetOnConfigChange: true
+
+extraEnvVars: []
+
+cloudProvider:
+  dockerRegistryUrl: acrarolibotnonprod.azurecr.io
+  imagePullSecretName: 'acr-registry'
+  flavor: openshift
+
+ca:
+  enabled: false
+  secretName: 'root-ca'
+  path: '/usr/local/share/ca-certificates'
+  key: 'ca.crt'
+
+image:
+  repository: infra/auth-ui
+  # tag: ''
+
+env:
+  port: 80
+  targetPort: 3000
+  tracing:
+    enabled: false
+    url: http://localhost:55681/v1/trace
+  metrics:
+    enabled: false
+    url: http://localhost:55681/v1/metrics
+
+config: |
+  {
+    "8080": {
+      "name": "localhost 8080",
+      "url": "https://auth-manager-service",
+      "envs": [
+        {
+          "envKey": "prod",
+          "opaUrl": "https://opa-la-service"
+        }
+      ]
+    }
+  }
+
+additionalPodAnnotations: {}
+
+resources:
+  enabled: true
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  route:
+    enabled: true
+    path: /
+    host: 
+    tls:
+      enabled: true
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+      useCerts: false
+      certificate:
+      key:
+      caCertificate:
+
+
+ingress:
+  enabled: false
+  path: /
+  host: 'localhost'
+  cors:
+    enabled: true
+    origin: '*'
