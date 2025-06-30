@@ -145,13 +145,16 @@ export const ConnectionsPage = () => {
     },
   });
 
-  const siteMutations = availableSites.reduce((acc, site) => {
-    const siteApi = siteApis?.[site];
-    if (siteApi) {
-      acc[site] = siteApi.useMutation('post', '/connection');
-    }
-    return acc;
-  }, {} as Record<string, any>);
+  const siteMutations = availableSites.reduce(
+    (acc, site) => {
+      const siteApi = siteApis?.[site];
+      if (siteApi) {
+        acc[site] = siteApi.useMutation('post', '/connection');
+      }
+      return acc;
+    },
+    {} as Record<string, any>
+  );
 
   const upsertConnectionMutation = $api.useMutation('post', '/connection', {
     onSuccess: () => {
@@ -246,8 +249,8 @@ export const ConnectionsPage = () => {
               error instanceof Error
                 ? error.message
                 : typeof error === 'object' && error !== null && 'message' in error
-                ? String(error.message)
-                : JSON.stringify(error);
+                  ? String(error.message)
+                  : JSON.stringify(error);
             return { site, success: false, error: errorMessage };
           }
         })
