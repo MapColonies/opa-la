@@ -192,6 +192,15 @@ auth-ui:
   route:
     enabled: true
     path: /
+    host: 
     timeout:
       enabled: false
       duration: 60s
+    tls:
+      enabled: true
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+      useCerts: false
+      certificate:
+      key:
+      caCertificate:
