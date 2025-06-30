@@ -1,8 +1,8 @@
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
-import { getAvailableSites } from '../fetch';
 import { useSiteLiveness } from '../hooks/useSiteLiveness';
 import { LivenessIndicator } from './ui/liveness-indicator';
+import { getAvailableSites } from './exports';
 
 interface SiteSelectionProps {
   selectedSites: string[];

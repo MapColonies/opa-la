@@ -16,9 +16,9 @@ import { Calendar as CalendarComponent } from '../../components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '../../lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { availableSites } from '../../components/SiteSelection';
 import { Badge } from '../../components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { getAvailableSites } from '@/components/exports';
 
 type Client = components['schemas']['client'];
 type NamelessClient = components['schemas']['namelessClient'];
@@ -85,6 +85,8 @@ const getURLParams = () => {
     showAdvancedFilters: params.get('showFilters') === 'true',
   };
 };
+
+const availableSites = getAvailableSites();
 
 export const ClientsPage = () => {
   const queryClient = useQueryClient();

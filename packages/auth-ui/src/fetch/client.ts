@@ -92,5 +92,3 @@ export const updateApiBaseUrl = (baseUrl: string) => {
 };
 
 export const siteApis = await createSiteApis();
-
-export const getAvailableSites = () => Object.keys(siteApis || {});

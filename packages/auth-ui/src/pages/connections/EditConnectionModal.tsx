@@ -15,8 +15,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
 import { Alert, AlertDescription } from '../../components/ui/alert';
-import { SiteSelection, availableSites } from '../../components/SiteSelection';
+import { SiteSelection } from '../../components/SiteSelection';
 import { isEqual } from 'lodash';
+import { getAvailableSites } from '@/components/exports';
 type Connection = components['schemas']['connection'];
 type Domain = components['schemas']['domain'];
 
@@ -53,6 +54,8 @@ const formSchema = z.object({
   origins: z.array(z.string()),
   createdAt: z.string().optional(),
 });
+
+const availableSites = getAvailableSites();
 
 type FormValues = z.infer<typeof formSchema>;
 

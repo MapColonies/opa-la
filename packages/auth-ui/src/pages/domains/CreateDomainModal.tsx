@@ -9,7 +9,8 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
 import { Alert, AlertDescription } from '../../components/ui/alert';
-import { SiteSelection, availableSites } from '../../components/SiteSelection';
+import { SiteSelection } from '../../components/SiteSelection';
+import { getAvailableSites } from '@/components/exports';
 
 type Domain = components['schemas']['domain'];
 
@@ -36,6 +37,8 @@ type Step = 'create' | 'send';
 const formSchema = z.object({
   name: z.string().min(1, 'Domain name is required'),
 });
+
+const availableSites = getAvailableSites();
 
 type FormValues = z.infer<typeof formSchema>;
 

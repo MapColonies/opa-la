@@ -13,10 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Checkbox } from '../../components/ui/checkbox';
 import { Label } from '../../components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
-import { availableSites } from '../../components/SiteSelection';
 import { Badge } from '../../components/ui/badge';
 import { useDebounce } from '../../hooks/useDebounce';
 import { cn } from '../../lib/utils';
+import { getAvailableSites } from '@/components/exports';
 
 type Connection = components['schemas']['connection'];
 type Environment = components['schemas']['environment'];
@@ -85,6 +85,8 @@ const getURLParams = () => {
     showAdvancedFilters: params.get('showFilters') === 'true',
   };
 };
+
+const availableSites = getAvailableSites();
 
 export const ConnectionsPage = () => {
   const queryClient = useQueryClient();
