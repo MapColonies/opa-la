@@ -1,75 +1,17 @@
 /* eslint-disable */
 import type { TypedRequestHandlers as ImportedTypedRequestHandlers } from '@map-colonies/openapi-helpers/typedRequestHandler';
 export type paths = {
-  '/anotherResource': {
+  '/token': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** gets the resource */
-    get: operations['getAnotherResource'];
+    /** generated and returns a temporary access token for the MapColonies services. */
+    get: operations['getToken'];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/resourceName': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** gets the resource */
-    get: operations['getResourceName'];
-    put?: never;
-    /** creates a new record of type resource */
-    post: operations['createResource'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/auth/login': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Initialize OAuth2/OpenID Connect authentication flow
-     * @description Returns the authorization URL for the identity provider
-     */
-    get: operations['initializeAuth'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/auth/callback': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Handle OAuth2/OpenID Connect callback with authorization code
-     * @description Exchanges authorization code for access token
-     */
-    post: operations['handleAuthCallback'];
     delete?: never;
     options?: never;
     head?: never;
@@ -103,33 +45,16 @@ export type components = {
     error: {
       message: string;
     };
-    resource: {
-      /** Format: int64 */
-      id: number;
-      name: string;
-      description: string;
-    };
-    anotherResource: {
-      kind: string;
-      isAlive: boolean;
-    };
-    authCallbackRequest: {
-      /** @description Authorization code received from the identity provider */
-      authorizationCode?: string;
-      /** @description Code verifier used for PKCE (Proof Key for Code Exchange) */
-      codeVerifier?: string;
-    };
     tokenResponse: {
-      /** @description JWT access token for API authentication */
-      access_token: string;
+      /** @description Temporary access token for MapColonies services */
+      token: string;
       /**
-       * @description Token type (always Bearer)
-       * @enum {string}
+       * Format: date-time
+       * @description Expiration date and time of the token
        */
-      token_type: 'Bearer';
-      /** @description Access token lifetime in seconds */
-      expires_in: number;
-      user: components['schemas']['userInfo'];
+      expiration: string;
+      /** @description List of domains the token is valid for */
+      domains: string[];
     };
     userInfo: {
       /** @description Unique user identifier (subject) */
@@ -137,15 +62,15 @@ export type components = {
       /** @description User display name */
       name?: string;
       /** @description User first name */
-      givenName?: string;
+      given_name?: string;
       /** @description User last name */
-      familyName?: string;
+      family_name?: string;
       /** @description User middle name */
-      middleName?: string;
+      middle_name?: string;
       /** @description User nickname */
       nickname?: string;
       /** @description User preferred username */
-      preferredUsername?: string;
+      preferred_username?: string;
       /**
        * Format: email
        * @description User email address
@@ -154,7 +79,7 @@ export type components = {
       /** @description User gender */
       gender?: string;
       /** @description User phone number */
-      phoneNumber?: string;
+      phone_number?: string;
     };
   };
   responses: never;
@@ -165,7 +90,7 @@ export type components = {
 };
 export type $defs = Record<string, never>;
 export interface operations {
-  getAnotherResource: {
+  getToken: {
     parameters: {
       query?: never;
       header?: never;
@@ -175,128 +100,6 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['anotherResource'];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['error'];
-        };
-      };
-    };
-  };
-  getResourceName: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['resource'];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['error'];
-        };
-      };
-    };
-  };
-  createResource: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['resource'];
-      };
-    };
-    responses: {
-      /** @description created */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['resource'];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['error'];
-        };
-      };
-    };
-  };
-  initializeAuth: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Redirect browser to identity provider for authentication */
-      302: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Bad Request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['error'];
-        };
-      };
-    };
-  };
-  handleAuthCallback: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['authCallbackRequest'];
-      };
-    };
-    responses: {
-      /** @description Authentication successful */
       200: {
         headers: {
           [name: string]: unknown;
@@ -307,15 +110,6 @@ export interface operations {
       };
       /** @description Bad Request */
       400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['error'];
-        };
-      };
-      /** @description Unauthorized - Invalid authorization code */
-      401: {
         headers: {
           [name: string]: unknown;
         };

@@ -9,6 +9,7 @@ import { getTracing } from '@common/tracing';
 import { resourceNameRouterFactory as tokenRouterFactory, RESOURCE_NAME_ROUTER_SYMBOL as token } from './token/routes/resourceNameRouter';
 import { getConfig } from './common/config';
 import { AUTH_ROUTER_SYMBOL, authRouterFactory } from './auth/routes/authRouter';
+import { authManagerClientFactory } from './token/models/authManagerClient';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -33,6 +34,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.METRICS, provider: { useValue: metricsRegistry } },
     { token: token, provider: { useFactory: tokenRouterFactory } },
     { token: AUTH_ROUTER_SYMBOL, provider: { useFactory: authRouterFactory } },
+    { token: SERVICES.AUTH_MANAGER_CLIENT, provider: { useFactory: authManagerClientFactory } },
     {
       token: 'onSignal',
       provider: {

@@ -9,21 +9,12 @@ import { TokenManager } from '../models/tokenManager';
 
 @injectable()
 export class TokenController {
-  private readonly createdResourceCounter: Counter;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(TokenManager) private readonly manager: TokenManager,
-    @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry
-  ) {
-    this.createdResourceCounter = new Counter({
-      name: 'created_resource',
-      help: 'number of created resources',
-      registers: [this.metricsRegistry],
-    });
-  }
+    @inject(TokenManager) private readonly manager: TokenManager
+  ) {}
 
-  public getResource: TypedRequestHandlers['getResourceName'] = (req, res) => {
-    return res.status(httpStatus.OK).json(this.manager.getResource());
+  public getToken: TypedRequestHandlers['getToken'] = (req, res) => {
+    return res.status(httpStatus.OK).json(this.manager.getToken());
   };
 }
