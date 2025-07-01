@@ -146,7 +146,6 @@ auth-manager:
 
 auth-ui:
   enabled: true
-  environment: *environment
   replicaCount: 1
   initialDelaySeconds: 60
 

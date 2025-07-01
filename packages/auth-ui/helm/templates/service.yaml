@@ -8,7 +8,6 @@ metadata:
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
-    environment: {{ include "auth-ui.environment" . }}
     release: {{ $releaseName }}
     {{- include "auth-ui.labels" . | nindent 4 }}
 spec:
