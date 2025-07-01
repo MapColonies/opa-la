@@ -3,10 +3,10 @@ global:
   tracing: {}
   metrics: {}
   mcLabelsAndAnnotations:
-    environment: "development"
+    environment: development
 
 mcLabelsAndAnnotations:
-  component: infrastructure
+  component: frontend
   owner: infra
   partOf: authentication
 

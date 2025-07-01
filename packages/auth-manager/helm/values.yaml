@@ -6,7 +6,7 @@ global:
     environment: "development"
 
 mcLabelsAndAnnotations:
-  component: infrastructure
+  component: backend
   owner: infra
   partOf: authentication
 

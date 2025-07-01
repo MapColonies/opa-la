@@ -3,12 +3,12 @@ global:
   tracing: {}
   metrics: {}
   mcLabelsAndAnnotations:
-    environment: "development"
+    environment: development
 
 mcLabelsAndAnnotations:
-  component: "backend"
-  partOf: "authentication"
-  owner: "infra"
+  component: backend
+  partOf: authentication
+  owner: infra
 
 enabled: true
 replicaCount: 1

@@ -3,7 +3,7 @@ global:
   tracing: {}
   metrics: {}
   mcLabelsAndAnnotations:
-    environment: "development"
+    environment: development
 
 mcLabelsAndAnnotations:
   component: infrastructure
