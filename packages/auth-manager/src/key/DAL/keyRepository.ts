@@ -5,6 +5,7 @@ import { DataSource, Repository } from 'typeorm';
 export type KeyRepository = Repository<Key> & {
   getMaxVersionWithLock: (env: Environments) => Promise<number | null>;
   getLatestKeys: () => Promise<Key[]>;
+  getMaxVersion: (env: Environments) => Promise<number | null>;
 };
 
 export const keyRepositoryFactory: FactoryFunction<KeyRepository> = (container) => {
@@ -21,6 +22,18 @@ export const keyRepositoryFactory: FactoryFunction<KeyRepository> = (container) 
           return 'Key.version = ' + subQuery;
         })
         .setLock('pessimistic_write')
+        .setParameter('environment', env)
+        .getRawOne<{ version: number }>();
+
+      if (result === undefined) {
+        return null;
+      }
+      return result.version;
+    },
+    async getMaxVersion(env: Environments): Promise<number | null> {
+      const result = await this.createQueryBuilder()
+        .select('MAX(version)', 'version')
+        .where('environment = :environment')
         .setParameter('environment', env)
         .getRawOne<{ version: number }>();
 

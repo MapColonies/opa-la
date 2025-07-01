@@ -198,6 +198,34 @@ describe('connection', function () {
         expect(res.body).toStrictEqual({ ...connections[2], createdAt: connections[2]!.createdAt?.toISOString() });
       });
     });
+
+    describe('GET /client/:clientName/connection/:environment/latest', function () {
+      it('should return 200 status code and the latest connection for the environment', async function () {
+        const expectedConnection = connections.find(
+          (c) => c.name === connections[0]!.name && c.environment === Environment.PRODUCTION && c.version === 2
+        );
+
+        const res = await requestSender.getClientLatestConnection({
+          pathParams: { clientName: connections[0]!.name, environment: Environment.PRODUCTION },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ ...expectedConnection, createdAt: expectedConnection!.createdAt?.toISOString() });
+      });
+
+      it('should return 200 status code and the only connection when there is only one version', async function () {
+        const expectedConnection = connections.find((c) => c.name === connections[0]!.name && c.environment === Environment.NP);
+
+        const res = await requestSender.getClientLatestConnection({
+          pathParams: { clientName: connections[0]!.name, environment: Environment.NP },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ ...expectedConnection, createdAt: expectedConnection!.createdAt?.toISOString() });
+      });
+    });
   });
 
   describe('Bad Path', function () {
@@ -296,6 +324,35 @@ describe('connection', function () {
         expect(res).toSatisfyApiSpec();
       });
     });
+
+    describe('GET /client/:clientName/connection/:environment/latest', function () {
+      it('should return 400 if clientName value is not valid', async function () {
+        const res = await requestSender.getClientLatestConnection({
+          pathParams: { clientName: 'AI', environment: Environment.STAGE },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+      });
+
+      it('should return 400 if environment value is not valid', async function () {
+        const res = await requestSender.getClientLatestConnection({
+          pathParams: { clientName: 'avi', environment: 'avi' as Environments },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+      });
+
+      it('should return 404 if no connection exists for the client and environment', async function () {
+        const res = await requestSender.getClientLatestConnection({
+          pathParams: { clientName: 'avi', environment: Environment.STAGE },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
+        expect(res).toSatisfyApiSpec();
+      });
+    });
   });
 
   describe('Sad Path', function () {
@@ -379,6 +436,20 @@ describe('connection', function () {
 
         const res = await requestSender.getClientVersionedConnection({
           pathParams: { clientName: clients[0]!.name, environment: Environment.NP, version: 1 },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(res).toSatisfyApiSpec();
+      });
+    });
+
+    describe('GET /client/:clientName/connection/:environment/latest', function () {
+      it('should return 500 status code if db throws an error', async function () {
+        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
+        jest.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
+
+        const res = await requestSender.getClientLatestConnection({
+          pathParams: { clientName: connections[0]!.name, environment: Environment.NP },
         });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);

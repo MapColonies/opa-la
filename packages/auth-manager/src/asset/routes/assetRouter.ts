@@ -9,6 +9,7 @@ export const assetRouterFactory: FactoryFunction<Router> = (dependencyContainer)
   router.get('/', controller.getAssets);
   router.post('/', controller.upsertAsset);
   router.get('/:assetName', controller.getNamedAssets);
+  router.get('/:assetName/latest', controller.getLatestAsset);
   router.get('/:assetName/:version', controller.getAsset);
 
   return router;

@@ -152,6 +152,36 @@ describe('client', function () {
         expect(res.body).toStrictEqual({ ...asset, createdAt: asset.createdAt?.toISOString() });
       });
     });
+
+    describe('GET /asset/:name/latest', function () {
+      it('should return 200 status code and the latest asset when multiple versions exist', async function () {
+        const baseAsset = getFakeAsset();
+        const assets: IAsset[] = [baseAsset, { ...baseAsset, version: 2 }, { ...baseAsset, version: 3 }];
+
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Asset).save(assets);
+
+        const expectedAsset = assets.find((a) => a.version === 3);
+
+        const res = await requestSender.getLatestAsset({ pathParams: { assetName: baseAsset.name } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ ...expectedAsset, createdAt: expectedAsset!.createdAt?.toISOString() });
+      });
+
+      it('should return 200 status code and the only asset when there is only one version', async function () {
+        const asset = getFakeAsset();
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Asset).save(asset);
+
+        const res = await requestSender.getLatestAsset({ pathParams: { assetName: asset.name } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ ...asset, createdAt: asset.createdAt?.toISOString() });
+      });
+    });
   });
 
   describe('Bad Path', function () {
@@ -207,6 +237,22 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
       });
     });
+
+    describe('GET /asset/:name/latest', function () {
+      it('should return 400 if assetName value is not valid', async function () {
+        const res = await requestSender.getLatestAsset({ pathParams: { assetName: 'AI' } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+      });
+
+      it('should return 404 if no asset exists with the given name', async function () {
+        const res = await requestSender.getLatestAsset({ pathParams: { assetName: 'nonexistent' } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
+        expect(res).toSatisfyApiSpec();
+      });
+    });
   });
 
   describe('Sad Path', function () {
@@ -255,6 +301,18 @@ describe('client', function () {
           jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
           const res = await requestSender.getVersionedAsset({ pathParams: { assetName: 'avi', version: 1 } });
+
+          expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
+          expect(res).toSatisfyApiSpec();
+        });
+      });
+
+      describe('GET /asset/:name/latest', function () {
+        it('should return 500 status code if db throws an error', async function () {
+          const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
+          jest.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
+
+          const res = await requestSender.getLatestAsset({ pathParams: { assetName: 'avi' } });
 
           expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
           expect(res).toSatisfyApiSpec();

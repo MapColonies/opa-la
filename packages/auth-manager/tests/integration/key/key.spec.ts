@@ -119,6 +119,43 @@ describe('key', function () {
         expect(res.body).toStrictEqual(key);
       });
     });
+
+    describe('GET /key/:environment/latest', () => {
+      it('should return 200 status code and the latest key when multiple versions exist', async function () {
+        const [privateKey, publicKey] = getMockKeys();
+        const keys: IKey[] = [
+          { environment: Environment.STAGE, version: 1, privateKey, publicKey },
+          { environment: Environment.STAGE, version: 2, privateKey, publicKey },
+          { environment: Environment.STAGE, version: 3, privateKey, publicKey },
+        ];
+
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Key).save(keys);
+
+        const expectedKey = keys.find((k) => k.version === 3);
+
+        const res = await requestSender.getLatestKey({ pathParams: { environment: Environment.STAGE } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual(expectedKey);
+      });
+
+      it('should return 200 status code and the only key when there is only one version', async function () {
+        const [privateKey, publicKey] = getMockKeys();
+        const key: IKey = { environment: Environment.PRODUCTION, version: 1, privateKey, publicKey };
+
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Key).delete({ environment: Environment.PRODUCTION }); // Ensure no previous keys exist
+        await connection.getRepository(Key).save(key);
+
+        const res = await requestSender.getLatestKey({ pathParams: { environment: Environment.PRODUCTION } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual(key);
+      });
+    });
   });
 
   describe('Bad Path', function () {
@@ -180,6 +217,24 @@ describe('key', function () {
         expect(res).toSatisfyApiSpec();
       });
     });
+
+    describe('GET /key/:environment/latest', () => {
+      it('should return 400 if environment value is not valid', async function () {
+        const res = await requestSender.getLatestKey({ pathParams: { environment: 'avi' as Environments } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+      });
+
+      it('should return 404 if no key exists for the given environment', async function () {
+        await depContainer.resolve(DataSource).getRepository(Key).delete({ environment: Environment.PRODUCTION });
+
+        const res = await requestSender.getLatestKey({ pathParams: { environment: Environment.PRODUCTION } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
+        expect(res).toSatisfyApiSpec();
+      });
+    });
   });
   describe('Sad Path', function () {
     afterEach(function () {
@@ -227,6 +282,18 @@ describe('key', function () {
           jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
           const res = await requestSender.getSpecificKey({ pathParams: { environment: Environment.NP, version: 1 } });
+
+          expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
+          expect(res).toSatisfyApiSpec();
+        });
+      });
+
+      describe('GET /key/:environment/latest', () => {
+        it('should return 500 status code if db throws an error', async function () {
+          const repo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
+          jest.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
+
+          const res = await requestSender.getLatestKey({ pathParams: { environment: Environment.NP } });
 
           expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
           expect(res).toSatisfyApiSpec();

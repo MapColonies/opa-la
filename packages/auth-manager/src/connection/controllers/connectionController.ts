@@ -94,6 +94,20 @@ export class ConnectionController {
     }
   };
 
+  public getLatestConnection: TypedRequestHandlers['getClientLatestConnection'] = async (req, res, next) => {
+    this.logger.debug('executing #getLatestConnection handler');
+
+    try {
+      const connection = await this.manager.getLatestConnection(req.params.clientName, req.params.environment);
+      return res.status(httpStatus.OK).json(responseConnectionToOpenApi(connection));
+    } catch (error) {
+      if (error instanceof ConnectionNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+  };
+
   public upsertConnection: TypedRequestHandlers['upsertConnection'] = async (req, res, next) => {
     this.logger.debug('executing #upsertConnection handler');
 
