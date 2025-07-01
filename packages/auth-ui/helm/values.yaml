@@ -2,8 +2,6 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  mcLabelsAndAnnotations:
-    environment: development
 
 mcLabelsAndAnnotations:
   component: frontend

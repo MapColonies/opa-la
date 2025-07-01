@@ -2,14 +2,14 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  mcLabelsAndAnnotations:
-    environment: development
 
 mcLabelsAndAnnotations:
   component: infrastructure
   owner: infra
   partOf: authentication
-  metricsPort: 8181
+  prometheus:
+    enabled: true
+    port: 8181
 
 cloudProvider:
   dockerRegistryUrl: my-registry-url.io
