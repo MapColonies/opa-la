@@ -14,6 +14,7 @@ export const clientRouterFactory: FactoryFunction<Router> = (dependencyContainer
   router.patch('/:clientName', controller.updateClient);
   router.get('/:clientName/connection', connectionController.getNamedConnections);
   router.get('/:clientName/connection/:environment', connectionController.getNamedEnvConnections);
+  router.get('/:clientName/connection/:environment/latest', connectionController.getLatestConnection);
   router.get('/:clientName/connection/:environment/:version', connectionController.getConnection);
 
   return router;

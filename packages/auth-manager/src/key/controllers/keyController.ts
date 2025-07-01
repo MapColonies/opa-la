@@ -50,6 +50,20 @@ export class KeyController {
     }
   };
 
+  public getLatestKey: TypedRequestHandlers['getLatestKey'] = async (req, res, next) => {
+    this.logger.debug('executing #getLatestKey handler');
+
+    try {
+      const key = await this.manager.getLatestKey(req.params.environment);
+      return res.status(httpStatus.OK).json(key);
+    } catch (error) {
+      if (error instanceof KeyNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+  };
+
   public upsertKey: TypedRequestHandlers['upsertKey'] = async (req, res, next) => {
     this.logger.debug('executing #upsertKey handler');
 

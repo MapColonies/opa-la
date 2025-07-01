@@ -43,6 +43,16 @@ export class AssetManager {
     return asset;
   }
 
+  public async getLatestAsset(name: string): Promise<ResponseAsset> {
+    this.logger.info({ msg: 'fetching latest asset', asset: { name } });
+    const version = await this.assetRepository.getMaxVersion(name);
+    if (version === null) {
+      this.logger.debug('latest asset was not found in the database');
+      throw new AssetNotFoundError('latest asset was not found in the database');
+    }
+    return this.getAsset(name, version);
+  }
+
   public async upsertAsset(asset: RequestAsset): Promise<ResponseAsset> {
     this.logger.info({ msg: 'upserting asset', asset: { environment: asset.environment, version: asset.version } });
     return this.assetRepository.manager.transaction(async (transactionManager) => {

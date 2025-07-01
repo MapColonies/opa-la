@@ -67,6 +67,17 @@ export class ConnectionManager {
     return connection;
   }
 
+  public async getLatestConnection(name: string, environment: Environments): Promise<IConnection> {
+    this.logger.info({ msg: 'fetching latest connection', connection: { name, environment } });
+    const version = await this.connectionRepository.getMaxVersion(name, environment);
+
+    if (version === null) {
+      this.logger.debug('latest connection was not found in the database');
+      throw new ConnectionNotFoundError('latest connection was not found in the database');
+    }
+    return this.getConnection(name, environment, version);
+  }
+
   public async upsertConnection(connection: IConnection, ignoreTokenErrors = false): Promise<IConnection> {
     this.logger.info({ msg: 'upserting connection', connection: { environment: connection.environment, version: connection.version } });
     return this.connectionRepository.manager.transaction(async (transactionManager) => {
