@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
+import { BundleDatabase, createBundle, getVersionCommand } from '@map-colonies/auth-bundler';
 import { Bundle, Environments } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import { getS3Client } from './s3';
@@ -16,14 +16,20 @@ export function getJob(
     logger?.debug({ msg: 'fetching bundle information from the database', bundleEnv: environment });
     const latestBundle = await bundleRepository.findOne({ where: { environment }, order: { id: 'DESC' } });
     const latestVersions = await bundleDatabase.getLatestVersions(environment);
+    const currentOpaVersion = await getVersionCommand();
+
+    logger?.debug({ msg: 'latest bundle from db', bundleEnv: environment, latestBundle, latestVersions });
+
+    logger?.debug({ msg: 'checking if bundle is up to date', bundleEnv: environment, currentOpaVersion });
 
     let shouldSaveBundleToDb = true;
-
-    if (latestBundle !== null && compareVersionsToBundle(latestBundle, latestVersions)) {
+    if (latestBundle !== null && currentOpaVersion === latestBundle.opaVersion && compareVersionsToBundle(latestBundle, latestVersions)) {
+      logger?.info({ msg: 'bundle is up to date with the database, checking s3', bundleEnv: environment });
       if (latestBundle.hash === (await getS3Client(environment).getObjectHash())) {
         logger?.info({ msg: 's3 bundle is up to date with the database', bundleEnv: environment });
         return;
       }
+      logger?.info({ msg: 's3 bundle is not up to date with the database, creating new bundle', bundleEnv: environment });
       shouldSaveBundleToDb = false;
     }
 

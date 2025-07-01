@@ -5,6 +5,8 @@ import { injectable, inject } from 'tsyringe';
 import { IClient } from '@map-colonies/auth-core';
 import type { TypedRequestHandlers, components, operations } from '@openapi';
 import { SERVICES } from '@common/constants';
+import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
+import { sortOptionParser } from '@src/common/db/sort';
 import { ClientManager } from '../models/clientManager';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
 import { ClientSearchParams } from '../models/client';
@@ -29,6 +31,16 @@ function queryParamsToSearchParams(query: NonNullable<operations['getClients']['
   };
 }
 
+const clientSortMap = new Map<string, keyof IClient>(
+  Object.entries({
+    name: 'name',
+    branch: 'branch',
+    'created-at': 'createdAt',
+    'updated-at': 'updatedAt',
+    'heb-name': 'hebName',
+  })
+);
+
 @injectable()
 export class ClientController {
   public constructor(
@@ -38,12 +50,24 @@ export class ClientController {
 
   public getClients: TypedRequestHandlers['getClients'] = async (req, res, next) => {
     try {
-      this.logger.debug('executing #getClients handler');
+      this.logger.debug({ msg: 'executing #getClients handler', query: req.query });
+      const searchParams = queryParamsToSearchParams(req.query as NonNullable<operations['getClients']['parameters']['query']>);
 
-      const clients = await this.manager.getClients(
-        queryParamsToSearchParams(req.query as NonNullable<operations['getClients']['parameters']['query']>)
-      );
-      return res.status(httpStatus.OK).json(clients.map(responseClientToOpenApi));
+      const paginationParams = {
+        /* istanbul ignore next */
+        page: req.query?.page ?? 1,
+        /* istanbul ignore next */
+        pageSize: req.query?.page_size ?? DEFAULT_PAGE_SIZE,
+      };
+      /* istanbul ignore next */
+      const sortParams = sortOptionParser(req.query?.sort, clientSortMap);
+
+      const [clients, count] = await this.manager.getClients(searchParams, paginationParams, sortParams);
+
+      return res.status(httpStatus.OK).json({
+        total: count,
+        items: clients.map((client) => responseClientToOpenApi(client)),
+      });
     } catch (error) {
       return next(error);
     }

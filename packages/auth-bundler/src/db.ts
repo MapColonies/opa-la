@@ -4,6 +4,7 @@ import { BundleContent, BundleContentVersions } from './types';
 import { extractNameAndVersion } from './util';
 import { logger } from './logger';
 import { ConnectionNotInitializedError, KeyNotFoundError } from './errors';
+import { getVersionCommand } from './opa';
 
 /**
  * This class handles all the database interactions required to creating a bundle.
@@ -60,6 +61,7 @@ export class BundleDatabase {
       connections: versions.connections,
       keyVersion: versions.keyVersion,
       hash,
+      opaVersion: await getVersionCommand(),
     };
 
     const res = await this.bundleRepository.save(bundle);

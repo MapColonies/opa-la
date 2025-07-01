@@ -43,12 +43,18 @@ describe('connection', function () {
     });
     requestSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
     depContainer = container;
+  });
+  beforeEach(async function () {
     await depContainer.resolve(DataSource).getRepository(Client).save(clients);
     await depContainer.resolve(DataSource).getRepository(Connection).save(connections);
     await depContainer
       .resolve(DataSource)
       .getRepository(Domain)
       .save([{ name: 'alpha' }, { name: 'bravo' }, { name: 'test' }]);
+  });
+
+  afterEach(async function () {
+    await depContainer.resolve(DataSource).getRepository(Connection).clear();
   });
 
   afterAll(async function () {
@@ -62,7 +68,10 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toBeArray();
+
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        const returnedItems = res.body.items as IConnection[];
+        expect(returnedItems).toBeArray();
       });
 
       it('should return 200 status code and all the connections with specific env', async function () {
@@ -70,7 +79,9 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((c: IConnection) => c.environment.includes(Environment.PRODUCTION));
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        const returnedItems = res.body.items as IConnection[];
+        expect(returnedItems).toSatisfyAll((c: IConnection) => c.environment.includes(Environment.PRODUCTION));
       });
 
       it('should return 200 status code and all the connections with specific domain', async function () {
@@ -78,7 +89,9 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((c: IConnection) => c.domains.includes('test'));
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        const returnedItems = res.body.items as IConnection[];
+        expect(returnedItems).toSatisfyAll((c: IConnection) => c.domains.includes('test'));
       });
     });
 
@@ -293,7 +306,7 @@ describe('connection', function () {
     describe('GET /connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'find').mockRejectedValue(new Error());
+        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
 
         const res = await requestSender.getConnections();
 
@@ -333,7 +346,7 @@ describe('connection', function () {
     describe('GET /client/:clientName/connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'find').mockRejectedValue(new Error());
+        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
 
         const res = await requestSender.getClientConnections({ pathParams: { clientName: 'avi' } });
 
@@ -345,7 +358,7 @@ describe('connection', function () {
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'find').mockRejectedValue(new Error());
+        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
 
         const res = await requestSender.getClientEnvironmentConnections({ pathParams: { clientName: 'avi', environment: Environment.NP } });
 
@@ -356,11 +369,16 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment/:version', function () {
       it('should return 500 status code if db throws an error', async function () {
+        const connection = getFakeIConnection();
+        connection.name = clients[0]!.name;
+        connection.environment = Environment.NP;
+
+        await requestSender.upsertConnection({ requestBody: connection });
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
         jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
         const res = await requestSender.getClientVersionedConnection({
-          pathParams: { clientName: 'avi', environment: Environment.NP, version: 1 },
+          pathParams: { clientName: clients[0]!.name, environment: Environment.NP, version: 1 },
         });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);

@@ -8,5 +8,8 @@ dependencies:
 - name: auth-manager
   repository: file://../packages/auth-manager/helm
   version: 1.3.0
-digest: sha256:af2b9a3d5b6da0b2539fb28333f69e22aa736bc7af4daa3becbb6ecbad21383d
-generated: "2025-05-29T14:14:59.654404791+03:00"
+- name: auth-ui
+  repository: file://../packages/auth-ui/helm
+  version: 1.3.0
+digest: sha256:7c7a6c3808953f3401af602cf4183c8e39325154be821f8034acdde0ab8022c1
+generated: "2025-06-30T16:08:19.074276+03:00"

@@ -10,7 +10,7 @@ import { getFakeClient } from '../../../utils/client';
 describe('ClientManager', () => {
   let clientManager: ClientManager;
   const mockedRepository = {
-    find: jest.fn(),
+    findAndCount: jest.fn(),
     insert: jest.fn(),
     findOne: jest.fn(),
     updateAndReturn: jest.fn(),
@@ -20,17 +20,17 @@ describe('ClientManager', () => {
     jest.resetAllMocks();
   });
   describe('#getClients', () => {
-    it('should return the array of domains', async function () {
+    it('should return the array of clients', async function () {
       const client = getFakeClient(true);
-      mockedRepository.find.mockResolvedValue([client]);
+      mockedRepository.findAndCount.mockResolvedValue([[client], 1]);
 
       const domainPromise = clientManager.getClients();
 
-      await expect(domainPromise).resolves.toStrictEqual([client]);
+      await expect(domainPromise).resolves.toStrictEqual([[client], 1]);
     });
 
     it('should throw an error if thrown by the ORM', async function () {
-      mockedRepository.find.mockRejectedValue(new Error());
+      mockedRepository.findAndCount.mockRejectedValue(new Error());
 
       const domainPromise = clientManager.getClients();
 
