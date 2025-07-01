@@ -72,7 +72,7 @@ auth-cron:
 
   image:
     repository: infra/auth-cron
-    # tag: 'v1.3.0'
+    # tag: 'v1.4.0'
 
   env:
     logLevel: info
@@ -116,7 +116,7 @@ auth-manager:
 
   image:
     repository: infra/auth-manager
-    # tag: v1.3.0
+    # tag: v1.4.0
 
   env:
     port: 8080
@@ -159,7 +159,7 @@ auth-ui:
 
   image:
     repository: infra/auth-ui
-    # tag: v1.3.0
+    # tag: v1.4.0
 
   env:
     port: 80
