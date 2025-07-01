@@ -12,4 +12,4 @@ dependencies:
   repository: file://../packages/auth-ui/helm
   version: 1.4.0
 digest: sha256:8d620d61ed3ff50dddcfc08bb5e88b9b891337453cb7cfc52790816631e3df7d
-generated: "2025-07-01T10:46:02.580980663+03:00"
+generated: "2025-07-01T11:21:33.59824+03:00"
