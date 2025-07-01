@@ -2,10 +2,15 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  environment: ''
+
+mcLabelsAndAnnotations:
+  component: backend
+  owner: infra
+  partOf: authentication
+  prometheus:
+    enabled: true
 
 enabled: true
-environment: development
 replicaCount: 1
 initialDelaySeconds: 60
 resetOnConfigChange: true

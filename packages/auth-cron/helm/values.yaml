@@ -2,10 +2,15 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  environment: ''
+
+mcLabelsAndAnnotations:
+  component: backend
+  partOf: authentication
+  owner: infra
+  prometheus:
+    enabled: true
 
 enabled: true
-environment: development
 replicaCount: 1
 initialDelaySeconds: 60
 nodePort: 30030 #for minikube deployment only

@@ -14,9 +14,12 @@ if (version === undefined) {
 const files = [
   { path: 'packages/auth-manager/openapi3.yaml', targets: ['info.version'] },
   { path: 'packages/auth-manager/helm/Chart.yaml', targets: ['version', 'appVersion'] },
-  { path: 'packages/auth-ui/helm/Chart.yaml', targets: ['version', 'appVersion'] },
   { path: 'packages/auth-cron/helm/Chart.yaml', targets: ['version', 'appVersion'] },
-  { path: 'helm/Chart.yaml', targets: ['version'] },
+  { path: 'packages/auth-ui/helm/Chart.yaml', targets: ['version', 'appVersion'] },
+  {
+    path: 'helm/Chart.yaml',
+    targets: ['version', 'dependencies[0].version', 'dependencies[1].version', 'dependencies[2].version', 'dependencies[3].version'],
+  },
   { path: 'helm/charts/opa/Chart.yaml', targets: ['version'] },
 ];
 

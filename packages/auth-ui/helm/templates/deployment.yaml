@@ -11,7 +11,6 @@ metadata:
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
-    environment: {{ include "auth-ui.environment" . }}
     release: {{ $releaseName }}
     {{- include "auth-ui.labels" . | nindent 4 }}
 spec:
@@ -31,6 +30,7 @@ spec:
         {{- include "auth-ui.selectorLabels" . | nindent 8 }}
       {{- if .Values.resetOnConfigChange }}
       annotations:
+        {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- if .Values.additionalPodAnnotations }}
         {{- toYaml .Values.additionalPodAnnotations | nindent 8}}
