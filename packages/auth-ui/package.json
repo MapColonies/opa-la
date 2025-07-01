@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:docker": "cross-env DOCKER_BUILDKIT=1 docker build -f Dockerfile -t auth-ui ../.. ",
+    "build:docker-no-cache": "cross-env DOCKER_BUILDKIT=1 docker build --no-cache -f Dockerfile -t auth-ui ../.. ",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --check .",
@@ -40,7 +42,7 @@
     "openapi-react-query": "^0.3.1",
     "prismjs": "^1.30.0",
     "react": "^19.0.0",
-    "react-day-picker": "^8.10.1",
+    "react-day-picker": "^9.7.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.3",
     "react-json-tree": "^0.20.0",
