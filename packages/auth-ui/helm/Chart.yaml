@@ -2,8 +2,8 @@ apiVersion: v2
 name: auth-ui
 description: A Helm chart for auth-ui service
 type: application
-version: 1.4.0
-appVersion: 1.4.0
+version: 1.5.0
+appVersion: 1.5.0
 dependencies:
   - name: mc-labels-and-annotations
     version: 0.7.0
