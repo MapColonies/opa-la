@@ -9,6 +9,7 @@ export const keyRouterFactory: FactoryFunction<Router> = (dependencyContainer) =
   router.get('/', controller.getLatestKeys);
   router.post('/', controller.upsertKey);
   router.get('/:environment', controller.getKeys);
+  router.get('/:environment/latest', controller.getLatestKey);
   router.get('/:environment/:version', controller.getKey);
 
   return router;

@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 
 export type AssetRepository = Repository<Asset> & {
   getMaxVersionWithLock: (name: string) => Promise<number | null>;
+  getMaxVersion: (name: string) => Promise<number | null>;
 };
 
 export const assetRepositoryFactory: FactoryFunction<AssetRepository> = (container) => {
@@ -20,6 +21,18 @@ export const assetRepositoryFactory: FactoryFunction<AssetRepository> = (contain
           return 'Asset.version = ' + subQuery;
         })
         .setLock('pessimistic_write')
+        .setParameter('name', name)
+        .getRawOne<{ version: number }>();
+
+      if (result === undefined) {
+        return null;
+      }
+      return result.version;
+    },
+    async getMaxVersion(name: string): Promise<number | null> {
+      const result = await this.createQueryBuilder()
+        .select('MAX(version)', 'version')
+        .where('name = :name')
         .setParameter('name', name)
         .getRawOne<{ version: number }>();
 

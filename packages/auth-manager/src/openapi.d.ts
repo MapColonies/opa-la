@@ -99,6 +99,26 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
+  '/client/{clientName}/connection/{environment}/latest': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        clientName: components['parameters']['clientParam'];
+        environment: components['parameters']['environmentPathParam'];
+      };
+      cookie?: never;
+    };
+    /** get the latest client connection for specific environment */
+    get: operations['getClientLatestConnection'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/connection': {
     parameters: {
       query?: never;
@@ -174,6 +194,25 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
+  '/key/{environment}/latest': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        environment: components['parameters']['environmentPathParam'];
+      };
+      cookie?: never;
+    };
+    /** gets the latest key for specific environment */
+    get: operations['getLatestKey'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/asset': {
     parameters: {
       query?: never;
@@ -223,6 +262,25 @@ export type paths = {
     };
     /** get asset by name and version */
     get: operations['getVersionedAsset'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/asset/{assetName}/latest': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        assetName: components['parameters']['assetParam'];
+      };
+      cookie?: never;
+    };
+    /** get latest asset by name */
+    get: operations['getLatestAsset'];
     put?: never;
     post?: never;
     delete?: never;
@@ -693,6 +751,32 @@ export interface operations {
       500: components['responses']['500InternalServerError'];
     };
   };
+  getClientLatestConnection: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        clientName: components['parameters']['clientParam'];
+        environment: components['parameters']['environmentPathParam'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['connection'];
+        };
+      };
+      400: components['responses']['400BadRequest'];
+      404: components['responses']['404NotFound'];
+      500: components['responses']['500InternalServerError'];
+    };
+  };
   getConnections: {
     parameters: {
       query?: {
@@ -896,6 +980,31 @@ export interface operations {
       500: components['responses']['500InternalServerError'];
     };
   };
+  getLatestKey: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        environment: components['parameters']['environmentPathParam'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['key'];
+        };
+      };
+      400: components['responses']['400BadRequest'];
+      404: components['responses']['404NotFound'];
+      500: components['responses']['500InternalServerError'];
+    };
+  };
   getAssets: {
     parameters: {
       query?: {
@@ -990,6 +1099,31 @@ export interface operations {
       path: {
         assetName: components['parameters']['assetParam'];
         version: components['parameters']['versionParam'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['asset'];
+        };
+      };
+      400: components['responses']['400BadRequest'];
+      404: components['responses']['404NotFound'];
+      500: components['responses']['500InternalServerError'];
+    };
+  };
+  getLatestAsset: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        assetName: components['parameters']['assetParam'];
       };
       cookie?: never;
     };

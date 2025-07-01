@@ -39,6 +39,16 @@ export class KeyManager {
     return key;
   }
 
+  public async getLatestKey(environment: Environments): Promise<IKey> {
+    this.logger.info({ msg: 'fetching latest key', key: { environment } });
+    const version = await this.keyRepository.getMaxVersion(environment);
+    if (version === null) {
+      this.logger.debug('latest key was not found in the database');
+      throw new KeyNotFoundError('latest key was not found in the database');
+    }
+    return this.getKey(environment, version);
+  }
+
   public async upsertKey(key: IKey): Promise<IKey> {
     this.logger.info({ msg: 'upserting key', key: { environment: key.environment, version: key.version } });
     return this.keyRepository.manager.transaction(async (transactionManager) => {

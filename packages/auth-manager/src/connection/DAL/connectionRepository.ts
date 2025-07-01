@@ -15,6 +15,7 @@ const maxVersionSubQuery = (qb: SelectQueryBuilder<Connection>): string => {
 
 export type ConnectionRepository = Repository<Connection> & {
   getMaxVersionWithLock: (name: string, environment: Environments) => Promise<number | null>;
+  getMaxVersion: (name: string, environment: Environments) => Promise<number | null>;
 };
 
 export const connectionRepositoryFactory: FactoryFunction<ConnectionRepository> = (container) => {
@@ -27,6 +28,18 @@ export const connectionRepositoryFactory: FactoryFunction<ConnectionRepository> 
         .where('name = :name AND environment = :environment')
         .andWhere(maxVersionSubQuery)
         .setLock('pessimistic_write')
+        .setParameters({ name, environment })
+        .getRawOne<{ version: number }>();
+
+      if (result === undefined) {
+        return null;
+      }
+      return result.version;
+    },
+    async getMaxVersion(name: string, environment: Environments): Promise<number | null> {
+      const result = await this.createQueryBuilder()
+        .select('MAX(version)', 'version')
+        .where('name = :name AND environment = :environment')
         .setParameters({ name, environment })
         .getRawOne<{ version: number }>();
 

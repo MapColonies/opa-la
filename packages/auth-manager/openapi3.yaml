@@ -252,6 +252,28 @@ paths:
           $ref: '#/components/responses/404NotFound'
         '500':
           $ref: '#/components/responses/500InternalServerError'
+  '/client/{clientName}/connection/{environment}/latest':
+    parameters:
+      - $ref: '#/components/parameters/clientParam'
+      - $ref: '#/components/parameters/environmentPathParam'
+    get:
+      operationId: getClientLatestConnection
+      summary: get the latest client connection for specific environment
+      tags:
+        - connection
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connection'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
   /connection:
     get:
       operationId: getConnections
@@ -475,6 +497,27 @@ paths:
           $ref: '#/components/responses/404NotFound'
         '500':
           $ref: '#/components/responses/500InternalServerError'
+  '/key/{environment}/latest':
+    parameters:
+      - $ref: '#/components/parameters/environmentPathParam'
+    get:
+      operationId: getLatestKey
+      summary: gets the latest key for specific environment
+      tags:
+        - key
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/key'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
   /asset:
     get:
       operationId: getAssets
@@ -564,6 +607,27 @@ paths:
     get:
       operationId: getVersionedAsset
       summary: get asset by name and version
+      tags:
+        - asset
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+  '/asset/{assetName}/latest':
+    parameters:
+      - $ref: '#/components/parameters/assetParam'
+    get:
+      operationId: getLatestAsset
+      summary: get latest asset by name
       tags:
         - asset
       responses:

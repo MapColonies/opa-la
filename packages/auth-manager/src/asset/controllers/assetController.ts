@@ -72,6 +72,23 @@ export class AssetController {
   };
 
   /**
+   * Get the latest asset by name
+   */
+  public getLatestAsset: TypedRequestHandlers['getLatestAsset'] = async (req, res, next) => {
+    this.logger.debug('executing #getLatestAsset handler');
+
+    try {
+      const asset = await this.manager.getLatestAsset(req.params.assetName);
+      return res.status(httpStatus.OK).json(responseAssetToOpenApi(asset));
+    } catch (error) {
+      if (error instanceof AssetNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+  };
+
+  /**
    * Create a new asset or update an existing one based on version
    */
   public upsertAsset: TypedRequestHandlers['upsertAsset'] = async (req, res, next) => {
