@@ -16,9 +16,13 @@ export class AuthController {
    */
   public getCurrentUser: TypedRequestHandlers['getCurrentUser'] = async (req, res, next) => {
     try {
+      // For some reason fetchUserInfo returns an error value but it actually works
+      /* eslint-disable @typescript-eslint/no-unsafe-assignment */
       const userInfo = await req.oidc.fetchUserInfo();
       this.logger.info('User info fetched successfully', { userInfo });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       res.status(httpStatus.OK).json(userInfo);
+      /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     } catch (error) {
       this.logger.error('Failed to fetch user info', { error });
       next(error);

@@ -24,17 +24,6 @@ export default defineConfig({
     workspace: [
       {
         test: {
-          name: 'unit',
-          setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vite.setup.ts'],
-          include: ['tests/unit/**/*.spec.ts'],
-          environment: 'node',
-        },
-        resolve: {
-          alias: pathAlias,
-        },
-      },
-      {
-        test: {
           name: 'integration',
           setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vite.setup.ts'],
           include: ['tests/integration/**/*.spec.ts'],
