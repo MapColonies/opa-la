@@ -1,10 +1,11 @@
 import type { Logger } from '@map-colonies/js-logger';
-import { addMilliseconds, formatISO, hoursToSeconds } from 'date-fns';
+import { addMilliseconds, formatISO, hoursToSeconds, isAfter, isFuture } from 'date-fns';
 import parseDuration from 'parse-duration';
 import { SignJWT } from 'jose';
 import { inject, injectable } from 'tsyringe';
 import { Cache, createCache } from 'async-cache-dedupe';
 import type { components } from '@openapi';
+import { UserManager } from '@src/users/userManager';
 import { SERVICES } from '@common/constants';
 import type { components as authManagerComponents } from '@src/auth-manager';
 import type { AuthManagerClient } from './authManagerClient';
@@ -20,7 +21,8 @@ export class TokenManager {
   private readonly cache: TokenCache;
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.AUTH_MANAGER_CLIENT) private readonly authManagerClient: AuthManagerClient
+    @inject(SERVICES.AUTH_MANAGER_CLIENT) private readonly authManagerClient: AuthManagerClient,
+    @inject(UserManager) private readonly userManager: UserManager
   ) {
     this.cache = createCache({
       ttl: hoursToSeconds(1),
@@ -30,11 +32,51 @@ export class TokenManager {
   }
 
   public async getToken(clientId: string): Promise<TokenResponse> {
-    this.logger.info({ msg: 'getting token' });
+    const user = await this.userManager.getUserById(clientId);
+
+    if (user?.isBanned === true) {
+      this.logger.warn({ msg: 'user is banned', userId: clientId });
+      throw new Error('User is banned');
+    }
+
+    const isUserTokenStillValid = user !== undefined && isAfter(user.tokenExpirationDate, new Date());
+    if (isUserTokenStillValid) {
+      this.logger.info({ msg: 'token is still valid', userId: clientId });
+
+      await this.userManager.updateUser(user.id, {
+        lastRequestedAt: new Date(),
+      });
+
+      return {
+        token: user.token,
+        expiration: formatISO(user.tokenExpirationDate, { representation: 'complete' }),
+        domains: ['raster'],
+      };
+    }
+
+    this.logger.info({ msg: 'generating a new token' });
 
     const expiration = addMilliseconds(Date.now(), parseDuration('1w') as number);
 
     const token = await this.generateToken(clientId);
+
+    if (!user) {
+      await this.userManager.createUser({
+        id: clientId,
+        metadata: {},
+        lastRequestedAt: new Date(),
+        token,
+        tokenExpirationDate: expiration,
+      });
+    } else {
+      await this.userManager.updateUser(user.id, {
+        lastRequestedAt: new Date(),
+        token,
+        tokenExpirationDate: expiration,
+        tokenCreationCount: user.tokenCreationCount + 1,
+        tokenCreationDate: new Date(),
+      });
+    }
 
     return {
       token,

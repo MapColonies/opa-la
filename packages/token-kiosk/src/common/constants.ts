@@ -13,5 +13,7 @@ export const SERVICES = {
   TRACER: Symbol('Tracer'),
   METRICS: Symbol('METRICS'),
   AUTH_MANAGER_CLIENT: Symbol('AuthManagerClient'),
+  PG_POOL: Symbol('PgPool'),
+  DRIZZLE: Symbol('Drizzle'),
 } satisfies Record<string, symbol>;
 /* eslint-enable @typescript-eslint/naming-convention */

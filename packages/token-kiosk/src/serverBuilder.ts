@@ -12,7 +12,7 @@ import { collectMetricsExpressMiddleware } from '@map-colonies/telemetry/prom-me
 import { Registry } from 'prom-client';
 import type { ConfigType } from '@common/config';
 import { SERVICES } from '@common/constants';
-import { TOKEN_ROUTER_SYMBOL } from './token/routes/tokenRouter';
+import { TOKEN_ROUTER_SYMBOL } from './tokens/routes/tokenRouter';
 import { AUTH_ROUTER_SYMBOL } from './auth/routes/authRouter';
 import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
 

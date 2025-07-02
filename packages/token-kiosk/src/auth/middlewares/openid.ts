@@ -4,7 +4,7 @@ import { auth } from 'express-openid-connect';
 export function openidAuthMiddlewareFactory(): RequestHandler {
   return auth({
     clientID: 'my-local-app',
-    issuerBaseURL: 'http://localhost:8080/realms/my-local-app',
+    issuerBaseURL: 'http://localhost:8080/realms/my-local-realm',
     baseURL: 'http://localhost:5173',
     authRequired: true,
     authorizationParams: {
@@ -12,8 +12,8 @@ export function openidAuthMiddlewareFactory(): RequestHandler {
       response_type: 'code',
       scope: 'openid profile email',
     },
-    secret: '<A BIG SECRET STRING HERE, e.g., a UUID or a long random string>',
-    clientSecret: '<A BIG SECRET STRING HERE, e.g., a UUID or a long random string>',
+    secret: 'sdfsdasdsadsadsadsadsadas',
+    clientSecret: '78vaqxyFyyf1xeTHXzgzNlhCVtW83Zi7',
     auth0Logout: false,
   });
 }
