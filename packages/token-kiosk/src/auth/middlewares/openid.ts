@@ -12,9 +12,8 @@ export function openidAuthMiddlewareFactory(): RequestHandler {
       response_type: 'code',
       scope: 'openid profile email',
     },
-    secret:
-      'sdnjsndkjasndkjsnamcxz mcnskjdnjwshuinsakjdnwandwaneiuajdnsjkndkjasbfhbuir34y8932h4421yh4hyu1bdyu12b34b213b213b7214n8712n483b184b123bh8wsndjisabndyu2b7843b12y4b2yu1b4hj12b4yu13b4y812h48y73bh128y74by12bndhbsydb7823bne47812bny384b12y4byu12byudbsnbd2h3by12bh4821h4',
-    clientSecret: 'Qn9KmSYd9aoU2UPRRpaltcNjsdsf9k8a',
+    secret: '<A BIG SECRET STRING HERE, e.g., a UUID or a long random string>',
+    clientSecret: '<A BIG SECRET STRING HERE, e.g., a UUID or a long random string>',
     auth0Logout: false,
   });
 }
