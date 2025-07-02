@@ -14,13 +14,14 @@ export class TokenController {
   ) {}
 
   public getToken: TypedRequestHandlers['getToken'] = async (req, res, next) => {
+    const email = req.oidc.user?.email as string;
+
     this.logger.debug('Received request to get token', {
-      user: req.oidc.user,
-      idToken: req.oidc.idToken,
+      user: email,
     });
 
     try {
-      const token = await this.manager.getToken(req.oidc.idToken as string);
+      const token = await this.manager.getToken(email);
 
       // We know the user is authenticated at this point because of the OIDC middleware, so we can safely access req.oidc.idToken
       return res.status(httpStatus.OK).json(token);
