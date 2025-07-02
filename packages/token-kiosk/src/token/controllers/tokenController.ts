@@ -13,7 +13,20 @@ export class TokenController {
     @inject(TokenManager) private readonly manager: TokenManager
   ) {}
 
-  public getToken: TypedRequestHandlers['getToken'] = (req, res) => {
-    return res.status(httpStatus.OK).json(this.manager.getToken());
+  public getToken: TypedRequestHandlers['getToken'] = async (req, res, next) => {
+    this.logger.debug('Received request to get token', {
+      user: req.oidc.user,
+      idToken: req.oidc.idToken,
+    });
+
+    try {
+      const token = await this.manager.getToken(req.oidc.idToken as string);
+
+      // We know the user is authenticated at this point because of the OIDC middleware, so we can safely access req.oidc.idToken
+      return res.status(httpStatus.OK).json(token);
+    } catch (error) {
+      this.logger.error('Error while getting token', { error });
+      return next(error);
+    }
   };
 }

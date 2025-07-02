@@ -1,5 +1,6 @@
 import type { Logger } from '@map-colonies/js-logger';
-import { hoursToSeconds } from 'date-fns';
+import { addMilliseconds, formatISO, hoursToSeconds } from 'date-fns';
+import parseDuration from 'parse-duration';
 import { SignJWT } from 'jose';
 import { inject, injectable } from 'tsyringe';
 import { Cache, createCache } from 'async-cache-dedupe';
@@ -28,13 +29,17 @@ export class TokenManager {
     }).define('getPrivateKey', this.getPrivateKey.bind(this));
   }
 
-  public getToken(clientId: string): TokenResponse {
+  public async getToken(clientId: string): Promise<TokenResponse> {
     this.logger.info({ msg: 'getting token' });
 
+    const expiration = addMilliseconds(Date.now(), parseDuration('1w') as number);
+
+    const token = await this.generateToken(clientId);
+
     return {
-      token: 'some-token',
-      expiration: new Date(Date.now() + 3600 * 1000).toISOString(),
-      domains: ['example.com'],
+      token,
+      expiration: formatISO(expiration, { representation: 'complete' }),
+      domains: ['raster'],
     };
   }
 
@@ -44,6 +49,9 @@ export class TokenManager {
     const jwt = new SignJWT({ id: clientId }).setSubject('c2b').setIssuer('token-kiosk').setIssuedAt().setExpirationTime('1w').setProtectedHeader({
       alg: 'RS256',
     });
+
+    const signedJwt = await jwt.sign(key.privateKey);
+    return signedJwt;
   }
 
   private async getPrivateKey(env: 'np' | 'prod' | 'stage'): Promise<authManagerComponents['schemas']['key']> {

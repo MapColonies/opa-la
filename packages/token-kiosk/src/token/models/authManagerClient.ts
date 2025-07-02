@@ -5,6 +5,6 @@ export type AuthManagerClient = Client<paths>;
 
 export function authManagerClientFactory(): AuthManagerClient {
   return createClient<paths>({
-    baseUrl: 'https://auth-manager.example.com',
+    baseUrl: 'http://localhost:8082',
   });
 }
