@@ -163,8 +163,8 @@ auth-ui:
 
   config: |
     {
-      "8080": {
-        "name": "Infra Dev Auth Manager",
+      "Local": {
+        "name": "localhost",
         "url": "https://infra-opala-auth-manager",
         "envs": [
           {

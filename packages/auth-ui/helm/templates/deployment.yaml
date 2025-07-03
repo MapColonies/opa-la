@@ -27,7 +27,7 @@ spec:
         app: {{ $chartName }}
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
-        {{- include "auth-ui.selectorLabels" . | nindent 8 }}
+        {{- include "auth-ui.labels" . | nindent 8 }}
       {{- if .Values.resetOnConfigChange }}
       annotations:
         {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}
