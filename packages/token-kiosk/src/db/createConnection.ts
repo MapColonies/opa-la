@@ -4,6 +4,9 @@ import { join } from 'node:path';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool, type PoolConfig } from 'pg';
+import { HealthCheck } from '@godaddy/terminus';
+import { promiseTimeout } from '../common/utils';
+import { DB_CONNECTION_TIMEOUT } from '../common/constants';
 import { users } from '../users/user';
 
 export type DbConfig = {
@@ -37,6 +40,15 @@ export function createDrizzle(pool: Pool): ReturnType<typeof drizzle<{ users: ty
       users,
     },
   });
+}
+
+export function healthCheck(connection: Pool): HealthCheck {
+  return async (): Promise<void> => {
+    const check = connection.query('SELECT 1').then(() => {
+      return;
+    });
+    return promiseTimeout<void>(DB_CONNECTION_TIMEOUT, check);
+  };
 }
 
 // maybe we should test migrations as well. for now, we'll just ignore them

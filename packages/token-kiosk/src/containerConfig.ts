@@ -4,7 +4,7 @@ import { Registry } from 'prom-client';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
 import jsLogger from '@map-colonies/js-logger';
 import { Pool } from 'pg';
-import { instancePerContainerCachingFactory } from 'tsyringe';
+import { instanceCachingFactory, instancePerContainerCachingFactory } from 'tsyringe';
 import { InjectionObject, registerDependencies } from '@common/dependencyRegistration';
 import { SERVICES, SERVICE_NAME } from '@common/constants';
 import { getTracing } from '@common/tracing';
@@ -12,7 +12,7 @@ import { tokenRouterFactory, TOKEN_ROUTER_SYMBOL } from './tokens/routes/tokenRo
 import { getConfig } from './common/config';
 import { AUTH_ROUTER_SYMBOL, authRouterFactory } from './auth/routes/authRouter';
 import { authManagerClientFactory } from './tokens/models/authManagerClient';
-import { createConnectionOptions, createDrizzle, DbConfig, initConnection } from './db/createConnection';
+import { createConnectionOptions, createDrizzle, DbConfig, healthCheck, initConnection } from './db/createConnection';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -46,6 +46,15 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: AUTH_ROUTER_SYMBOL, provider: { useFactory: authRouterFactory } },
     { token: SERVICES.AUTH_MANAGER_CLIENT, provider: { useFactory: authManagerClientFactory } },
     { token: SERVICES.PG_POOL, provider: { useValue: pool } },
+    {
+      token: SERVICES.HEALTHCHECK,
+      provider: {
+        useFactory: instanceCachingFactory((container) => {
+          const connection = container.resolve<Pool>(SERVICES.PG_POOL);
+          return healthCheck(connection);
+        }),
+      },
+    },
     {
       token: SERVICES.DRIZZLE,
       provider: {

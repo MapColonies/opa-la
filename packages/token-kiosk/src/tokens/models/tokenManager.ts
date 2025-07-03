@@ -50,7 +50,6 @@ export class TokenManager {
       return {
         token: user.token,
         expiration: formatISO(user.tokenExpirationDate, { representation: 'complete' }),
-        domains: ['raster'],
       };
     }
 
@@ -81,7 +80,6 @@ export class TokenManager {
     return {
       token,
       expiration: formatISO(expiration, { representation: 'complete' }),
-      domains: ['raster'],
     };
   }
 
@@ -89,7 +87,7 @@ export class TokenManager {
     const key = await this.cache.getPrivateKey('prod');
 
     const jwt = new SignJWT({ id: clientId }).setSubject('c2b').setIssuer('token-kiosk').setIssuedAt().setExpirationTime('1w').setProtectedHeader({
-      alg: 'RS256',
+      alg: key.privateKey.alg,
     });
 
     const signedJwt = await jwt.sign(key.privateKey);

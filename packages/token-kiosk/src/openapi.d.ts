@@ -53,8 +53,6 @@ export type components = {
        * @description Expiration date and time of the token
        */
       expiration: string;
-      /** @description List of domains the token is valid for */
-      domains: string[];
     };
     userInfo: {
       /** @description Unique user identifier (subject) */
