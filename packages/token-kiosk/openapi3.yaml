@@ -35,7 +35,7 @@ paths:
       summary: Get current authenticated user information
       description: Returns information about the currently authenticated user
       security:
-        - bearerAuth: []
+        - openid: []
       responses:
         200:
           description: User information retrieved successfully
@@ -51,14 +51,13 @@ paths:
                 $ref: '#/components/schemas/error'
 security:
   - {}
-  - bearerAuth: []
+  - openid: []
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Bearer token authentication using JWT access tokens
+    openid:
+      type: openIdConnect
+      openIdConnectUrl: http://localhost:8080/realms/my-local-app/.well-known/openid-configuration
+
   schemas:
     error:
       type: object
@@ -72,7 +71,6 @@ components:
       required:
         - token
         - expiration
-        - domains
       properties:
         token:
           type: string
@@ -81,11 +79,6 @@ components:
           type: string
           format: date-time
           description: Expiration date and time of the token
-        domains:
-          type: array
-          items:
-            type: string
-          description: List of domains the token is valid for
     userInfo:
       type: object
       required:
