@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { SiteSelection } from '../../components/SiteSelection';
+import { getAvailableSites } from '@/components/exports';
 
 type Client = components['schemas']['client'];
 
@@ -48,6 +49,8 @@ const formSchema = z.object({
   branch: z.string().optional(),
   tags: z.array(z.string()),
 });
+
+const availableSites = getAvailableSites();
 
 type FormValues = z.infer<typeof formSchema>;
 
