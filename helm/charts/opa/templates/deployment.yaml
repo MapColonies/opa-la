@@ -30,7 +30,7 @@ spec:
         app: {{ $chartName }}
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
-        {{- include "opa.selectorLabels" . | nindent 8 }}
+        {{- include "opa.labels" . | nindent 8 }}
       annotations:
         {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}
         {{- if .Values.resetOnConfigChange }}
