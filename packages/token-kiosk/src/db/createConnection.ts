@@ -56,5 +56,5 @@ export async function runMigrations(drizzle: Drizzle): Promise<void> {
     throw new Error('No migrations folder found');
   }
 
-  await migrate(drizzle, { migrationsFolder: migrationsFolder, migrationsSchema: 'config_server' });
+  await migrate(drizzle, { migrationsFolder: migrationsFolder, migrationsSchema: 'token_kiosk' });
 }
