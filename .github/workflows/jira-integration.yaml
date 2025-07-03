@@ -11,4 +11,4 @@ jobs:
   jira-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: mapcolonies/javascript-github-actions/actions/jira-integration@jira-integration-v1.0.0
+      - uses: mapcolonies/javascript-github-actions/actions/jira-integration@jira-integration-v1.0.1
