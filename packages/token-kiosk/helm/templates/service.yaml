@@ -1,0 +1,32 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "token-kiosk.name" . -}}
+{{- $cloudProviderFlavor := include "token-kiosk.cloudProviderFlavor" . -}}
+{{- if .Values.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-service" (include "token-kiosk.fullname" .) }}
+  labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    environment: {{ include "token-kiosk.environment" . }}
+    release: {{ $releaseName }}
+    {{- include "token-kiosk.labels" . | nindent 4 }}
+spec:
+  {{- if eq $cloudProviderFlavor "minikube" }}
+  type: NodePort
+  {{- end }}
+  ports:
+    - port: {{ .Values.env.port }}
+      targetPort: {{ .Values.env.targetPort }}
+      protocol: {{ .Values.env.protocol }}
+      name: http
+      {{- if eq $cloudProviderFlavor "minikube" }}
+      nodePort: {{ .Values.nodePort }}
+      {{- end }}
+  selector:
+    app: {{ $chartName }}
+    release: {{ $releaseName }}
+    run: {{ $releaseName }}-{{ $chartName }}
+    {{- include "token-kiosk.selectorLabels" . | nindent 4 }}
+{{- end }}

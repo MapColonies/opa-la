@@ -1,0 +1,32 @@
+{
+  "folders": [
+    {
+      "name": "Root",
+      "path": "../",
+    },
+    {
+      "name": "Auth Bundler",
+      "path": "../packages/auth-bundler",
+    },
+    {
+      "name": "Auth Core",
+      "path": "../packages/auth-core",
+    },
+    {
+      "name": "Auth Cron",
+      "path": "../packages/auth-cron",
+    },
+    {
+      "name": "Auth Manager",
+      "path": "../packages/auth-manager",
+    },
+    {
+      "name": "Auth UI",
+      "path": "../packages/auth-ui",
+    },
+    {
+      "name": "Token Kiosk",
+      "path": "../packages/token-kiosk",
+    },
+  ],
+}
