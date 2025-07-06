@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ../:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../:/workspace:cached
     command: sleep infinity
     network_mode: 'service:postgres'
     depends_on:

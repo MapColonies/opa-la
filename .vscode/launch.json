@@ -7,9 +7,68 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${file}"
+      "name": "Launch Auth Manager API",
+      "cwd": "${workspaceFolder}/packages/auth-manager",
+      "runtimeExecutable": "npm",
+      "args": ["run", "start:dev"],
+      "runtimeArgs": [],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "smartStep": true,
+      "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"],
+      "env": {
+        "SERVER_PORT": "8080"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Token Kiosk API",
+      "cwd": "${workspaceFolder}/packages/token-kiosk",
+      "runtimeExecutable": "npm",
+      "args": ["run", "start:dev"],
+      "runtimeArgs": [],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "smartStep": true,
+      "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Auth Cron API",
+      "cwd": "${workspaceFolder}/packages/auth-cron",
+      "runtimeExecutable": "npm",
+      "args": ["run", "start:dev"],
+      "runtimeArgs": [],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "smartStep": true,
+      "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Auth UI",
+      "cwd": "${workspaceFolder}/packages/auth-ui",
+      "runtimeExecutable": "npm",
+      "args": ["run", "dev"],
+      "runtimeArgs": [],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "smartStep": true,
+      "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch All Auth Services",
+      "presentation": {
+        "hidden": false,
+        "group": "",
+        "order": 1
+      },
+      "configurations": ["Launch Auth Manager API", "Launch Token Kiosk API", "Launch Auth Cron API", "Launch Auth UI"]
     }
   ]
 }

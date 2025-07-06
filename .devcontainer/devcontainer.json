@@ -5,6 +5,7 @@
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
+  "mounts": ["source=profile,target=/root,type=volume", "target=/root/.vscode-server,type=volume"],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -14,9 +15,13 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "ckolkman.vscode-postgres",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker"
       ],
       "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": { "zsh": { "path": "/bin/zsh" } },
+
         "vscode-postgres.defaultConnection": "postgres://postgres:postgres@localhost:5432/postgres",
         "typescript.preferences.importModuleSpecifier": "relative",
         "editor.formatOnSave": true,
