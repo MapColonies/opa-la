@@ -21,12 +21,13 @@ if (process.env.GITHUB_ACTIONS) {
 
 export default defineConfig({
   test: {
-    workspace: [
+    projects: [
       {
         test: {
           name: 'integration',
           setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vite.setup.ts'],
-          include: ['tests/integration/**/*.spec.ts'],
+          globalSetup: './tests/configurations/globalSetup.ts',
+          include: ['tests/**/*.spec.ts'],
           environment: 'node',
         },
         resolve: {

@@ -53,7 +53,8 @@ export class ServerBuilder {
     router.use('/auth', this.authRouter);
     router.use('/token', this.tokenRouter);
 
-    this.serverInstance.use('/api', router);
+    const basePath = this.config.get<string>('basePath') as string;
+    this.serverInstance.use(basePath, router);
 
     this.buildDocsRoutes();
   }

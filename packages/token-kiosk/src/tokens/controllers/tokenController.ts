@@ -6,6 +6,7 @@ import { SERVICES } from '@common/constants';
 
 import { AuthManager } from '@src/auth/model/authManager';
 import { TokenManager } from '../models/tokenManager';
+import { UserIsBannedError } from '../models/errors';
 
 @injectable()
 export class TokenController {
@@ -33,7 +34,11 @@ export class TokenController {
       // We know the user is authenticated at this point because of the OIDC middleware, so we can safely access req.oidc.idToken
       return res.status(httpStatus.OK).json(token);
     } catch (error) {
-      this.logger.error('Error while getting token', { error });
+      if (error instanceof UserIsBannedError) {
+        return res.status(httpStatus.FORBIDDEN).json({
+          message: 'user is banned',
+        });
+      }
       return next(error);
     }
   };

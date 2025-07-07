@@ -11,6 +11,7 @@ import { UserManager } from '@src/users/userManager';
 import { SERVICES } from '@common/constants';
 import type { components as authManagerComponents } from '@src/auth-manager';
 import type { AuthManagerClient } from './authManagerClient';
+import { UserIsBannedError } from './errors';
 
 export type TokenResponse = components['schemas']['tokenResponse'];
 
@@ -40,7 +41,7 @@ export class TokenManager {
 
     if (user?.isBanned === true) {
       this.logger.warn({ msg: 'user is banned', userId: clientId });
-      throw new Error('User is banned');
+      throw new UserIsBannedError();
     }
 
     const isUserTokenStillValid = user !== undefined && isAfter(user.tokenExpirationDate, new Date());

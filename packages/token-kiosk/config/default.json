@@ -15,6 +15,7 @@
       "prettyPrint": false
     }
   },
+  "basePath": "/api",
   "server": {
     "port": 8080,
     "request": {
