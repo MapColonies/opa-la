@@ -12,7 +12,8 @@ import { tokenRouterFactory, TOKEN_ROUTER_SYMBOL } from './tokens/routes/tokenRo
 import { getConfig } from './common/config';
 import { AUTH_ROUTER_SYMBOL, authRouterFactory } from './auth/routes/authRouter';
 import { authManagerClientFactory } from './tokens/models/authManagerClient';
-import { createConnectionOptions, createDrizzle, DbConfig, healthCheck, initConnection } from './db/createConnection';
+import { createConnectionOptions, createDrizzle, healthCheck, initConnection } from './db/createConnection';
+import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -24,7 +25,12 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   const loggerConfig = configInstance.get('telemetry.logger');
 
-  const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
+  const logger = jsLogger({
+    ...loggerConfig,
+    prettyPrint: loggerConfig.prettyPrint,
+    mixin: getOtelMixin(),
+    redact: ['res.headers["set-cookie"]', 'req.headers.cookie'],
+  });
 
   const tracer = trace.getTracer(SERVICE_NAME);
   const metricsRegistry = new Registry();
@@ -32,7 +38,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   let pool: Pool;
   try {
-    pool = await initConnection(createConnectionOptions(configInstance.get('db') as DbConfig));
+    pool = await initConnection(createConnectionOptions(configInstance.get('db')));
   } catch (error) {
     throw new Error(`Failed to connect to the database`, { cause: error });
   }
@@ -45,6 +51,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: TOKEN_ROUTER_SYMBOL, provider: { useFactory: tokenRouterFactory } },
     { token: AUTH_ROUTER_SYMBOL, provider: { useFactory: authRouterFactory } },
     { token: SERVICES.AUTH_MANAGER_CLIENT, provider: { useFactory: authManagerClientFactory } },
+    { token: SERVICES.AUTH_MIDDLEWARE, provider: { useFactory: openidAuthMiddlewareFactory } },
     { token: SERVICES.PG_POOL, provider: { useValue: pool } },
     {
       token: SERVICES.HEALTHCHECK,

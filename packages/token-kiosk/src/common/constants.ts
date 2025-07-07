@@ -15,6 +15,7 @@ export const SERVICES = {
   TRACER: Symbol('Tracer'),
   METRICS: Symbol('METRICS'),
   AUTH_MANAGER_CLIENT: Symbol('AuthManagerClient'),
+  AUTH_MIDDLEWARE: Symbol('AuthMiddleware'),
   PG_POOL: Symbol('PgPool'),
   DRIZZLE: Symbol('Drizzle'),
   HEALTHCHECK: Symbol('HealthCheck'),

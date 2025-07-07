@@ -25,7 +25,8 @@ export class ServerBuilder {
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry,
     @inject(TOKEN_ROUTER_SYMBOL) private readonly tokenRouter: Router,
-    @inject(AUTH_ROUTER_SYMBOL) private readonly authRouter: Router
+    @inject(AUTH_ROUTER_SYMBOL) private readonly authRouter: Router,
+    @inject(SERVICES.AUTH_MIDDLEWARE) private readonly authMiddleware: ReturnType<typeof openidAuthMiddlewareFactory>
   ) {
     this.serverInstance = express();
   }
@@ -67,7 +68,7 @@ export class ServerBuilder {
 
     this.serverInstance.use(bodyParser.json(this.config.get('server.request.payload')));
 
-    this.serverInstance.use(openidAuthMiddlewareFactory());
+    this.serverInstance.use(this.authMiddleware);
 
     const ignorePathRegex = new RegExp(`^${this.config.get('openapiConfig.basePath')}/.*`, 'i');
     const apiSpecPath = this.config.get('openapiConfig.filePath');
