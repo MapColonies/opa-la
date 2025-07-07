@@ -1,6 +1,7 @@
 import { hostname } from 'node:os';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool, type PoolConfig } from 'pg';
@@ -9,21 +10,21 @@ import { promiseTimeout } from '../common/utils';
 import { DB_CONNECTION_TIMEOUT } from '../common/constants';
 import { users } from '../users/user';
 
-export type DbConfig = {
-  enableSslAuth: boolean;
-  sslPaths: { ca: string; cert: string; key: string };
-} & PoolConfig;
+export type DbConfig = PoolConfig & commonDbFullV1Type;
 
 export function createConnectionOptions(dbConfig: DbConfig): PoolConfig {
-  const { enableSslAuth, sslPaths, ...dataSourceOptions } = dbConfig;
+  const { ssl, ...dataSourceOptions } = dbConfig;
   dataSourceOptions.application_name = `${hostname()}-${process.env.NODE_ENV ?? 'unknown_env'}`;
-  if (enableSslAuth) {
-    dataSourceOptions.password = undefined;
-    dataSourceOptions.ssl = { key: readFileSync(sslPaths.key), cert: readFileSync(sslPaths.cert), ca: readFileSync(sslPaths.ca) };
-  }
-  return {
+
+  const poolConfig: PoolConfig = {
     ...dataSourceOptions,
+    user: dbConfig.username,
   };
+  if (ssl.enabled) {
+    delete poolConfig.password;
+    poolConfig.ssl = { key: readFileSync(ssl.key), cert: readFileSync(ssl.cert), ca: readFileSync(ssl.ca) };
+  }
+  return poolConfig;
 }
 
 export async function initConnection(dbConfig: PoolConfig): Promise<Pool> {

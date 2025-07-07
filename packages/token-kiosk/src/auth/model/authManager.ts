@@ -15,7 +15,7 @@ export class AuthManager {
   }
 
   public metadataFieldsPicker(userData: Record<string, unknown>): Record<string, unknown> {
-    const metadataFields = this.config.get('auth.openid.metadataFields') as string[];
+    const metadataFields = this.config.get('auth.openid.metadataFields');
     const result: Record<string, unknown> = {};
 
     for (const field of metadataFields) {
