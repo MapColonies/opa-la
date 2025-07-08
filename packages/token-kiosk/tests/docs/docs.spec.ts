@@ -1,13 +1,13 @@
 import { describe, beforeEach, it, expect, beforeAll } from 'vitest';
 import jsLogger from '@map-colonies/js-logger';
+import type { RequestHandler } from 'express';
+import type { RequestContext } from 'express-openid-connect';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
 import { initConfig } from '@src/common/config';
 import { DocsRequestSender } from './helpers/docsRequestSender';
-import { RequestHandler } from 'express';
-import { RequestContext } from 'express-openid-connect';
 
 describe('docs', function () {
   let requestSender: DocsRequestSender;
