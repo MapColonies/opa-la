@@ -1,6 +1,6 @@
 {
   "name": "@map-colonies/auth-core",
-  "version": "1.4.0",
+  "version": "1.7.0",
   "description": "package for auth types and functions",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",

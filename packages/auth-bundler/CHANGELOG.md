@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/MapColonies/opa-la/compare/v1.6.0...v1.7.0) (2025-07-08)
+
+**Note:** Version bump only for package @map-colonies/auth-bundler
+
+
+
+
+
 # 1.4.0 (2025-06-30)
 
 **Note:** Version bump only for package @map-colonies/auth-bundler
