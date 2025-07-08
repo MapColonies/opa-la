@@ -1,6 +1,6 @@
 {
   "name": "@map-colonies/auth-bundler",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Server for creating and uploading Open Policy Agent bundles",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
@@ -29,7 +29,7 @@
     "url": "https://github.com/MapColonies/opa-la/issues"
   },
   "dependencies": {
-    "@map-colonies/auth-core": "^1.7.0",
+    "@map-colonies/auth-core": "^1.8.0",
     "execa": "^7.1.1",
     "handlebars": "4.7.7",
     "pg": "^8.10.0",
