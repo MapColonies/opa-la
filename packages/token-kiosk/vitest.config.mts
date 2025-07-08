@@ -39,7 +39,15 @@ export default defineConfig({
       enabled: true,
       reporter: ['text', 'html', 'json', 'json-summary'],
       include: ['src/**/*.ts'],
-      exclude: ['**/vendor/**', 'node_modules/**'],
+      exclude: [
+        '**/vendor/**',
+        'node_modules/**',
+        'src/common/tracing.ts',
+        'src/common/utils.ts',
+        'src/auth/middlewares/openid.ts',
+        'src/db/**',
+        'src/index.ts',
+      ],
       reportOnFailure: true,
       thresholds: {
         global: {

@@ -6,6 +6,8 @@ import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
 import { initConfig } from '@src/common/config';
 import { DocsRequestSender } from './helpers/docsRequestSender';
+import { RequestHandler } from 'express';
+import { RequestContext } from 'express-openid-connect';
 
 describe('docs', function () {
   let requestSender: DocsRequestSender;
@@ -14,11 +16,17 @@ describe('docs', function () {
     await initConfig(true);
   });
 
+  const middlewareMock: RequestHandler = (req, res, next) => {
+    req.oidc = { user: {} } as unknown as RequestContext;
+    next();
+  };
+
   beforeEach(async function () {
     const [app] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+        { token: SERVICES.AUTH_MIDDLEWARE, provider: { useValue: middlewareMock } },
       ],
       useChild: true,
     });
@@ -28,6 +36,8 @@ describe('docs', function () {
   describe('Happy Path', function () {
     it('should return 200 status code and the resource', async function () {
       const response = await requestSender.getDocs();
+
+      console.log(response.body);
 
       expect(response.status).toBe(httpStatusCodes.OK);
       expect(response.type).toBe('text/html');

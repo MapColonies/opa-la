@@ -44,6 +44,7 @@ export class TokenManager {
     }
 
     const isUserTokenStillValid = user !== undefined && isAfter(user.tokenExpirationDate, new Date());
+
     if (isUserTokenStillValid) {
       this.logger.info({ msg: 'token is still valid', userId: clientId });
 
