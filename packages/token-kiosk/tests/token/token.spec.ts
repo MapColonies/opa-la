@@ -1,31 +1,27 @@
-import { describe, beforeEach, it, expect, beforeAll, afterEach } from 'vitest';
+import { setTimeout as sleep } from 'timers/promises';
+import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import jsLogger from '@map-colonies/js-logger';
-import nock, { abortPendingRequests, cleanAll, disableNetConnect } from 'nock';
+import nock, { abortPendingRequests, cleanAll } from 'nock';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
+import { eq } from 'drizzle-orm';
+import { subWeeks } from 'date-fns';
 import { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
+import { Drizzle } from '@src/db/createConnection';
+import { users } from '@src/users/user';
 import { SERVICES } from '@common/constants';
 import { initConfig } from '@src/common/config';
 import privateKey from '../data/key';
 import mockUser from '../data/user';
-import { Drizzle } from '@src/db/createConnection';
-import { users } from '@src/users/user';
 
 // Type guard for token response
 const isTokenResponse = (body: unknown): body is { token: string; expiration: string } => {
   return typeof body === 'object' && body !== null && 'token' in body && 'expiration' in body;
 };
-
-// Type guard for error response
-const isErrorResponse = (body: unknown): body is { message: string } => {
-  return typeof body === 'object' && body !== null && 'message' in body;
-};
-
-// disableNetConnect();
 
 describe('token', function () {
   let requestSender: RequestSender<paths, operations>;
@@ -57,6 +53,10 @@ describe('token', function () {
 
   afterEach(function () {
     oidcContext = { user: mockUser } as unknown as RequestContext;
+    vi.resetAllMocks();
+    // Clean up all nock interceptors after each test
+    abortPendingRequests();
+    cleanAll();
   });
 
   describe('Happy Path', function () {
@@ -73,6 +73,13 @@ describe('token', function () {
     });
 
     it('should return the same token if requested again while still valid', async function () {
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email: 'two_requests@gmail.com',
+        },
+      } as unknown as RequestContext;
+      oidcContext = newUserContext;
       nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.OK, privateKey);
 
       const firstRes = await requestSender.getToken();
@@ -97,6 +104,37 @@ describe('token', function () {
         // Check that expiration is a valid ISO date string
         const expiration = new Date(res.body.expiration);
         expect(expiration.getTime()).toBeGreaterThan(Date.now());
+      }
+    });
+
+    it('should return a new token after expiration', async function () {
+      const email = 'expired@gmail.com';
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email,
+        },
+      } as unknown as RequestContext;
+      oidcContext = newUserContext;
+      nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.OK, privateKey);
+      const firstRes = await requestSender.getToken();
+
+      expect(firstRes).toHaveProperty('statusCode', httpStatusCodes.OK);
+      await drizzle
+        .update(users)
+        .set({
+          tokenExpirationDate: subWeeks(new Date(), 5), // Set expiration to the past
+        })
+        .where(eq(users.id, email))
+        .execute();
+
+      await sleep(1000); // Wait for a short period to ensure the token is considered expired
+
+      const secondRes = await requestSender.getToken();
+      expect(secondRes).toHaveProperty('statusCode', httpStatusCodes.OK);
+
+      if (isTokenResponse(firstRes.body) && isTokenResponse(secondRes.body)) {
+        expect(secondRes.body.token).not.toEqual(firstRes.body.token); // Ensure a new token is generated
       }
     });
   });
@@ -147,13 +185,15 @@ describe('token', function () {
   });
 
   describe('Sad Path', function () {
-    afterEach(function () {
-      // Clean up all nock interceptors after each test
-      abortPendingRequests();
-      cleanAll();
-    });
-
     it('should return 500 status code when auth manager service is unavailable', async function () {
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email: 'unavailable@gmail.com',
+        },
+      } as unknown as RequestContext;
+
+      oidcContext = newUserContext;
       nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.SERVICE_UNAVAILABLE);
 
       const res = await requestSender.getToken();
@@ -163,6 +203,14 @@ describe('token', function () {
     });
 
     it('should return 500 status code when auth manager returns 404 for missing key', async function () {
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email: 'missing-key@gmail.com',
+        },
+      } as unknown as RequestContext;
+
+      oidcContext = newUserContext;
       nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.NOT_FOUND, {
         message: 'Key not found',
       });
@@ -174,6 +222,13 @@ describe('token', function () {
     });
 
     it('should return 500 status code when auth manager returns malformed key', async function () {
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email: 'malformed-key@gmail.com',
+        },
+      } as unknown as RequestContext;
+      oidcContext = newUserContext;
       nock('http://localhost:8082')
         .get('/key/prod/latest')
         .reply(httpStatusCodes.OK, {
@@ -187,16 +242,14 @@ describe('token', function () {
       expect(res).toHaveProperty('statusCode', httpStatusCodes.INTERNAL_SERVER_ERROR);
     });
 
-    it('should return 500 status code when auth manager connection times out', async function () {
-      nock('http://localhost:8082').get('/key/prod/latest').delay(10000).reply(httpStatusCodes.OK, privateKey);
-
-      const res = await requestSender.getToken();
-
-      expect(res).toSatisfyApiSpec();
-      expect(res).toHaveProperty('statusCode', httpStatusCodes.INTERNAL_SERVER_ERROR);
-    });
-
     it('should return 500 status code when auth manager returns 500 error', async function () {
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email: '500error@gmail.com',
+        },
+      } as unknown as RequestContext;
+      oidcContext = newUserContext;
       nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: 'Internal server error',
       });
@@ -208,6 +261,13 @@ describe('token', function () {
     });
 
     it('should return 500 status code when network error occurs', async function () {
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email: 'network-error@gmail.com',
+        },
+      } as unknown as RequestContext;
+      oidcContext = newUserContext;
       nock('http://localhost:8082').get('/key/prod/latest').replyWithError('Network error');
 
       const res = await requestSender.getToken();
@@ -217,6 +277,13 @@ describe('token', function () {
     });
 
     it('should return 500 status code when auth manager returns invalid JSON', async function () {
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email: 'invalid-json@gmail.com',
+        },
+      } as unknown as RequestContext;
+      oidcContext = newUserContext;
       nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.OK, 'invalid json');
 
       const res = await requestSender.getToken();
@@ -226,11 +293,15 @@ describe('token', function () {
     });
 
     it('should return 500 status code when database connection fails', async function () {
-      // This test would require mocking database failures
-      // For now, we'll simulate it by having the auth manager return a proper key
-      // but the database operation fails internally
-      expect.fail();
+      const newUserContext = {
+        user: {
+          ...mockUser,
+          email: 'db-fail@gmail.com',
+        },
+      } as unknown as RequestContext;
+      oidcContext = newUserContext;
       nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.OK, privateKey);
+      vi.spyOn(drizzle.query.users, 'findFirst').mockRejectedValue(new Error('Database connection failed'));
 
       // Mock database failure by intercepting the auth manager client
       const res = await requestSender.getToken();

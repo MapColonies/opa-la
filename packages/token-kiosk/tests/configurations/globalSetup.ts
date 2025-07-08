@@ -8,8 +8,8 @@ export async function setup(): Promise<void> {
   await pool.end();
 }
 
-export async function teardown(): Promise<void> {
-  const pool = await initConnection(createConnectionOptions(config.get('db')));
-  await pool.query('DROP SCHEMA IF EXISTS token_kiosk CASCADE');
-  await pool.end();
-}
+// export async function teardown(): Promise<void> {
+//   const pool = await initConnection(createConnectionOptions(config.get('db')));
+//   await pool.query('DROP SCHEMA IF EXISTS token_kiosk CASCADE');
+//   await pool.end();
+// }
