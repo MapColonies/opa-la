@@ -28,6 +28,10 @@
       "name": "Token Kiosk",
       "path": "../packages/token-kiosk",
     },
+    {
+      "name": "Token Kiosk UI",
+      "path": "../packages/kiosk-ui",
+    },
   ],
   "extensions": {
     "recommendations": ["johnpapa.vscode-peacock"],
