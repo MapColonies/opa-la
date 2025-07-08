@@ -14,7 +14,7 @@ cloudProvider: &cloudProvider
   flavor: openshift
 
 ca: &ca
-  enabled: true
+  enabled: false
   secretName: 'root-ca'
   path: '/usr/local/share/ca-certificates'
   key: 'ca.crt'
@@ -22,7 +22,7 @@ ca: &ca
 dbConfig: &dbConfig
   secretName: 'postgres-secret'
   sslAuth:
-    enabled: true
+    enabled: false
 
 opa:
   cloudProvider: *cloudProvider
@@ -70,7 +70,7 @@ auth-cron:
 
   image:
     repository: infra/auth-cron
-    # tag: 'v1.4.0'
+    # tag: 'v1.6.0'
 
   env:
     logLevel: info
@@ -113,7 +113,7 @@ auth-manager:
 
   image:
     repository: infra/auth-manager
-    # tag: v1.4.0
+    # tag: v1.6.0
 
   env:
     port: 8080
@@ -155,7 +155,7 @@ auth-ui:
 
   image:
     repository: infra/auth-ui
-    # tag: v1.4.0
+    # tag: v1.6.0
 
   env:
     port: 80
