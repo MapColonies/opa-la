@@ -28,7 +28,7 @@ function AuthenticatedApp() {
 
 // Component that handles auth state and routing
 function AppContent() {
-  const { isAuthenticated, isLoading, redirectToWelcome } = useAuth();
+  const { isAuthenticated, redirectToWelcome } = useAuth();
 
   // Set up global 401 handler
   useEffect(() => {
@@ -38,19 +38,7 @@ function AppContent() {
     });
   }, [redirectToWelcome]);
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show welcome page if not authenticated
+  // Show welcome page if not authenticated (no loading state needed)
   if (!isAuthenticated) {
     return (
       <Layout>
@@ -69,7 +57,7 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="system" storageKey="kiosk-ui-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="kiosk-ui-theme">
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
