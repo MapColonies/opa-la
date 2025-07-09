@@ -1,5 +1,6 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Layout } from '@/components/layout';
 
 interface ErrorPageProps {
   title?: string;
@@ -25,7 +26,7 @@ export function ErrorPage({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <Layout>
       <div className="max-w-md mx-auto text-center space-y-6">
         <div className="space-y-4">
           <div className="flex justify-center">
@@ -54,6 +55,6 @@ export function ErrorPage({
 
         <div className="text-xs text-muted-foreground">If this problem persists, please contact support.</div>
       </div>
-    </div>
+    </Layout>
   );
 }
