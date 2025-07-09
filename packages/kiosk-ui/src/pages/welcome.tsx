@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
-import { LogIn, Shield } from 'lucide-react';
+import { LogIn, Shield, X } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 export function WelcomePage() {
   const { login } = useAuth();
@@ -16,7 +15,9 @@ export function WelcomePage() {
             <div className="p-4 bg-primary/10 rounded-xl">
               <Shield className="h-12 w-12 text-primary" />
             </div>
-            <Separator orientation="vertical" className="h-12 mx-2" />
+            <div className="flex items-center justify-center">
+              <X className="h-6 w-6 text-muted-foreground" />
+            </div>
             <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm">
               <img src="/src/assets/mapcolonies.png" alt="MapColonies" className="h-20 w-auto" />
             </div>
@@ -51,6 +52,7 @@ export function WelcomePage() {
             <CardContent className="pt-2">
               <Button onClick={login} size="lg" className="w-full h-11 font-medium">
                 <LogIn className="mr-2 h-4 w-4" />
+                Sign In
               </Button>
             </CardContent>
           </Card>
