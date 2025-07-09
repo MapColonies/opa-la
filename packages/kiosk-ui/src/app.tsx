@@ -2,7 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { AuthProvider } from '@/contexts/auth-provider';
+import { SnakeEasterEggProvider } from '@/contexts/snake-easter-egg-context';
+import { SnakeGameDialog } from '@/components/snake-game-dialog';
 import { useAuth } from '@/hooks/use-auth';
+import { useSnakeEasterEgg } from '@/hooks/use-snake-easter-egg';
 import { WelcomePage } from '@/pages/welcome';
 import { ThemeProvider } from '@/contexts/theme-provider';
 import { Layout } from '@/components/layout/layout';
@@ -29,6 +32,7 @@ function AuthenticatedApp() {
 // Component that handles auth state and routing
 function AppContent() {
   const { isAuthenticated, redirectToWelcome } = useAuth();
+  const { addKeyPress } = useSnakeEasterEgg();
 
   // Set up global 401 handler
   useEffect(() => {
@@ -37,6 +41,24 @@ function AppContent() {
       redirectToWelcome();
     });
   }, [redirectToWelcome]);
+
+  // Set up global keydown listener for SNAKE easter egg
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only track letter keys, ignore modifier keys and special keys
+      if (event.key.length === 1 && /[a-zA-Z]/.test(event.key)) {
+        addKeyPress(event.key.toLowerCase());
+      }
+    };
+
+    // Add event listener to document
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [addKeyPress]);
 
   // Show welcome page if not authenticated (no loading state needed)
   if (!isAuthenticated) {
@@ -61,8 +83,11 @@ function App() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <AppContent />
-            <Toaster />
+            <SnakeEasterEggProvider>
+              <AppContent />
+              <SnakeGameDialog />
+              <Toaster />
+            </SnakeEasterEggProvider>
           </AuthProvider>
         </QueryClientProvider>
       </ErrorBoundary>
