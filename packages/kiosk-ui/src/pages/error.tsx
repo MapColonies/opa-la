@@ -1,6 +1,6 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Layout } from '@/components/layout';
+import { Badge } from '@/components/ui/badge';
 
 interface ErrorPageProps {
   title?: string;
@@ -26,18 +26,22 @@ export function ErrorPage({
   };
 
   return (
-    <Layout>
-      <div className="max-w-md mx-auto text-center space-y-6">
+    <div className="flex justify-center items-center min-h-screen bg-background p-4">
+      <div className="w-full max-w-md mx-auto text-center space-y-6 p-6 border-2 border-destructive bg-destructive/10 rounded-xl shadow-lg">
         <div className="space-y-4">
           <div className="flex justify-center">
-            <div className="rounded-full bg-destructive/10 p-3">
+            <div className="rounded-full bg-destructive/10 p-3 inline-flex items-center justify-center">
               <AlertTriangle className="h-8 w-8 text-destructive" />
             </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-            {code && <div className="text-sm text-muted-foreground font-mono bg-muted px-2 py-1 rounded">Error {code}</div>}
-            <p className="text-muted-foreground leading-relaxed">{message}</p>
+            <h1 className="text-3xl font-bold tracking-tight text-destructive">{title}</h1>
+            {code && (
+              <Badge variant="destructive" className="font-mono">
+                Error {code}
+              </Badge>
+            )}
+            <p className="leading-relaxed text-destructive/90 whitespace-pre-line">{message}</p>
           </div>
         </div>
 
@@ -53,8 +57,8 @@ export function ErrorPage({
           </Button>
         </div>
 
-        <div className="text-xs text-muted-foreground">If this problem persists, please contact support.</div>
+        <div className="text-xs text-muted-foreground text-center">If this problem persists, please contact support.</div>
       </div>
-    </Layout>
+    </div>
   );
 }

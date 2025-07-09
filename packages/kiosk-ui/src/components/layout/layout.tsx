@@ -21,7 +21,12 @@ export function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-3">
                 {user.picture ? <img src={user.picture} alt={user.name || 'User'} className="h-8 w-8 rounded-full" /> : <User className="h-4 w-4" />}
                 <span className="text-sm font-medium">{user.name || user.email}</span>
-                <Button variant="ghost" size="sm" onClick={logout}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={logout}
+                  className="hover:bg-muted/50 dark:hover:bg-muted hover:text-foreground transition-colors"
+                >
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </Button>
