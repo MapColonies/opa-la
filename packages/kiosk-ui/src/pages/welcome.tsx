@@ -1,71 +1,83 @@
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 import { LogIn, Shield, Zap, Globe } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 export function WelcomePage() {
   const { login, isLoading } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container mx-auto px-4 py-16">
+    <div className="flex-1 flex flex-col justify-center items-center px-6 py-4">
+      <div className="w-full max-w-5xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="flex justify-center mb-6">
-            <div className="p-4 bg-primary/10 rounded-full">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="p-4 bg-primary/10 rounded-xl">
               <Shield className="h-12 w-12 text-primary" />
             </div>
           </div>
-          <h1 className="text-5xl font-bold tracking-tight mb-4">
-            Welcome to <span className="text-primary">Token Kiosk</span>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            Welcome to Token Kiosk
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Your secure gateway to MapColonies services. Generate and manage temporary access tokens with enterprise-grade security.
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            Your secure gateway to MapColonies services with enterprise-grade security.
           </p>
         </div>
 
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <div className="text-center p-6 rounded-lg bg-card border">
-            <div className="flex justify-center mb-4">
-              <Zap className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Fast & Secure</h3>
-            <p className="text-muted-foreground">Generate temporary access tokens instantly with bank-level security protocols.</p>
-          </div>
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="text-center hover:border-primary/20 transition-colors duration-200">
+            <CardHeader className="pb-3 pt-4">
+              <div className="flex justify-center mb-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Zap className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <CardTitle className="text-lg mb-2">Fast & Secure</CardTitle>
+              <CardDescription className="text-sm">Generate tokens instantly with bank-level security.</CardDescription>
+            </CardHeader>
+          </Card>
 
-          <div className="text-center p-6 rounded-lg bg-card border">
-            <div className="flex justify-center mb-4">
-              <Globe className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">MapColonies Integration</h3>
-            <p className="text-muted-foreground">Seamlessly access all MapColonies services with unified authentication.</p>
-          </div>
+          <Card className="text-center hover:border-primary/20 transition-colors duration-200">
+            <CardHeader className="pb-3 pt-4">
+              <div className="flex justify-center mb-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Globe className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <CardTitle className="text-lg mb-2">MapColonies Ready</CardTitle>
+              <CardDescription className="text-sm">Seamless access to all MapColonies services.</CardDescription>
+            </CardHeader>
+          </Card>
 
-          <div className="text-center p-6 rounded-lg bg-card border">
-            <div className="flex justify-center mb-4">
-              <Shield className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Enterprise Ready</h3>
-            <p className="text-muted-foreground">Built for organizations with advanced security and compliance requirements.</p>
-          </div>
+          <Card className="text-center hover:border-primary/20 transition-colors duration-200">
+            <CardHeader className="pb-3 pt-4">
+              <div className="flex justify-center mb-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <CardTitle className="text-lg mb-2">Enterprise Grade</CardTitle>
+              <CardDescription className="text-sm">Built for organizations with advanced security needs.</CardDescription>
+            </CardHeader>
+          </Card>
         </div>
 
         {/* CTA Section */}
-        <div className="text-center">
-          <div className="bg-card border rounded-lg p-8 max-w-md mx-auto">
-            <h2 className="text-2xl font-semibold mb-4">Ready to Get Started?</h2>
-            <p className="text-muted-foreground mb-6">Sign in with your organization credentials to access the token management dashboard.</p>
-            <Button onClick={login} disabled={isLoading} size="lg" className="w-full">
-              <LogIn className="mr-2 h-5 w-5" />
-              {isLoading ? 'Loading...' : 'Sign In'}
-            </Button>
-          </div>
+        <div className="text-center mb-6">
+          <Card className="max-w-md mx-auto bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl mb-2">Ready to Get Started?</CardTitle>
+              <CardDescription className="text-sm">Sign in to access the token management dashboard.</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-2">
+              <Button onClick={login} disabled={isLoading} size="lg" className="w-full h-11 font-medium">
+                <LogIn className="mr-2 h-4 w-4" />
+                {isLoading ? 'Loading...' : 'Sign In'}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Footer */}
-        <footer className="text-center mt-16 pt-8 border-t">
-          <p className="text-sm text-muted-foreground">Powered by Auth0 • Enterprise Security • MapColonies Platform</p>
-        </footer>
       </div>
     </div>
   );

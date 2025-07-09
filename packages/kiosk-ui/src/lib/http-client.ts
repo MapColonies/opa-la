@@ -10,6 +10,7 @@ export function setAuthRedirectHandler(handler: () => void) {
 }
 
 const fetchClient = createFetchClient<paths>({
+  baseUrl: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
