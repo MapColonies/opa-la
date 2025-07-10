@@ -40,7 +40,7 @@
   "dependencies": {
     "@godaddy/terminus": "^4.11.2",
     "@map-colonies/auth-core": "^1.8.0",
-    "@map-colonies/config": "^3.0.0",
+    "@map-colonies/config": "^3.0.1",
     "@map-colonies/error-express-handler": "^2.1.0",
     "@map-colonies/express-access-log-middleware": "^2.0.1",
     "@map-colonies/js-logger": "^1.0.1",
