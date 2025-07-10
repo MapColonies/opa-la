@@ -5,8 +5,8 @@ export function WelcomePage() {
   const { login } = useAuth();
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center px-6 py-4">
-      <div className="w-full max-w-5xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="w-full">
         <WelcomeHeader />
         <SupportedApps />
         <SignInCard onSignIn={login} />

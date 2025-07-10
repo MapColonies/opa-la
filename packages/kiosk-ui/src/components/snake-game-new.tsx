@@ -298,7 +298,7 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
   return (
     <div className="flex flex-col items-center space-y-4">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">🐍 Snake Game</h2>
+        {/* <h2 className="text-2xl font-bold mb-2">🐍 Snake Game</h2> */}
         <p className="text-sm text-muted-foreground mb-4">Use WASD or Arrow Keys to move</p>
         <div className="text-lg font-semibold">Score: {displayScore}</div>
       </div>

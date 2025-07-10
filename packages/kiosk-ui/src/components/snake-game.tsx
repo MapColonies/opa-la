@@ -326,7 +326,7 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
     <div className="flex flex-col items-center space-y-4">
       {/* Fixed header section */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2 text-slate-100">🐍 Snake Game</h2>
+        {/* <h2 className="text-2xl font-bold mb-2 text-slate-100">🐍 Snake Game</h2> */}
         <p className="text-sm text-slate-400 mb-4">Use WASD or Arrow Keys to move</p>
         <div className="text-xl font-bold text-emerald-400 bg-slate-800 px-4 py-2 rounded-lg border border-slate-600">Score: {displayScore}</div>
       </div>

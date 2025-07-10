@@ -3,10 +3,10 @@ import createClient from 'openapi-react-query';
 import type { paths } from '../types/openapi';
 
 // Create a global handler for 401 responses
-let redirectToWelcome: (() => void) | null = null;
+let authRedirectHandler: (() => void) | null = null;
 
 export function setAuthRedirectHandler(handler: () => void) {
-  redirectToWelcome = handler;
+  authRedirectHandler = handler;
 }
 
 const fetchClient = createFetchClient<paths>({
@@ -19,10 +19,10 @@ const fetchClient = createFetchClient<paths>({
 // Add response interceptor to handle 401s globally
 fetchClient.use({
   onResponse({ response }) {
-    if (response.status === 401 && redirectToWelcome) {
+    if (response.status === 401 && authRedirectHandler) {
       // Small delay to prevent race conditions
       setTimeout(() => {
-        redirectToWelcome?.();
+        authRedirectHandler?.();
       }, 100);
     }
   },

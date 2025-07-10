@@ -6,9 +6,9 @@ import { SnakeEasterEggProvider } from '@/contexts/snake-easter-egg-context';
 import { SnakeGameDialog } from '@/components/snake-game-dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { useSnakeEasterEgg } from '@/hooks/use-snake-easter-egg';
-import { WelcomePage } from '@/pages/welcome';
 import { ThemeProvider } from '@/contexts/theme-provider';
 import { Layout } from '@/components/layout/layout';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useEffect } from 'react';
 import './app.css';
 import { MainPage } from '@/pages/main-page';
@@ -31,16 +31,16 @@ function AuthenticatedApp() {
 
 // Component that handles auth state and routing
 function AppContent() {
-  const { isAuthenticated, redirectToWelcome } = useAuth();
+  const { isAuthenticated, isLoading, login } = useAuth();
   const { addKeyPress } = useSnakeEasterEgg();
 
   // Set up global 401 handler
   useEffect(() => {
     setAuthRedirectHandler(() => {
-      // Clear auth state and show welcome page
-      redirectToWelcome();
+      // Redirect directly to login on 401 errors
+      login();
     });
-  }, [redirectToWelcome]);
+  }, [login]);
 
   // Set up global keydown listener for SNAKE easter egg
   useEffect(() => {
@@ -60,11 +60,27 @@ function AppContent() {
     };
   }, [addKeyPress]);
 
-  // Show welcome page if not authenticated (no loading state needed)
+  // Automatically redirect to login if not authenticated and not loading
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      login();
+    }
+  }, [isAuthenticated, isLoading, login]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <Layout>
+        <LoadingSpinner message="Checking authentication..." />
+      </Layout>
+    );
+  }
+
+  // If not authenticated, show loading while redirecting (this should be brief)
   if (!isAuthenticated) {
     return (
       <Layout>
-        <WelcomePage />
+        <LoadingSpinner message="Redirecting to login..." />
       </Layout>
     );
   }
