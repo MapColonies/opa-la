@@ -189,45 +189,9 @@
   opacity: 0.9;
 }
 
-/* RTL Support - Add after existing styles */
+/* RTL Support - Radix UI Direction Provider handles most RTL adjustments */
 [dir='rtl'] {
-  /* Ensure proper text alignment for RTL */
-  .text-left {
-    text-align: right;
-  }
-
-  .text-right {
-    text-align: left;
-  }
-
-  /* Proper margin and padding for RTL */
-  .rtl\:mr-0 {
-    margin-right: 0;
-  }
-
-  .rtl\:ml-auto {
-    margin-left: auto;
-  }
-
-  /* Flexbox direction adjustments */
-  .flex-row {
-    flex-direction: row-reverse;
-  }
-
-  /* Ensure proper spacing for RTL elements */
-  .space-x-reverse > * + * {
-    margin-right: 0.5rem;
-    margin-left: 0;
-  }
-}
-
-/* Hebrew font optimization */
-.font-hebrew {
-  font-family: 'Roboto', 'Assistant', 'Heebo', 'David', 'Noto Sans Hebrew', 'Arial', sans-serif;
-}
-
-/* Better Hebrew text rendering */
-[dir='rtl'] {
+  /* Hebrew font optimization */
   font-feature-settings:
     'kern' 1,
     'liga' 1,
@@ -240,4 +204,9 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hebrew font optimization */
+.font-hebrew {
+  font-family: 'Roboto', 'Assistant', 'Heebo', 'David', 'Noto Sans Hebrew', 'Arial', sans-serif;
 }

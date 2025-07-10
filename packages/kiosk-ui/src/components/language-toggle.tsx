@@ -11,8 +11,7 @@ export function LanguageToggle() {
     i18n.changeLanguage(language);
     localStorage.setItem('kiosk-ui-language', language);
 
-    // Update document direction for RTL support
-    document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
+    // Update document language
     document.documentElement.lang = language;
 
     // Apply appropriate font family

@@ -27,9 +27,8 @@ i18n
     },
   })
   .then(() => {
-    // Set initial RTL direction based on the current language
+    // Set initial language and font based on the current language
     const currentLanguage = i18n.language;
-    document.documentElement.dir = currentLanguage === 'he' ? 'rtl' : 'ltr';
     document.documentElement.lang = currentLanguage;
 
     // Apply appropriate font family
