@@ -19,7 +19,9 @@
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
     "clean": "rimraf dist",
     "generate:openapi-types": "openapi-helpers ./openapi3.yaml ./src/openapi.d.ts --format --add-typed-request-handler",
-    "generate:auth-manager-types": "openapi-helpers ../auth-manager/openapi3.yaml ./src/auth-manager.d.ts --format"
+    "generate:auth-manager-types": "openapi-helpers ../auth-manager/openapi3.yaml ./src/auth-manager.d.ts --format",
+    "migration:create": "drizzle-kit generate --config drizzle.config.mts",
+    "migration:run": "ts-node ./src/db/runMigrations.ts"
   },
   "directories": {
     "test": "tests"
@@ -40,6 +42,7 @@
     "async-cache-dedupe": "^2.2.0",
     "compression": "^1.8.0",
     "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.44.2",
     "express": "^4.21.2",
     "express-openapi-validator": "^5.4.7",
     "express-openid-connect": "^2.18.1",
@@ -47,6 +50,7 @@
     "jose": "^6.0.11",
     "openapi-fetch": "^0.14.0",
     "parse-duration": "^2.1.4",
+    "pg": "^8.16.3",
     "prom-client": "^15.1.3",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.8.0"
@@ -68,6 +72,7 @@
     "@vitest/ui": "^3.1.4",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
+    "drizzle-kit": "^0.31.4",
     "eslint": "^9.23.0",
     "eslint-plugin-jest": "^28.11.0",
     "husky": "^9.1.7",
