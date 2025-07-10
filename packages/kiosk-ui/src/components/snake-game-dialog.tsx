@@ -9,7 +9,7 @@ export function SnakeGameDialog() {
     <Dialog open={isSnakeGameOpen} onOpenChange={(open) => !open && closeSnakeGame()}>
       <DialogContent className="max-w-md min-h-[600px] flex flex-col" showCloseButton={true}>
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-center">🎮 Snake Game Easter Egg!</DialogTitle>
+          <DialogTitle className="text-center">🐍 Snake Game Easter Egg!</DialogTitle>
         </DialogHeader>
         <div className="flex-1 flex items-center justify-center">
           <SnakeGame isVisible={isSnakeGameOpen} />

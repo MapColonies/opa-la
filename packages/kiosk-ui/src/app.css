@@ -40,3 +40,34 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Subtle animations for welcome page - only on hover/interaction */
+.glow-on-hover {
+  position: relative;
+  background: linear-gradient(45deg, transparent, transparent);
+  transition: all 0.2s ease;
+}
+
+.glow-on-hover:hover {
+  box-shadow: 0 0 20px rgba(var(--primary), 0.15);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Subtle pulse for status indicators */
+.pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
