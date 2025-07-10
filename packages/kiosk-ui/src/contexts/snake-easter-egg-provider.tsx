@@ -1,16 +1,5 @@
-import { createContext, useState, useCallback } from 'react';
-import type { ReactNode } from 'react';
-
-interface SnakeEasterEggContextType {
-  isSnakeGameOpen: boolean;
-  openSnakeGame: () => void;
-  closeSnakeGame: () => void;
-  addKeyPress: (key: string) => void;
-}
-
-const SnakeEasterEggContext = createContext<SnakeEasterEggContextType | undefined>(undefined);
-
-export { SnakeEasterEggContext };
+import { type ReactNode, useState, useCallback } from 'react';
+import { SnakeEasterEggContext } from './snake-easter-egg-context';
 
 const SNAKE_SEQUENCE = ['S', 'N', 'A', 'K', 'E'];
 
