@@ -1,19 +1,26 @@
 import { RequestHandler } from 'express';
 import { auth } from 'express-openid-connect';
+import { DependencyContainer } from 'tsyringe';
+import { SERVICES } from '@src/common/constants';
+import type { ConfigType } from '@src/common/config';
 
-export function openidAuthMiddlewareFactory(): RequestHandler {
+export function openidAuthMiddlewareFactory(container: DependencyContainer): RequestHandler {
+  const config = container.resolve<ConfigType>(SERVICES.CONFIG);
+
+  const authConfig = config.get('auth.openid');
+
   return auth({
-    clientID: 'my-local-app',
-    issuerBaseURL: 'http://localhost:8080/realms/my-local-realm',
-    baseURL: 'http://localhost:5173',
+    clientID: authConfig.clientId,
+    issuerBaseURL: authConfig.issuerBaseUrl,
+    baseURL: authConfig.baseUrl,
     authRequired: true,
     authorizationParams: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       response_type: 'code',
-      scope: 'openid profile email',
+      scope: authConfig.scopes,
     },
-    secret: 'sdfsdasdsadsadsadsadsadas',
-    clientSecret: '78vaqxyFyyf1xeTHXzgzNlhCVtW83Zi7',
+    secret: authConfig.secret,
+    clientSecret: authConfig.clientSecret,
     auth0Logout: false,
   });
 }

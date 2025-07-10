@@ -294,17 +294,6 @@ function App() {
                     <strong>Expiration:</strong>
                     <span>{new Date(tokenResponse.expiration).toLocaleString()}</span>
                   </div>
-
-                  <div className="metadata-item">
-                    <strong>Valid Domains:</strong>
-                    <div className="domains-list">
-                      {tokenResponse.domains.map((domain, index) => (
-                        <span key={index} className="domain-tag">
-                          {domain}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
