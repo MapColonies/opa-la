@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Check, Copy } from 'lucide-react';
@@ -15,6 +16,8 @@ interface TokenDisplayProps {
 }
 
 export function TokenDisplay({ tokenData, copied, onCopy, onRequestAgain }: TokenDisplayProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="w-full space-y-6">
       {/* Success Header */}
@@ -23,14 +26,14 @@ export function TokenDisplay({ tokenData, copied, onCopy, onRequestAgain }: Toke
           <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
             <Check className="w-4 h-4 text-white" />
           </div>
-          <span className="text-green-700 dark:text-green-400 font-semibold">Token Generated Successfully</span>
+          <span className="text-green-700 dark:text-green-400 font-semibold">{t('token.generation.success')}</span>
         </div>
-        <p className="text-xs text-muted-foreground">Your authentication token is ready to use</p>
+        <p className="text-xs text-muted-foreground">{t('token.generation.successDescription')}</p>
       </div>
 
       {/* Token Display */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-foreground">Authentication Token:</label>
+        <label className="text-sm font-medium text-foreground">{t('token.display.label')}</label>
         <div className="relative">
           <div className="max-h-[100px] overflow-y-auto border rounded-lg bg-muted/20 p-3">
             <code className="font-mono text-xs select-all text-foreground break-words whitespace-pre-wrap">{tokenData.token}</code>
@@ -40,7 +43,7 @@ export function TokenDisplay({ tokenData, copied, onCopy, onRequestAgain }: Toke
 
       {/* Expiration Info */}
       <div className="bg-muted/30 rounded-lg p-3 text-center space-y-1">
-        <div className="text-sm font-medium text-foreground">Expires at:</div>
+        <div className="text-sm font-medium text-foreground">{t('token.display.expires')}</div>
         <div className="text-sm font-mono text-muted-foreground">{format(new Date(tokenData.expiration), 'dd/MM/yyyy HH:mm')}</div>
       </div>
 
@@ -50,17 +53,17 @@ export function TokenDisplay({ tokenData, copied, onCopy, onRequestAgain }: Toke
           {copied ? (
             <>
               <Check className="w-4 h-4 text-green-500" />
-              Copied!
+              {t('token.display.copied')}
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              Copy Token
+              {t('token.display.copy')}
             </>
           )}
         </Button>
         <Button variant="secondary" onClick={onRequestAgain} className="flex-1" size="default">
-          Generate New Token
+          {t('token.display.generateNew')}
         </Button>
       </div>
     </div>

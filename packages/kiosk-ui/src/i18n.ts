@@ -1,0 +1,43 @@
+import i18n, { type Resource } from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import en from './translations/en.json' with { type: 'json' };
+import he from './translations/he.json' with { type: 'json' };
+
+// the translations
+// (tip move them in a JSON file and import them,
+// or even better, manage them separated from your code: https://react.i18next.com/guides/multiple-translation-files)
+const resources = {
+  en: {
+    translation: en,
+  },
+  he: {
+    translation: he,
+  },
+} satisfies Resource;
+
+i18n
+  .use(initReactI18next) // passes i18n down to react-i18next
+  .init({
+    resources,
+    lng: localStorage.getItem('kiosk-ui-language') || 'he', // Default to Hebrew, store preference in localStorage
+    fallbackLng: 'en', // Fallback to English if translation is missing
+
+    interpolation: {
+      escapeValue: false, // react already safes from xss
+    },
+  })
+  .then(() => {
+    // Set initial RTL direction based on the current language
+    const currentLanguage = i18n.language;
+    document.documentElement.dir = currentLanguage === 'he' ? 'rtl' : 'ltr';
+    document.documentElement.lang = currentLanguage;
+
+    // Apply appropriate font family
+    if (currentLanguage === 'he') {
+      document.documentElement.className = document.documentElement.className.replace(/font-\w+/g, '') + ' font-hebrew';
+    } else {
+      document.documentElement.className = document.documentElement.className.replace(/font-\w+/g, '') + ' font-sans';
+    }
+  });
+
+export default i18n;

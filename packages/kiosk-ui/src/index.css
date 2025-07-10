@@ -188,3 +188,56 @@
   color: inherit !important;
   opacity: 0.9;
 }
+
+/* RTL Support - Add after existing styles */
+[dir='rtl'] {
+  /* Ensure proper text alignment for RTL */
+  .text-left {
+    text-align: right;
+  }
+
+  .text-right {
+    text-align: left;
+  }
+
+  /* Proper margin and padding for RTL */
+  .rtl\:mr-0 {
+    margin-right: 0;
+  }
+
+  .rtl\:ml-auto {
+    margin-left: auto;
+  }
+
+  /* Flexbox direction adjustments */
+  .flex-row {
+    flex-direction: row-reverse;
+  }
+
+  /* Ensure proper spacing for RTL elements */
+  .space-x-reverse > * + * {
+    margin-right: 0.5rem;
+    margin-left: 0;
+  }
+}
+
+/* Hebrew font optimization */
+.font-hebrew {
+  font-family: 'Roboto', 'Assistant', 'Heebo', 'David', 'Noto Sans Hebrew', 'Arial', sans-serif;
+}
+
+/* Better Hebrew text rendering */
+[dir='rtl'] {
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1,
+    'calt' 1,
+    'pnum' 1,
+    'tnum' 0,
+    'onum' 1,
+    'lnum' 0,
+    'dlig' 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
