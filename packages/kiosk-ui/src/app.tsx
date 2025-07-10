@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { AuthProvider } from '@/contexts/auth-provider';
-import { SnakeEasterEggProvider } from '@/contexts/snake-easter-egg-context';
+import { SnakeEasterEggProvider } from '@/contexts/snake-easter-egg-provider';
 import { SnakeGameDialog } from '@/components/snake-game-dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { useSnakeEasterEgg } from '@/hooks/use-snake-easter-egg';
