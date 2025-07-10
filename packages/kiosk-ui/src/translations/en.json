@@ -1,0 +1,79 @@
+{
+  "page": {
+    "title": "Token Kiosk",
+    "description": "Generate temporary tokens for GIS desktop applications",
+    "subtitle": "Authentication for QGIS and ArcGIS Pro"
+  },
+  "applications": {
+    "title": "Supported Applications",
+    "info": "Both applications support token authentication",
+    "qgis": {
+      "title": "QGIS Desktop",
+      "subtitle": "Open Source GIS",
+      "description": "Mapping & analysis",
+      "alt": "QGIS"
+    },
+    "arcgis": {
+      "title": "ArcGIS Pro",
+      "subtitle": "Desktop Platform",
+      "description": "Geospatial analysis",
+      "alt": "ArcGIS Pro"
+    }
+  },
+  "token": {
+    "generation": {
+      "title": "Token Generation",
+      "button": "Generate Token",
+      "buttonLoading": "Generating Token...",
+      "description": "Click to generate a new authentication token",
+      "success": "Token Generated Successfully",
+      "successDescription": "Your authentication token is ready to use",
+      "progressMessage": "Generating your authentication token...",
+      "waitMessage": "Please wait while we generate your secure token..."
+    },
+    "display": {
+      "label": "Authentication Token:",
+      "expires": "Expires at:",
+      "copy": "Copy Token",
+      "copied": "Copied!",
+      "generateNew": "Generate New Token"
+    },
+    "error": {
+      "title": "Generation Failed",
+      "description": "Failed to generate token. Please try again."
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "tryAgain": "Try Again",
+    "goBack": "Go Back",
+    "error": "Error",
+    "user": "User"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "language": {
+    "toggle": "Toggle language",
+    "english": "English",
+    "hebrew": "עברית"
+  },
+  "layout": {
+    "title": "MapColonies"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "message": "An unexpected error occurred. Please try again.",
+    "support": "If this problem persists, please contact support.",
+    "checking": "Checking authentication...",
+    "redirecting": "Redirecting to login..."
+  },
+  "game": {
+    "snake": {
+      "title": "🐍 Snake Game Easter Egg!"
+    }
+  }
+}

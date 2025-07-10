@@ -71,7 +71,7 @@ function AppContent() {
   if (isLoading) {
     return (
       <Layout>
-        <LoadingSpinner message="Checking authentication..." />
+        <LoadingSpinner message="errors.checking" />
       </Layout>
     );
   }
@@ -80,7 +80,7 @@ function AppContent() {
   if (!isAuthenticated) {
     return (
       <Layout>
-        <LoadingSpinner message="Redirecting to login..." />
+        <LoadingSpinner message="errors.redirecting" />
       </Layout>
     );
   }

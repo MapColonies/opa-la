@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,13 +11,12 @@ interface ErrorDisplayProps {
   showReload?: boolean;
 }
 
-export function ErrorDisplay({
-  title = 'Something went wrong',
-  message = 'An unexpected error occurred. Please try again.',
-  code,
-  onRetry,
-  showReload = true,
-}: ErrorDisplayProps) {
+export function ErrorDisplay({ title, message, code, onRetry, showReload = true }: ErrorDisplayProps) {
+  const { t } = useTranslation();
+
+  const displayTitle = title || t('errors.title');
+  const displayMessage = message || t('errors.message');
+
   const handleRetry = () => {
     if (onRetry) {
       onRetry();
@@ -35,13 +35,13 @@ export function ErrorDisplay({
             </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-destructive">{title}</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-destructive">{displayTitle}</h1>
             {code && (
               <Badge variant="destructive" className="font-mono">
-                Error {code}
+                {t('common.error')} {code}
               </Badge>
             )}
-            <p className="leading-relaxed text-destructive/90 whitespace-pre-line">{message}</p>
+            <p className="leading-relaxed text-destructive/90 whitespace-pre-line">{displayMessage}</p>
           </div>
         </div>
 
@@ -49,15 +49,15 @@ export function ErrorDisplay({
           {showReload && (
             <Button onClick={handleRetry} className="w-full">
               <RefreshCw className="mr-2 h-4 w-4" />
-              Try Again
+              {t('common.tryAgain')}
             </Button>
           )}
           <Button variant="outline" onClick={() => window.history.back()} className="w-full">
-            Go Back
+            {t('common.goBack')}
           </Button>
         </div>
 
-        <div className="text-xs text-muted-foreground text-center">If this problem persists, please contact support.</div>
+        <div className="text-xs text-muted-foreground text-center">{t('errors.support')}</div>
       </div>
     </div>
   );

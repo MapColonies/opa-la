@@ -1,9 +1,6 @@
 // Token-related components
 export * from './token';
 
-// Welcome page components
-export * from './welcome';
-
 // Error handling components
 export * from './error';
 
