@@ -11,32 +11,79 @@ import { Badge } from '@/components/ui/badge';
 export function MainPage() {
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [isCustomLoading, setIsCustomLoading] = useState(false);
 
   // Use React Query for token fetching
   const { data: tokenData, isError, error, refetch, isFetching } = $api.useQuery('get', '/token', undefined, { enabled: false });
 
+  // Use custom loading state that includes our artificial delay
+  const isLoading = isCustomLoading || isFetching;
+
   // Simulate progress bar for UX when fetching
   useEffect(() => {
     let active = true;
-    if (isFetching) {
+    let timeoutId: NodeJS.Timeout;
+
+    if (isLoading) {
       setProgress(0);
       (async () => {
-        for (let i = 1; i <= 10; i++) {
-          await new Promise((res) => setTimeout(res, 50));
+        // Simulate a more realistic loading experience
+        const steps = 20; // More granular progress
+        const minDuration = 1500; // Minimum 1.5 seconds for better UX
+        const stepDuration = minDuration / steps;
+
+        for (let i = 1; i <= steps; i++) {
           if (!active) return;
-          setProgress(i * 10);
+
+          // Use exponential easing for more natural progress
+          const easedProgress = Math.min(95, Math.pow(i / steps, 0.7) * 95);
+          setProgress(easedProgress);
+
+          await new Promise((res) => {
+            timeoutId = setTimeout(res, stepDuration);
+          });
+        }
+
+        // Complete the progress bar when done
+        if (active) {
+          setProgress(100);
         }
       })();
     } else {
+      // Reset progress when not fetching
       setProgress(0);
     }
+
     return () => {
       active = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
-  }, [isFetching]);
+  }, [isLoading]);
 
-  const fetchToken = () => {
-    refetch();
+  const fetchToken = async () => {
+    setIsCustomLoading(true);
+
+    try {
+      // Start the minimum delay timer
+      const minDelay = 1500; // 1.5 seconds minimum
+      const startTime = Date.now();
+
+      // Start the API call
+      await refetch();
+
+      // Calculate remaining delay needed
+      const elapsed = Date.now() - startTime;
+      const remainingDelay = Math.max(0, minDelay - elapsed);
+
+      // Wait for the remaining delay if needed
+      if (remainingDelay > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingDelay));
+      }
+    } finally {
+      setIsCustomLoading(false);
+    }
   };
 
   const handleCopy = () => {
@@ -52,14 +99,14 @@ export function MainPage() {
       <div className="h-8" />
       <Card className="w-full max-w-xl mx-auto p-0">
         <CardContent className="py-8 px-6 flex flex-col gap-8 items-center min-h-[320px] justify-center">
-          {(!tokenData || isFetching) && (
+          {(!tokenData || isLoading) && (
             <div className="w-full flex flex-col items-center justify-center min-h-[180px]">
-              <Button onClick={fetchToken} disabled={isFetching} size="lg" className="w-full">
-                {isFetching ? 'Fetching Token...' : 'Fetch Token'}
+              <Button onClick={fetchToken} disabled={isLoading} size="lg" className="w-full">
+                {isLoading ? 'Fetching Token...' : 'Fetch Token'}
               </Button>
             </div>
           )}
-          {isFetching && (
+          {isLoading && (
             <div className="w-full flex flex-col items-center gap-2">
               <Progress value={progress} className="w-full" />
               <span className="text-muted-foreground text-xs">Generating token, please wait...</span>
@@ -71,7 +118,7 @@ export function MainPage() {
               <AlertDescription>{error instanceof Error ? error.message : 'Failed to fetch token'}</AlertDescription>
             </Alert>
           )}
-          {tokenData && !isFetching && (
+          {tokenData && !isLoading && (
             <Alert variant="default" className="w-full flex flex-col gap-6 items-center">
               <AlertTitle>
                 <span className="text-green-700 font-semibold text-lg">Token generated successfully</span>
