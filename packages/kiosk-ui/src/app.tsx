@@ -7,6 +7,7 @@ import { SnakeGameDialog } from '@/components/snake-game-dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { useSnakeEasterEgg } from '@/hooks/use-snake-easter-egg';
 import { ThemeProvider } from '@/contexts/theme-provider';
+import { DirectionProvider } from '@/contexts/direction-provider';
 import { Layout } from '@/components/layout/layout';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useEffect } from 'react';
@@ -98,13 +99,15 @@ function App() {
     <ThemeProvider defaultTheme="dark" storageKey="kiosk-ui-theme">
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <SnakeEasterEggProvider>
-              <AppContent />
-              <SnakeGameDialog />
-              <Toaster />
-            </SnakeEasterEggProvider>
-          </AuthProvider>
+          <DirectionProvider>
+            <AuthProvider>
+              <SnakeEasterEggProvider>
+                <AppContent />
+                <SnakeGameDialog />
+                <Toaster />
+              </SnakeEasterEggProvider>
+            </AuthProvider>
+          </DirectionProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </ThemeProvider>

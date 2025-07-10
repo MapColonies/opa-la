@@ -12,10 +12,9 @@ interface TokenDisplayProps {
   tokenData: TokenData;
   copied: boolean;
   onCopy: () => void;
-  onRequestAgain: () => void;
 }
 
-export function TokenDisplay({ tokenData, copied, onCopy, onRequestAgain }: TokenDisplayProps) {
+export function TokenDisplay({ tokenData, copied, onCopy }: TokenDisplayProps) {
   const { t } = useTranslation();
 
   return (
@@ -61,9 +60,6 @@ export function TokenDisplay({ tokenData, copied, onCopy, onRequestAgain }: Toke
               {t('token.display.copy')}
             </>
           )}
-        </Button>
-        <Button variant="secondary" onClick={onRequestAgain} className="flex-1" size="default">
-          {t('token.display.generateNew')}
         </Button>
       </div>
     </div>
