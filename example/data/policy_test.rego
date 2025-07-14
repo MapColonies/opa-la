@@ -42,12 +42,26 @@ chrome_agent := "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like
 
 postman_agent := "PostmanRuntime/7.32.2"
 
-users := {"avi": {
-	"allowNoBrowser": false,
-	"allowNoOrigin": false,
-	"domains": ["avi"],
-	"origins": ["https://avi.com"],
-}}
+users := {
+		"avi": {
+		"allowNoBrowser": false,
+		"allowNoOrigin": false,
+		"domains": ["avi"],
+		"origins": ["https://avi.com"],
+		}, 
+		"itzik": {
+			"allowNoBrowser": false,
+			"allowNoOrigin": false,
+			"domains": ["avi"],
+			"origins": ["*.itzik.maps.com"],
+		}, 
+		"zvika": {
+			"allowNoBrowser": false,
+			"allowNoOrigin": false,
+			"domains": ["avi"],
+			"origins": ["https://google.com", "*.zvika.maps.com"],
+		}
+}
 
 generate_token(key, payload) := token if {
 	newPayload := json.patch(payload, [{"op": "add", "path": "iss", "value": "mapcolonies-token-cli"}])
@@ -138,7 +152,7 @@ test_deny_token_wrong_key if {
 }
 
 test_deny_user_not_found if {
-	token := generate_token(private_key_1, {"sub": "itzik"})
+	token := generate_token(private_key_1, {"sub": "nx_user"})
 	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
@@ -179,6 +193,42 @@ test_deny_wrong_origin if {
 test_deny_missing_origin if {
 	token := generate_token(private_key_1, {"sub": "avi"})
 	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
+		with data.keys as public_key_1
+		with data.users as users
+
+	not res.allowed
+}
+
+test_allow_wildcard_origin if {
+	token := generate_token(private_key_1, {"sub": "itzik"})
+	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://meow.itzik.maps.com"}}
+		with data.keys as public_key_1
+		with data.users as users
+
+	res.allowed
+}
+
+test_deny_wildcard_origin if {
+	token := generate_token(private_key_1, {"sub": "itzik"})
+	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://meow.avi.maps.com"}}
+		with data.keys as public_key_1
+		with data.users as users
+
+	not res.allowed
+}
+
+test_allow_specific_origin_for_wildcard_user if {
+	token := generate_token(private_key_1, {"sub": "zvika"})
+	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://google.com"}}
+		with data.keys as public_key_1
+		with data.users as users
+
+	res.allowed
+}
+
+test_deny_specific_origin_for_wildcard_user if {
+	token := generate_token(private_key_1, {"sub": "zvika"})
+	res := decision with input as {"domain":"avi", "headers": { "User-Agent": chrome_agent, "Origin": "https://ggl.com"}, "query": {"token": token}}
 		with data.keys as public_key_1
 		with data.users as users
 
