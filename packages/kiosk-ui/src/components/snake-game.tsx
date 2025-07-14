@@ -16,6 +16,8 @@ interface GameState {
   gameOver: boolean;
   score: number;
   isPlaying: boolean;
+  interpolationProgress: number;
+  lastUpdateTime: number;
 }
 
 const GRID_SIZE = 20;
@@ -32,6 +34,8 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
     gameOver: false,
     score: 0,
     isPlaying: false,
+    interpolationProgress: 0,
+    lastUpdateTime: 0,
   });
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
   const [displayScore, setDisplayScore] = useState(0);
@@ -58,7 +62,7 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
     return snakeBody.some((segment) => segment.x === head.x && segment.y === head.y);
   }, []);
 
-  const drawGame = useCallback(() => {
+  const drawGame = useCallback((interpolationProgress = 0) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -91,10 +95,60 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
       ctx.stroke();
     }
 
-    // Draw snake with improved graphics and better contrast
-    gameState.snake.forEach((segment, index) => {
-      const x = segment.x * GRID_SIZE;
-      const y = segment.y * GRID_SIZE;
+    // Calculate interpolated positions for smooth movement
+    const interpolatedSnake = gameState.snake.map((segment, index) => {
+      if (index === 0 && gameState.isPlaying && !gameState.gameOver) {
+        // Interpolate head position based on direction and progress
+        const baseX = segment.x * GRID_SIZE;
+        const baseY = segment.y * GRID_SIZE;
+        const offsetX = gameState.direction.x * GRID_SIZE * interpolationProgress;
+        const offsetY = gameState.direction.y * GRID_SIZE * interpolationProgress;
+
+        return {
+          x: baseX + offsetX,
+          y: baseY + offsetY,
+          gridX: segment.x,
+          gridY: segment.y,
+        };
+      } else if (index > 0 && gameState.isPlaying && !gameState.gameOver) {
+        // Body segments follow smoothly
+        const prevSegment = gameState.snake[index - 1];
+        const currentSegment = segment;
+
+        if (prevSegment) {
+          const baseX = segment.x * GRID_SIZE;
+          const baseY = segment.y * GRID_SIZE;
+
+          // Calculate direction from current to previous segment
+          const dirX = prevSegment.x - currentSegment.x;
+          const dirY = prevSegment.y - currentSegment.y;
+
+          // Apply smaller interpolation for body segments
+          const offsetX = dirX * GRID_SIZE * interpolationProgress * 0.8;
+          const offsetY = dirY * GRID_SIZE * interpolationProgress * 0.8;
+
+          return {
+            x: baseX + offsetX,
+            y: baseY + offsetY,
+            gridX: segment.x,
+            gridY: segment.y,
+          };
+        }
+      }
+
+      // Static position for non-moving segments
+      return {
+        x: segment.x * GRID_SIZE,
+        y: segment.y * GRID_SIZE,
+        gridX: segment.x,
+        gridY: segment.y,
+      };
+    });
+
+    // Draw snake with smooth interpolated positions
+    interpolatedSnake.forEach((segment, index) => {
+      const x = segment.x;
+      const y = segment.y;
 
       if (index === 0) {
         // Snake head with bright green gradient
@@ -111,18 +165,21 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Eyes with better contrast
+        // Eyes with better contrast - adjust position based on direction
+        const eyeOffsetX = gameState.direction.x * 2;
+        const eyeOffsetY = gameState.direction.y * 2;
+
         ctx.fillStyle = '#1f2937'; // gray-800
         ctx.beginPath();
-        ctx.arc(x + 6, y + 6, 2, 0, Math.PI * 2);
-        ctx.arc(x + 14, y + 6, 2, 0, Math.PI * 2);
+        ctx.arc(x + 6 + eyeOffsetX, y + 6 + eyeOffsetY, 2, 0, Math.PI * 2);
+        ctx.arc(x + 14 + eyeOffsetX, y + 6 + eyeOffsetY, 2, 0, Math.PI * 2);
         ctx.fill();
 
         // Eye highlights
         ctx.fillStyle = '#f9fafb'; // gray-50
         ctx.beginPath();
-        ctx.arc(x + 7, y + 5, 0.8, 0, Math.PI * 2);
-        ctx.arc(x + 15, y + 5, 0.8, 0, Math.PI * 2);
+        ctx.arc(x + 7 + eyeOffsetX, y + 5 + eyeOffsetY, 0.8, 0, Math.PI * 2);
+        ctx.arc(x + 15 + eyeOffsetX, y + 5 + eyeOffsetY, 0.8, 0, Math.PI * 2);
         ctx.fill();
       } else {
         // Snake body with bright green gradient
@@ -226,8 +283,9 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
     }
 
     gameState.snake = newSnake;
-    drawGame();
-  }, [checkCollision, generateFood, drawGame]);
+    gameState.lastUpdateTime = performance.now();
+    gameState.interpolationProgress = 0;
+  }, [checkCollision, generateFood]);
 
   const resetGame = useCallback(() => {
     if (gameLoopRef.current) {
@@ -241,13 +299,15 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
       gameOver: false,
       score: 0,
       isPlaying: true,
+      interpolationProgress: 0,
+      lastUpdateTime: performance.now(),
     };
 
     setDisplayScore(0);
     setDisplayGameOver(false);
     setDisplayIsPlaying(true);
 
-    drawGame();
+    drawGame(0);
     gameLoopRef.current = setInterval(gameLoop, GAME_SPEED);
   }, [drawGame, gameLoop]);
 
@@ -281,7 +341,7 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
   // Initialize game when visible
   useEffect(() => {
     if (isVisible) {
-      drawGame();
+      drawGame(0);
       document.addEventListener('keydown', handleKeyPress);
 
       return () => {
@@ -300,19 +360,32 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
     }
   }, [isVisible, drawGame, handleKeyPress]);
 
-  // Animation loop for smooth food pulsing
+  // Animation loop for smooth movement and food pulsing
   useEffect(() => {
     let animationFrame: number;
 
-    const animate = () => {
-      if (isVisible && !gameStateRef.current.gameOver) {
-        drawGame();
+    const animate = (currentTime: number) => {
+      if (isVisible) {
+        const gameState = gameStateRef.current;
+
+        if (gameState.isPlaying && !gameState.gameOver) {
+          // Calculate interpolation progress based on time since last update
+          const timeSinceUpdate = currentTime - gameState.lastUpdateTime;
+          const progress = Math.min(timeSinceUpdate / GAME_SPEED, 1);
+          gameState.interpolationProgress = progress;
+
+          // Draw with current interpolation
+          drawGame(progress);
+        } else {
+          // Draw static game when not playing
+          drawGame(0);
+        }
       }
       animationFrame = requestAnimationFrame(animate);
     };
 
     if (isVisible) {
-      animate();
+      animate(performance.now());
     }
 
     return () => {

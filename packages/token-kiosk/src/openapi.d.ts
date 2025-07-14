@@ -38,6 +38,26 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
+  '/guides': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get available documentation guides
+     * @description Returns a list of guides to documentation and resources related to the Token Kiosk service
+     */
+    get: operations['getGuides'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 };
 export type webhooks = Record<string, never>;
 export type components = {
@@ -79,6 +99,12 @@ export type components = {
       /** @description User phone number */
       phone_number?: string;
     };
+    guidesResponse: {
+      /** @description Link to QGIS documentation */
+      qgis: string;
+      /** @description Link to ArcGIS Pro documentation */
+      arcgis: string;
+    };
   };
   responses: never;
   parameters: never;
@@ -115,6 +141,33 @@ export interface operations {
           'application/json': components['schemas']['error'];
         };
       };
+      /** @description Unauthorized - No valid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['error'];
+        };
+      };
+      /** @description Forbidden - User is banned */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['error'];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['error'];
+        };
+      };
     };
   };
   getCurrentUser: {
@@ -137,6 +190,53 @@ export interface operations {
       };
       /** @description Unauthorized - No valid token */
       401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['error'];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['error'];
+        };
+      };
+    };
+  };
+  getGuides: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Guides retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['guidesResponse'];
+        };
+      };
+      /** @description Unauthorized - No valid token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['error'];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
         headers: {
           [name: string]: unknown;
         };

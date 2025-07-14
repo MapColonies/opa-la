@@ -21,7 +21,6 @@ i18n
     resources,
     lng: localStorage.getItem('kiosk-ui-language') || 'he', // Default to Hebrew, store preference in localStorage
     fallbackLng: 'en', // Fallback to English if translation is missing
-
     interpolation: {
       escapeValue: false, // react already safes from xss
     },
@@ -31,6 +30,12 @@ i18n
     const currentLanguage = i18n.language;
     document.documentElement.lang = currentLanguage;
 
+    // Set page title based on translation
+    const pageTitle = i18n.t('page.title');
+    if (pageTitle) {
+      document.title = pageTitle;
+    }
+
     // Apply appropriate font family
     if (currentLanguage === 'he') {
       document.documentElement.className = document.documentElement.className.replace(/font-\w+/g, '') + ' font-hebrew';
@@ -38,5 +43,15 @@ i18n
       document.documentElement.className = document.documentElement.className.replace(/font-\w+/g, '') + ' font-sans';
     }
   });
+
+// Listen for language changes and update the page title
+if (i18n && typeof i18n.on === 'function') {
+  i18n.on('languageChanged', (lng) => {
+    const pageTitle = i18n.t('page.title');
+    if (pageTitle) {
+      document.title = pageTitle;
+    }
+  });
+}
 
 export default i18n;

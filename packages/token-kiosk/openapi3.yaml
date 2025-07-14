@@ -49,6 +49,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /guides:
+    get:
+      operationId: getGuides
+      summary: Get available documentation guides
+      description: Returns a list of guides to documentation and resources related to the Token Kiosk service
+      security:
+        - openid: []
+      responses:
+        200:
+          description: Guides retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/guidesResponse'
+        401:
+          description: Unauthorized - No valid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 security:
   - {}
   - openid: []
@@ -115,3 +147,15 @@ components:
         phone_number:
           type: string
           description: User phone number
+    guidesResponse:
+      required:
+        - qgis
+        - arcgis
+      type: object
+      properties:
+        qgis:
+          type: string
+          description: Link to QGIS documentation
+        arcgis:
+          type: string
+          description: Link to ArcGIS Pro documentation

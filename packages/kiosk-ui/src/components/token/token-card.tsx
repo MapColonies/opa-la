@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { LoadingProgress } from './loading-progress';
 import { TokenDisplay } from './token-display';
+import './token-card.css';
 
 interface TokenData {
   token: string;
@@ -27,7 +28,7 @@ export function TokenCard({ tokenData, isLoading, isError, error, progress, copi
   return (
     <Card className="w-full max-w-xl mx-auto border rounded-xl shadow-sm bg-card">
       <CardContent className="p-6">
-        <div className="min-h-[420px] flex flex-col">
+        <div className="min-h-[440px] flex flex-col">
           {/* Header Section */}
           <div className="text-center mb-6">
             <h2 className="text-xl font-semibold text-foreground mb-2">{t('token.generation.title')}</h2>
@@ -37,7 +38,14 @@ export function TokenCard({ tokenData, isLoading, isError, error, progress, copi
           <div className="flex-1 flex flex-col justify-center">
             {(!tokenData || isLoading) && !isError && (
               <div className="flex flex-col items-center gap-4">
-                <Button onClick={onFetchToken} disabled={isLoading} size="lg" className="w-full max-w-sm h-12 text-base font-medium">
+                <Button
+                  onClick={onFetchToken}
+                  disabled={isLoading}
+                  size="lg"
+                  className="w-full max-w-sm h-12 text-base font-medium animate-[breathing_2.2s_ease-in-out_infinite]"
+                  tabIndex={0}
+                  aria-label={t('token.generation.button')}
+                >
                   {isLoading ? t('token.generation.buttonLoading') : t('token.generation.button')}
                 </Button>
                 {!isLoading && <p className="text-xs text-muted-foreground text-center">{t('token.generation.description')}</p>}

@@ -6,9 +6,9 @@ export function MainPage() {
   const { tokenData, isLoading, isError, error, progress, copied, fetchToken, handleCopy } = useTokenGeneration();
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="bg-background p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-start min-h-[calc(100vh-3rem)]">
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Left Column: Title and Supported Apps */}
           <div className="space-y-8">
             <PageHeader />

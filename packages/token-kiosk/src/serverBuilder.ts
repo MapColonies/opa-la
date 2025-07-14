@@ -15,6 +15,7 @@ import { SERVICES } from '@common/constants';
 import { TOKEN_ROUTER_SYMBOL } from './tokens/routes/tokenRouter';
 import { AUTH_ROUTER_SYMBOL } from './auth/routes/authRouter';
 import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
+import { GUIDES_ROUTER_SYMBOL } from './guides/routes/guidesRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -26,6 +27,7 @@ export class ServerBuilder {
     @inject(SERVICES.METRICS) private readonly metricsRegistry: Registry,
     @inject(TOKEN_ROUTER_SYMBOL) private readonly tokenRouter: Router,
     @inject(AUTH_ROUTER_SYMBOL) private readonly authRouter: Router,
+    @inject(GUIDES_ROUTER_SYMBOL) private readonly guidesRouter: Router,
     @inject(SERVICES.AUTH_MIDDLEWARE) private readonly authMiddleware: ReturnType<typeof openidAuthMiddlewareFactory>
   ) {
     this.serverInstance = express();
@@ -52,6 +54,7 @@ export class ServerBuilder {
     const router = Router();
     router.use('/auth', this.authRouter);
     router.use('/token', this.tokenRouter);
+    router.use('/guides', this.guidesRouter);
 
     this.serverInstance.use('/api', router);
 

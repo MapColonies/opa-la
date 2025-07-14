@@ -41,5 +41,6 @@
       "cert": ""
     },
     "database": "token-kiosk"
-  }
+  },
+  "guides": {}
 }
