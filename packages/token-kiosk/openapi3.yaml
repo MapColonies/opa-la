@@ -81,6 +81,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+
+  /qlr:
+    get:
+      operationId: getQlr
+      summary: Get QLR file for QGIS
+      description: Returns a QLR file for QGIS to use with the Token Kiosk service
+      security:
+        - openid: []
+      responses:
+        200:
+          description: QLR file retrieved successfully
+          headers:
+            Content-Disposition:
+              description: Indicates that the content is a file attachment
+              schema:
+                type: string
+                example: attachment; filename="token-kiosk.qlr"
+          content:
+            application/xml:
+              schema:
+                type: string
+        401:
+          description: Unauthorized - No valid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 security:
   - {}
   - openid: []
