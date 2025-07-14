@@ -1,4 +1,4 @@
-CREATE SCHEMA "token_kiosk";
+CREATE SCHEMA IF NOT EXISTS "token_kiosk";
 --> statement-breakpoint
 CREATE TABLE "token_kiosk"."users" (
 	"id" text PRIMARY KEY NOT NULL,

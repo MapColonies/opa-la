@@ -4,24 +4,31 @@ import { injectable, inject } from 'tsyringe';
 import type { TypedRequestHandlers } from '@openapi';
 import { SERVICES } from '@common/constants';
 
+import { AuthManager } from '@src/auth/model/authManager';
 import { TokenManager } from '../models/tokenManager';
 
 @injectable()
 export class TokenController {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(TokenManager) private readonly manager: TokenManager
+    @inject(TokenManager) private readonly manager: TokenManager,
+    @inject(AuthManager) private readonly authManager: AuthManager
   ) {}
 
   public getToken: TypedRequestHandlers['getToken'] = async (req, res, next) => {
-    const email = req.oidc.user?.email as string;
+    const userId = req.oidc.user?.[this.authManager.getIdKey()] as string | undefined;
+
+    if (req.oidc.user === undefined || userId === undefined) {
+      this.logger.warn('User ID not found in request', { user: req.oidc.user });
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized' });
+    }
 
     this.logger.debug('Received request to get token', {
-      user: email,
+      user: userId,
     });
 
     try {
-      const token = await this.manager.getToken(email);
+      const token = await this.manager.getToken(userId, req.oidc.user);
 
       // We know the user is authenticated at this point because of the OIDC middleware, so we can safely access req.oidc.idToken
       return res.status(httpStatus.OK).json(token);
