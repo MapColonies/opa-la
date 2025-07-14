@@ -42,5 +42,9 @@
     },
     "database": "token-kiosk"
   },
-  "guides": {}
+  "guides": {},
+  "qlr": {
+    "catalogUrl": "https://catalog.mapcolonies.com",
+    "layers": []
+  }
 }
