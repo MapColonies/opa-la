@@ -6,7 +6,7 @@ module.exports = {
   displayName: 'auth-manager-unit',
   testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
   setupFiles: ['<rootDir>/tests/configurations/jest.setup.ts'],
-  collectCoverageFrom: ['**/models/**/*Manager*.ts', '!<rootDir>/dist/**/*'],
+  collectCoverageFrom: ['**/models/**/*Manager*.ts', '!<rootDir>/dist/**/*', "**/tests/unit/utils/**/*.spec.ts"],
   reporters: [
     'default',
     ['jest-html-reporters', { multipleReportsUnitePath: './reports', pageTitle: 'unit', publicPath: './reports', filename: 'unit.html' }],

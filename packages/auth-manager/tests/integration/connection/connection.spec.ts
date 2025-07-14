@@ -163,8 +163,21 @@ describe('connection', function () {
         expect(res).toSatisfyApiSpec();
         expect(res.body).toHaveProperty('token', expect.stringMatching(/^.+$/));
       });
-    });
 
+      it('should create a connection with origins sorted with asterisk strings last', async function () {
+        const client = getFakeClient(false);
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        connection.origins = ['http://example.com', 'https://*.test.com', 'http://foo.com'];
+        await depContainer.resolve(DataSource).getRepository(Client).save(client);
+
+        const res = await requestSender.upsertConnection({ requestBody: connection });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.CREATED);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toHaveProperty('origins', ['http://example.com', 'http://foo.com', 'https://*.test.com']);
+      });
+    });
     describe('GET /client/:clientName/connection', function () {
       it('should return 200 status code all the connections with the specific name', async function () {
         const res = await requestSender.getClientConnections({ pathParams: { clientName: connections[0]!.name } });
