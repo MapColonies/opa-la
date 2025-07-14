@@ -5,7 +5,7 @@
     "subtitle": "Authentication for QGIS and ArcGIS Pro"
   },
   "applications": {
-    "title": "Supported Applications",
+    "title": "Guides for Supported Applications",
     "info": "Both applications support token authentication",
     "qgis": {
       "title": "QGIS Desktop",

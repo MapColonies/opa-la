@@ -5,7 +5,7 @@
     "subtitle": "אימות עבור QGIS ו-ArcGIS Pro"
   },
   "applications": {
-    "title": "אפליקציות נתמכות",
+    "title": "מדריכים לאפליקציות נתמכות",
     "info": "שתי האפליקציות תומכות באימות באמצעות מפתח הזדהות",
     "qgis": {
       "title": "QGIS Desktop",

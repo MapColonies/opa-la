@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Check, Copy } from 'lucide-react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface TokenData {
   token: string;
@@ -16,6 +18,17 @@ interface TokenDisplayProps {
 
 export function TokenDisplay({ tokenData, copied, onCopy }: TokenDisplayProps) {
   const { t } = useTranslation();
+
+  // Click-to-copy handler for the token area
+  const handleTokenClick = async () => {
+    try {
+      await navigator.clipboard.writeText(tokenData.token);
+      toast.success(t('token.display.copied'));
+      onCopy();
+    } catch {
+      toast.error(t('token.display.copy'));
+    }
+  };
 
   return (
     <div className="w-full space-y-6">
@@ -34,9 +47,24 @@ export function TokenDisplay({ tokenData, copied, onCopy }: TokenDisplayProps) {
       <div className="space-y-3">
         <label className="text-sm font-medium text-foreground">{t('token.display.label')}</label>
         <div className="relative">
-          <div className="max-h-[100px] overflow-y-auto border rounded-lg bg-muted/20 p-3">
-            <code className="font-mono text-xs select-all text-foreground break-words whitespace-pre-wrap">{tokenData.token}</code>
-          </div>
+          <button
+            type="button"
+            aria-label={t('token.display.copy')}
+            onClick={handleTokenClick}
+            className="border rounded-lg bg-muted/20 p-3 max-h-[100px] w-full overflow-y-auto overflow-x-hidden cursor-pointer transition ring-2 ring-transparent focus:ring-primary focus:outline-none relative"
+            tabIndex={0}
+          >
+            <code className="font-mono text-xs select-all text-foreground break-words whitespace-pre-wrap block pr-8">{tokenData.token}</code>
+            <button
+              type="button"
+              aria-label={t('token.display.copy')}
+              onClick={handleTokenClick}
+              className="absolute top-2 right-2 p-1 rounded-md bg-background border border-muted shadow hover:bg-muted transition focus:outline-none focus:ring-2 focus:ring-primary"
+              tabIndex={0}
+            >
+              <Copy className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </button>
         </div>
       </div>
 
