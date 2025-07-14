@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 export function astrickStringComparatorLast(): (a: string, b: string) => 1 | -1 | 0 {
   return (a, b) => {
     const aHasAsterisk = a.includes('*');
@@ -12,3 +13,4 @@ export function astrickStringComparatorLast(): (a: string, b: string) => 1 | -1 
     }
   };
 }
+/* eslint-enable @typescript-eslint/no-magic-numbers */

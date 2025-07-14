@@ -12,10 +12,10 @@ import { generateToken } from '@common/crypto';
 import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/pagination';
 import { KeyNotFoundError } from '@key/models/errors';
 import { SortOptions } from '@src/common/db/sort';
+import { astrickStringComparatorLast } from '@src/utils/utils';
 import { type ConnectionRepository } from '../DAL/connectionRepository';
 import { ConnectionSearchParams } from './connection';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
-import { astrickStringComparatorLast } from '@src/utils/utils';
 
 @injectable()
 export class ConnectionManager {
