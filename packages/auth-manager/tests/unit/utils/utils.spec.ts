@@ -1,7 +1,7 @@
-import { astrickStringComparatorLast } from '@src/utils/utils';
+import { asteriskStringComparatorLast } from '@src/utils/utils';
 
-describe('astrickStringComparatorLast', () => {
-  const comparator = astrickStringComparatorLast();
+describe('asteriskStringComparatorLast', () => {
+  const comparator = asteriskStringComparatorLast();
 
   describe('Happy Path', () => {
     it('returns 1 when a has asterisk and b does not', () => {

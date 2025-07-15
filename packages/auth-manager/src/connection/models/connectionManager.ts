@@ -12,7 +12,7 @@ import { generateToken } from '@common/crypto';
 import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/pagination';
 import { KeyNotFoundError } from '@key/models/errors';
 import { SortOptions } from '@src/common/db/sort';
-import { astrickStringComparatorLast } from '@src/utils/utils';
+import { asteriskStringComparatorLast } from '@src/utils/utils';
 import { type ConnectionRepository } from '../DAL/connectionRepository';
 import { ConnectionSearchParams } from './connection';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
@@ -100,7 +100,7 @@ export class ConnectionManager {
       connection.token = await this.handleToken(connection, transactionManager.withRepository(this.keyRepository), !ignoreTokenErrors);
 
       const maxVersion = await connectionRepo.getMaxVersionWithLock(connection.name, connection.environment);
-      connection.origins = connection.origins.sort(astrickStringComparatorLast());
+      connection.origins = connection.origins.sort(asteriskStringComparatorLast());
 
       if (maxVersion === null) {
         if (connection.version !== 1) {
