@@ -1,9 +1,5 @@
 package http.authz
 
-import future.keywords.contains
-import future.keywords.every
-import future.keywords.if
-
 lower_object_keys(obj) := newObj if {
 	newObj := {k: v |
 		some i
@@ -33,7 +29,13 @@ claims := {"payload": payload, "valid": valid, "kid": kid} if {
 	kid := object.get(header, "kid", null) # Extract kid from JWT header
 }
 
-userData := data.users[claims.payload.sub]
+userData := {"domains": ["raster"], "allowNoOrigin": true, "allowNoBrowser": true, "origins": []} if {
+    claims.payload.sub == "c2b"
+}
+
+userData := data.users[claims.payload.sub] if {
+    claims.payload.sub != "c2b"
+}
 
 deny contains "no token supplied" if {
 	count(tokens) == 0
@@ -82,6 +84,14 @@ deny contains "origin check failed" if {
 	object.get(headers, "Sec-Fetch-Site", "avi") != "same-origin"
 
 	bad_browser_request
+}
+
+deny contains "c2b user only allowed from QGIS or ARCGIS" if {
+	userAgent := lower(headers["user-agent"])
+
+	claims.payload.sub == "c2b"
+	not contains(userAgent, "qgis")
+	not contains(userAgent, "arcgis")
 }
 
 decision := {"allowed": true, "sub": claims.payload.sub, "kid": claims.kid} if {

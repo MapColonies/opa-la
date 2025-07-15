@@ -1,7 +1,5 @@
 package http.authz
 
-import future.keywords
-
 private_key_1 := {
 	"kty": "RSA",
 	"n": "sblCdtKBNbpuVmLWs5N6sIS3TJdccFno3XdRDg_CbZtNgLb9ZGk2YxPlXqdwFW7mv3R_W7zrhezk_XOa8n4Phm3PUmyrg6ha7dUwS7ZvzK8dxHyDOBySWRrS0Py_7iFyDxE8Oeb1gRQ84NsnhH41ln3jcS35nrqj0IeSpFzG9ZUErvhTjIU3x-rUNIYLDeOQp39wY-Y39S6tZ8BGecPtShBOnWoSgPFVLcMvK1WFW7xRdYP-kcof2xjBIejAYDOr-utazDclVh5Zl5fzeiUWo7HQkbvX-g-DMth1tfPGeyzQJhX6HAyr9mPfI-c0iE2gnxH4dWmsEWpolw3Ru-jeSQ",
@@ -41,6 +39,8 @@ private_key_2 := {
 chrome_agent := "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
 
 postman_agent := "PostmanRuntime/7.32.2"
+
+qgis_agent := "Mozilla/5.0 QGIS/34400/Ubuntu 22.04.5 LTS"
 
 users := {
 		"avi": {
@@ -238,6 +238,33 @@ test_deny_specific_origin_for_wildcard_user if {
 test_deny_not_matching_glob_pattern_for_wildcard_origin_user if {
 	token := generate_token(private_key_1, {"sub": "zvika"})
 	res := decision with input as {"domain":"avi", "headers": { "User-Agent": chrome_agent, "Origin": "https://avi.bla.zvika.maps.com"}, "query": {"token": token}}
+		with data.keys as public_key_1
+		with data.users as users
+
+	not res.allowed
+}
+
+test_allow_c2b_connection_from_qgis if {
+	token := generate_token(private_key_1, {"sub": "c2b"})
+	res := decision with input as {"domain":"raster", "headers": {"X-Api-Key": token, "User-Agent": qgis_agent}}
+		with data.keys as public_key_1
+		with data.users as users
+
+	res.allowed
+}
+
+test_deny_c2b_connection_if_token_expired if {
+	token := generate_token(private_key_1, {"sub": "c2b", "exp": time.now_ns() / 1000000000 - 60})  # 1 minute ago
+	res := decision with input as {"domain":"raster", "headers": {"X-Api-Key": token, "User-Agent": qgis_agent}}
+		with data.keys as public_key_1
+		with data.users as users
+
+	not res.allowed
+}
+
+test_deny_c2b_connection_from_browser if {
+	token := generate_token(private_key_1, {"sub": "c2b"})
+	res := decision with input as {"domain":"raster", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
