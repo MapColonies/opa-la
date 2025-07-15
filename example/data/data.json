@@ -1,0 +1,6 @@
+{
+  "possibleLocations": [
+    ["headers", "x-api-key"],
+    ["query", "token"]
+  ]
+}
