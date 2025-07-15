@@ -234,3 +234,12 @@ test_deny_specific_origin_for_wildcard_user if {
 
 	not res.allowed
 }
+
+test_deny_not_matching_glob_pattern_for_wildcard_origin_user if {
+	token := generate_token(private_key_1, {"sub": "zvika"})
+	res := decision with input as {"domain":"avi", "headers": { "User-Agent": chrome_agent, "Origin": "https://avi.bla.zvika.maps.com"}, "query": {"token": token}}
+		with data.keys as public_key_1
+		with data.users as users
+
+	not res.allowed
+}
