@@ -270,4 +270,3 @@ test_deny_c2b_connection_from_browser if {
 
 	not res.allowed
 }
-
