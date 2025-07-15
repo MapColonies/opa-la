@@ -15,6 +15,7 @@ import { authManagerClientFactory } from './tokens/models/authManagerClient';
 import { createConnectionOptions, createDrizzle, healthCheck, initConnection } from './db/createConnection';
 import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
 import { GUIDES_ROUTER_SYMBOL, guidesRouterFactory } from './guides/routes/guidesRouter';
+import { QLR_ROUTER_SYMBOL, qlrRouterFactory } from './qlr/routes/qlrRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -52,6 +53,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: TOKEN_ROUTER_SYMBOL, provider: { useFactory: tokenRouterFactory } },
     { token: AUTH_ROUTER_SYMBOL, provider: { useFactory: authRouterFactory } },
     { token: GUIDES_ROUTER_SYMBOL, provider: { useFactory: guidesRouterFactory } },
+    { token: QLR_ROUTER_SYMBOL, provider: { useFactory: qlrRouterFactory } },
     { token: SERVICES.AUTH_MANAGER_CLIENT, provider: { useFactory: authManagerClientFactory } },
     { token: SERVICES.AUTH_MIDDLEWARE, provider: { useFactory: openidAuthMiddlewareFactory } },
     { token: SERVICES.PG_POOL, provider: { useValue: pool } },

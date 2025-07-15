@@ -16,6 +16,7 @@ import { TOKEN_ROUTER_SYMBOL } from './tokens/routes/tokenRouter';
 import { AUTH_ROUTER_SYMBOL } from './auth/routes/authRouter';
 import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
 import { GUIDES_ROUTER_SYMBOL } from './guides/routes/guidesRouter';
+import { QLR_ROUTER_SYMBOL } from './qlr/routes/qlrRouter';
 
 @injectable()
 export class ServerBuilder {
@@ -28,6 +29,7 @@ export class ServerBuilder {
     @inject(TOKEN_ROUTER_SYMBOL) private readonly tokenRouter: Router,
     @inject(AUTH_ROUTER_SYMBOL) private readonly authRouter: Router,
     @inject(GUIDES_ROUTER_SYMBOL) private readonly guidesRouter: Router,
+    @inject(QLR_ROUTER_SYMBOL) private readonly qlrRouter: Router,
     @inject(SERVICES.AUTH_MIDDLEWARE) private readonly authMiddleware: ReturnType<typeof openidAuthMiddlewareFactory>
   ) {
     this.serverInstance = express();
@@ -55,6 +57,7 @@ export class ServerBuilder {
     router.use('/auth', this.authRouter);
     router.use('/token', this.tokenRouter);
     router.use('/guides', this.guidesRouter);
+    router.use('/qlr', this.qlrRouter);
 
     this.serverInstance.use('/api', router);
 
