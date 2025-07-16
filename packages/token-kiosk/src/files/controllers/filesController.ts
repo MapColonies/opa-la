@@ -6,7 +6,7 @@ import { TypedRequestHandlers } from '@src/openapi';
 import { SERVICES } from '@common/constants';
 import { type ConfigType } from '@src/common/config';
 import { AuthManager } from '@src/auth/model/authManager';
-import { UserIsBannedError } from '@src/tokens/models/errors';
+import { UserIsBannedError } from '@src/users/errors';
 import { FileManager } from '../models/fileManager';
 
 @injectable()

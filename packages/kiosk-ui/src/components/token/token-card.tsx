@@ -22,7 +22,7 @@ interface TokenCardProps {
   onCopy: () => void;
 }
 
-export function TokenCard({ tokenData, isLoading, isError, error, progress, copied, onFetchToken, onCopy }: TokenCardProps) {
+export function TokenCard({ tokenData, isLoading, isError, error, progress, onFetchToken, onCopy }: TokenCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -67,7 +67,7 @@ export function TokenCard({ tokenData, isLoading, isError, error, progress, copi
               </Alert>
             )}
 
-            {tokenData && !isLoading && <TokenDisplay tokenData={tokenData} copied={copied} onCopy={onCopy} />}
+            {tokenData && !isLoading && <TokenDisplay tokenData={tokenData} onCopy={onCopy} />}
           </div>
         </div>
       </CardContent>
