@@ -27,6 +27,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+        401:
+          description: Unauthorized - No valid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Forbidden - User is banned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /auth/me:
     get:
       operationId: getCurrentUser
@@ -124,8 +142,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-        404:
-          description: Not Found - QLR file not available
+        403:
+          description: Forbidden - User is banned
           content:
             application/json:
               schema:

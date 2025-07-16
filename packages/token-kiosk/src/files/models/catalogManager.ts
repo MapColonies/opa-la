@@ -64,7 +64,7 @@ export class CatalogClient {
     for (const { productId, productType, displayName } of identifiers) {
       const xmlBody = this.buildRequestXml(productId, productType);
       const xmlResponse = await this.fetchCatalogResponse(catalogUrl, xmlBody);
-      const record = this.parseCatalogRecord(xmlResponse, productId);
+      const record = this.parseCatalogRecord(xmlResponse);
       if (record) {
         record.displayName = displayName ?? productId;
         results.push(record);
@@ -101,7 +101,7 @@ export class CatalogClient {
   }
 
   private async fetchCatalogResponse(catalogUrl: string, xmlBody: string): Promise<string> {
-    const response = await request(catalogUrl, {
+    const response = await fetch(catalogUrl, {
       method: 'POST',
       body: xmlBody,
       headers: {
@@ -109,10 +109,10 @@ export class CatalogClient {
       },
     });
 
-    return response.body.text();
+    return response.text();
   }
 
-  private parseCatalogRecord(xml: string, productId: string): z.infer<typeof catalogResponseSchema> | null {
+  private parseCatalogRecord(xml: string): z.infer<typeof catalogResponseSchema> | null {
     const parser = new XMLParser({ ignoreAttributes: false });
     const parsed = parser.parse(xml) as {
       'csw:GetRecordsResponse': {
@@ -121,11 +121,12 @@ export class CatalogClient {
         };
       };
     };
+
     const record = parsed['csw:GetRecordsResponse']['csw:SearchResults']['mc:MCRasterRecord'];
 
     const linksArr: LinkType[] = Array.isArray(record['mc:links']) ? record['mc:links'] : [record['mc:links']];
 
-    const wmtsLinkObj = linksArr.find((l) => l['@_scheme'] === 'WMTS' && typeof l['@_name'] === 'string' && l['@_name'].includes(productId));
+    const wmtsLinkObj = linksArr.find((l) => l['@_scheme'] === 'WMTS' && typeof l['@_name'] === 'string');
     const wmtsLink = {
       name: wmtsLinkObj ? wmtsLinkObj['@_name'] : '',
       url: wmtsLinkObj ? wmtsLinkObj['#text'] : '',

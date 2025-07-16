@@ -1,1 +1,26 @@
-{}
+{
+  "guides": {
+    "qgis": "https://example.com/qgis-guide",
+    "arcgis": "https://example.com/arcgis-guide"
+  },
+  "qlr": {
+    "catalogUrl": "http://localhost:8085/api/raster/v1",
+    "layers": [
+      {
+        "productType": "Orthophoto",
+        "productId": "test_product",
+        "displayName": "test product"
+      }
+    ]
+  },
+  "db": {
+    "host": "postgres",
+    "schema": "token_kiosk",
+    "username": "postgres",
+    "password": "1234",
+    "database": "postgres",
+    "ssl": {
+      "enabled": false
+    }
+  }
+}

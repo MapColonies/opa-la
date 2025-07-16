@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`guides > Happy Path > should return 200 status code a qlr file > qlr-file-content 1`] = `{}`;

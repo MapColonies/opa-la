@@ -52,7 +52,6 @@ export class FileManager {
   }
 
   private getQlr(layers: CatalogRecord[], token: string): string {
-    console.log(layers);
     return renderString(qlrTemplate, { layers, token });
   }
 }
