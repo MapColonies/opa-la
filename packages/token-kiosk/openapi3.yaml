@@ -88,13 +88,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
 
-  /qlr:
+  /files/{type}:
     get:
-      operationId: getQlr
-      summary: Get QLR file for QGIS
-      description: Returns a QLR file for QGIS to use with the Token Kiosk service
+      operationId: getFile
+      summary: Get QLR for QGIS or lyrx for ArcGIS Pro
+      description: Returns a File that can be used to load specific MapColonies layers already configured and ready to use in QGIS or ArcGIS Pro.
       security:
         - openid: []
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Type of file to retrieve (qlr for QGIS, lyrx for ArcGIS Pro)
+          schema:
+            $ref: '#/components/schemas/fileTypes'
       responses:
         200:
           description: QLR file retrieved successfully
@@ -106,6 +113,9 @@ paths:
                 example: attachment; filename="token-kiosk.qlr"
           content:
             application/xml:
+              schema:
+                type: string
+            application/json:
               schema:
                 type: string
         401:
@@ -204,3 +214,7 @@ components:
         arcgis:
           type: string
           description: Link to ArcGIS Pro documentation
+    fileTypes:
+      type: string
+      enum: [qlr, lyrx]
+      description: Type of file to retrieve (qlr for QGIS, lyrx for ArcGIS Pro)

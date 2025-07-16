@@ -58,7 +58,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  '/qlr': {
+  '/files/{type}': {
     parameters: {
       query?: never;
       header?: never;
@@ -66,10 +66,10 @@ export type paths = {
       cookie?: never;
     };
     /**
-     * Get QLR file for QGIS
-     * @description Returns a QLR file for QGIS to use with the Token Kiosk service
+     * Get QLR for QGIS or lyrx for ArcGIS Pro
+     * @description Returns a File that can be used to load specific MapColonies layers already configured and ready to use in QGIS or ArcGIS Pro.
      */
-    get: operations['getQlr'];
+    get: operations['getFile'];
     put?: never;
     post?: never;
     delete?: never;
@@ -125,6 +125,11 @@ export type components = {
       /** @description Link to ArcGIS Pro documentation */
       arcgis: string;
     };
+    /**
+     * @description Type of file to retrieve (qlr for QGIS, lyrx for ArcGIS Pro)
+     * @enum {string}
+     */
+    fileTypes: 'qlr' | 'lyrx';
   };
   responses: never;
   parameters: never;
@@ -255,6 +260,15 @@ export interface operations {
           'application/json': components['schemas']['error'];
         };
       };
+      /** @description Forbidden - User is banned */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['error'];
+        };
+      };
       /** @description Internal Server Error */
       500: {
         headers: {
@@ -266,11 +280,14 @@ export interface operations {
       };
     };
   };
-  getQlr: {
+  getFile: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        /** @description Type of file to retrieve (qlr for QGIS, lyrx for ArcGIS Pro) */
+        type: components['schemas']['fileTypes'];
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -284,10 +301,20 @@ export interface operations {
         };
         content: {
           'application/xml': string;
+          'application/json': string;
         };
       };
       /** @description Unauthorized - No valid token */
       401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['error'];
+        };
+      };
+      /** @description Not Found - QLR file not available */
+      404: {
         headers: {
           [name: string]: unknown;
         };

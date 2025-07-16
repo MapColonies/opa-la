@@ -46,7 +46,7 @@ i18n
 
 // Listen for language changes and update the page title
 if (i18n && typeof i18n.on === 'function') {
-  i18n.on('languageChanged', (lng) => {
+  i18n.on('languageChanged', () => {
     const pageTitle = i18n.t('page.title');
     if (pageTitle) {
       document.title = pageTitle;

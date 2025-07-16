@@ -61,12 +61,12 @@ export class CatalogClient {
     const catalogUrl = this.config.get('qlr.catalogUrl');
     const results: CatalogRecord[] = [];
 
-    for (const { productId, productType } of identifiers) {
+    for (const { productId, productType, displayName } of identifiers) {
       const xmlBody = this.buildRequestXml(productId, productType);
       const xmlResponse = await this.fetchCatalogResponse(catalogUrl, xmlBody);
       const record = this.parseCatalogRecord(xmlResponse, productId);
       if (record) {
-        record.displayName = record.displayName ?? productId;
+        record.displayName = displayName ?? productId;
         results.push(record);
       }
     }
@@ -108,6 +108,7 @@ export class CatalogClient {
         'Content-Type': 'application/xml',
       },
     });
+
     return response.body.text();
   }
 
@@ -131,8 +132,8 @@ export class CatalogClient {
     };
 
     const boundingBox = record['ows:BoundingBox'];
-    const [minx, miny] = boundingBox['ows:LowerCorner'].split(' ').map(Number);
-    const [maxx, maxy] = boundingBox['ows:UpperCorner'].split(' ').map(Number);
+    const [miny, minx] = boundingBox['ows:LowerCorner'].split(' ').map(Number);
+    const [maxy, maxx] = boundingBox['ows:UpperCorner'].split(' ').map(Number);
 
     const result = {
       id: record['mc:id'],

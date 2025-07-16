@@ -1,24 +1,24 @@
 import httpStatus from 'http-status-codes';
 import { formatDate } from 'date-fns';
 import { injectable, inject } from 'tsyringe';
-import { RequestHandler } from 'express';
 import type { Logger } from '@map-colonies/js-logger';
+import { TypedRequestHandlers } from '@src/openapi';
 import { SERVICES } from '@common/constants';
 import { type ConfigType } from '@src/common/config';
 import { AuthManager } from '@src/auth/model/authManager';
 import { UserIsBannedError } from '@src/tokens/models/errors';
-import { QlrManager } from '../models/qlrManager';
+import { FileManager } from '../models/fileManager';
 
 @injectable()
-export class QlrController {
+export class FileController {
   public constructor(
     @inject(SERVICES.CONFIG) private readonly config: ConfigType,
-    @inject(QlrManager) private readonly qlrManager: QlrManager,
+    @inject(FileManager) private readonly fileManager: FileManager,
     @inject(AuthManager) private readonly authManager: AuthManager,
     @inject(SERVICES.LOGGER) private readonly logger: Logger
   ) {}
 
-  public getQlr: RequestHandler = async (req, res, next) => {
+  public getFile: TypedRequestHandlers['GET /files/{type}'] = async (req, res, next) => {
     try {
       const userId = req.oidc.user?.[this.authManager.getIdKey()] as string | undefined;
 
@@ -27,11 +27,18 @@ export class QlrController {
         return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized' });
       }
 
-      const qlr = await this.qlrManager.getQlr(userId, req.oidc.user);
+      const file = await this.fileManager.getFile(req.params.type, userId, req.oidc.user);
 
-      res.setHeader('Content-Type', 'application/xml');
-      res.setHeader('Content-Disposition', `attachment; filename="mapcolonies-layers-${formatDate(new Date(), 'yyyy-MM-dd')}.qlr"`);
-      res.status(httpStatus.OK).send(qlr);
+      const dateString = formatDate(new Date(), 'yyyy-MM-dd');
+      if (req.params.type === 'qlr') {
+        res.setHeader('Content-Type', 'application/xml');
+        res.setHeader('Content-Disposition', `attachment; filename="mapcolonies-layers-${dateString}.qlr"`);
+      } else {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="mapcolonies-layers-${dateString}.lyrx"`);
+      }
+
+      res.status(httpStatus.OK).send(file);
     } catch (error) {
       if (error instanceof UserIsBannedError) {
         return res.status(httpStatus.FORBIDDEN).json({

@@ -2,10 +2,11 @@ import { injectable, inject } from 'tsyringe';
 import { Cache, createCache } from 'async-cache-dedupe';
 import { hoursToSeconds } from 'date-fns';
 import { renderString } from 'nunjucks';
+import type { components } from '@openapi';
 import { SERVICES } from '@common/constants';
 import { type ConfigType } from '@src/common/config';
 import { TokenManager } from '@src/tokens/models/tokenManager';
-import { CatalogClient, CatalogRecordIdentifier } from './catalogManager';
+import { CatalogClient, CatalogRecord, CatalogRecordIdentifier } from './catalogManager';
 import qlrTemplate from './qlrTemplate';
 
 type CatalogCache = Cache & {
@@ -19,7 +20,7 @@ type LayerIdentifier = CatalogRecordIdentifier & {
 };
 
 @injectable()
-export class QlrManager {
+export class FileManager {
   private readonly cache: CatalogCache;
   private readonly layerIdentifiers: LayerIdentifier[];
 
@@ -37,13 +38,21 @@ export class QlrManager {
     this.layerIdentifiers = this.config.get('qlr.layers');
   }
 
-  public async getQlr(clientId: string, userDetails: Record<string, unknown>): Promise<string> {
+  public async getFile(type: components['schemas']['fileTypes'], clientId: string, userDetails: Record<string, unknown>): Promise<string> {
     const tokenResult = await this.tokenManager.getToken(clientId, userDetails);
     const token = tokenResult.token;
+
     const layerData = await this.cache.getRecords(this.layerIdentifiers);
 
-    const xml = renderString(qlrTemplate, { layers: layerData, token });
+    if (type === 'qlr') {
+      return this.getQlr(layerData, token);
+    } else {
+      throw new Error(`Unsupported file type: ${type}`);
+    }
+  }
 
-    return xml;
+  private getQlr(layers: CatalogRecord[], token: string): string {
+    console.log(layers);
+    return renderString(qlrTemplate, { layers, token });
   }
 }

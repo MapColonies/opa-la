@@ -4,16 +4,21 @@ export default `<!DOCTYPE qgis-layer-definition>
     <customproperties>
       <Option />
     </customproperties>
-    {% for layer in layers %}
-    <layer-tree-layer legend_exp="" providerKey="wms" name="{{ layer.displayName }}"
-      legend_split_behavior="0" id="{{ layer.id }}" patch_size="-1,-1"
-      source="crs=EPSG:4326&amp;dpiMode=7&amp;featureCount=10&amp;format={{ layer.mimeType }}&amp;http-header:x-api-key={{ token }}&amp;layers={{ layer.wmtsLink.name }}&amp;styles=default&amp;tileMatrixSet=WorldCRS84&amp;tilePixelRatio=0&amp;url={{ layer.wmtsLink.url }}"
-      expanded="1" checked="Qt::Checked">
-      <customproperties>
-        <Option />
-      </customproperties>
-    </layer-tree-layer>
-    {% endfor %}
+    <layer-tree-group groupLayer="" name="ליבות מיפוי" expanded="1" checked="Qt::Checked">
+        <customproperties>
+          <Option />
+        </customproperties>
+        {% for layer in layers %}
+        <layer-tree-layer legend_exp="" providerKey="wms" name="{{ layer.displayName }}"
+          legend_split_behavior="0" id="{{ layer.id }}" patch_size="-1,-1"
+          source="crs=EPSG:4326&amp;dpiMode=7&amp;featureCount=10&amp;format={{ layer.mimeType }}&amp;http-header:x-api-key={{ token }}&amp;layers={{ layer.wmtsLink.name }}&amp;styles=default&amp;tileMatrixSet=WorldCRS84&amp;tilePixelRatio=0&amp;url={{ layer.wmtsLink.url }}"
+          expanded="1" checked="Qt::Checked">
+          <customproperties>
+            <Option />
+          </customproperties>
+        </layer-tree-layer>
+        {% endfor %}
+    </layer-tree-group>
   </layer-tree-group>
   <maplayers>
     {% for layer in layers %}
@@ -35,7 +40,7 @@ export default `<!DOCTYPE qgis-layer-definition>
       <id>{{ layer.id }}</id>
       <datasource>
         crs=EPSG:4326&amp;dpiMode=7&amp;featureCount=10&amp;format={{ layer.mimeType }}&amp;http-header:x-api-key={{ token }}&amp;layers={{ layer.wmtsLink.name }}&amp;styles=default&amp;tileMatrixSet=WorldCRS84&amp;tilePixelRatio=0&amp;url={{ layer.wmtsLink.url }}</datasource>
-      <layername>{{ layer.wmtsLink.name }}</layername>
+      <layername>{{ layer.displayName }}</layername>
       <srs>
         <spatialrefsys nativeFormat="Wkt">
           <wkt>GEOGCRS["WGS 84",ENSEMBLE["World Geodetic System 1984 ensemble",MEMBER["World

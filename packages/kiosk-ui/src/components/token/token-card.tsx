@@ -67,7 +67,7 @@ export function TokenCard({ tokenData, isLoading, isError, error, progress, copi
               </Alert>
             )}
 
-            {tokenData && !isLoading && <TokenDisplay tokenData={tokenData} copied={copied} onCopy={onCopy} onRequestAgain={onFetchToken} />}
+            {tokenData && !isLoading && <TokenDisplay tokenData={tokenData} copied={copied} onCopy={onCopy} />}
           </div>
         </div>
       </CardContent>
