@@ -1,0 +1,79 @@
+{
+  "page": {
+    "title": "קיוסק מפתחות הזדהות",
+    "description": "יצירת מפתחות הזדהות זמניים עבור אפליקציות GIS שולחניות",
+    "subtitle": "אימות עבור QGIS ו-ArcGIS Pro"
+  },
+  "applications": {
+    "title": "מדריכים לאפליקציות נתמכות",
+    "info": "שתי האפליקציות תומכות באימות באמצעות מפתח הזדהות",
+    "qgis": {
+      "title": "QGIS Desktop",
+      "subtitle": "GIS קוד פתוח",
+      "description": "מיפוי וניתוח",
+      "alt": "QGIS"
+    },
+    "arcgis": {
+      "title": "ArcGIS Pro",
+      "subtitle": "פלטפורמת שולחן עבודה",
+      "description": "ניתוח גיאו-מרחבי",
+      "alt": "ArcGIS Pro"
+    }
+  },
+  "token": {
+    "generation": {
+      "title": "יצירת מפתח הזדהות",
+      "button": "צור מפתח הזדהות",
+      "buttonLoading": "יוצר מפתח הזדהות...",
+      "description": "לחץ כדי ליצור מפתח הזדהות חדש",
+      "success": "מפתח הזדהות נוצר בהצלחה",
+      "successDescription": "מפתח ההזדהות שלך מוכן לשימוש",
+      "progressMessage": "יוצר את מפתח ההזדהות שלך...",
+      "waitMessage": "אנא המתן בזמן שאנו יוצרים את מפתח ההזדהות המאובטח שלך..."
+    },
+    "display": {
+      "label": "מפתח הזדהות:",
+      "expires": "בתוקף עד:",
+      "copy": "העתק מפתח הזדהות",
+      "copied": "הועתק!",
+      "generateNew": "צור מפתח הזדהות חדש"
+    },
+    "error": {
+      "title": "יצירה נכשלה",
+      "description": "נכשל ביצירת המפתח הזדהות. אנא נסה שוב."
+    }
+  },
+  "common": {
+    "loading": "טוען...",
+    "tryAgain": "נסה שוב",
+    "goBack": "חזור",
+    "error": "שגיאה",
+    "user": "משתמש"
+  },
+  "theme": {
+    "toggle": "החלף ערכת נושא",
+    "light": "בהיר",
+    "dark": "כהה",
+    "system": "מערכת"
+  },
+  "language": {
+    "toggle": "החלף שפה",
+    "english": "English",
+    "hebrew": "עברית"
+  },
+  "layout": {
+    "title": "ליבות מיפוי"
+  },
+  "errors": {
+    "title": "משהו השתבש",
+    "message": "אירעה שגיאה בלתי צפויה. אנא נסה שוב.",
+    "support": "אם הבעיה ממשיכה, אנא פנה לתמיכה.",
+    "checking": "בודק אימות...",
+    "redirecting": "מפנה לכניסה..."
+  },
+  "game": {
+    "snake": {
+      "title": "🐍 Snake Game Easter Egg!"
+    }
+  }
+}

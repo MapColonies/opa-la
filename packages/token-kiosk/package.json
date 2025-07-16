@@ -36,7 +36,7 @@
     "@map-colonies/js-logger": "^2.0.0",
     "@map-colonies/openapi-express-viewer": "^4.0.0",
     "@map-colonies/read-pkg": "^1.0.0",
-    "@map-colonies/schemas": "https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-bc7a0664630e2a828ddc79244ecae27f4413592d.tgz",
+    "@map-colonies/schemas": "/home/oferade/repos/libot/schemas/map-colonies-schemas-1.11.0.tgz",
     "@map-colonies/telemetry": "^10.0.1",
     "@opentelemetry/api": "^1.9.0",
     "async-cache-dedupe": "^2.2.0",

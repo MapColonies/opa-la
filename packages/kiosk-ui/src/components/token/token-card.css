@@ -1,0 +1,15 @@
+@keyframes breathing {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.15);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 16px 0 rgba(59, 130, 246, 0.25);
+  }
+}
+
+.animate-breathing {
+  animation: breathing 2.2s ease-in-out infinite;
+}

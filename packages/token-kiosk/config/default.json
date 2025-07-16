@@ -41,5 +41,10 @@
       "cert": ""
     },
     "database": "token-kiosk"
+  },
+  "guides": {},
+  "qlr": {
+    "catalogUrl": "https://catalog.mapcolonies.com",
+    "layers": []
   }
 }

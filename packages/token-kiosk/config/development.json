@@ -5,7 +5,7 @@
       "issuerBaseUrl": "http://localhost:8080/realms/my-local-realm",
       "baseUrl": "http://localhost:5173",
       "secret": "sdfsdasdsadsadsadsadsadas",
-      "clientSecret": "78vaqxyFyyf1xeTHXzgzNlhCVtW83Zi7",
+      "clientSecret": "yfS4DKnZShTLdXUec8Yqi1DAowknKxY3",
       "scopes": "openid profile email",
       "idField": "email",
       "metadataFields": ["email", "email_verified", "name", "given_name", "family_name", "preferred_username"]

@@ -14,6 +14,7 @@ import { AUTH_ROUTER_SYMBOL, authRouterFactory } from './auth/routes/authRouter'
 import { authManagerClientFactory } from './tokens/models/authManagerClient';
 import { createConnectionOptions, createDrizzle, healthCheck, initConnection } from './db/createConnection';
 import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
+import { GUIDES_ROUTER_SYMBOL, guidesRouterFactory } from './guides/routes/guidesRouter';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -50,6 +51,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.METRICS, provider: { useValue: metricsRegistry } },
     { token: TOKEN_ROUTER_SYMBOL, provider: { useFactory: tokenRouterFactory } },
     { token: AUTH_ROUTER_SYMBOL, provider: { useFactory: authRouterFactory } },
+    { token: GUIDES_ROUTER_SYMBOL, provider: { useFactory: guidesRouterFactory } },
     { token: SERVICES.AUTH_MANAGER_CLIENT, provider: { useFactory: authManagerClientFactory } },
     { token: SERVICES.AUTH_MIDDLEWARE, provider: { useFactory: openidAuthMiddlewareFactory } },
     { token: SERVICES.PG_POOL, provider: { useValue: pool } },
