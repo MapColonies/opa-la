@@ -130,12 +130,18 @@ paths:
                 type: string
                 example: attachment; filename="token-kiosk.qlr"
           content:
-            application/xml:
-              schema:
-                type: string
             application/json:
               schema:
-                type: string
+                anyOf:
+                  - type: string
+                  - type: object
+                additionalProperties: true
+            application/xml:
+              schema:
+                anyOf:
+                  - type: string
+                  - type: object
+
         401:
           description: Unauthorized - No valid token
           content:

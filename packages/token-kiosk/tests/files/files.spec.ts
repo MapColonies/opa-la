@@ -1,4 +1,5 @@
 import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { addWeeks } from 'date-fns';
 import jsLogger from '@map-colonies/js-logger';
 import nock, { abortPendingRequests, cleanAll } from 'nock';
 import { trace } from '@opentelemetry/api';
@@ -18,7 +19,7 @@ import { emptyResponse, goodResponse, partialResponse } from './cswResponses';
 
 describe('guides', function () {
   let requestSender: RequestSender<paths, operations>;
-  let oidcContext = { user: mockUser } as unknown as RequestContext;
+  let oidcContext = { user: { ...mockUser, email: 'files@example.com' } } as unknown as RequestContext;
   let drizzle: Drizzle;
 
   beforeAll(async function () {
@@ -48,10 +49,15 @@ describe('guides', function () {
     requestSender = await createRequestSender<paths, operations>('openapi3.yaml', app, { baseUrl: '/api' });
     drizzle = container.resolve<Drizzle>(SERVICES.DRIZZLE);
     nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.OK, privateKey);
+
+    await drizzle
+      .insert(users)
+      .values({ id: 'files@example.com', token: 'aaaaaaa', isBanned: false, tokenExpirationDate: addWeeks(new Date(), 1) })
+      .onConflictDoUpdate({ set: { token: 'aaaaaaa' }, target: users.id });
   });
 
   afterEach(function () {
-    oidcContext = { user: mockUser } as unknown as RequestContext;
+    oidcContext = { user: { ...mockUser, email: 'files@example.com' } } as unknown as RequestContext;
     vi.resetAllMocks();
     // Clean up all nock interceptors after each test
     abortPendingRequests();
@@ -71,7 +77,7 @@ describe('guides', function () {
       expect(res.text).toMatchSnapshot('qlr-file-content');
     });
 
-    it.skip('should return 200 status code a lyrx file', async function () {
+    it('should return 200 status code a lyrx file', async function () {
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponse);
 
       const res = await requestSender.getFile({ pathParams: { type: 'lyrx' } });
@@ -79,7 +85,7 @@ describe('guides', function () {
       expect(res.status).toBe(httpStatusCodes.OK);
       expect(res).toSatisfyApiSpec();
       expect(res.headers['content-disposition']).toMatch(/attachment; filename="mapcolonies-layers-\d{4}-\d{2}-\d{2}\.lyrx"/);
-      expect(res.headers['content-type']).toBe('application/json');
+      expect(res.headers['content-type']).toBe('application/json; charset=utf-8');
       expect(res.body).toMatchSnapshot('lyrx-file-content');
     });
   });

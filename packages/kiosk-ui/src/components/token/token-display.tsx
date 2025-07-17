@@ -86,7 +86,6 @@ export function TokenDisplay({ tokenData, onCopy }: TokenDisplayProps) {
           {t('token.display.downloadQlr')}
         </Button>
         <Button
-          disabled={true}
           variant="outline"
           className="flex items-center gap-2 flex-1 bg-white shadow-blue-300 hover:bg-blue-50 transition"
           size="default"

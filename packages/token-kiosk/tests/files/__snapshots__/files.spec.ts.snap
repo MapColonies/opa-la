@@ -1,5 +1,62 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`guides > Happy Path > should return 200 status code a lyrx file > lyrx-file-content 1`] = `
+{
+  "build": 55405,
+  "layerDefinitions": [
+    {
+      "allowDrapingOnIntegrateMesh": true,
+      "blendingMode": "Alpha",
+      "description": "MapColonies layers",
+      "displayCacheType": "Permanent",
+      "layerType": "Operational",
+      "maxDisplayCacheAge": 5,
+      "name": "test product",
+      "refreshRate": -1,
+      "refreshRateUnits": "esriTimeUnitsSeconds",
+      "serviceConnection": {
+        "capabilitiesParameters": {
+          "propertySetItems": [
+            "token",
+            "aaaaaaa",
+          ],
+          "type": "PropertySet",
+        },
+        "imageFormat": "image/jpeg",
+        "layerName": "test_product-Orthophoto",
+        "serverConnection": {
+          "anonymous": true,
+          "connectionMode": "Consumer",
+          "hideUserProperty": true,
+          "serverType": "WMTS",
+          "type": "CIMProjectServerConnection",
+          "url": "https://example.com/api/raster/v1/wmts/1.0.0/WMTSCapabilities.xml",
+          "useDefaultStagingFolder": true,
+        },
+        "style": "default",
+        "type": "CIMWMTSServiceConnection",
+        "version": "1.0.0",
+      },
+      "serviceLayerID": -1,
+      "showLegends": true,
+      "showPopups": true,
+      "sourceModifiedTime": {
+        "type": "TimeInstant",
+      },
+      "type": "CIMTiledServiceLayer",
+      "uRI": "CIMPATH=Map/test_product_.json",
+      "useSourceMetadata": true,
+      "visibility": true,
+    },
+  ],
+  "layers": [
+    "CIMPATH=Map/test_product_.json",
+  ],
+  "type": "CIMLayerDocument",
+  "version": "3.4.0",
+}
+`;
+
 exports[`guides > Happy Path > should return 200 status code a qlr file > qlr-file-content 1`] = `
 "<!DOCTYPE qgis-layer-definition>
 <qlr>
@@ -14,7 +71,7 @@ exports[`guides > Happy Path > should return 200 status code a qlr file > qlr-fi
         
         <layer-tree-layer legend_exp="" providerKey="wms" name="test product"
           legend_split_behavior="0" id="60321a0d-2fb4-4727-a27a-aca9bd0bad9f" patch_size="-1,-1"
-          source="crs=EPSG:4326&amp;dpiMode=7&amp;featureCount=10&amp;format=image/jpeg&amp;http-header:x-api-key=eyJhbGciOiJSUzI1NiJ9.eyJpZCI6ImF2aUBleGFtcGxlLmNvbSIsInN1YiI6ImMyYiIsImlzcyI6InRva2VuLWtpb3NrIiwiaWF0IjoxNzUyNzI5NDQyLCJleHAiOjE3NTMzMzQyNDJ9.V0nYQT-Lr6yvKCnf1ncA7XvvKWK1fxmBbNJsi7XcA7kFY1qYg6FdzMaWkRu84Ow8WkbQ_2BSEdKmaIvfHCNvXIO3M1-nFRwzM2WIAOuPtftta3hsTkqk9D46o3cd2qXwqV1xuEjleGVM2ZAYH27r6Ngv5eXLZm1Z-gWxGvyT01eNP6JPcJaeht16llpJ0zl7HrjIWn5RTa_P6dmFNbROX4J9x3u54voqW9lNCY9nPC68IuQytECiPrVTUDdbE5SMJHcDex_seDts94kZrJRn5JqAZXSt0f45NMXgTYVoJ80Snztng2gAweEr6GY456ZdqHl775NTgAoo8pUtlsP6Cg&amp;layers=test_product-Orthophoto&amp;styles=default&amp;tileMatrixSet=WorldCRS84&amp;tilePixelRatio=0&amp;url=https://example.com/api/raster/v1/wmts/1.0.0/WMTSCapabilities.xml"
+          source="crs=EPSG:4326&amp;dpiMode=7&amp;featureCount=10&amp;format=image/jpeg&amp;http-header:x-api-key=aaaaaaa&amp;layers=test_product-Orthophoto&amp;styles=default&amp;tileMatrixSet=WorldCRS84&amp;tilePixelRatio=0&amp;url=https://example.com/api/raster/v1/wmts/1.0.0/WMTSCapabilities.xml"
           expanded="1" checked="Qt::Checked">
           <customproperties>
             <Option />
@@ -42,7 +99,7 @@ exports[`guides > Happy Path > should return 200 status code a qlr file > qlr-fi
       </wgs84extent>
       <id>60321a0d-2fb4-4727-a27a-aca9bd0bad9f</id>
       <datasource>
-        crs=EPSG:4326&amp;dpiMode=7&amp;featureCount=10&amp;format=image/jpeg&amp;http-header:x-api-key=eyJhbGciOiJSUzI1NiJ9.eyJpZCI6ImF2aUBleGFtcGxlLmNvbSIsInN1YiI6ImMyYiIsImlzcyI6InRva2VuLWtpb3NrIiwiaWF0IjoxNzUyNzI5NDQyLCJleHAiOjE3NTMzMzQyNDJ9.V0nYQT-Lr6yvKCnf1ncA7XvvKWK1fxmBbNJsi7XcA7kFY1qYg6FdzMaWkRu84Ow8WkbQ_2BSEdKmaIvfHCNvXIO3M1-nFRwzM2WIAOuPtftta3hsTkqk9D46o3cd2qXwqV1xuEjleGVM2ZAYH27r6Ngv5eXLZm1Z-gWxGvyT01eNP6JPcJaeht16llpJ0zl7HrjIWn5RTa_P6dmFNbROX4J9x3u54voqW9lNCY9nPC68IuQytECiPrVTUDdbE5SMJHcDex_seDts94kZrJRn5JqAZXSt0f45NMXgTYVoJ80Snztng2gAweEr6GY456ZdqHl775NTgAoo8pUtlsP6Cg&amp;layers=test_product-Orthophoto&amp;styles=default&amp;tileMatrixSet=WorldCRS84&amp;tilePixelRatio=0&amp;url=https://example.com/api/raster/v1/wmts/1.0.0/WMTSCapabilities.xml</datasource>
+        crs=EPSG:4326&amp;dpiMode=7&amp;featureCount=10&amp;format=image/jpeg&amp;http-header:x-api-key=aaaaaaa&amp;layers=test_product-Orthophoto&amp;styles=default&amp;tileMatrixSet=WorldCRS84&amp;tilePixelRatio=0&amp;url=https://example.com/api/raster/v1/wmts/1.0.0/WMTSCapabilities.xml</datasource>
       <layername>test product</layername>
       <srs>
         <spatialrefsys nativeFormat="Wkt">

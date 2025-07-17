@@ -8,6 +8,7 @@ import { type ConfigType } from '@src/common/config';
 import { TokenManager } from '@src/tokens/models/tokenManager';
 import { CatalogClient, CatalogRecord, CatalogRecordIdentifier } from './catalogManager';
 import qlrTemplate from './qlrTemplate';
+import { createLyrxFile } from './lyrxCreator';
 
 type CatalogCache = Cache & {
   getRecords: typeof CatalogClient.prototype.getCatalogRecords;
@@ -47,10 +48,9 @@ export class FileManager {
     if (type === 'qlr') {
       return this.getQlr(layerData, token);
     } else {
-      throw new Error(`Unsupported file type: ${type}`);
+      return JSON.stringify(createLyrxFile(layerData, token));
     }
   }
-
   private getQlr(layers: CatalogRecord[], token: string): string {
     return renderString(qlrTemplate, { layers, token });
   }
