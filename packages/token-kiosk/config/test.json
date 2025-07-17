@@ -22,5 +22,31 @@
     "ssl": {
       "enabled": false
     }
+  },
+  "auth": {
+    "openid": {
+      "clientId": "my-local-app",
+      "issuerBaseUrl": "http://localhost:8080/realms/my-local-realm",
+      "baseUrl": "http://localhost:5173",
+      "secret": "sdfsdasdsadsadsadsadsadas",
+      "clientSecret": "yfS4DKnZShTLdXUec8Yqi1DAowknKxY3",
+      "scopes": "openid profile email",
+      "idField": "email",
+      "metadataFields": ["email", "email_verified", "name", "given_name", "family_name", "preferred_username"]
+    }
+  },
+  "token": {
+    "environment": "prod",
+    "expirationDuration": "1w",
+    "domains": ["raster"],
+    "jwt": {
+      "subject": "c2b",
+      "issuer": "token-kiosk",
+      "algorithm": "RS256"
+    },
+    "authManager": {
+      "baseUrl": "http://localhost:8082",
+      "cacheTtlHours": 1
+    }
   }
 }

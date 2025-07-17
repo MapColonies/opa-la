@@ -68,7 +68,7 @@ describe('guides', function () {
       expect(res).toSatisfyApiSpec();
       expect(res.headers['content-disposition']).toMatch(/attachment; filename="mapcolonies-layers-\d{4}-\d{2}-\d{2}\.qlr"/);
       expect(res.headers['content-type']).toBe('application/xml; charset=utf-8');
-      expect(res.body).toMatchSnapshot('qlr-file-content');
+      expect(res.text).toMatchSnapshot('qlr-file-content');
     });
 
     it.skip('should return 200 status code a lyrx file', async function () {
