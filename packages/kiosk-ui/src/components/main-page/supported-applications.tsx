@@ -4,8 +4,7 @@ import { $api } from '@/lib/http-client';
 
 export function SupportedApplications() {
   const { t } = useTranslation();
-  const { data: guides, isFetching } = $api.useQuery('get', '/guides', undefined, { enabled: true });
-  const isLoading = isFetching;
+  const { data: guides } = $api.useQuery('get', '/guides', undefined, { enabled: true });
 
   return (
     <div className="space-y-4 mt-10.5">
@@ -21,7 +20,6 @@ export function SupportedApplications() {
         iconBgColor="bg-green-500/10"
         checkColor="text-green-500"
         link={guides?.qgis}
-        disabled={isLoading || !guides?.qgis}
         shadowColor="rgba(34,197,94,0.15)" // green shadow
       />
 
@@ -35,7 +33,6 @@ export function SupportedApplications() {
         iconBgColor="bg-blue-500/10"
         checkColor="text-blue-500"
         link={guides?.arcgis}
-        disabled={isLoading || !guides?.arcgis}
         shadowColor="rgba(59,130,246,0.15)" // blue shadow
       />
     </div>

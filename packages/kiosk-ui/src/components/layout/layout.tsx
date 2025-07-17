@@ -29,7 +29,7 @@ export function Layout({ children }: LayoutProps) {
   }, [i18n.language]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="bg-background flex flex-col">
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-3xl font-bold">{t('layout.title')}</h1>

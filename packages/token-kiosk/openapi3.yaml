@@ -27,6 +27,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+        401:
+          description: Unauthorized - No valid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Forbidden - User is banned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /auth/me:
     get:
       operationId: getCurrentUser
@@ -71,6 +89,67 @@ paths:
                 $ref: '#/components/schemas/guidesResponse'
         401:
           description: Unauthorized - No valid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Forbidden - User is banned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /files/{type}:
+    get:
+      operationId: getFile
+      summary: Get QLR for QGIS or lyrx for ArcGIS Pro
+      description: Returns a File that can be used to load specific MapColonies layers already configured and ready to use in QGIS or ArcGIS Pro.
+      security:
+        - openid: []
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Type of file to retrieve (qlr for QGIS, lyrx for ArcGIS Pro)
+          schema:
+            $ref: '#/components/schemas/fileTypes'
+      responses:
+        200:
+          description: QLR file retrieved successfully
+          headers:
+            Content-Disposition:
+              description: Indicates that the content is a file attachment
+              schema:
+                type: string
+                example: attachment; filename="token-kiosk.qlr"
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - type: string
+                  - type: object
+                additionalProperties: true
+            application/xml:
+              schema:
+                anyOf:
+                  - type: string
+                  - type: object
+
+        401:
+          description: Unauthorized - No valid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Forbidden - User is banned
           content:
             application/json:
               schema:
@@ -159,3 +238,7 @@ components:
         arcgis:
           type: string
           description: Link to ArcGIS Pro documentation
+    fileTypes:
+      type: string
+      enum: [qlr, lyrx]
+      description: Type of file to retrieve (qlr for QGIS, lyrx for ArcGIS Pro)

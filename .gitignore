@@ -112,3 +112,5 @@ local.json
 # temporary files
 *workdir*
 *.tar.gz*
+
+html

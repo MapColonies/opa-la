@@ -8,6 +8,7 @@ import type { components } from '@openapi';
 import type { ConfigType } from '@src/common/config';
 import { AuthManager } from '@src/auth/model/authManager';
 import { UserManager } from '@src/users/userManager';
+import { UserIsBannedError } from '@src/users/errors';
 import { SERVICES } from '@common/constants';
 import type { components as authManagerComponents } from '@src/auth-manager';
 import type { AuthManagerClient } from './authManagerClient';
@@ -40,7 +41,7 @@ export class TokenManager {
 
     if (user?.isBanned === true) {
       this.logger.warn({ msg: 'user is banned', userId: clientId });
-      throw new Error('User is banned');
+      throw new UserIsBannedError(clientId);
     }
 
     const isUserTokenStillValid = user !== undefined && isAfter(user.tokenExpirationDate, new Date());

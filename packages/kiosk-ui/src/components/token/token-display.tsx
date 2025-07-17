@@ -1,9 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, Download } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 
 interface TokenData {
   token: string;
@@ -12,11 +11,10 @@ interface TokenData {
 
 interface TokenDisplayProps {
   tokenData: TokenData;
-  copied: boolean;
   onCopy: () => void;
 }
 
-export function TokenDisplay({ tokenData, copied, onCopy }: TokenDisplayProps) {
+export function TokenDisplay({ tokenData, onCopy }: TokenDisplayProps) {
   const { t } = useTranslation();
 
   // Click-to-copy handler for the token area
@@ -58,7 +56,6 @@ export function TokenDisplay({ tokenData, copied, onCopy }: TokenDisplayProps) {
             <button
               type="button"
               aria-label={t('token.display.copy')}
-              onClick={handleTokenClick}
               className="absolute top-2 right-2 p-1 rounded-md bg-background border border-muted shadow hover:bg-muted transition focus:outline-none focus:ring-2 focus:ring-primary"
               tabIndex={0}
             >
@@ -76,18 +73,29 @@ export function TokenDisplay({ tokenData, copied, onCopy }: TokenDisplayProps) {
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button variant="outline" onClick={onCopy} className="flex items-center gap-2 flex-1" size="default">
-          {copied ? (
-            <>
-              <Check className="w-4 h-4 text-green-500" />
-              {t('token.display.copied')}
-            </>
-          ) : (
-            <>
-              <Copy className="w-4 h-4" />
-              {t('token.display.copy')}
-            </>
-          )}
+        <Button
+          variant="outline"
+          className="flex items-center gap-2 flex-1 bg-white shadow-green-300 hover:bg-green-50 transition"
+          size="default"
+          onClick={() => {
+            window.open('/api/files/qlr', '_blank');
+          }}
+          aria-label={t('token.display.downloadQlr')}
+        >
+          <Download className="w-4 h-4 text-green-500" />
+          {t('token.display.downloadQlr')}
+        </Button>
+        <Button
+          variant="outline"
+          className="flex items-center gap-2 flex-1 bg-white shadow-blue-300 hover:bg-blue-50 transition"
+          size="default"
+          onClick={() => {
+            window.open('/api/files/lyrx', '_blank');
+          }}
+          aria-label={t('token.display.downloadLyrx')}
+        >
+          <Download className="w-4 h-4 text-blue-500" />
+          {t('token.display.downloadLyrx')}
         </Button>
       </div>
     </div>

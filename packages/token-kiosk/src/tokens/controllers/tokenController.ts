@@ -3,7 +3,7 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import type { TypedRequestHandlers } from '@openapi';
 import { SERVICES } from '@common/constants';
-
+import { UserIsBannedError } from '@src/users/errors';
 import { AuthManager } from '@src/auth/model/authManager';
 import { TokenManager } from '../models/tokenManager';
 
@@ -33,6 +33,11 @@ export class TokenController {
       // We know the user is authenticated at this point because of the OIDC middleware, so we can safely access req.oidc.idToken
       return res.status(httpStatus.OK).json(token);
     } catch (error) {
+      if (error instanceof UserIsBannedError) {
+        return res.status(httpStatus.FORBIDDEN).json({
+          message: 'user is banned',
+        });
+      }
       this.logger.error('Error while getting token', { error });
       return next(error);
     }

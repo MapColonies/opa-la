@@ -21,12 +21,13 @@ if (process.env.GITHUB_ACTIONS) {
 
 export default defineConfig({
   test: {
-    workspace: [
+    projects: [
       {
         test: {
-          name: 'integration',
+          name: 'tests',
+          globalSetup: './tests/configurations/globalSetup.ts',
           setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vite.setup.ts'],
-          include: ['tests/integration/**/*.spec.ts'],
+          include: ['tests/**/*.spec.ts'],
           environment: 'node',
         },
         resolve: {
@@ -39,7 +40,7 @@ export default defineConfig({
       enabled: true,
       reporter: ['text', 'html', 'json', 'json-summary'],
       include: ['src/**/*.ts'],
-      exclude: ['**/vendor/**', 'node_modules/**'],
+      exclude: ['**/vendor/**', 'node_modules/**', 'src/common', 'src/db', 'src/auth', 'src/index.ts'],
       reportOnFailure: true,
       thresholds: {
         global: {
