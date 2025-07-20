@@ -1,6 +1,5 @@
 import { injectable, inject } from 'tsyringe';
 import { z } from 'zod/v4';
-import { request } from 'undici';
 import { XMLParser } from 'fast-xml-parser';
 import { SERVICES } from '@common/constants';
 import { type ConfigType } from '@src/common/config';
