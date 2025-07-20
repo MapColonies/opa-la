@@ -1,4 +1,5 @@
 import { Shield, X, Lock } from 'lucide-react';
+import MapColoniesLogo from '@/assets/mapcolonies.png';
 
 export function LogoHeader() {
   return (
@@ -20,7 +21,7 @@ export function LogoHeader() {
       </div>
 
       <div className="p-0 bg-muted/50 rounded-lg border flex items-center justify-center" style={{ width: '80px', height: '80px' }}>
-        <img src="/src/assets/mapcolonies.png" alt="MapColonies" className="h-16 w-16 object-contain" />
+        <img src={MapColoniesLogo} alt="MapColonies" className="h-16 w-16 object-contain" />
       </div>
     </div>
   );
