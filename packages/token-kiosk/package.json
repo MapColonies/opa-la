@@ -16,7 +16,7 @@
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run assets:copy",
     "start": "npm run build && cd dist && node --import ./instrumentation.mjs ./index.js",
     "start:dev": "npm run build && cd dist && cross-env CONFIG_OFFLINE_MODE=true  node --enable-source-maps --import ./instrumentation.mjs ./index.js",
-    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
+    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist && copyfiles -u 1 ./src/db/migrations/* ./dist/ && copyfiles -u 1 ./src/db/migrations/meta/* ./dist/",
     "clean": "rimraf dist",
     "generate:openapi-types": "openapi-helpers ./openapi3.yaml ./src/openapi.d.ts --format --add-typed-request-handler",
     "generate:auth-manager-types": "openapi-helpers ../auth-manager/openapi3.yaml ./src/auth-manager.d.ts --format",
