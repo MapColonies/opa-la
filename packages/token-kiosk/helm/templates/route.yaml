@@ -20,7 +20,7 @@ spec:
   path: {{ .Values.route.path | default "/" }}
   to:
     kind: Service
-    name: {{ printf "%s-service" (include "token-kiosk.fullname" .) }}
+    name: {{ $releaseName }}-{{ $chartName }}
   {{- if .Values.route.tls.enabled }}
   tls:
     termination: {{ .Values.route.tls.termination | quote }}
