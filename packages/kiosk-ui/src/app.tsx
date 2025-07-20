@@ -104,7 +104,7 @@ function App() {
               <SnakeEasterEggProvider>
                 <AppContent />
                 <SnakeGameDialog />
-                <Toaster />
+                <Toaster position="bottom-center" />
               </SnakeEasterEggProvider>
             </AuthProvider>
           </DirectionProvider>

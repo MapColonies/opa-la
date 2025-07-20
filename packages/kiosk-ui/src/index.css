@@ -151,7 +151,7 @@
 }
 
 /* Toast styling for better readability */
-[data-sonner-toaster] {
+/* [data-sonner-toaster] {
   --width: 356px;
   --border-radius: calc(var(--radius) - 2px);
 }
@@ -187,7 +187,7 @@
 [data-sonner-toast] [data-description] {
   color: inherit !important;
   opacity: 0.9;
-}
+} */
 
 /* RTL Support - Radix UI Direction Provider handles most RTL adjustments */
 [dir='rtl'] {

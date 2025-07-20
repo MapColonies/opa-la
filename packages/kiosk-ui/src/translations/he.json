@@ -36,7 +36,9 @@
       "expires": "בתוקף עד:",
       "copy": "העתק מפתח הזדהות",
       "copied": "הועתק!",
-      "generateNew": "צור מפתח הזדהות חדש"
+      "generateNew": "צור מפתח הזדהות חדש",
+      "downloadQlr": "הורד קובץ QGIS",
+      "downloadLyrx": "הורד קובץ ArcGIS"
     },
     "error": {
       "title": "יצירה נכשלה",

@@ -36,7 +36,9 @@
       "expires": "Expires at:",
       "copy": "Copy Token",
       "copied": "Copied!",
-      "generateNew": "Generate New Token"
+      "generateNew": "Generate New Token",
+      "downloadQlr": "Download QGIS Layer File",
+      "downloadLyrx": "Download ArcGIS Layer File"
     },
     "error": {
       "title": "Generation Failed",
