@@ -85,7 +85,7 @@ spec:
                 secretKeyRef:
                   name: {{ $postgresSecretName }}
                   key: username
-            {{- if not .Values.dbConfig.sslAuth.enabled }}               
+            {{- if not .Values.dbConfig.sslAuth.enabled }}
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
