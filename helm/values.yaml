@@ -22,10 +22,8 @@ ca: &ca
 opa:
   cloudProvider: *cloudProvider
   ca: *ca
-
   image:
     repository: openpolicyagent/opa
-
   enabled: true
   replicaCount: 1
 
@@ -57,32 +55,15 @@ opa:
 
 auth-cron:
   enabled: true
-
   cloudProvider: *cloudProvider
-
   ca: *ca
-
   image:
     repository: infra/auth-cron
 
-  env:
-    logLevel: info
-
-    configManager:
-      offlineMode: *configOfflineMode
-      serverUrl: *configServerUrl
-      configName: 'infra-auth-cron'
-  
-
-  # cronConfig:
-    # np:
-    #   pattern: '* * * * * *'
-    #   s3:
-    #     accessKey: access-key-value
-    #     secretKey: secret-key-value
-    #     endpoint: http://url-to-s3
-    #     bucket: bucket-name
-    #     key: key-name
+  configManager:
+    offlineMode: *configOfflineMode
+    serverUrl: *configServerUrl
+    name: 'infra-auth-cron'
 
   resources:
     enabled: true
@@ -98,23 +79,15 @@ auth-manager:
   enabled: true
   replicaCount: 1
   initialDelaySeconds: 60
-
   cloudProvider: *cloudProvider
-
   ca: *ca
-
   image:
     repository: infra/auth-manager
 
-  env:
-    port: 8080
-    targetPort: 8080
-    logLevel: info
-
-    configManager:
-      offlineMode: *configOfflineMode
-      serverUrl: *configServerUrl
-      configName: 'infra-auth-manager'
+  configManager:
+    offlineMode: *configOfflineMode
+    serverUrl: *configServerUrl
+    name: 'infra-auth-manager'
 
   resources:
     enabled: true
@@ -137,18 +110,10 @@ auth-ui:
   enabled: true
   replicaCount: 1
   initialDelaySeconds: 60
-
   cloudProvider: *cloudProvider
-
   ca: *ca
-
   image:
     repository: infra/auth-ui
-
-  env:
-    port: 80
-    targetPort: 3000
-
   config: |
     {
       "Local": {
@@ -199,7 +164,7 @@ token-kiosk:
   configManager:
     offlineMode: *configOfflineMode
     serverUrl: *configServerUrl
-    configName: 'infra-token-kiosk'
+    name: 'infra-token-kiosk'
 
   resources:
     enabled: true
