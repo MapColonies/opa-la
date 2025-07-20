@@ -42,10 +42,11 @@ env:
   logLevel: info
   logPrettyPrintEnabled: false
 
-  configManager:
-    offlineMode: false
-    serverUrl: 'http://infra-config-config-server/api'
-    configName: 'auth-cron'
+configManager:
+  offlineMode: false
+  serverUrl: 'http://infra-config-config-server/api'
+  name: 'auth-cron'
+  version: 'latest'
 
 additionalPodAnnotations: {}
 

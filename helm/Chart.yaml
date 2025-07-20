@@ -20,3 +20,7 @@ dependencies:
     repository: file://../packages/auth-ui/helm
     version: 1.8.1
     condition: auth-ui.enabled
+  - name: token-kiosk
+    repository: file://../packages/token-kiosk/helm
+    version: 1.8.1
+    condition: token-kiosk.enabled

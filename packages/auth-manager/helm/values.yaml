@@ -51,10 +51,11 @@ env:
     enabled: false
     url: http://localhost:55681/v1/metrics
 
-  configManager:
-    offlineMode: false
-    serverUrl: 'https://infra-config-config/api'
-    configName: 'auth-manager'
+configManager:
+  offlineMode: false
+  serverUrl: 'https://infra-config-config/api'
+  name: 'auth-manager'
+  version: 'latest'
 
 dbConfig:
   host: localhost

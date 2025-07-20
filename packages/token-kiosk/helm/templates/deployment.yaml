@@ -4,6 +4,7 @@
 {{- $cloudProviderDockerRegistryUrl := include "token-kiosk.cloudProviderDockerRegistryUrl" . -}}
 {{- $cloudProviderImagePullSecretName := include "token-kiosk.cloudProviderImagePullSecretName" . -}}
 {{- $imageTag := include "token-kiosk.tag" . -}}
+{{ $postgresSecretName := ternary .Values.dbConfig.secretName (printf "%s%s" .Release.Name "-postgres-secret") .Values.dbConfig.useExternalSecret }}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -12,7 +13,6 @@ metadata:
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
-    environment: {{ include "token-kiosk.environment" . }}
     release: {{ $releaseName }}
     {{- include "token-kiosk.labels" . | nindent 4 }}
 spec:
@@ -30,14 +30,15 @@ spec:
         app: {{ $chartName }}
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
-        {{- include "token-kiosk.selectorLabels" . | nindent 8 }}
+        {{- include "token-kiosk.labels" . | nindent 8 }}
       annotations:
-      {{- if .Values.resetOnConfigChange }}
+        {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}
+        {{- if .Values.resetOnConfigChange }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-      {{- end }}
-      {{- if .Values.podAnnotations }}
-      {{- toYaml .Values.podAnnotations | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        {{- if .Values.podAnnotations }}
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end }}
     spec:
     {{- if $cloudProviderImagePullSecretName }}
       imagePullSecrets:
@@ -58,22 +59,47 @@ spec:
           {{- end }}
           {{- end }}
           volumeMounts:
-            {{- if .Values.caSecretName }}
-            - mountPath: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+            {{- if .Values.ca.enabled }}
+            - mountPath: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
               name: root-ca
-              subPath: {{ quote .Values.caKey }}
+              subPath: {{ quote .Values.ca.key }}
+            {{- end }}
+            {{- if .Values.dbConfig.sslAuth.enabled }}
+            - name: ca-file
+              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.caFileName }}
+              subPath: {{ .Values.dbConfig.sslAuth.caFileName }}
+            - name: key-file
+              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.keyFileName }}
+              subPath: {{ .Values.dbConfig.sslAuth.keyFileName }}
+            - name: cert-file
+              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.certFileName }}
+              subPath: {{ .Values.dbConfig.sslAuth.certFileName }}
             {{- end }}
             {{- if .Values.extraVolumeMounts -}}
-              {{ toYaml .Values.extraVolumeMounts | nindent 12 }}
+            {{ toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
           env:
+            {{- if .Values.configManager.offlineMode }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $postgresSecretName }}
+                  key: username
+            {{- if not .Values.dbConfig.sslAuth.enabled }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $postgresSecretName }}
+                  key: password
+            {{- end }}
+            {{- end }}
             - name: SERVER_PORT
               value: {{ .Values.env.targetPort | quote }}
-            {{- if .Values.caSecretName }}
+            {{- if .Values.ca.enabled }}
             - name: REQUESTS_CA_BUNDLE
-              value: {{ printf "%s/%s" .Values.caPath .Values.caKey | quote }}
+              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
             - name: NODE_EXTRA_CA_CERTS
-              value: {{ printf "[%s/%s]" .Values.caPath .Values.caKey | quote }}
+              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key }}
             {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
@@ -114,10 +140,30 @@ spec:
         - name: nginx-config
           configMap:
             name: 'nginx-extra-configmap'      
-        {{- if .Values.caSecretName }}
+        {{- if .Values.ca.enabled }}
         - name: root-ca
           secret:
-            secretName: {{ .Values.caSecretName }}
+            secretName: {{ .Values.ca.secretName }}
+        {{- end }}
+        {{- if .Values.dbConfig.sslAuth.enabled }}
+        - name: ca-file
+          secret:
+            secretName: {{ $postgresSecretName }}
+            items:
+              - key: {{ .Values.dbConfig.sslAuth.caFileName }}
+                path: ca.crt
+        - name: key-file
+          secret:
+            secretName: {{ $postgresSecretName }}
+            items:
+              - key: {{ .Values.dbConfig.sslAuth.keyFileName }}
+                path: key.pem
+        - name: cert-file
+          secret:
+            secretName: {{ $postgresSecretName }}
+            items:
+              - key: {{ .Values.dbConfig.sslAuth.certFileName }}
+                path: cert.pem
         {{- end }}
         {{- if .Values.extraVolumes -}}
           {{ tpl (toYaml .Values.extraVolumes) . | nindent 8 }}

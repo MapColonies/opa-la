@@ -1,15 +1,18 @@
 dependencies:
 - name: opa
   repository: file://charts/opa
-  version: 1.8.0
+  version: 1.8.1
 - name: auth-cron
   repository: file://../packages/auth-cron/helm
-  version: 1.8.0
+  version: 1.8.1
 - name: auth-manager
   repository: file://../packages/auth-manager/helm
-  version: 1.8.0
+  version: 1.8.1
 - name: auth-ui
   repository: file://../packages/auth-ui/helm
-  version: 1.8.0
-digest: sha256:e1a37b27c0cf00074e091e6145e34e601ba0819e44416a7960a8dcddb28a1af1
-generated: "2025-07-08T17:27:50.524551666+03:00"
+  version: 1.8.1
+- name: token-kiosk
+  repository: file://../packages/token-kiosk/helm
+  version: 1.8.1
+digest: sha256:8e51d3c0c248f276bf36410dfe3b9bface3ec8fa0cd22bdd67311702c86f412e
+generated: "2025-07-20T10:45:09.193278898+03:00"

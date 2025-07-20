@@ -54,7 +54,7 @@ spec:
               name: root-ca
               subPath: {{ quote .Values.ca.key }}
             {{- end }}
-            {{- if .Values.env.configManager.offlineMode }}
+            {{- if .Values.configManager.offlineMode }}
             - name: config
               mountPath: /usr/src/app/packages/auth-cron/config/production.json
               subPath: production.json
@@ -72,7 +72,7 @@ spec:
               subPath: {{ .Values.dbConfig.sslAuth.certFileName }}
             {{- end }}
           env:
-            {{- if .Values.env.configManager.offlineMode }}
+            {{- if .Values.configManager.offlineMode }}
             - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -133,7 +133,7 @@ spec:
               - key: {{ .Values.dbConfig.sslAuth.certFileName }}
                 path: cert.pem
         {{- end }}
-        {{- if .Values.env.configManager.offlineMode }}
+        {{- if .Values.configManager.offlineMode }}
         - name: config
           secret:
             secretName: {{ $releaseName }}-{{ $chartName }}-cron-secret

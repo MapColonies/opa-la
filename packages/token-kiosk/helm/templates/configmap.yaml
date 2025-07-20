@@ -6,6 +6,8 @@ kind: ConfigMap
 metadata:
   name: {{ printf "%s-configmap" (include "token-kiosk.fullname" .) }}
 data:
+  CONFIG_OFFLINE_MODE: {{ .Values.configManager.offlineMode | quote }}
+  {{- if .Values.configManager.offlineMode }}
   REQUEST_PAYLOAD_LIMIT: {{ .Values.env.requestPayloadLimit | quote }}
   RESPONSE_COMPRESSION_ENABLED: {{ .Values.env.responseCompressionEnabled | quote }}
   LOG_LEVEL: {{ .Values.env.logLevel | quote }}
@@ -19,10 +21,18 @@ data:
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
   npm_config_cache: /tmp/
-  {{- with .Values.configManagement }}
-  CONFIG_NAME: {{ .name| quote }}
-  CONFIG_VERSION: {{ .version | quote }}
-  CONFIG_OFFLINE_MODE: {{ .offlineMode | quote }}
-  CONFIG_SERVER_URL: {{ .serverUrl | quote }}
-  {{- end -}}
+  DB_HOST: {{ .Values.dbConfig.host }}
+  DB_NAME: {{ .Values.dbConfig.database }}
+  DB_PORT: {{ .Values.dbConfig.port | default 5432 | quote }}
+  DB_ENABLE_SSL_AUTH: {{ .Values.dbConfig.sslAuth.enabled | quote }}
+  {{- if .Values.dbConfig.sslAuth.enabled }}
+  DB_CERT_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.certFileName }}
+  DB_KEY_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.keyFileName }}
+  DB_CA_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.caFileName }}
+  {{- end }}
+  {{- else }}
+  CONFIG_SERVER_URL: {{ .Values.configManager.serverUrl | quote }}
+  CONFIG_NAME: {{ .Values.configManager.name | quote }}
+  CONFIG_VERSION: {{ .Values.configManager.version | quote }}
+  {{- end }}
 {{- end }}

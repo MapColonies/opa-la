@@ -4,21 +4,21 @@ global:
   metrics: {}
   environment: ''
 
+mcLabelsAndAnnotations:
+  component: backend
+  owner: infra
+  partOf: authentication
+  prometheus:
+    enabled: true
+
 enabled: true
-environment: development
 replicaCount: 1
 revisionHistoryLimit: 5 # Amount of revisions we keep
 nodePort: 30030 #for minikube deployment only
-resetOnConfigChange: false
+resetOnConfigChange: true
 
 nameOverride: ""
 fullnameOverride: ""
-
-configManagement:
-  offlineMode: false
-  name: 'service-name'
-  version: 'latest'
-  serverUrl: 'http://localhost:8080/api'
 
 livenessProbe:
   enabled: true
@@ -50,13 +50,15 @@ args: []
 sidecars: []
 
 cloudProvider:
-  dockerRegistryUrl: 
-  imagePullSecretName: ''
+  dockerRegistryUrl: my-registry-url.io
+  imagePullSecretName: my-registry-secret
   flavor: openshift
 
-caSecretName: ''
-caPath: '/usr/local/share/ca-certificates'
-caKey: 'ca.crt'
+ca:
+  enabled: false
+  secretName: 'root-ca'
+  path: '/usr/local/share/ca-certificates'
+  key: 'ca.crt'
 
 image:
   repository: token-kiosk
@@ -78,6 +80,32 @@ env:
   metrics:
     enabled: false
     url: http://localhost:55681/v1/metrics
+
+configManager:
+  offlineMode: false
+  name: 'infra-token-kiosk'
+  version: 'latest'
+  serverUrl: 'http://localhost:8080/api'
+
+dbConfig:
+  host: localhost
+  username: postgres
+  password: postgres
+  database: token-kiosk
+  port: 5432
+  useExternalSecret: true
+  secretName: ''
+  sslAuth:
+    enabled: false
+    certFileName: cert.pem
+    keyFileName: key.pem
+    caFileName: ca.crt
+
+guides: {}
+
+qlr:
+  catalogUrl: "https://catalog.mapcolonies.com"
+  layers: []
 
 resources:
   enabled: true
