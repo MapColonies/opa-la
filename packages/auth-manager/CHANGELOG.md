@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.9.0](https://github.com/MapColonies/opa-la/compare/v1.8.1...v1.9.0) (2025-07-20)
+
+
+### Features
+
+* **opa:** support wild card origins clients in opa opa-la ecosystem MAPCO-8233 ([#89](https://github.com/MapColonies/opa-la/issues/89)) ([399601b](https://github.com/MapColonies/opa-la/commit/399601b98fe0f538eb922b908f54c577e81e062f))
+
+
+
+
+
 ## [1.8.1](https://github.com/MapColonies/opa-la/compare/v1.8.0...v1.8.1) (2025-07-10)
 
 **Note:** Version bump only for package auth-manager

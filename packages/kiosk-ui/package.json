@@ -1,7 +1,7 @@
 {
   "name": "kiosk-ui",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -36,9 +36,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "tailwindcss": "^4.1.11",
-    "@tailwindcss/vite": "^4.1.11",
     "@eslint/js": "^9.30.1",
+    "@tailwindcss/vite": "^4.1.11",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react-swc": "^3.10.2",
@@ -47,6 +46,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "openapi-typescript": "^7.8.0",
+    "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",

@@ -1,6 +1,6 @@
 {
   "name": "token-kiosk",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "UI for requesting temporary access tokens for Map Colonies services",
   "main": "./src/index.ts",
   "scripts": {
