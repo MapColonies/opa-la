@@ -14,6 +14,7 @@ export function SupportedApplications() {
 
       {/* QGIS Card */}
       <ApplicationCard
+        disable={!guides?.enabled} // Disable if guides are not enabled
         icon={QGISLogo}
         iconAlt={t('applications.qgis.alt')}
         title={t('applications.qgis.title')}
@@ -27,6 +28,7 @@ export function SupportedApplications() {
 
       {/* ArcGIS Pro Card */}
       <ApplicationCard
+        disable={!guides?.enabled} // Disable if guides are not enabled
         icon={ArcGISLogo}
         iconAlt={t('applications.arcgis.alt')}
         title={t('applications.arcgis.title')}

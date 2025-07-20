@@ -124,6 +124,8 @@ export type components = {
       qgis: string;
       /** @description Link to ArcGIS Pro documentation */
       arcgis: string;
+      /** @description Whether the guides are enabled */
+      enabled: boolean;
     };
     /**
      * @description Type of file to retrieve (qlr for QGIS, lyrx for ArcGIS Pro)
@@ -300,8 +302,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/xml': string;
-          'application/json': string;
+          'application/json':
+            | {
+                [key: string]: unknown;
+              }
+            | string
+            | Record<string, never>;
+          'application/xml': string | Record<string, never>;
         };
       };
       /** @description Unauthorized - No valid token */
@@ -313,8 +320,8 @@ export interface operations {
           'application/json': components['schemas']['error'];
         };
       };
-      /** @description Not Found - QLR file not available */
-      404: {
+      /** @description Forbidden - User is banned */
+      403: {
         headers: {
           [name: string]: unknown;
         };
