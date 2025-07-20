@@ -5,8 +5,8 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-{{ $chartName }}-configmap
 data:
-  CONFIG_OFFLINE_MODE: {{ .Values.env.configManager.offlineMode | quote }}
-  {{- if .Values.env.configManager.offlineMode }}
+  CONFIG_OFFLINE_MODE: {{ .Values.configManager.offlineMode | quote }}
+  {{- if .Values.configManager.offlineMode }}
   LOG_LEVEL: {{ .Values.env.logLevel | quote }}
   LOG_PRETTY_PRINT_ENABLED: {{ .Values.env.logPrettyPrintEnabled | quote }}
   DB_HOST: {{ .Values.dbConfig.host }}
@@ -19,7 +19,8 @@ data:
   DB_CA_PATH: /tmp/certs/{{ .Values.dbConfig.sslAuth.caFileName }}
   {{- end }}
   {{- else }}
-  CONFIG_SERVER_URL: {{ .Values.env.configManager.serverUrl | quote }}
-  CONFIG_NAME: {{ .Values.env.configManager.configName | quote }}
+  CONFIG_SERVER_URL: {{ .Values.configManager.serverUrl | quote }}
+  CONFIG_NAME: {{ .Values.configManager.name | quote }}
+  CONFIG_VERSION: {{ .Values.configManager.version | quote }}
   {{- end }}
 {{- end }}

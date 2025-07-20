@@ -32,7 +32,7 @@ data:
   {{- end }}
   {{- else }}
   CONFIG_SERVER_URL: {{ .Values.configManager.serverUrl | quote }}
-  CONFIG_NAME: {{ .Values.configManager.configName | quote }}
-  CONFIG_VERSION: {{ .version | quote }}
+  CONFIG_NAME: {{ .Values.configManager.name | quote }}
+  CONFIG_VERSION: {{ .Values.configManager.version | quote }}
   {{- end }}
 {{- end }}
