@@ -56,6 +56,7 @@ describe('guides', function () {
       expect(res.body).toEqual({
         qgis: 'https://example.com/qgis-guide',
         arcgis: 'https://example.com/arcgis-guide',
+        enabled: true,
       });
     });
   });

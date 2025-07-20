@@ -230,6 +230,7 @@ components:
       required:
         - qgis
         - arcgis
+        - enabled
       type: object
       properties:
         qgis:
@@ -238,6 +239,9 @@ components:
         arcgis:
           type: string
           description: Link to ArcGIS Pro documentation
+        enabled:
+          type: boolean
+          description: Whether the guides are enabled
     fileTypes:
       type: string
       enum: [qlr, lyrx]

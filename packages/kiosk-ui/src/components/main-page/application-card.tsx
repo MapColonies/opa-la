@@ -1,9 +1,10 @@
-import { CheckCircle, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import classNames from 'classnames';
 import { cn } from '@/lib/utils';
 
 interface ApplicationCardProps {
+  disable?: boolean;
   icon: string;
   iconAlt: string;
   title: string;
@@ -15,16 +16,32 @@ interface ApplicationCardProps {
   shadowColor?: string;
 }
 
-export function ApplicationCard({ icon, iconAlt, title, subtitle, description, iconBgColor, checkColor, link, shadowColor }: ApplicationCardProps) {
+export function ApplicationCard({
+  icon,
+  iconAlt,
+  title,
+  subtitle,
+  description,
+  iconBgColor,
+  checkColor,
+  link,
+  shadowColor,
+  disable,
+}: ApplicationCardProps) {
   // Use a stronger shadow in dark mode, but keep it subtle
   const darkShadow = shadowColor ? shadowColor.replace(/0\.15\)/, '0.35)') : undefined;
   const isDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const appliedShadow = shadowColor ? (isDark ? darkShadow : shadowColor) : undefined;
 
+  const isDisabled = !!disable;
+
   const content = (
     <Card
       className={cn(
-        classNames('border rounded-xl transition-shadow duration-200', { 'hover:shadow-lg hover:-translate-y-1 hover:border-primary/30': link })
+        classNames('border rounded-xl transition-shadow duration-200', {
+          'hover:shadow-lg hover:-translate-y-1 hover:border-primary/30': link && !isDisabled,
+          'pointer-events-none': isDisabled,
+        })
       )}
       style={{
         boxShadow: appliedShadow ? `0 2px 16px 0 ${appliedShadow}` : undefined,
@@ -43,22 +60,19 @@ export function ApplicationCard({ icon, iconAlt, title, subtitle, description, i
             <p className="text-xs text-muted-foreground leading-tight">{subtitle}</p>
             <p className="text-xs text-muted-foreground leading-tight">{description}</p>
           </div>
-          {/* Use ExternalLink icon if clickable, else CheckCircle */}
-          {link ? (
-            <ExternalLink className={cn('h-4 w-4 flex-shrink-0', checkColor)} />
-          ) : (
-            <CheckCircle className={cn('h-4 w-4 flex-shrink-0', checkColor)} />
-          )}
+          {/* Show icon only if not disabled and link exists, else nothing */}
+          {link && !isDisabled ? <ExternalLink className={cn('h-4 w-4 flex-shrink-0', checkColor)} /> : null}
         </div>
       </CardContent>
     </Card>
   );
 
-  return link ? (
-    <a href={link} target="_blank" rel="noopener noreferrer" className="block">
-      {content}
-    </a>
-  ) : (
-    content
-  );
+  if (link && !isDisabled) {
+    return (
+      <a href={link} target="_blank" rel="noopener noreferrer" className="block">
+        {content}
+      </a>
+    );
+  }
+  return content;
 }
