@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { ApplicationCard } from './application-card';
 import { $api } from '@/lib/http-client';
+import ArcGISLogo from '@/assets/ArcGIS_logo.png';
+import QGISLogo from '@/assets/qgis-icon128.svg';
 
 export function SupportedApplications() {
   const { t } = useTranslation();
@@ -12,7 +14,7 @@ export function SupportedApplications() {
 
       {/* QGIS Card */}
       <ApplicationCard
-        icon="/src/assets/qgis-icon128.svg"
+        icon={QGISLogo}
         iconAlt={t('applications.qgis.alt')}
         title={t('applications.qgis.title')}
         subtitle={t('applications.qgis.subtitle')}
@@ -25,7 +27,7 @@ export function SupportedApplications() {
 
       {/* ArcGIS Pro Card */}
       <ApplicationCard
-        icon="/src/assets/ArcGIS_logo.png"
+        icon={ArcGISLogo}
         iconAlt={t('applications.arcgis.alt')}
         title={t('applications.arcgis.title')}
         subtitle={t('applications.arcgis.subtitle')}
