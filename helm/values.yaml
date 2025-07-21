@@ -19,39 +19,33 @@ ca: &ca
   path: '/usr/local/share/ca-certificates'
   key: 'ca.crt'
 
+host: &host auth.com
+tls: &tls
+  useCerts: true
+  certificate: ''
+  key: ''
+  caCertificate: ''
+
 opa:
+  enabled: true
   cloudProvider: *cloudProvider
   ca: *ca
   image:
     repository: openpolicyagent/opa
-  enabled: true
-  replicaCount: 1
 
   s3:
     endpoint: http://localhost:9000/opa
     secretName: s3-secret
-    filePath: '/dev.tar.gz'    
-
-  resources:
-    enabled: true
-    value:
-      limits:
-        cpu: 400m
-        memory: 300Mi
-      requests:
-        cpu: 100m
-        memory: 300Mi
+    filePath: '/dev.tar.gz'
 
   hpa:
-    enabled: false
+    enabled: true
 
   route:
-    enabled: false
-    https: true
-    path: /
-    timeout:
-      enabled: true # defaults to 30s by openshift
-      duration: 60s # supported units (us, ms, s, m, h, d)
+    enabled: true
+    host: *host
+    path: /opa
+    tls: *tls
 
 auth-cron:
   enabled: true
@@ -65,20 +59,8 @@ auth-cron:
     serverUrl: *configServerUrl
     name: 'infra-auth-cron'
 
-  resources:
-    enabled: true
-    value:
-      limits:
-        cpu: 400m
-        memory: 128Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
-
 auth-manager:
   enabled: true
-  replicaCount: 1
-  initialDelaySeconds: 60
   cloudProvider: *cloudProvider
   ca: *ca
   image:
@@ -89,27 +71,14 @@ auth-manager:
     serverUrl: *configServerUrl
     name: 'infra-auth-manager'
 
-  resources:
-    enabled: true
-    value:
-      limits:
-        cpu: 400m
-        memory: 128Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
-
   route:
-    enabled: false
-    path: /
-    timeout:
-      enabled: false # defaults to 30s by openshift
-      duration: 60s # supported units (us, ms, s, m, h, d)
+    enabled: true
+    host: *host
+    path: /api
+    tls: *tls
 
 auth-ui:
   enabled: true
-  replicaCount: 1
-  initialDelaySeconds: 60
   cloudProvider: *cloudProvider
   ca: *ca
   image:
@@ -127,32 +96,10 @@ auth-ui:
         ]
       }
     }
-
-  resources:
-    enabled: true
-    value:
-      limits:
-        cpu: 400m
-        memory: 128Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
-
   route:
     enabled: true
-    path: /
-    host: 
-    timeout:
-      enabled: false
-      duration: 60s
-    tls:
-      enabled: true
-      termination: edge
-      insecureEdgeTerminationPolicy: Redirect
-      useCerts: false
-      certificate:
-      key:
-      caCertificate:
+    host: *host
+    tls: *tls
 
 token-kiosk:
   enabled: true
@@ -160,25 +107,7 @@ token-kiosk:
   ca: *ca
   image:
     repository: infra/token-kiosk
-
   configManager:
     offlineMode: *configOfflineMode
     serverUrl: *configServerUrl
     name: 'infra-token-kiosk'
-
-  resources:
-    enabled: true
-    value:
-      limits:
-        cpu: 400m
-        memory: 128Mi
-      requests:
-        cpu: 100m
-        memory: 128Mi
-
-  route:
-    enabled: false
-    path: /
-    timeout:
-      enabled: false # defaults to 30s by openshift
-      duration: 60s # supported units (us, ms, s, m, h, d)
