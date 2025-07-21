@@ -86,9 +86,18 @@ resources:
 route:
   enabled: true
   path: /
+  host: 
   timeout:
     enabled: false # defaults to 30s by openshift
     duration: 60s # supported units (us, ms, s, m, h, d)
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+    useCerts: false
+    certificate:
+    key:
+    caCertificate:
 
 ingress:
   enabled: false
