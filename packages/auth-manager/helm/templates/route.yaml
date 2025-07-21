@@ -1,7 +1,7 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "auth-manager.name" . -}}
 {{- $cloudProviderFlavor := include "auth-manager.cloudProviderFlavor" . -}}
-{{- if and (and (.Values.enabled) (eq $cloudProviderFlavor "openshift")) (.Values.route.enabled) -}}
+{{- if and .Values.enabled (eq $cloudProviderFlavor "openshift") .Values.route.enabled -}}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
