@@ -19,9 +19,9 @@ ca: &ca
   path: '/usr/local/share/ca-certificates'
   key: 'ca.crt'
 
-host: &host auth.com
+host: &host ''
 tls: &tls
-  useCerts: true
+  useCerts: false
   certificate: ''
   key: ''
   caCertificate: ''
