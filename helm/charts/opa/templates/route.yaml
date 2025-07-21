@@ -1,8 +1,8 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "opa.name" . -}}
 {{- $cloudProviderFlavor := include "opa.cloudProviderFlavor" . -}}
-{{- $serviceName := include "service.fullname" . -}}
 {{- if and (and (.Values.enabled) (eq $cloudProviderFlavor "openshift")) (.Values.route.enabled) -}}
+{{- $serviceName := include "service.fullname" . -}}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
