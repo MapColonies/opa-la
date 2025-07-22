@@ -105,6 +105,18 @@ describe('db.ts', function () {
         expect(connection).toHaveLength(1);
         expect(connection[0]).toHaveProperty('version', 2);
       });
+
+      it('should return the latest version of the asset even if there is a newer version in the database with a different environment', async function () {
+        await dataSource.getRepository(Asset).save([
+          { ...asset, name: 'xd', environment: [Environment.STAGE, Environment.NP], version: 1 },
+          { ...asset, name: 'xd', environment: [Environment.STAGE], version: 2 },
+        ]);
+
+        const { assets } = await new BundleDatabase(dataSource).getLatestVersions(Environment.NP);
+
+        expect(assets).toHaveLength(1);
+        expect(assets[0]).toMatchObject({ name: 'xd', version: 1 });
+      });
     });
 
     describe('#getBundleFromVersions', function () {
