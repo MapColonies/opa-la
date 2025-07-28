@@ -101,7 +101,11 @@ export class BundleDatabase {
   }
 
   private async getAssetsVersions(environment: string): Promise<{ name: string; version: number }[]> {
-    const subQuery = this.assetRepository.createQueryBuilder('asset').select(['name', 'MAX(version)']).groupBy('name');
+    const subQuery = this.assetRepository
+      .createQueryBuilder('asset')
+      .select(['name', 'MAX(version)'])
+      .where(':environment = ANY (environment)', { environment })
+      .groupBy('name');
 
     return this.assetRepository
       .createQueryBuilder('asset')
