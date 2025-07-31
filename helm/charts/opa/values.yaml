@@ -3,6 +3,8 @@ global:
   tracing: {}
   metrics: {}
 
+podLabels: {}
+
 mcLabelsAndAnnotations:
   component: infrastructure
   owner: infra
