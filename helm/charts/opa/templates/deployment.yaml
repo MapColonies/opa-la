@@ -31,6 +31,9 @@ spec:
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
         {{- include "opa.labels" . | nindent 8 }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8}}
+        {{- end }}
       annotations:
         {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}
         {{- if .Values.resetOnConfigChange }}
