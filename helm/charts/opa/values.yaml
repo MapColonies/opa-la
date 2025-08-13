@@ -42,13 +42,10 @@ additionalPodAnnotations: {}
 s3:
   endpoint: http://localhost:9000/opa
   secretName: s3-secret
-  awsRegion: ' '
   filePath: '/dev.tar.gz'
 
 status:
-  enabled: true
-  console: true
-  metrics: true
+  console: false
 
 decisionLogs:
   console: true
@@ -59,10 +56,6 @@ tracing:
   type: grpc
   endpoint: localhost:4317
   # samplePercentage: 1 # Default is 100%
-
-storage:
-  autoCreate: true
-  directory: /tmp/opa
 
 resources:
   enabled: true
