@@ -11,11 +11,9 @@ bundles:
     service: s3
     resource: {{ .Values.s3.filePath }}
 
-{{ if .Values.status.enabled }}
 status:
   console: {{ .Values.status.console }}
   prometheus: true
-{{ end }}
 
 decision_logs:
   console: {{ .Values.decisionLogs.console }}
