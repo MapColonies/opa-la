@@ -11,11 +11,9 @@ bundles:
     service: s3
     resource: {{ .Values.s3.filePath }}
 
-{{ if .Values.status.enabled }}
 status:
   console: {{ .Values.status.console }}
-  prometheus: {{ .Values.status.metrics }}
-{{ end }}
+  prometheus: true
 
 decision_logs:
   console: {{ .Values.decisionLogs.console }}
@@ -31,8 +29,8 @@ distributed_tracing:
 
 storage:
   disk:
-    auto_create: {{ .Values.storage.autoCreate }}
-    directory: {{ .Values.storage.directory }}
+    auto_create: true
+    directory: /tmp/opa
 
 labels:
   {{- range $key, $value := .Values.labels }}
