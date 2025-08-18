@@ -12,8 +12,9 @@ import { getJob } from './job';
 import { getConfig } from './config';
 import { emptyDir } from './util';
 import { logger } from './telemetry/logger';
+import { metricsRegistry } from './telemetry/metrics'; // Assuming metrics.ts is in a telemetry subfolder
 
-const LIVENESS_PORT = 8080;
+const PORT = 8080;
 
 async function initDb(dbConfig: commonDbFullV1Type): Promise<[DataSource, BundleDatabase, Repository<Bundle>]> {
   logger?.debug('initializing database connection');
@@ -46,7 +47,23 @@ const main = async (): Promise<void> => {
   });
 
   const server = createServer((request, response) => {
-    response.end(`HELLO WORLD`);
+    if (request.url === '/metrics') {
+      metricsRegistry
+        .metrics()
+        .then((metrics) => {
+          response.setHeader('Content-Type', metricsRegistry.contentType);
+          response.end(metrics);
+        })
+        .catch((err) => {
+          if (err instanceof Error) {
+            logger?.error({ msg: 'Failed to generate metrics', err });
+          }
+          response.statusCode = 500;
+          response.end('Error generating metrics');
+        });
+    } else {
+      response.end('HELLO WORLD');
+    }
   });
 
   createTerminus(server, {
@@ -57,7 +74,7 @@ const main = async (): Promise<void> => {
     },
   });
 
-  server.listen(LIVENESS_PORT, () => {
+  server.listen(PORT, () => {
     logger?.info('liveness is up');
   });
 };
