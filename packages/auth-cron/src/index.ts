@@ -12,7 +12,7 @@ import { getJob } from './job';
 import { getConfig } from './config';
 import { emptyDir } from './util';
 import { logger } from './telemetry/logger';
-import { metricsRegistry } from './telemetry/metrics'; // Assuming metrics.ts is in a telemetry subfolder
+import { metricsRegistry } from './telemetry/metrics';
 
 const PORT = 8080;
 
@@ -75,7 +75,7 @@ const main = async (): Promise<void> => {
   });
 
   server.listen(PORT, () => {
-    logger?.info('liveness is up');
+    logger?.info('liveness and metrics are up');
   });
 };
 
