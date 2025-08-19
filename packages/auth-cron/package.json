@@ -46,6 +46,7 @@
     "better-ajv-errors": "^1.2.0",
     "config": "^3.3.9",
     "croner": "6.0.3",
+    "express": "^5.1.0",
     "http-status-codes": "^2.2.0",
     "pg": "^8.10.0",
     "prom-client": "^15.1.3",
