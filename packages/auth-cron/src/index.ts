@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { env } from 'process';
+import { env } from 'node:process';
 import express from 'express';
 import { createTerminus } from '@godaddy/terminus';
 import { CatchCallbackFn, Cron } from 'croner';
