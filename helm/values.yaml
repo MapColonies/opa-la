@@ -2,8 +2,6 @@ global:
   cloudProvider: {}
   tracing: {}
   metrics: {}
-  mcLabelsAndAnnotations:
-    environment: development
 
 configServerUrl: &configServerUrl 'http://localhost/api'
 offlineMode: &configOfflineMode false
