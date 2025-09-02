@@ -53,7 +53,7 @@ exports[`guides > Happy Path > should return 200 status code a lyrx file > lyrx-
     "CIMPATH=Map/test_product_.json",
   ],
   "type": "CIMLayerDocument",
-  "version": "3.4.0",
+  "version": "3.0.2",
 }
 `;
 

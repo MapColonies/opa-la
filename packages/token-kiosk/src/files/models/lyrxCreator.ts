@@ -47,7 +47,7 @@ function createLayerDefinition(record: CatalogRecord, token: string): object {
 export function createLyrxFile(layers: CatalogRecord[], token: string): object {
   return {
     type: 'CIMLayerDocument',
-    version: '3.4.0',
+    version: '3.0.2',
     build: 55405,
     layers: layers.map((layer) => `CIMPATH=Map/${layer.productId}_.json`),
     layerDefinitions: layers.map((layer) => createLayerDefinition(layer, token)),
