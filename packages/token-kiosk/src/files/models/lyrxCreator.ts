@@ -45,11 +45,13 @@ function createLayerDefinition(record: CatalogRecord, token: string): object {
 }
 
 export function createLyrxFile(layers: CatalogRecord[], token: string): object {
+  // ArcPro needs the layers in reverse order unlike QGIS, if not reversed it will display top layer at the botoom
+  const reveresedLayers = layers.reverse();
   return {
     type: 'CIMLayerDocument',
     version: '3.0.2',
     build: 55405,
-    layers: layers.map((layer) => `CIMPATH=Map/${layer.productId}_.json`),
-    layerDefinitions: layers.map((layer) => createLayerDefinition(layer, token)),
+    layers: reveresedLayers.map((layer) => `CIMPATH=Map/${layer.productId}_.json`),
+    layerDefinitions: reveresedLayers.map((layer) => createLayerDefinition(layer, token)),
   };
 }
