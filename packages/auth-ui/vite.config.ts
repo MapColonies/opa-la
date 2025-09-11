@@ -3,6 +3,7 @@ import * as path from 'path';
 import tailwindcss from '@tailwindcss/vite';
 //@ts-ignore
 import react from '@vitejs/plugin-react';
+import legacy from '@vitejs/plugin-legacy';
 import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
@@ -14,6 +15,13 @@ export default defineConfig({
     },
   },
   build: {
-    target: 'es2022',
+    target: 'chrome103',
+    modulePreload: {
+      polyfill: true,
+    },
+    minify: 'terser',
+  },
+  esbuild: {
+    target: 'chrome103',
   },
 });
