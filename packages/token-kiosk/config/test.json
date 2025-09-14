@@ -10,11 +10,16 @@
         "productType": "Orthophoto",
         "productId": "test_product",
         "displayName": "test product"
+      },
+      {
+        "productType": "Ronin",
+        "productId": "LogiRun",
+        "displayName": "Can you do a logi run?"
       }
     ]
   },
   "db": {
-    "host": "postgres",
+    "host": "localhost",
     "schema": "token_kiosk",
     "username": "postgres",
     "password": "1234",

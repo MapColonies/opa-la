@@ -2,6 +2,7 @@
   "extends": "@map-colonies/tsconfig/tsconfig-app",
   "compilerOptions": {
     "baseUrl": ".",
+    "lib": ["ESNext"],
     "paths": {
       "@src/*": ["src/*"],
       "@tests/*": ["tests/*"],

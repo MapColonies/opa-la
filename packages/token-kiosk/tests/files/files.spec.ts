@@ -15,7 +15,7 @@ import { SERVICES } from '@common/constants';
 import { initConfig } from '@src/common/config';
 import privateKey from '../data/key';
 import mockUser from '../data/user';
-import { emptyResponse, goodResponse, partialResponse } from './cswResponses';
+import { emptyResponse, goodResponse, partialResponse, goodResponseMultilayer } from './cswResponses';
 
 describe('guides', function () {
   let requestSender: RequestSender<paths, operations>;
@@ -67,6 +67,7 @@ describe('guides', function () {
   describe('Happy Path', function () {
     it('should return 200 status code a qlr file', async function () {
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponse);
+      nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponseMultilayer);
 
       const res = await requestSender.getFile({ pathParams: { type: 'qlr' } });
 
@@ -79,6 +80,7 @@ describe('guides', function () {
 
     it('should return 200 status code a lyrx file', async function () {
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponse);
+      nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponseMultilayer);
 
       const res = await requestSender.getFile({ pathParams: { type: 'lyrx' } });
 
