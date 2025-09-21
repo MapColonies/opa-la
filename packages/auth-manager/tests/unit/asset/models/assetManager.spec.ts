@@ -9,6 +9,7 @@ describe('AssetManager', () => {
   let assetManager: AssetManager;
   const mockedRepository = {
     findBy: jest.fn(),
+    findAllBy: jest.fn(),
     findOne: jest.fn(),
     transaction: jest.fn(),
   };
@@ -19,7 +20,7 @@ describe('AssetManager', () => {
   describe('#getAssets', () => {
     it('should return the array of assets', async function () {
       const asset = getFakeAsset();
-      mockedRepository.findBy.mockResolvedValue([asset]);
+      mockedRepository.findAllBy.mockResolvedValue([asset]);
 
       const assetPromise = assetManager.getAssets({});
 
@@ -27,7 +28,7 @@ describe('AssetManager', () => {
     });
 
     it('should throw an error if one is thrown by the repository', async function () {
-      mockedRepository.findBy.mockRejectedValue(new Error());
+      mockedRepository.findAllBy.mockRejectedValue(new Error());
 
       const assetPromise = assetManager.getAssets({});
 
