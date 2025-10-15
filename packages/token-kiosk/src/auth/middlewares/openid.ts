@@ -1,8 +1,12 @@
 import { RequestHandler } from 'express';
-import { auth } from 'express-openid-connect';
+import { auth, SessionStore } from 'express-openid-connect';
 import { DependencyContainer } from 'tsyringe';
+import session from 'express-session';
+import createMemoryStore from 'memorystore';
 import { SERVICES } from '@src/common/constants';
 import type { ConfigType } from '@src/common/config';
+
+const memoryStore = createMemoryStore(session);
 
 export function openidAuthMiddlewareFactory(container: DependencyContainer): RequestHandler {
   const config = container.resolve<ConfigType>(SERVICES.CONFIG);
@@ -14,6 +18,11 @@ export function openidAuthMiddlewareFactory(container: DependencyContainer): Req
     issuerBaseURL: authConfig.issuerBaseUrl,
     baseURL: authConfig.baseUrl,
     authRequired: true,
+    session: {
+      store: new memoryStore({
+        checkPeriod: 3600000,
+      }) as unknown as SessionStore,
+    },
     authorizationParams: {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       response_type: 'code',
