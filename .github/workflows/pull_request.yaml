@@ -83,6 +83,9 @@ jobs:
       # Label used to access the service container
       minio:
         image: acrarolibotnonprod.azurecr.io/minio
+        credentials:
+          username: ${{ secrets.ACR_PUSH_USER }}
+          password: ${{ secrets.ACR_PUSH_TOKEN }}
         ports:
           - 9000:9000
           - 9001:9001
