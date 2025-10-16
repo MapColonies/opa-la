@@ -95,7 +95,7 @@ jobs:
           --health-timeout 10s
           --health-retries 10
           --health-start-period 30s
-          --entrypoint /usr/bin/docker-entrypoint.sh minio server /data --console-address ":9001"
+          --entrypoint /bin/sh -c "server /data --console-address :9001"
       postgres:
         # Docker Hub image
         image: postgres:14
