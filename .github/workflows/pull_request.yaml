@@ -83,6 +83,7 @@ jobs:
       # Label used to access the service container
       minio:
         image: minio/minio
+        command: server /data --console-address ":9001"
         ports:
           - 9000:9000
           - 9001:9001
@@ -90,11 +91,11 @@ jobs:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minioadmin
         options: >-
-          --name=minio
-          --health-cmd "curl http://localhost:9000/minio/health/live"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 10
+          --health-start-period 30s
       postgres:
         # Docker Hub image
         image: postgres:14
