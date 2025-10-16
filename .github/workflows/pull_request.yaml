@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20.x, 22.x]
+        node: [22.x, 24.x]
 
     steps:
       - name: Check out TS Project Git repository
@@ -76,7 +76,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20.x, 22.x]
+        node: [22.x, 24.x]
         package: [auth-manager, '@map-colonies/auth-bundler', 'auth-cron']
 
     services:
@@ -85,9 +85,16 @@ jobs:
         image: minio/minio
         ports:
           - 9000:9000
+          - 9001:9001
         env:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minioadmin
+        options: >-
+          --name=minio
+          --health-cmd "curl http://localhost:9000/minio/health/live"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       postgres:
         # Docker Hub image
         image: postgres:14
