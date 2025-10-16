@@ -82,7 +82,7 @@ jobs:
     services:
       # Label used to access the service container
       minio:
-        image: quay.io/minio/minio
+        image: acrarolibotnonprod.azurecr.io/minio
         ports:
           - 9000:9000
           - 9001:9001
@@ -95,7 +95,6 @@ jobs:
           --health-timeout 10s
           --health-retries 10
           --health-start-period 30s
-          --entrypoint /bin/sh -c "server /data --console-address :9001"
       postgres:
         # Docker Hub image
         image: postgres:14
