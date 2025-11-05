@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { auth, SessionStore } from 'express-openid-connect';
+import { auth, type SessionStore } from 'express-openid-connect';
 import { DependencyContainer } from 'tsyringe';
 import session from 'express-session';
 import createMemoryStore from 'memorystore';
