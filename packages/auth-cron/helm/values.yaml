@@ -60,9 +60,9 @@ dbConfig:
   useExternalSecret: true  
   sslAuth:
     enabled: false
-    certFileName: cert.pem
-    keyFileName: key.pem
-    caFileName: ca.crt
+    certFileName: certFile
+    keyFileName: keyFile
+    caFileName: caFile
 
 cronConfig:
   {}

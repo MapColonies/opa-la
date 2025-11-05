@@ -65,16 +65,10 @@ spec:
               subPath: {{ quote .Values.ca.key }}
             {{- end }}
             {{- if .Values.dbConfig.sslAuth.enabled }}
-            - name: ca-file
-              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.caFileName }}
-              subPath: {{ .Values.dbConfig.sslAuth.caFileName }}
-            - name: key-file
-              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.keyFileName }}
-              subPath: {{ .Values.dbConfig.sslAuth.keyFileName }}
-            - name: cert-file
-              mountPath: /tmp/certs/{{ .Values.dbConfig.sslAuth.certFileName }}
-              subPath: {{ .Values.dbConfig.sslAuth.certFileName }}
-            {{- end }}
+            - name: cert-conf
+              mountPath: /tmp/certs
+              readOnly: true
+            {{- end }}   
             {{- if .Values.extraVolumeMounts -}}
             {{ toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
@@ -146,24 +140,9 @@ spec:
             secretName: {{ .Values.ca.secretName }}
         {{- end }}
         {{- if .Values.dbConfig.sslAuth.enabled }}
-        - name: ca-file
+        - name: cert-conf
           secret:
-            secretName: {{ $postgresSecretName }}
-            items:
-              - key: {{ .Values.dbConfig.sslAuth.caFileName }}
-                path: ca.crt
-        - name: key-file
-          secret:
-            secretName: {{ $postgresSecretName }}
-            items:
-              - key: {{ .Values.dbConfig.sslAuth.keyFileName }}
-                path: key.pem
-        - name: cert-file
-          secret:
-            secretName: {{ $postgresSecretName }}
-            items:
-              - key: {{ .Values.dbConfig.sslAuth.certFileName }}
-                path: cert.pem
+            secretName: {{ .Values.dbConfig.secretName }}
         {{- end }}
         {{- if .Values.extraVolumes -}}
           {{ tpl (toYaml .Values.extraVolumes) . | nindent 8 }}
