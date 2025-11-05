@@ -82,7 +82,7 @@ jobs:
     services:
       # Label used to access the service container
       minio:
-        image: acrarolibotnonprod.azurecr.io/minio
+        image: acrarolibotnonprod.azurecr.io/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
         credentials:
           username: ${{ secrets.ACR_PUSH_USER }}
           password: ${{ secrets.ACR_PUSH_TOKEN }}
