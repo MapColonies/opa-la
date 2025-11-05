@@ -25,7 +25,8 @@ export default async (): Promise<void> => {
 
   try {
     await s3client.send(new HeadBucketCommand({ Bucket: cronOptions?.s3.bucket as string }));
-  } catch {
+  } catch (err) {
+    console.error(err);
     await s3client.send(new CreateBucketCommand({ Bucket: cronOptions?.s3.bucket as string }));
   }
 };

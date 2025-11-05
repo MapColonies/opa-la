@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [20.x, 22.x]
+        node: [22.x, 24.x]
 
     steps:
       - name: Check out TS Project Git repository
@@ -76,18 +76,28 @@ jobs:
 
     strategy:
       matrix:
-        node: [20.x, 22.x]
+        node: [22.x, 24.x]
         package: [auth-manager, '@map-colonies/auth-bundler', 'auth-cron']
 
     services:
       # Label used to access the service container
       minio:
-        image: bitnami/minio
+        image: acrarolibotnonprod.azurecr.io/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
+        credentials:
+          username: ${{ secrets.ACR_PUSH_USER }}
+          password: ${{ secrets.ACR_PUSH_TOKEN }}
         ports:
           - 9000:9000
+          - 9001:9001
         env:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minioadmin
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 10
+          --health-start-period 30s
       postgres:
         # Docker Hub image
         image: postgres:14
