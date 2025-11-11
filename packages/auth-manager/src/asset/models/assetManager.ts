@@ -1,7 +1,6 @@
 import { type Logger } from '@map-colonies/js-logger';
 import { IAsset } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { ArrayContains } from 'typeorm';
 import type { SetRequired } from 'type-fest';
 import { operations } from '@openapi';
 import { SERVICES } from '@common/constants';
@@ -10,6 +9,7 @@ import { AssetVersionMismatchError, AssetNotFoundError } from './errors';
 
 export type ResponseAsset = SetRequired<IAsset, 'createdAt'>;
 export type RequestAsset = Omit<IAsset, 'createdAt'>;
+export type Criteria = NonNullable<operations['getAssets']['parameters']['query']>;
 
 @injectable()
 export class AssetManager {
@@ -18,11 +18,11 @@ export class AssetManager {
     @inject(SERVICES.ASSET_REPOSITORY) private readonly assetRepository: AssetRepository
   ) {}
 
-  public async getAssets(searchParams: NonNullable<operations['getAssets']['parameters']['query']>): Promise<ResponseAsset[]> {
+  public async getAssets(searchParams: Criteria): Promise<ResponseAsset[]> {
     this.logger.info({ msg: 'fetching assets', searchParams });
-    const { environment, isTemplate, type } = searchParams;
+    const criteria = searchParams;
 
-    return this.assetRepository.findBy({ environment: environment ? ArrayContains(environment) : undefined, isTemplate, type });
+    return this.assetRepository.findAllBy(criteria);
   }
 
   public async getNamedAssets(name: string): Promise<ResponseAsset[]> {

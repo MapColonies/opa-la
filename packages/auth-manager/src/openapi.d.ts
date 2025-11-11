@@ -781,6 +781,7 @@ export interface operations {
     parameters: {
       query?: {
         environment?: components['parameters']['environmentQueryParam'];
+        latest?: boolean;
         isEnabled?: boolean;
         isNoBrowser?: boolean;
         isNoOrigin?: boolean;
@@ -1011,6 +1012,7 @@ export interface operations {
         environment?: components['parameters']['environmentQueryParam'];
         type?: components['schemas']['assetType'];
         isTemplate?: boolean;
+        latest?: boolean;
       };
       header?: never;
       path?: never;
