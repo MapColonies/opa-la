@@ -54,7 +54,7 @@ decisionLogs:
 
 tracing:
   enabled: false
-  type: grpc
+  type: http
   endpoint: localhost:4317
   # samplePercentage: 1 # Default is 100%
 

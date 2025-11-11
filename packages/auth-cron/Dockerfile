@@ -18,7 +18,7 @@ FROM node:20.19.1-alpine3.21 as production
 ARG package=auth-cron
 
 RUN apk add dumb-init && \
-    wget -O /usr/bin/opa https://openpolicyagent.org/downloads/v1.0.1/opa_linux_amd64_static && \
+    wget -O /usr/bin/opa https://openpolicyagent.org/downloads/v1.7.1/opa_linux_amd64_static && \
     chmod a+x /usr/bin/opa
 
 ENV NODE_ENV=production
