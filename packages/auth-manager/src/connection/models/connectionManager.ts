@@ -1,7 +1,7 @@
 import { type Logger } from '@map-colonies/js-logger';
 import { Client, Connection, Environments, IConnection } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { ArrayContains, FindManyOptions, In } from 'typeorm';
+import { ArrayContains, FindManyOptions, In, ILike } from 'typeorm';
 import { JWK } from 'jose';
 import { ClientNotFoundError } from '@client/models/errors';
 import { SERVICES } from '@common/constants';
@@ -32,14 +32,18 @@ export class ConnectionManager {
     sortParams?: SortOptions<Connection>
   ): Promise<[IConnection[], number]> {
     this.logger.info({ msg: 'fetching connections', searchParams });
-    const { environment, domains, isEnabled, isNoBrowser, isNoOrigin, name } = searchParams;
+    const { search, latestOnly, environment, domains, isEnabled, isNoBrowser, isNoOrigin, name } = searchParams;
+
+    if (latestOnly === true) {
+      return this.getLatestConnections(searchParams, paginationParams, sortParams);
+    }
 
     const findOptions: FindManyOptions<Connection> = {
       where: {
+        name: search !== undefined && search !== '' ? ILike(`%${search}%`) : name,
         environment: environment ? In(environment) : undefined,
         allowNoBrowserConnection: isNoBrowser ?? undefined,
         allowNoOriginConnection: isNoOrigin ?? undefined,
-        name,
         domains: domains ? ArrayContains(domains) : undefined,
         enabled: isEnabled ?? undefined,
       },
@@ -54,6 +58,101 @@ export class ConnectionManager {
     }
 
     return this.connectionRepository.findAndCount(findOptions);
+  }
+
+  private async getLatestConnections(
+    searchParams: ConnectionSearchParams,
+    paginationParams?: PaginationParams,
+    sortParams?: SortOptions<Connection>
+  ): Promise<[IConnection[], number]> {
+    const { search, environment, domains, isEnabled, isNoBrowser, isNoOrigin } = searchParams;
+
+    const countQueryBuilder = this.connectionRepository.createQueryBuilder('connection');
+    countQueryBuilder.select('COUNT(DISTINCT (connection.name, connection.environment))', 'count');
+
+    if (search !== undefined && search !== '') {
+      countQueryBuilder.andWhere('connection.name ILIKE :search', { search: `%${search}%` });
+    }
+
+    if (environment !== undefined) {
+      countQueryBuilder.andWhere('connection.environment IN (:...environment)', { environment });
+    }
+
+    if (isEnabled !== undefined) {
+      countQueryBuilder.andWhere('connection.enabled = :isEnabled', { isEnabled });
+    }
+
+    if (isNoBrowser !== undefined) {
+      countQueryBuilder.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser });
+    }
+
+    if (isNoOrigin !== undefined) {
+      countQueryBuilder.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin });
+    }
+
+    if (domains !== undefined) {
+      countQueryBuilder.andWhere('connection.domains @> :domains', { domains });
+    }
+
+    const countResult = await countQueryBuilder.getRawOne<{ count: string }>();
+    const total = parseInt(countResult?.count ?? '0', 10);
+
+    const queryBuilder = this.connectionRepository.createQueryBuilder('connection');
+
+    queryBuilder.distinctOn(['connection.name', 'connection.environment']);
+
+    const nameOrder = sortParams?.name ? (sortParams.name.toUpperCase() as 'ASC' | 'DESC') : 'ASC';
+    const environmentOrder = sortParams?.environment ? (sortParams.environment.toUpperCase() as 'ASC' | 'DESC') : 'ASC';
+
+    queryBuilder.orderBy('connection.name', nameOrder).addOrderBy('connection.environment', environmentOrder);
+
+    if (sortParams !== undefined && Object.keys(sortParams).length > 0) {
+      for (const [key, order] of Object.entries(sortParams)) {
+        if (key !== 'name' && key !== 'environment') {
+          queryBuilder.addOrderBy(`connection.${key}`, order.toUpperCase() as 'ASC' | 'DESC');
+        }
+      }
+    }
+
+    queryBuilder.addOrderBy('connection.version', 'DESC');
+
+    if (search !== undefined && search !== '') {
+      queryBuilder.andWhere('connection.name ILIKE :search', { search: `%${search}%` });
+    }
+
+    if (environment !== undefined) {
+      queryBuilder.andWhere('connection.environment IN (:...environment)', { environment });
+    }
+
+    if (isEnabled !== undefined) {
+      queryBuilder.andWhere('connection.enabled = :isEnabled', { isEnabled });
+    }
+
+    if (isNoBrowser !== undefined) {
+      queryBuilder.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser });
+    }
+
+    if (isNoOrigin !== undefined) {
+      queryBuilder.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin });
+    }
+
+    if (domains !== undefined) {
+      queryBuilder.andWhere('connection.domains @> :domains', { domains });
+    }
+
+    if (paginationParams !== undefined) {
+      const { skip, take } = paginationParamsToFindOptions(paginationParams);
+      if (skip !== undefined) {
+        queryBuilder.skip(skip);
+      }
+      if (take !== undefined) {
+        queryBuilder.take(take);
+      }
+    }
+
+    const results = await queryBuilder.getMany();
+
+    return [results, total];
   }
 
   public async getConnection(name: string, environment: Environments, version: number): Promise<IConnection> {
