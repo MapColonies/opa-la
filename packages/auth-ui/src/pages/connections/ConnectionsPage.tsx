@@ -71,7 +71,7 @@ const getURLParams = () => {
     isNoBrowser: params.get('isNoBrowser') ? params.get('isNoBrowser') === 'true' : undefined,
     isNoOrigin: params.get('isNoOrigin') ? params.get('isNoOrigin') === 'true' : undefined,
     searchTerm: params.get('search') || '',
-    latestOnly: params.get('latestOnly') ? params.get('latestOnly') === 'true' : storedLatestOnly === 'true',
+    latestOnly: params.get('latestOnly') ? params.get('latestOnly') === 'true' : storedLatestOnly !== null ? storedLatestOnly === 'true' : true,
     sort: params.get('sort')
       ? params
           .get('sort')!
@@ -397,14 +397,6 @@ export const ConnectionsPage = () => {
   const startItem = (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, data?.total || 0);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[450px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   if (isError) {
     return (
       <div className="flex h-[450px] items-center justify-center">
@@ -614,7 +606,13 @@ export const ConnectionsPage = () => {
       </div>
 
       <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
-        <ConnectionsTable connections={filteredData} onEditConnection={openEditDialog} onSort={handleSort} sortDirection={getSortDirection} />
+        {isLoading ? (
+          <div className="flex h-[400px] items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <ConnectionsTable connections={filteredData} onEditConnection={openEditDialog} onSort={handleSort} sortDirection={getSortDirection} />
+        )}
       </div>
 
       {/* Pagination Controls */}
