@@ -30,6 +30,7 @@ type SiteResult = {
 };
 
 type Filters = {
+  search?: string;
   branch?: string;
   createdBefore?: string;
   createdAfter?: string;
@@ -67,6 +68,7 @@ const getURLParams = () => {
   return {
     page: parseInt(params.get('page') || '1', 10),
     pageSize: parseInt(params.get('pageSize') || '10', 10),
+    searchTerm: params.get('search') || '',
     branch: params.get('branch') || '',
     createdAfter: params.get('createdAfter') || '',
     createdBefore: params.get('createdBefore') || '',
@@ -104,7 +106,8 @@ export const ClientsPage = () => {
   const [currentEditStep, setCurrentEditStep] = useState<'edit' | 'send'>('edit');
 
   const urlParams = getURLParams();
-  const [searchTerm, setSearchTerm] = useState(urlParams.branch);
+  const [searchTerm, setSearchTerm] = useState(urlParams.searchTerm);
+  const [selectedBranch, setSelectedBranch] = useState(urlParams.branch);
   const [createdAfterDate, setCreatedAfterDate] = useState<Date | undefined>(urlParams.createdAfter ? new Date(urlParams.createdAfter) : undefined);
   const [createdBeforeDate, setCreatedBeforeDate] = useState<Date | undefined>(
     urlParams.createdBefore ? new Date(urlParams.createdBefore) : undefined
@@ -122,15 +125,21 @@ export const ClientsPage = () => {
   const [tagsInput, setTagsInput] = useState('');
 
   const isInitialRender = useRef(true);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const branchInputRef = useRef<HTMLInputElement>(null);
+  const wasLoading = useRef(false);
+  const lastFocusedInput = useRef<'search' | 'branch' | null>(null);
 
   const debouncedSearchTerm = useDebounce<string>(searchTerm);
+  const debouncedBranch = useDebounce<string>(selectedBranch);
 
   useEffect(() => {
     const sortParams = sort.map((s) => `${s.field}:${s.direction}`);
     updateURL({
       page,
       pageSize,
-      branch: searchTerm,
+      search: searchTerm,
+      branch: selectedBranch,
       createdAfter: createdAfterDate?.toISOString() || '',
       createdBefore: createdBeforeDate?.toISOString() || '',
       updatedAfter: updatedAfterDate?.toISOString() || '',
@@ -139,7 +148,19 @@ export const ClientsPage = () => {
       sort: sortParams,
       showFilters: showAdvancedFilters,
     });
-  }, [page, pageSize, searchTerm, createdAfterDate, createdBeforeDate, updatedAfterDate, updatedBeforeDate, selectedTags, sort, showAdvancedFilters]);
+  }, [
+    page,
+    pageSize,
+    searchTerm,
+    selectedBranch,
+    createdAfterDate,
+    createdBeforeDate,
+    updatedAfterDate,
+    updatedBeforeDate,
+    selectedTags,
+    sort,
+    showAdvancedFilters,
+  ]);
 
   const queryParams = {
     ...filters,
@@ -224,7 +245,11 @@ export const ClientsPage = () => {
     const newFilters: Filters = {};
 
     if (debouncedSearchTerm) {
-      newFilters.branch = debouncedSearchTerm;
+      newFilters.search = debouncedSearchTerm;
+    }
+
+    if (debouncedBranch) {
+      newFilters.branch = debouncedBranch;
     }
 
     if (createdAfterDate) {
@@ -252,11 +277,26 @@ export const ClientsPage = () => {
     if (!isInitialRender.current) {
       setPage(1);
     }
-  }, [debouncedSearchTerm, createdAfterDate, createdBeforeDate, updatedAfterDate, updatedBeforeDate, selectedTags]);
+  }, [debouncedSearchTerm, debouncedBranch, createdAfterDate, createdBeforeDate, updatedAfterDate, updatedBeforeDate, selectedTags]);
 
   useEffect(() => {
     isInitialRender.current = false;
   }, []);
+
+  useEffect(() => {
+    if (wasLoading.current && !isLoading) {
+      if (lastFocusedInput.current === 'search' && searchInputRef.current) {
+        searchInputRef.current.focus();
+        const length = searchInputRef.current.value.length;
+        searchInputRef.current.setSelectionRange(length, length);
+      } else if (lastFocusedInput.current === 'branch' && branchInputRef.current) {
+        branchInputRef.current.focus();
+        const length = branchInputRef.current.value.length;
+        branchInputRef.current.setSelectionRange(length, length);
+      }
+    }
+    wasLoading.current = isLoading;
+  }, [isLoading]);
 
   const openEditDialog = (client: Client) => {
     setSelectedClient({ ...client });
@@ -276,6 +316,7 @@ export const ClientsPage = () => {
 
   const resetFilters = () => {
     setSearchTerm('');
+    setSelectedBranch('');
     setCreatedAfterDate(undefined);
     setCreatedBeforeDate(undefined);
     setUpdatedAfterDate(undefined);
@@ -283,11 +324,13 @@ export const ClientsPage = () => {
     setSelectedTags([]);
     setShowAdvancedFilters(false);
     setPage(1);
+    lastFocusedInput.current = null;
   };
 
   const getActiveFiltersCount = () => {
     let count = 0;
     if (searchTerm) count++;
+    if (selectedBranch) count++;
     if (createdAfterDate) count++;
     if (createdBeforeDate) count++;
     if (updatedAfterDate) count++;
@@ -511,11 +554,15 @@ export const ClientsPage = () => {
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
+              ref={searchInputRef}
               type="search"
-              placeholder="Search by branch..."
+              placeholder="Search by name..."
               className="pl-8"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => {
+                lastFocusedInput.current = 'search';
+              }}
             />
           </div>
 
@@ -549,8 +596,16 @@ export const ClientsPage = () => {
           <div className="flex flex-wrap gap-2">
             {searchTerm && (
               <Badge variant="secondary" className="gap-1">
-                Branch: {searchTerm}
+                Name: {searchTerm}
                 <button onClick={() => setSearchTerm('')} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {selectedBranch && (
+              <Badge variant="secondary" className="gap-1">
+                Branch: {selectedBranch}
+                <button onClick={() => setSelectedBranch('')} className="ml-1 hover:text-destructive">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -686,6 +741,21 @@ export const ClientsPage = () => {
 
             <div className="border-t pt-3">
               <div className="border-b border-muted mb-3"></div>
+            </div>
+
+            {/* Branch Filter */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Branch</Label>
+              <Input
+                ref={branchInputRef}
+                placeholder="Filter by branch..."
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                onFocus={() => {
+                  lastFocusedInput.current = 'branch';
+                }}
+                className="max-w-md"
+              />
             </div>
 
             {/* Tags Filter */}

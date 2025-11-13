@@ -1,6 +1,6 @@
 import { type Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-import { ArrayContains, QueryFailedError } from 'typeorm';
+import { ArrayContains, ILike, QueryFailedError } from 'typeorm';
 import { DatabaseError } from 'pg';
 import { Client, type IClient } from '@map-colonies/auth-core';
 import { SERVICES } from '@common/constants';
@@ -30,9 +30,10 @@ export class ClientManager {
     // eslint doesn't recognize this as valid because its in the type definition
     let findOptions: Parameters<typeof this.clientRepository.find>[0] = {};
     if (searchParams !== undefined) {
-      const { branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = searchParams;
+      const { search, branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = searchParams;
       findOptions = {
         where: {
+          name: search !== undefined && search !== '' ? ILike(`%${search}%`) : undefined,
           tags: tags ? ArrayContains(tags) : undefined,
           branch,
           createdAt: createDatesComparison(createdAfter, createdBefore),

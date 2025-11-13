@@ -10,6 +10,7 @@ import { CreateConnectionModal } from './CreateConnectionModal';
 import { EditConnectionModal } from './EditConnectionModal';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Switch } from '../../components/ui/switch';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Label } from '../../components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
@@ -61,6 +62,7 @@ const updateURL = (params: Record<string, string | number | boolean | string[]>)
 
 const getURLParams = () => {
   const params = new URLSearchParams(window.location.search);
+  const storedLatestOnly = localStorage.getItem('connectionsLatestOnly');
   return {
     page: parseInt(params.get('page') || '1', 10),
     pageSize: parseInt(params.get('pageSize') || '10', 10),
@@ -69,6 +71,7 @@ const getURLParams = () => {
     isNoBrowser: params.get('isNoBrowser') ? params.get('isNoBrowser') === 'true' : undefined,
     isNoOrigin: params.get('isNoOrigin') ? params.get('isNoOrigin') === 'true' : undefined,
     searchTerm: params.get('search') || '',
+    latestOnly: params.get('latestOnly') ? params.get('latestOnly') === 'true' : storedLatestOnly === 'true',
     sort: params.get('sort')
       ? params
           .get('sort')!
@@ -107,6 +110,7 @@ export const ConnectionsPage = () => {
   const [isEnabled, setIsEnabled] = useState<boolean | undefined>(urlParams.isEnabled);
   const [isNoBrowser, setIsNoBrowser] = useState<boolean | undefined>(urlParams.isNoBrowser);
   const [isNoOrigin, setIsNoOrigin] = useState<boolean | undefined>(urlParams.isNoOrigin);
+  const [latestOnly, setLatestOnly] = useState<boolean>(urlParams.latestOnly);
   const [searchTerm, setSearchTerm] = useState(urlParams.searchTerm);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(urlParams.showAdvancedFilters);
   const [page, setPage] = useState(urlParams.page);
@@ -114,6 +118,8 @@ export const ConnectionsPage = () => {
   const [sort, setSort] = useState<SortState[]>(urlParams.sort);
 
   const isInitialRender = useRef(true);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const wasLoading = useRef(false);
 
   const debouncedSearchTerm = useDebounce(searchTerm);
 
@@ -127,16 +133,23 @@ export const ConnectionsPage = () => {
       isNoBrowser: isNoBrowser !== undefined ? isNoBrowser : '',
       isNoOrigin: isNoOrigin !== undefined ? isNoOrigin : '',
       search: searchTerm,
+      latestOnly,
       sort: sortParams,
       showFilters: showAdvancedFilters,
     });
-  }, [page, pageSize, selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin, searchTerm, sort, showAdvancedFilters]);
+  }, [page, pageSize, selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin, searchTerm, latestOnly, sort, showAdvancedFilters]);
+
+  useEffect(() => {
+    localStorage.setItem('connectionsLatestOnly', latestOnly.toString());
+  }, [latestOnly]);
 
   const queryParams = {
     ...filters,
     page,
     page_size: pageSize,
     sort: sort.map((s) => `${s.field}:${s.direction}`),
+    ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
+    ...(latestOnly && { latestOnly }),
   };
 
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/connection', {
@@ -211,8 +224,23 @@ export const ConnectionsPage = () => {
   }, [selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin]);
 
   useEffect(() => {
+    if (!isInitialRender.current) {
+      setPage(1);
+    }
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
     isInitialRender.current = false;
   }, []);
+
+  useEffect(() => {
+    if (wasLoading.current && !isLoading && searchInputRef.current) {
+      searchInputRef.current.focus();
+      const length = searchInputRef.current.value.length;
+      searchInputRef.current.setSelectionRange(length, length);
+    }
+    wasLoading.current = isLoading;
+  }, [isLoading]);
 
   const handleCreateConnection = (data: { body: Connection }) => {
     setCreateError(null);
@@ -297,6 +325,7 @@ export const ConnectionsPage = () => {
 
   const getActiveFiltersCount = () => {
     let count = 0;
+    if (searchTerm) count++;
     if (selectedEnvironment !== 'all') count++;
     if (isEnabled !== undefined) count++;
     if (isNoBrowser !== undefined) count++;
@@ -317,6 +346,9 @@ export const ConnectionsPage = () => {
 
   const removeFilter = (filterType: string) => {
     switch (filterType) {
+      case 'search':
+        setSearchTerm('');
+        break;
       case 'environment':
         setSelectedEnvironment('all');
         break;
@@ -359,16 +391,7 @@ export const ConnectionsPage = () => {
     setPage(1);
   };
 
-  const filteredData =
-    data?.items?.filter((connection) => {
-      if (!debouncedSearchTerm) return true;
-      const searchLower = debouncedSearchTerm.toLowerCase();
-      return (
-        connection.name?.toLowerCase().includes(searchLower) ||
-        connection.environment?.toLowerCase().includes(searchLower) ||
-        connection.token?.toLowerCase().includes(searchLower)
-      );
-    }) || [];
+  const filteredData = data?.items || [];
 
   const totalPages = data?.total ? Math.ceil(data.total / pageSize) : 0;
   const startItem = (page - 1) * pageSize + 1;
@@ -434,6 +457,7 @@ export const ConnectionsPage = () => {
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
+              ref={searchInputRef}
               type="search"
               placeholder="Search connections..."
               className="pl-8"
@@ -443,6 +467,20 @@ export const ConnectionsPage = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-background">
+              <Label htmlFor="latest-only" className="text-sm font-medium cursor-pointer whitespace-nowrap">
+                Latest Only
+              </Label>
+              <Switch
+                id="latest-only"
+                checked={latestOnly}
+                onCheckedChange={(checked: boolean) => {
+                  setLatestOnly(checked);
+                  setPage(1);
+                }}
+              />
+            </div>
+
             <Button
               variant="outline"
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
@@ -469,6 +507,14 @@ export const ConnectionsPage = () => {
 
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2">
+            {searchTerm && (
+              <Badge variant="secondary" className="gap-1">
+                Name: {searchTerm}
+                <button onClick={() => removeFilter('search')} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
             {selectedEnvironment !== 'all' && (
               <Badge variant="secondary" className="gap-1">
                 Environment: {selectedEnvironment}

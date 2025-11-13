@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import { components } from '../../types/schema';
 import { Button } from '../../components/ui/button';
-import { Loader2, X, Check, ChevronsUpDown, ArrowRight } from 'lucide-react';
+import { Loader2, X, Check, ArrowRight, ChevronsUpDown } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Badge } from '../../components/ui/badge';
 import { Switch } from '../../components/ui/switch';
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../../components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
-import { cn } from '../../lib/utils';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../../components/ui/command';
 import { $api } from '../../fetch';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -20,6 +19,7 @@ import { Alert, AlertDescription } from '../../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { SiteSelection } from '../../components/SiteSelection';
 import { getAvailableSites } from '@/components/exports';
+import { cn } from '../../lib/utils';
 
 type Connection = components['schemas']['connection'];
 type Client = components['schemas']['client'];
@@ -74,16 +74,52 @@ export const CreateConnectionModal = ({
 }: CreateConnectionModalProps) => {
   const [newOrigin, setNewOrigin] = useState('');
   const [useToken, setUseToken] = useState(false);
-  const [open, setOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState<Step>('create');
+  const [clientSearch, setClientSearch] = useState('');
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
+  const [clientPopoverOpen, setClientPopoverOpen] = useState(false);
   const currentSite = localStorage.getItem('selectedSite') || '';
 
   const otherSites = availableSites.filter((site) => site !== currentSite);
 
-  const { data: clients, isLoading: isLoadingClients } = $api.useQuery('get', '/client');
+  useEffect(() => {
+    const fetchClients = async () => {
+      setIsLoadingClients(true);
+      try {
+        const baseUrl = localStorage.getItem('currentBaseUrl') || 'http://localhost:8080/';
+        const url = new URL('/client', baseUrl);
+        url.searchParams.set('page', '1');
+
+        if (clientSearch) {
+          url.searchParams.set('page_size', '50');
+          url.searchParams.set('search', clientSearch);
+        } else {
+          url.searchParams.set('page_size', '100');
+        }
+
+        const response = await fetch(url.toString());
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch clients');
+        }
+
+        const data = await response.json();
+        setClients((data?.items || []) as Client[]);
+      } catch (error) {
+        console.error('Error fetching clients:', error);
+        setClients([]);
+      } finally {
+        setIsLoadingClients(false);
+      }
+    };
+
+    fetchClients();
+  }, [clientSearch]);
+
   const { data: domains, isLoading: isLoadingDomains } = $api.useQuery('get', '/domain');
 
   useEffect(() => {
@@ -166,11 +202,6 @@ export const CreateConnectionModal = ({
     }
   };
 
-  const handleClientSelect = (clientName: string) => {
-    form.setValue('name', clientName, { shouldDirty: true, shouldValidate: true });
-    setOpen(false);
-  };
-
   const onSubmit = (data: FormValues) => {
     if (isPending || isSubmitting) return;
 
@@ -228,38 +259,62 @@ export const CreateConnectionModal = ({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 gap-1">
-            <FormLabel htmlFor="client">Client</FormLabel>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className="w-full justify-between"
-                  disabled={isLoadingClients || success}
-                >
-                  {form.watch('name') ? form.watch('name') : 'Select a client...'}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                <Command>
-                  <CommandInput placeholder="Search client..." />
-                  <CommandEmpty>No client found.</CommandEmpty>
-                  <CommandGroup className="max-h-[200px] overflow-y-auto">
-                    {clients?.items?.map((client: Client) => (
-                      <CommandItem key={client.name} value={client.name} onSelect={() => handleClientSelect(client.name)}>
-                        <Check className={cn('mr-2 h-4 w-4', form.watch('name') === client.name ? 'opacity-100' : 'opacity-0')} />
-                        {client.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            {form.formState.errors.name && <p className="text-sm font-medium text-destructive">{form.formState.errors.name.message}</p>}
-          </div>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Client</FormLabel>
+                <Popover open={clientPopoverOpen} onOpenChange={setClientPopoverOpen} modal={false}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        disabled={success}
+                        className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+                      >
+                        {field.value || 'Select a client...'}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" onWheel={(e) => e.stopPropagation()}>
+                    <Command shouldFilter={false}>
+                      <CommandInput placeholder="Search client..." value={clientSearch} onValueChange={setClientSearch} />
+                      <CommandList className="max-h-[300px] overflow-y-auto">
+                        {isLoadingClients ? (
+                          <div className="flex items-center justify-center p-4">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          </div>
+                        ) : (
+                          <>
+                            <CommandEmpty>No client found.</CommandEmpty>
+                            <CommandGroup>
+                              {clients.map((client) => (
+                                <CommandItem
+                                  key={client.name}
+                                  value={client.name}
+                                  onSelect={() => {
+                                    field.onChange(client.name);
+                                    setClientPopoverOpen(false);
+                                  }}
+                                >
+                                  <Check className={cn('mr-2 h-4 w-4', field.value === client.name ? 'opacity-100' : 'opacity-0')} />
+                                  {client.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </>
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
@@ -290,7 +345,7 @@ export const CreateConnectionModal = ({
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                 <div className="space-y-0.5">
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Enabled</FormLabel>
                 </div>
                 <FormControl>
                   <Switch checked={field.value} onCheckedChange={field.onChange} disabled={success} />
@@ -328,7 +383,7 @@ export const CreateConnectionModal = ({
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                 <div className="space-y-0.5">
-                  <FormLabel>Browser Check</FormLabel>
+                  <FormLabel>Skip Browser Check</FormLabel>
                   <p className="text-sm text-muted-foreground">
                     {field.value ? 'Allow connections without browser validation' : 'Require browser validation'}
                   </p>
