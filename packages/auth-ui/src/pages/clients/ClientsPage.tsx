@@ -516,14 +516,6 @@ export const ClientsPage = () => {
   const startItem = (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, data?.total || 0);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-[450px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   if (isError) {
     return (
       <div className="flex h-[450px] items-center justify-center">
@@ -743,52 +735,54 @@ export const ClientsPage = () => {
               <div className="border-b border-muted mb-3"></div>
             </div>
 
-            {/* Branch Filter */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Branch</Label>
-              <Input
-                ref={branchInputRef}
-                placeholder="Filter by branch..."
-                value={selectedBranch}
-                onChange={(e) => setSelectedBranch(e.target.value)}
-                onFocus={() => {
-                  lastFocusedInput.current = 'branch';
-                }}
-                className="max-w-md"
-              />
-            </div>
-
-            {/* Tags Filter */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Tags</Label>
-              {selectedTags.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {selectedTags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="gap-1 text-xs">
-                      {tag}
-                      <button onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
-                        <X className="h-2 w-2" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-2">
+            {/* Branch and Tags Filters */}
+            <div className="flex flex-wrap gap-4">
+              {/* Branch Filter */}
+              <div className="space-y-3 flex-1 min-w-[250px]">
+                <Label className="text-sm font-medium">Branch</Label>
                 <Input
-                  placeholder="Add tag..."
-                  value={tagsInput}
-                  onChange={(e) => setTagsInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addTag();
-                    }
+                  ref={branchInputRef}
+                  placeholder="Filter by branch..."
+                  value={selectedBranch}
+                  onChange={(e) => setSelectedBranch(e.target.value)}
+                  onFocus={() => {
+                    lastFocusedInput.current = 'branch';
                   }}
-                  className="flex-1"
                 />
-                <Button size="sm" onClick={addTag} disabled={!tagsInput.trim()}>
-                  Add
-                </Button>
+              </div>
+
+              {/* Tags Filter */}
+              <div className="space-y-3 flex-1 min-w-[250px]">
+                <Label className="text-sm font-medium">Tags</Label>
+                {selectedTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {selectedTags.map((tag) => (
+                      <Badge key={tag} variant="outline" className="gap-1 text-xs">
+                        {tag}
+                        <button onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
+                          <X className="h-2 w-2" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add tag..."
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  <Button size="sm" onClick={addTag} disabled={!tagsInput.trim()}>
+                    Add
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -796,7 +790,13 @@ export const ClientsPage = () => {
       </div>
 
       <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
-        <ClientsTable clients={data?.items || []} onEditClient={openEditDialog} onSort={handleSort} sortDirection={getSortDirection} />
+        {isLoading ? (
+          <div className="flex h-[400px] items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <ClientsTable clients={data?.items || []} onEditClient={openEditDialog} onSort={handleSort} sortDirection={getSortDirection} />
+        )}
       </div>
 
       {/* Pagination Controls */}

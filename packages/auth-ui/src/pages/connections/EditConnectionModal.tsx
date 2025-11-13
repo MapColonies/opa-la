@@ -42,6 +42,18 @@ interface EditConnectionModalProps {
 
 type Step = 'edit' | 'send';
 
+const urlSchema = z.string().refine(
+  (value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  },
+  { message: 'Must be a valid HTTP or HTTPS URL' }
+);
+
 const formSchema = z.object({
   name: z.string().min(1, 'Client name is required'),
   environment: z.string().min(1, 'Environment is required'),
@@ -51,7 +63,7 @@ const formSchema = z.object({
   domains: z.array(z.string()).min(1, 'At least one domain is required'),
   allowNoBrowserConnection: z.boolean(),
   allowNoOriginConnection: z.boolean(),
-  origins: z.array(z.string()),
+  origins: z.array(urlSchema),
   createdAt: z.string().optional(),
 });
 
@@ -71,6 +83,7 @@ export const EditConnectionModal = ({
   siteResults = [],
 }: EditConnectionModalProps) => {
   const [newOrigin, setNewOrigin] = useState('');
+  const [originError, setOriginError] = useState<string | null>(null);
   const [useToken, setUseToken] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -180,11 +193,32 @@ export const EditConnectionModal = ({
   }, [form, originalValues, useToken]);
 
   const handleAddOrigin = () => {
-    if (newOrigin.trim() && !form.getValues('origins').includes(newOrigin.trim())) {
-      const currentOrigins = form.getValues('origins');
-      form.setValue('origins', [...currentOrigins, newOrigin.trim()], { shouldDirty: true, shouldValidate: true });
-      setNewOrigin('');
+    const trimmedOrigin = newOrigin.trim();
+
+    if (!trimmedOrigin) {
+      return;
     }
+
+    try {
+      const url = new URL(trimmedOrigin);
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+        setOriginError('Must be a valid HTTP or HTTPS URL');
+        return;
+      }
+    } catch {
+      setOriginError('Must be a valid HTTP or HTTPS URL');
+      return;
+    }
+
+    if (form.getValues('origins').includes(trimmedOrigin)) {
+      setOriginError('This origin has already been added');
+      return;
+    }
+
+    const currentOrigins = form.getValues('origins');
+    form.setValue('origins', [...currentOrigins, trimmedOrigin], { shouldDirty: true, shouldValidate: true });
+    setNewOrigin('');
+    setOriginError(null);
   };
 
   const handleRemoveOrigin = (originToRemove: string) => {
@@ -470,22 +504,31 @@ export const EditConnectionModal = ({
               <FormItem>
                 <FormLabel>Origins</FormLabel>
                 <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newOrigin}
-                      onChange={(e) => setNewOrigin(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddOrigin();
-                        }
-                      }}
-                      placeholder="Add an origin"
-                      disabled={success || form.watch('allowNoOriginConnection')}
-                    />
-                    <Button type="button" variant="outline" onClick={handleAddOrigin} disabled={success || form.watch('allowNoOriginConnection')}>
-                      Add
-                    </Button>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Input
+                          value={newOrigin}
+                          onChange={(e) => {
+                            setNewOrigin(e.target.value);
+                            setOriginError(null);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddOrigin();
+                            }
+                          }}
+                          placeholder="https://example.com"
+                          disabled={success || form.watch('allowNoOriginConnection')}
+                          className={originError ? 'border-destructive' : ''}
+                        />
+                        {originError && <p className="text-sm font-medium text-destructive mt-1">{originError}</p>}
+                      </div>
+                      <Button type="button" variant="outline" onClick={handleAddOrigin} disabled={success || form.watch('allowNoOriginConnection')}>
+                        Add
+                      </Button>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {form.watch('origins').map((origin) => (
