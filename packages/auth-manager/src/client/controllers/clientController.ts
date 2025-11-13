@@ -20,8 +20,9 @@ function responseClientToOpenApi(client: IClient): components['schemas']['client
 }
 
 function queryParamsToSearchParams(query: NonNullable<operations['getClients']['parameters']['query']>): ClientSearchParams {
-  const { branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = query;
+  const { search, branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = query;
   return {
+    search,
     branch,
     tags,
     createdAfter: createdAfter !== undefined ? new Date(createdAfter) : undefined,

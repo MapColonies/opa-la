@@ -3,6 +3,7 @@ import { cn } from '../../lib/utils';
 import { Users, Link as LinkIcon, Globe, Menu, X, Key, Shield } from 'lucide-react';
 import { Button } from '../ui/button';
 import { SiteSwitcher } from './SiteSwitcher';
+import { ThemeToggle } from '../theme-toggle';
 
 interface SidebarProps {
   className?: string;
@@ -74,6 +75,9 @@ export const Sidebar = ({ className, isCollapsed, onCollapse }: SidebarProps) =>
           );
         })}
       </nav>
+      <div className={cn('p-4 border-t', isCollapsed ? 'flex justify-center' : '')}>
+        <ThemeToggle />
+      </div>
     </div>
   );
 };
