@@ -22,7 +22,6 @@ import { getAvailableSites } from '@/components/exports';
 import { cn } from '../../lib/utils';
 
 type Connection = components['schemas']['connection'];
-type Client = components['schemas']['client'];
 type Domain = components['schemas']['domain'];
 
 type SiteResult = {
@@ -79,46 +78,24 @@ export const CreateConnectionModal = ({
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState<Step>('create');
   const [clientSearch, setClientSearch] = useState('');
-  const [clients, setClients] = useState<Client[]>([]);
-  const [isLoadingClients, setIsLoadingClients] = useState(false);
   const [clientPopoverOpen, setClientPopoverOpen] = useState(false);
   const currentSite = localStorage.getItem('selectedSite') || '';
 
   const otherSites = availableSites.filter((site) => site !== currentSite);
 
-  useEffect(() => {
-    const fetchClients = async () => {
-      setIsLoadingClients(true);
-      try {
-        const baseUrl = localStorage.getItem('currentBaseUrl') || 'http://localhost:8080/';
-        const url = new URL('/client', baseUrl);
-        url.searchParams.set('page', '1');
+  const clientQueryParams = {
+    page: 1,
+    page_size: clientSearch ? 50 : 100,
+    ...(clientSearch && { search: clientSearch }),
+  };
 
-        if (clientSearch) {
-          url.searchParams.set('page_size', '50');
-          url.searchParams.set('search', clientSearch);
-        } else {
-          url.searchParams.set('page_size', '100');
-        }
+  const { data: clientsData, isLoading: isLoadingClients } = $api.useQuery('get', '/client', {
+    params: {
+      query: clientQueryParams,
+    },
+  });
 
-        const response = await fetch(url.toString());
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch clients');
-        }
-
-        const data = await response.json();
-        setClients((data?.items || []) as Client[]);
-      } catch (error) {
-        console.error('Error fetching clients:', error);
-        setClients([]);
-      } finally {
-        setIsLoadingClients(false);
-      }
-    };
-
-    fetchClients();
-  }, [clientSearch]);
+  const clients = clientsData?.items || [];
 
   const { data: domains, isLoading: isLoadingDomains } = $api.useQuery('get', '/domain');
 
@@ -401,7 +378,7 @@ export const CreateConnectionModal = ({
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                 <div className="space-y-0.5">
-                  <FormLabel>Origin Check</FormLabel>
+                  <FormLabel>Skip Origin Check</FormLabel>
                   <p className="text-sm text-muted-foreground">
                     {field.value ? 'Allow connections without origin validation' : 'Require origin validation'}
                   </p>
