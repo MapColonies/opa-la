@@ -74,6 +74,49 @@ describe('connection', function () {
         expect(returnedItems).toBeArray();
       });
 
+      it.each([
+        { name: 'avi', searchParam: 'avi', matchType: 'exact' },
+        { name: 'bobavi', searchParam: 'avi', matchType: 'suffix' },
+        { name: 'aviiiiii', searchParam: 'av', matchType: 'prefix' },
+        { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
+      ])('type: $matchType - find the connection of $name with search string $searchParam', async function ({ name, searchParam }) {
+        const client = { ...getFakeClient(false), name };
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await requestSender.upsertConnection({ requestBody: connection });
+
+        const res = await requestSender.getConnections({
+          queryParams: {
+            name: searchParam,
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect((res.body as Exclude<typeof res.body, { message: string }>).items).toSatisfyAny((item) => item.name === name);
+      });
+
+      it('should return empty array when no connections match the client name search param', async function () {
+        const client = { ...getFakeClient(false), name: 'bla' };
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await requestSender.upsertConnection({ requestBody: connection });
+
+        const res = await requestSender.getConnections({
+          queryParams: {
+            name: 'avi',
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(0);
+      });
+
       it('should return 200 status code and all the connections with specific env', async function () {
         const res = await requestSender.getConnections({ queryParams: { environment: [Environment.PRODUCTION] } });
 
