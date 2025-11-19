@@ -92,7 +92,7 @@ jobs:
 
           # The full target path (e.g., ghcr.io/user/repo/service:v1.0.0)
           # We lowercase the repo name because docker requires lowercase
-          IMAGE_ID=$(echo "${{ secrets.ACR_URL }}/${{ github.repository }}/$SERVICE_NAME" | tr '[:upper:]' '[:lower:]')
+          IMAGE_ID=$(echo "${{ secrets.ACR_URL }}/infra/$SERVICE_NAME" | tr '[:upper:]' '[:lower:]')
 
           echo "Pushing image to: $IMAGE_ID:$VERSION"
 
