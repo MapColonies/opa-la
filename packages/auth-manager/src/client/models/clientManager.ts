@@ -10,7 +10,7 @@ import { SortOptions } from '@src/common/db/sort';
 import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/pagination';
 import { type ClientRepository } from '../DAL/clientRepository';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
-import { SearchParams } from './client';
+import { ClientSearchParams } from './client';
 
 @injectable()
 export class ClientManager {
@@ -20,7 +20,7 @@ export class ClientManager {
   ) {}
 
   public async getClients(
-    searchParams: SearchParams,
+    searchParams: ClientSearchParams,
     paginationParams?: PaginationParams,
     sortParams?: SortOptions<Client>
   ): Promise<[IClient[], number]> {

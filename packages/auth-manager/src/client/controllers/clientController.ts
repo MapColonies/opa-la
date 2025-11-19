@@ -10,7 +10,7 @@ import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
 import { sortOptionParser } from '@src/common/db/sort';
 import { ClientManager } from '../models/clientManager';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
-import { SearchParams } from '../models/client';
+import { ClientSearchParams } from '../models/client';
 
 function responseClientToOpenApi(client: IClient): components['schemas']['client'] {
   return {
@@ -20,7 +20,7 @@ function responseClientToOpenApi(client: IClient): components['schemas']['client
   };
 }
 
-function queryParamsToSearchParams(query: NonNullable<operations['getClients']['parameters']['query']>): SearchParams {
+function queryParamsToSearchParams(query: NonNullable<operations['getClients']['parameters']['query']>): ClientSearchParams {
   const { createdAfter, createdBefore, updatedAfter, updatedBefore, ...rest } = query;
   return {
     ...rest,
