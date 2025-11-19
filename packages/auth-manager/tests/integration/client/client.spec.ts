@@ -19,7 +19,7 @@ describe('client', function () {
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
 
-  beforeAll(async function () {
+  beforeEach(async function () {
     await initConfig();
     const [app, container] = await getApp({
       override: [
@@ -32,7 +32,7 @@ describe('client', function () {
     depContainer = container;
   });
 
-  afterAll(async function () {
+  afterEach(async function () {
     await depContainer.resolve(DataSource).destroy();
   });
 
