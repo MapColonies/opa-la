@@ -3,13 +3,14 @@ import { type Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { IClient } from '@map-colonies/auth-core';
+import { parseISO } from 'date-fns';
 import type { TypedRequestHandlers, components, operations } from '@openapi';
 import { SERVICES } from '@common/constants';
 import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
 import { sortOptionParser } from '@src/common/db/sort';
 import { ClientManager } from '../models/clientManager';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
-import { ClientSearchParams } from '../models/client';
+import { SearchParams } from '../models/client';
 
 function responseClientToOpenApi(client: IClient): components['schemas']['client'] {
   return {
@@ -19,16 +20,14 @@ function responseClientToOpenApi(client: IClient): components['schemas']['client
   };
 }
 
-function queryParamsToSearchParams(query: NonNullable<operations['getClients']['parameters']['query']>): ClientSearchParams {
-  const { search, branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = query;
+function queryParamsToSearchParams(query: NonNullable<operations['getClients']['parameters']['query']>): SearchParams {
+  const { createdAfter, createdBefore, updatedAfter, updatedBefore, ...rest } = query;
   return {
-    search,
-    branch,
-    tags,
-    createdAfter: createdAfter !== undefined ? new Date(createdAfter) : undefined,
-    createdBefore: createdBefore !== undefined ? new Date(createdBefore) : undefined,
-    updatedAfter: updatedAfter !== undefined ? new Date(updatedAfter) : undefined,
-    updatedBefore: updatedBefore !== undefined ? new Date(updatedBefore) : undefined,
+    ...rest,
+    createdAfter: createdAfter !== undefined ? parseISO(createdAfter) : undefined,
+    createdBefore: createdBefore !== undefined ? parseISO(createdBefore) : undefined,
+    updatedAfter: updatedAfter !== undefined ? parseISO(updatedAfter) : undefined,
+    updatedBefore: updatedBefore !== undefined ? parseISO(updatedBefore) : undefined,
   };
 }
 
@@ -52,7 +51,7 @@ export class ClientController {
   public getClients: TypedRequestHandlers['getClients'] = async (req, res, next) => {
     try {
       this.logger.debug({ msg: 'executing #getClients handler', query: req.query });
-      const searchParams = queryParamsToSearchParams(req.query as NonNullable<operations['getClients']['parameters']['query']>);
+      const searchParams = queryParamsToSearchParams(req.query ?? {});
 
       const paginationParams = {
         /* istanbul ignore next */

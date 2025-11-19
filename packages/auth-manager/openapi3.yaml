@@ -15,7 +15,7 @@ paths:
         - client
       parameters:
         - in: query
-          name: search
+          name: name
           description: search by client name (partial match, case-insensitive)
           schema:
             type: string
@@ -287,8 +287,8 @@ paths:
         - connection
       parameters:
         - in: query
-          name: search
-          description: search by connection name (partial match, case-insensitive)
+          name: name
+          description: search by client name (partial match, case-insensitive)
           schema:
             type: string
         - in: query

@@ -1,11 +1,14 @@
-import { IClient } from '@map-colonies/auth-core';
+import type { operations } from '@src/openapi';
 
-export interface ClientSearchParams {
-  search?: IClient['name'];
-  branch?: IClient['branch'];
-  createdBefore?: IClient['createdAt'];
-  createdAfter?: IClient['createdAt'];
-  updatedBefore?: IClient['createdAt'];
-  updatedAfter?: IClient['createdAt'];
-  tags?: IClient['tags'];
-}
+type QueryParamsWithoutDates = Omit<
+  NonNullable<operations['getClients']['parameters']['query']>,
+  'createdBefore' | 'createdAfter' | 'updatedBefore' | 'updatedAfter'
+>;
+
+export type SearchParams = QueryParamsWithoutDates & {
+  /** The date fields converted to Date type */
+  createdBefore?: Date;
+  createdAfter?: Date;
+  updatedBefore?: Date;
+  updatedAfter?: Date;
+};

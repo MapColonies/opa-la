@@ -6,12 +6,12 @@ import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/co
 import { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
 import { getFakeConnection } from '@tests/utils/connection';
 import { DomainRepository } from '@src/domain/DAL/domainRepository';
-import { ConnectionSearchParams } from '@src/connection/models/connection';
 import { ClientNotFoundError } from '@src/client/models/errors';
 import { DomainNotFoundError } from '@src/domain/models/errors';
 import { KeyRepository } from '@src/key/DAL/keyRepository';
 import { getRealKeys } from '@tests/utils/key';
 import { KeyNotFoundError } from '@src/key/models/errors';
+import { operations } from '@src/openapi';
 
 describe('ConnectionManager', () => {
   let connectionManager: ConnectionManager;
@@ -47,7 +47,7 @@ describe('ConnectionManager', () => {
       ['isNoOrigin', true, 'allowNoOriginConnection'],
       ['domains', ['avi'], 'domains'],
       ['isEnabled', true, 'enabled'],
-    ] as [keyof ConnectionSearchParams, unknown, keyof FindOptionsWhere<Connection>][])(
+    ] as [keyof operations['getConnections']['parameters']['query'], unknown, keyof FindOptionsWhere<Connection>][])(
       'should set the value of the param %s',
       async (inputName, inputValue, filterProperty) => {
         await connectionManager.getConnections({ [inputName]: inputValue });

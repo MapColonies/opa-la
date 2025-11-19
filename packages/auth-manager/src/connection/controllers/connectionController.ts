@@ -49,7 +49,7 @@ export class ConnectionController {
     const sortParams = sortOptionParser(req.query?.sort, connectionSortMap);
 
     try {
-      const [connections, count] = await this.manager.getConnections(req.query ?? {}, paginationParams, sortParams);
+      const [connections, count] = await this.manager.getConnections(req.query, paginationParams, sortParams);
 
       return res.status(httpStatus.OK).json({ total: count, items: connections.map(responseConnectionToOpenApi) });
     } catch (error) {

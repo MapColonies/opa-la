@@ -9,8 +9,8 @@ import { createDatesComparison } from '@common/db/utils';
 import { SortOptions } from '@src/common/db/sort';
 import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/pagination';
 import { type ClientRepository } from '../DAL/clientRepository';
-import { ClientSearchParams } from './client';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
+import { SearchParams } from './client';
 
 @injectable()
 export class ClientManager {
@@ -20,7 +20,7 @@ export class ClientManager {
   ) {}
 
   public async getClients(
-    searchParams?: ClientSearchParams,
+    searchParams: SearchParams,
     paginationParams?: PaginationParams,
     sortParams?: SortOptions<Client>
   ): Promise<[IClient[], number]> {
@@ -29,18 +29,16 @@ export class ClientManager {
 
     // eslint doesn't recognize this as valid because its in the type definition
     let findOptions: Parameters<typeof this.clientRepository.find>[0] = {};
-    if (searchParams !== undefined) {
-      const { search, branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = searchParams;
-      findOptions = {
-        where: {
-          name: search !== undefined && search !== '' ? ILike(`%${search}%`) : undefined,
-          tags: tags ? ArrayContains(tags) : undefined,
-          branch,
-          createdAt: createDatesComparison(createdAfter, createdBefore),
-          updatedAt: createDatesComparison(updatedAfter, updatedBefore),
-        },
-      };
-    }
+    const { name, branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = searchParams;
+    findOptions = {
+      where: {
+        name: name !== undefined ? ILike(`%${name}%`) : undefined,
+        tags: tags ? ArrayContains(tags) : undefined,
+        branch,
+        createdAt: createDatesComparison(createdAfter, createdBefore),
+        updatedAt: createDatesComparison(updatedAfter, updatedBefore),
+      },
+    };
 
     if (paginationParams !== undefined) {
       findOptions = {

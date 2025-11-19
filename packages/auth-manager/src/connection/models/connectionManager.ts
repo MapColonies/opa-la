@@ -13,8 +13,8 @@ import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/
 import { KeyNotFoundError } from '@key/models/errors';
 import { SortOptions } from '@src/common/db/sort';
 import { asteriskStringComparatorLast } from '@src/utils/utils';
+import { paths } from '@src/openapi';
 import { type ConnectionRepository } from '../DAL/connectionRepository';
-import { ConnectionSearchParams } from './connection';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
 
 @injectable()
@@ -27,25 +27,24 @@ export class ConnectionManager {
   ) {}
 
   public async getConnections(
-    searchParams: ConnectionSearchParams,
+    searchParams: paths['/connection']['get']['parameters']['query'],
     paginationParams?: PaginationParams,
     sortParams?: SortOptions<Connection>
   ): Promise<[IConnection[], number]> {
     this.logger.info({ msg: 'fetching connections', searchParams });
-    const { search, latestOnly, environment, domains, isEnabled, isNoBrowser, isNoOrigin, name } = searchParams;
 
-    if (latestOnly === true) {
+    if (searchParams?.latestOnly === true) {
       return this.getLatestConnections(searchParams, paginationParams, sortParams);
     }
 
     const findOptions: FindManyOptions<Connection> = {
       where: {
-        name: search !== undefined && search !== '' ? ILike(`%${search}%`) : name,
-        environment: environment ? In(environment) : undefined,
-        allowNoBrowserConnection: isNoBrowser ?? undefined,
-        allowNoOriginConnection: isNoOrigin ?? undefined,
-        domains: domains ? ArrayContains(domains) : undefined,
-        enabled: isEnabled ?? undefined,
+        name: searchParams?.name !== undefined ? ILike(`%${searchParams.name}%`) : undefined,
+        environment: searchParams?.environment ? In(searchParams.environment) : undefined,
+        allowNoBrowserConnection: searchParams?.isNoBrowser ?? undefined,
+        allowNoOriginConnection: searchParams?.isNoOrigin ?? undefined,
+        domains: searchParams?.domains ? ArrayContains(searchParams.domains) : undefined,
+        enabled: searchParams?.isEnabled ?? undefined,
       },
     };
 
@@ -58,101 +57,6 @@ export class ConnectionManager {
     }
 
     return this.connectionRepository.findAndCount(findOptions);
-  }
-
-  private async getLatestConnections(
-    searchParams: ConnectionSearchParams,
-    paginationParams?: PaginationParams,
-    sortParams?: SortOptions<Connection>
-  ): Promise<[IConnection[], number]> {
-    const { search, environment, domains, isEnabled, isNoBrowser, isNoOrigin } = searchParams;
-
-    const countQueryBuilder = this.connectionRepository.createQueryBuilder('connection');
-    countQueryBuilder.select('COUNT(DISTINCT (connection.name, connection.environment))', 'count');
-
-    if (search !== undefined && search !== '') {
-      countQueryBuilder.andWhere('connection.name ILIKE :search', { search: `%${search}%` });
-    }
-
-    if (environment !== undefined) {
-      countQueryBuilder.andWhere('connection.environment IN (:...environment)', { environment });
-    }
-
-    if (isEnabled !== undefined) {
-      countQueryBuilder.andWhere('connection.enabled = :isEnabled', { isEnabled });
-    }
-
-    if (isNoBrowser !== undefined) {
-      countQueryBuilder.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser });
-    }
-
-    if (isNoOrigin !== undefined) {
-      countQueryBuilder.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin });
-    }
-
-    if (domains !== undefined) {
-      countQueryBuilder.andWhere('connection.domains @> :domains', { domains });
-    }
-
-    const countResult = await countQueryBuilder.getRawOne<{ count: string }>();
-    const total = parseInt(countResult?.count ?? '0', 10);
-
-    const queryBuilder = this.connectionRepository.createQueryBuilder('connection');
-
-    queryBuilder.distinctOn(['connection.name', 'connection.environment']);
-
-    const nameOrder = sortParams?.name ? (sortParams.name.toUpperCase() as 'ASC' | 'DESC') : 'ASC';
-    const environmentOrder = sortParams?.environment ? (sortParams.environment.toUpperCase() as 'ASC' | 'DESC') : 'ASC';
-
-    queryBuilder.orderBy('connection.name', nameOrder).addOrderBy('connection.environment', environmentOrder);
-
-    if (sortParams !== undefined && Object.keys(sortParams).length > 0) {
-      for (const [key, order] of Object.entries(sortParams)) {
-        if (key !== 'name' && key !== 'environment') {
-          queryBuilder.addOrderBy(`connection.${key}`, order.toUpperCase() as 'ASC' | 'DESC');
-        }
-      }
-    }
-
-    queryBuilder.addOrderBy('connection.version', 'DESC');
-
-    if (search !== undefined && search !== '') {
-      queryBuilder.andWhere('connection.name ILIKE :search', { search: `%${search}%` });
-    }
-
-    if (environment !== undefined) {
-      queryBuilder.andWhere('connection.environment IN (:...environment)', { environment });
-    }
-
-    if (isEnabled !== undefined) {
-      queryBuilder.andWhere('connection.enabled = :isEnabled', { isEnabled });
-    }
-
-    if (isNoBrowser !== undefined) {
-      queryBuilder.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser });
-    }
-
-    if (isNoOrigin !== undefined) {
-      queryBuilder.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin });
-    }
-
-    if (domains !== undefined) {
-      queryBuilder.andWhere('connection.domains @> :domains', { domains });
-    }
-
-    if (paginationParams !== undefined) {
-      const { skip, take } = paginationParamsToFindOptions(paginationParams);
-      if (skip !== undefined) {
-        queryBuilder.skip(skip);
-      }
-      if (take !== undefined) {
-        queryBuilder.take(take);
-      }
-    }
-
-    const results = await queryBuilder.getMany();
-
-    return [results, total];
   }
 
   public async getConnection(name: string, environment: Environments, version: number): Promise<IConnection> {
@@ -252,5 +156,98 @@ export class ConnectionManager {
       }
       return '';
     }
+  }
+
+  private async getLatestConnections(
+    searchParams: paths['/connection']['get']['parameters']['query'],
+    paginationParams?: PaginationParams,
+    sortParams?: SortOptions<Connection>
+  ): Promise<[IConnection[], number]> {
+    const countQueryBuilder = this.connectionRepository.createQueryBuilder('connection');
+    countQueryBuilder.select('COUNT(DISTINCT (connection.name, connection.environment))', 'count');
+
+    if (searchParams?.name !== undefined) {
+      countQueryBuilder.andWhere('connection.name ILIKE :name', { name: `%${searchParams.name}%` });
+    }
+
+    if (searchParams?.environment !== undefined) {
+      countQueryBuilder.andWhere('connection.environment IN (:...environment)', { environment: searchParams.environment });
+    }
+
+    if (searchParams?.isEnabled !== undefined) {
+      countQueryBuilder.andWhere('connection.enabled = :isEnabled', { isEnabled: searchParams.isEnabled });
+    }
+
+    if (searchParams?.isNoBrowser !== undefined) {
+      countQueryBuilder.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser: searchParams.isNoBrowser });
+    }
+
+    if (searchParams?.isNoOrigin !== undefined) {
+      countQueryBuilder.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin: searchParams.isNoOrigin });
+    }
+
+    if (searchParams?.domains !== undefined) {
+      countQueryBuilder.andWhere('connection.domains @> :domains', { domains: searchParams.domains });
+    }
+
+    const countResult = await countQueryBuilder.getRawOne<{ count: string }>();
+    const total = parseInt(countResult?.count ?? '0', 10);
+
+    const queryBuilder = this.connectionRepository.createQueryBuilder('connection');
+
+    queryBuilder.distinctOn(['connection.name', 'connection.environment']);
+
+    const nameOrder = sortParams?.name ? (sortParams.name.toUpperCase() as 'ASC' | 'DESC') : 'ASC';
+    const environmentOrder = sortParams?.environment ? (sortParams.environment.toUpperCase() as 'ASC' | 'DESC') : 'ASC';
+
+    queryBuilder.orderBy('connection.name', nameOrder).addOrderBy('connection.environment', environmentOrder);
+
+    if (sortParams !== undefined && Object.keys(sortParams).length > 0) {
+      for (const [key, order] of Object.entries(sortParams)) {
+        if (key !== 'name' && key !== 'environment') {
+          queryBuilder.addOrderBy(`connection.${key}`, order.toUpperCase() as 'ASC' | 'DESC');
+        }
+      }
+    }
+
+    queryBuilder.addOrderBy('connection.version', 'DESC');
+
+    if (searchParams?.name !== undefined) {
+      queryBuilder.andWhere('connection.name ILIKE :name', { name: `%${searchParams.name}%` });
+    }
+
+    if (searchParams?.environment !== undefined) {
+      queryBuilder.andWhere('connection.environment IN (:...environment)', { environment: searchParams.environment });
+    }
+
+    if (searchParams?.isEnabled !== undefined) {
+      queryBuilder.andWhere('connection.enabled = :isEnabled', { isEnabled: searchParams.isEnabled });
+    }
+
+    if (searchParams?.isNoBrowser !== undefined) {
+      queryBuilder.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser: searchParams.isNoBrowser });
+    }
+
+    if (searchParams?.isNoOrigin !== undefined) {
+      queryBuilder.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin: searchParams.isNoOrigin });
+    }
+
+    if (searchParams?.domains !== undefined) {
+      queryBuilder.andWhere('connection.domains @> :domains', { domains: searchParams.domains });
+    }
+
+    if (paginationParams !== undefined) {
+      const { skip, take } = paginationParamsToFindOptions(paginationParams);
+      if (skip !== undefined) {
+        queryBuilder.skip(skip);
+      }
+      if (take !== undefined) {
+        queryBuilder.take(take);
+      }
+    }
+
+    const results = await queryBuilder.getMany();
+
+    return [results, total];
   }
 }
