@@ -55,6 +55,8 @@ describe('connection', function () {
 
   afterEach(async function () {
     await depContainer.resolve(DataSource).getRepository(Connection).clear();
+    await depContainer.resolve(DataSource).getRepository(Client).clear();
+    await depContainer.resolve(DataSource).getRepository(Domain).clear();
   });
 
   afterAll(async function () {
