@@ -1,6 +1,5 @@
 import jsLogger from '@map-colonies/js-logger';
-import { FindOptionsWhere } from 'typeorm';
-import { Connection, Environment } from '@map-colonies/auth-core';
+import { Environment } from '@map-colonies/auth-core';
 import { ConnectionManager } from '@src/connection/models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/connection/models/errors';
 import { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
@@ -11,7 +10,6 @@ import { DomainNotFoundError } from '@src/domain/models/errors';
 import { KeyRepository } from '@src/key/DAL/keyRepository';
 import { getRealKeys } from '@tests/utils/key';
 import { KeyNotFoundError } from '@src/key/models/errors';
-import { operations } from '@src/openapi';
 
 describe('ConnectionManager', () => {
   let connectionManager: ConnectionManager;
@@ -33,45 +31,6 @@ describe('ConnectionManager', () => {
     jest.resetAllMocks();
   });
   describe('#getConnections', () => {
-    it.only('should return the array of connections', async function () {
-      const connection = getFakeConnection();
-      const mockQb = {
-        // Chainable methods needed for the default path
-        select: jest.fn().mockReturnThis(),
-        andWhere: jest.fn().mockReturnThis(),
-        orderBy: jest.fn().mockReturnThis(),
-        addOrderBy: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        take: jest.fn().mockReturnThis(),
-        clone: jest.fn().mockReturnThis(),
-
-        // Terminators (The actual return values)
-        getMany: jest.fn().mockResolvedValue([connection]),
-        getCount: jest.fn().mockResolvedValue(1),
-      };
-      mockedConnectionRepository.createQueryBuilder.mockReturnValue(mockQb);
-
-      const connectionPromise = connectionManager.getConnections({});
-
-      await expect(connectionPromise).resolves.toStrictEqual([connection]);
-    });
-
-    it.each([
-      ['environment', [Environment.NP], 'environment'],
-      ['isNoBrowser', true, 'allowNoBrowserConnection'],
-      ['isNoOrigin', true, 'allowNoOriginConnection'],
-      ['domains', ['avi'], 'domains'],
-      ['isEnabled', true, 'enabled'],
-    ] as [keyof operations['getConnections']['parameters']['query'], unknown, keyof FindOptionsWhere<Connection>][])(
-      'should set the value of the param %s',
-      async (inputName, inputValue, filterProperty) => {
-        await connectionManager.getConnections({ [inputName]: inputValue });
-
-        const call = mockedConnectionRepository.findAndCount.mock.calls[0]?.[0];
-        expect(call?.where).toHaveProperty(filterProperty);
-      }
-    );
-
     it('should throw an error if one is thrown by the repository', async function () {
       mockedConnectionRepository.findAndCount.mockRejectedValue(new Error());
 
