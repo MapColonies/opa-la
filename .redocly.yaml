@@ -22,7 +22,7 @@ preprocessors: {}
 rules:
   boolean-parameter-prefixes:
     severity: error
-    prefixes: ['should', 'is', 'has']
+    prefixes: ['should', 'is', 'has', 'only']
   no-unused-components:
     severity: error
   no-empty-servers: off

@@ -31,8 +31,8 @@ export class ConnectionManager {
   /**
    * Retrieves a paginated list of connections with optional filtering and sorting.
    * * @remarks
-   * **Special Handling for `isLatestOnly`:**
-   * When `isLatestOnly` is true, this method uses Postgres `DISTINCT ON` to return
+   * **Special Handling for `onlyLatest`:**
+   * When `onlyLatest` is true, this method uses Postgres `DISTINCT ON` to return
    * only the most recent version of each connection (grouped by name + environment).
    * This requires a specific sorting strategy and a custom count query.
    *
@@ -53,7 +53,7 @@ export class ConnectionManager {
     // 2. Calculate Total Count
     let total: number;
 
-    if (searchParams.isLatestOnly!) {
+    if (searchParams.onlyLatest!) {
       // STRATEGY: Distinct Count
       // Standard .getCount() returns total rows. We need total *unique clients and environments*.
       // We clone the query to avoid modifying the main QB instance used for fetching data.
@@ -69,7 +69,7 @@ export class ConnectionManager {
     }
 
     // 3. Apply Scope & Sorting
-    if (searchParams.isLatestOnly!) {
+    if (searchParams.onlyLatest!) {
       // STRATEGY: Postgres DISTINCT ON
       // We group by name/env and keep the first row Postgres sees.
       qb.distinctOn(['connection.name', 'connection.environment']);

@@ -292,7 +292,7 @@ paths:
           schema:
             type: string
         - in: query
-          name: isLatestOnly
+          name: onlyLatest
           description: if true, returns only the latest version per (name, environment) pair
           schema:
             type: boolean

@@ -785,7 +785,7 @@ export interface operations {
         /** @description search by client name (partial match, case-insensitive) */
         name?: string;
         /** @description if true, returns only the latest version per (name, environment) pair */
-        isLatestOnly?: boolean;
+        onlyLatest?: boolean;
         environment?: components['parameters']['environmentQueryParam'];
         isEnabled?: boolean;
         isNoBrowser?: boolean;

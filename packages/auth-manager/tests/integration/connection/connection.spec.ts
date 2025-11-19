@@ -120,11 +120,11 @@ describe('connection', function () {
         expect(res.body.items).toBeArrayOfSize(0);
       });
 
-      it('should return only latest connections when the isLatestOnly param is true', async function () {
+      it('should return only latest connections when the onlyLatest param is true', async function () {
         // There are 4 connections in the initialization, 3 of them are the latest versions
         const res = await requestSender.getConnections({
           queryParams: {
-            isLatestOnly: true,
+            onlyLatest: true,
           },
         });
 
