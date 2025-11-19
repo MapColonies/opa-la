@@ -62,6 +62,7 @@ describe('client', function () {
         { name: 'bobavi', searchParam: 'avi', matchType: 'suffix' },
         { name: 'aviiiiii', searchParam: 'av', matchType: 'prefix' },
         { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
+        { name: 'avi', searchParam: 'AV', matchType: 'case-insensitive' },
       ])('type: $matchType - find the user $name with search string $searchParam', async function ({ name, searchParam }) {
         const client = { ...getFakeClient(false), name };
         const connection = depContainer.resolve(DataSource);
