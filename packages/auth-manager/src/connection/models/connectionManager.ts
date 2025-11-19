@@ -1,7 +1,7 @@
 import { type Logger } from '@map-colonies/js-logger';
 import { Client, Connection, Environments, IConnection } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { ArrayContains, FindManyOptions, In, ILike } from 'typeorm';
+import { SelectQueryBuilder } from 'typeorm';
 import { JWK } from 'jose';
 import { ClientNotFoundError } from '@client/models/errors';
 import { SERVICES } from '@common/constants';
@@ -17,6 +17,8 @@ import { paths } from '@src/openapi';
 import { type ConnectionRepository } from '../DAL/connectionRepository';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
 
+type ConnectionSearchParams = NonNullable<paths['/connection']['get']['parameters']['query']>;
+
 @injectable()
 export class ConnectionManager {
   public constructor(
@@ -26,37 +28,77 @@ export class ConnectionManager {
     @inject(SERVICES.KEY_REPOSITORY) private readonly keyRepository: KeyRepository
   ) {}
 
+  /**
+   * Retrieves a paginated list of connections with optional filtering and sorting.
+   * * @remarks
+   * **Special Handling for `isLatestOnly`:**
+   * When `isLatestOnly` is true, this method uses Postgres `DISTINCT ON` to return
+   * only the most recent version of each connection (grouped by name + environment).
+   * This requires a specific sorting strategy and a custom count query.
+   *
+   * @returns A tuple containing the array of [Connections, TotalCount]
+   */
   public async getConnections(
-    searchParams: paths['/connection']['get']['parameters']['query'],
+    searchParams: ConnectionSearchParams,
     paginationParams?: PaginationParams,
     sortParams?: SortOptions<Connection>
   ): Promise<[IConnection[], number]> {
     this.logger.info({ msg: 'fetching connections', searchParams });
 
-    if (searchParams?.isLatestOnly === true) {
-      return this.getLatestConnections(searchParams, paginationParams, sortParams);
+    const qb = this.connectionRepository.createQueryBuilder('connection');
+
+    // 1. Apply Base Filters
+    this.applySearchFilters(qb, searchParams);
+
+    // 2. Calculate Total Count
+    let total: number;
+
+    if (searchParams.isLatestOnly!) {
+      // STRATEGY: Distinct Count
+      // Standard .getCount() returns total rows. We need total *unique clients and environments*.
+      // We clone the query to avoid modifying the main QB instance used for fetching data.
+      const countResult = await qb
+        .clone()
+        .select('COUNT(DISTINCT (connection.name, connection.environment))', 'count')
+        .getRawOne<{ count: string }>();
+
+      total = parseInt(countResult?.count ?? '0', 10);
+    } else {
+      // STRATEGY: Standard Count
+      total = await qb.getCount();
     }
 
-    const findOptions: FindManyOptions<Connection> = {
-      where: {
-        name: searchParams?.name !== undefined ? ILike(`%${searchParams.name}%`) : undefined,
-        environment: searchParams?.environment ? In(searchParams.environment) : undefined,
-        allowNoBrowserConnection: searchParams?.isNoBrowser ?? undefined,
-        allowNoOriginConnection: searchParams?.isNoOrigin ?? undefined,
-        domains: searchParams?.domains ? ArrayContains(searchParams.domains) : undefined,
-        enabled: searchParams?.isEnabled ?? undefined,
-      },
-    };
+    // 3. Apply Scope & Sorting
+    if (searchParams.isLatestOnly!) {
+      // STRATEGY: Postgres DISTINCT ON
+      // We group by name/env and keep the first row Postgres sees.
+      qb.distinctOn(['connection.name', 'connection.environment']);
 
-    if (paginationParams !== undefined) {
-      Object.assign(findOptions, paginationParamsToFindOptions(paginationParams));
+      // REQUIREMENT: Postgres mandates that DISTINCT ON columns match the initial ORDER BY keys.
+      // We must apply the user's sort direction to these keys first.
+      const nameOrder = sortParams?.name?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+      const envOrder = sortParams?.environment?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
+      qb.orderBy('connection.name', nameOrder).addOrderBy('connection.environment', envOrder);
+
+      // CRITICAL: The "Latest" Logic
+      // Within the unique (name, env) group, we force a sort by version DESC.
+      // Since DISTINCT ON picks the *first* row it encounters, this ensures the "Latest" version is picked.
+      qb.addOrderBy('connection.version', 'DESC');
+    } else if (sortParams) {
+      Object.entries(sortParams).forEach(([key, order]) => {
+        qb.addOrderBy(`connection.${key}`, order.toUpperCase() as 'ASC' | 'DESC');
+      });
     }
 
-    if (sortParams !== undefined) {
-      findOptions.order = sortParams;
+    // 4. Pagination & Execution
+    if (paginationParams) {
+      const { skip, take } = paginationParamsToFindOptions(paginationParams);
+      qb.skip(skip).take(take);
     }
 
-    return this.connectionRepository.findAndCount(findOptions);
+    const connections = await qb.getMany();
+    return [connections, total];
   }
 
   public async getConnection(name: string, environment: Environments, version: number): Promise<IConnection> {
@@ -158,96 +200,27 @@ export class ConnectionManager {
     }
   }
 
-  private async getLatestConnections(
-    searchParams: paths['/connection']['get']['parameters']['query'],
-    paginationParams?: PaginationParams,
-    sortParams?: SortOptions<Connection>
-  ): Promise<[IConnection[], number]> {
-    const countQueryBuilder = this.connectionRepository.createQueryBuilder('connection');
-    countQueryBuilder.select('COUNT(DISTINCT (connection.name, connection.environment))', 'count');
-
-    if (searchParams?.name !== undefined) {
-      countQueryBuilder.andWhere('connection.name ILIKE :name', { name: `%${searchParams.name}%` });
+  /**
+   * Centralized filter logic to avoid duplication
+   */
+  private applySearchFilters(qb: SelectQueryBuilder<Connection>, params: ConnectionSearchParams): void {
+    if (params.name !== undefined) {
+      qb.andWhere('connection.name ILIKE :name', { name: `%${params.name}%` });
     }
-
-    if (searchParams?.environment !== undefined) {
-      countQueryBuilder.andWhere('connection.environment IN (:...environment)', { environment: searchParams.environment });
+    if (params.environment) {
+      qb.andWhere('connection.environment IN (:...environment)', { environment: params.environment });
     }
-
-    if (searchParams?.isEnabled !== undefined) {
-      countQueryBuilder.andWhere('connection.enabled = :isEnabled', { isEnabled: searchParams.isEnabled });
+    if (params.isNoBrowser !== undefined) {
+      qb.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser: params.isNoBrowser });
     }
-
-    if (searchParams?.isNoBrowser !== undefined) {
-      countQueryBuilder.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser: searchParams.isNoBrowser });
+    if (params.isNoOrigin !== undefined) {
+      qb.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin: params.isNoOrigin });
     }
-
-    if (searchParams?.isNoOrigin !== undefined) {
-      countQueryBuilder.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin: searchParams.isNoOrigin });
+    if (params.domains) {
+      qb.andWhere('connection.domains @> :domains', { domains: params.domains });
     }
-
-    if (searchParams?.domains !== undefined) {
-      countQueryBuilder.andWhere('connection.domains @> :domains', { domains: searchParams.domains });
+    if (params.isEnabled !== undefined) {
+      qb.andWhere('connection.enabled = :isEnabled', { isEnabled: params.isEnabled });
     }
-
-    const countResult = await countQueryBuilder.getRawOne<{ count: string }>();
-    const total = parseInt(countResult?.count ?? '0', 10);
-
-    const queryBuilder = this.connectionRepository.createQueryBuilder('connection');
-
-    queryBuilder.distinctOn(['connection.name', 'connection.environment']);
-
-    const nameOrder = sortParams?.name ? (sortParams.name.toUpperCase() as 'ASC' | 'DESC') : 'ASC';
-    const environmentOrder = sortParams?.environment ? (sortParams.environment.toUpperCase() as 'ASC' | 'DESC') : 'ASC';
-
-    queryBuilder.orderBy('connection.name', nameOrder).addOrderBy('connection.environment', environmentOrder);
-
-    if (sortParams !== undefined && Object.keys(sortParams).length > 0) {
-      for (const [key, order] of Object.entries(sortParams)) {
-        if (key !== 'name' && key !== 'environment') {
-          queryBuilder.addOrderBy(`connection.${key}`, order.toUpperCase() as 'ASC' | 'DESC');
-        }
-      }
-    }
-
-    queryBuilder.addOrderBy('connection.version', 'DESC');
-
-    if (searchParams?.name !== undefined) {
-      queryBuilder.andWhere('connection.name ILIKE :name', { name: `%${searchParams.name}%` });
-    }
-
-    if (searchParams?.environment !== undefined) {
-      queryBuilder.andWhere('connection.environment IN (:...environment)', { environment: searchParams.environment });
-    }
-
-    if (searchParams?.isEnabled !== undefined) {
-      queryBuilder.andWhere('connection.enabled = :isEnabled', { isEnabled: searchParams.isEnabled });
-    }
-
-    if (searchParams?.isNoBrowser !== undefined) {
-      queryBuilder.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser: searchParams.isNoBrowser });
-    }
-
-    if (searchParams?.isNoOrigin !== undefined) {
-      queryBuilder.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin: searchParams.isNoOrigin });
-    }
-
-    if (searchParams?.domains !== undefined) {
-      queryBuilder.andWhere('connection.domains @> :domains', { domains: searchParams.domains });
-    }
-
-    if (paginationParams !== undefined) {
-      const { skip, take } = paginationParamsToFindOptions(paginationParams);
-      if (skip !== undefined) {
-        queryBuilder.skip(skip);
-      }
-      if (take !== undefined) {
-        queryBuilder.take(take);
-      }
-    }
-
-    const results = await queryBuilder.getMany();
-
-    return [results, total];
   }
 }

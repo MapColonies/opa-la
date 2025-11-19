@@ -117,6 +117,20 @@ describe('connection', function () {
         expect(res.body.items).toBeArrayOfSize(0);
       });
 
+      it('should return only latest connections when the isLatestOnly param is true', async function () {
+        // There are 4 connections in the initialization, 3 of them are the latest versions
+        const res = await requestSender.getConnections({
+          queryParams: {
+            isLatestOnly: true,
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(3);
+      });
+
       it('should return 200 status code and all the connections with specific env', async function () {
         const res = await requestSender.getConnections({ queryParams: { environment: [Environment.PRODUCTION] } });
 
@@ -419,7 +433,11 @@ describe('connection', function () {
     describe('GET /connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
+        const qbMock = {
+          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getConnections();
 
@@ -459,7 +477,11 @@ describe('connection', function () {
     describe('GET /client/:clientName/connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
+        const qbMock = {
+          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getClientConnections({ pathParams: { clientName: 'avi' } });
 
@@ -471,7 +493,11 @@ describe('connection', function () {
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
+        const qbMock = {
+          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getClientEnvironmentConnections({ pathParams: { clientName: 'avi', environment: Environment.NP } });
 

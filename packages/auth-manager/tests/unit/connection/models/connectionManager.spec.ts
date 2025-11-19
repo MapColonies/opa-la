@@ -19,6 +19,7 @@ describe('ConnectionManager', () => {
     findAndCount: jest.fn<ReturnType<ConnectionRepository['find']>, Parameters<ConnectionRepository['find']>>(),
     findOne: jest.fn(),
     transaction: jest.fn(),
+    createQueryBuilder: jest.fn(),
   };
   const mockedDomainRepository = {};
   const mockedKeysRepository = {};
@@ -32,9 +33,23 @@ describe('ConnectionManager', () => {
     jest.resetAllMocks();
   });
   describe('#getConnections', () => {
-    it('should return the array of connections', async function () {
+    it.only('should return the array of connections', async function () {
       const connection = getFakeConnection();
-      mockedConnectionRepository.findAndCount.mockResolvedValue([connection]);
+      const mockQb = {
+        // Chainable methods needed for the default path
+        select: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        addOrderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        clone: jest.fn().mockReturnThis(),
+
+        // Terminators (The actual return values)
+        getMany: jest.fn().mockResolvedValue([connection]),
+        getCount: jest.fn().mockResolvedValue(1),
+      };
+      mockedConnectionRepository.createQueryBuilder.mockReturnValue(mockQb);
 
       const connectionPromise = connectionManager.getConnections({});
 
