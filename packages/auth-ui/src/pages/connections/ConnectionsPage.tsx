@@ -70,8 +70,8 @@ const getURLParams = () => {
     isEnabled: params.get('isEnabled') ? params.get('isEnabled') === 'true' : undefined,
     isNoBrowser: params.get('isNoBrowser') ? params.get('isNoBrowser') === 'true' : undefined,
     isNoOrigin: params.get('isNoOrigin') ? params.get('isNoOrigin') === 'true' : undefined,
-    searchTerm: params.get('search') || '',
-    latestOnly: params.get('latestOnly') ? params.get('latestOnly') === 'true' : storedLatestOnly !== null ? storedLatestOnly === 'true' : true,
+    searchTerm: params.get('name') || '',
+    latestOnly: params.get('isLatestOnly') ? params.get('isLatestOnly') === 'true' : storedLatestOnly !== null ? storedLatestOnly === 'true' : true,
     sort: params.get('sort')
       ? params
           .get('sort')!

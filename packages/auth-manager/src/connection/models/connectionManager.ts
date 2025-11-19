@@ -33,7 +33,7 @@ export class ConnectionManager {
   ): Promise<[IConnection[], number]> {
     this.logger.info({ msg: 'fetching connections', searchParams });
 
-    if (searchParams?.latestOnly === true) {
+    if (searchParams?.isLatestOnly === true) {
       return this.getLatestConnections(searchParams, paginationParams, sortParams);
     }
 
