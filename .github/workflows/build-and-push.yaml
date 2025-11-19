@@ -1,0 +1,103 @@
+name: Build and Push Service Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Docker Image Version (e.g., v1.2.0)'
+        required: true
+        type: string
+      services:
+        description: 'Services to build (comma-separated, e.g., "auth,payment") or "all"'
+        required: true
+        default: 'all'
+        type: string
+
+jobs:
+  # JOB 1: Parse the inputs and determine which services to build
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Generate Service Matrix
+        id: set-matrix
+        run: |
+          INPUT_SERVICES="${{ github.event.inputs.services }}"
+
+          if [ "$INPUT_SERVICES" == "all" ]; then
+            # Scans the services directory and creates a JSON array of folder names
+            # Requires jq installed (standard on runner)
+            echo "Scanning packages for all services..."
+            MATRIX_JSON=$(ls -d packages/*/ | xargs -n 1 basename | jq -R -s -c 'split("\n")[:-1]')
+          else
+            # Splits comma-separated string into JSON array
+            echo "Parsing specific services: $INPUT_SERVICES"
+            MATRIX_JSON=$(echo "$INPUT_SERVICES" | jq -R -c 'split(",") | map(sub("^\\s+";"") | sub("\\s+$";""))')
+          fi
+
+          echo "Target Services: $MATRIX_JSON"
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+  # JOB 2: Build and Push in Parallel
+  build-and-push:
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.setup.outputs.matrix) }}
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          # cache: 'npm' # Uncomment if you want caching
+
+      # Login to Registry (Default: GitHub Container Registry)
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_URL }}
+          username: ${{ secrets.ACR_PUSH_USER }}
+          password: ${{ secrets.ACR_PUSH_TOKEN }}
+          # For Docker Hub, use secrets.DOCKER_USERNAME and secrets.DOCKER_PASSWORD
+
+      # Step to install dependencies.
+      # In a monorepo, you usually install at root to link workspaces.
+      - name: Install Dependencies
+        run: npm ci
+
+      # The core requirement: Run the npm script
+      - name: Build Docker Image (npm script)
+        working-directory: packages/${{ matrix.service }}
+        run: npm run build:docker
+
+      # Retag and Push
+      - name: Tag and Push Image
+        run: |
+          SERVICE_NAME="${{ matrix.service }}"
+          VERSION="${{ github.event.inputs.version }}"
+
+          # The full target path (e.g., ghcr.io/user/repo/service:v1.0.0)
+          # We lowercase the repo name because docker requires lowercase
+          IMAGE_ID=$(echo "${{ secrets.ACR_URL }}/${{ github.repository }}/$SERVICE_NAME" | tr '[:upper:]' '[:lower:]')
+
+          echo "Pushing image to: $IMAGE_ID:$VERSION"
+
+          # 1. Tag the locally built image (assuming local name is simply the service name)
+          docker tag $SERVICE_NAME:latest $IMAGE_ID:$VERSION
+
+          # 2. Push to registry
+          docker push $IMAGE_ID:$VERSION
