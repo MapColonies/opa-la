@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.10.0) (2025-11-20)
+
+
+### Bug Fixes
+
+* **token-kiosk:** reverse order of lyrx layers MAPCO-8471 ([#107](https://github.com/MapColonies/opa-la/issues/107)) ([2741e6e](https://github.com/MapColonies/opa-la/commit/2741e6e4100ed668cce77de3e000ae0ae5df6572))
+
+
+### Features
+
+* add memory store MAPCO-8528 ([#110](https://github.com/MapColonies/opa-la/issues/110)) ([63f0545](https://github.com/MapColonies/opa-la/commit/63f0545bfcd5d394186a4d87a9347ff33252ca24))
+
+
+
+
+
 # [1.9.0](https://github.com/MapColonies/opa-la/compare/v1.8.1...v1.9.0) (2025-07-20)
 
 

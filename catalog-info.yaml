@@ -63,7 +63,7 @@ spec:
     info:
       title: auth-manager
       description: API server for managing all the authentication data
-      version: 1.9.0
+      version: 1.10.0
       license:
         name: MIT
         url: https://opensource.org/licenses/MIT
@@ -75,6 +75,11 @@ spec:
           tags:
             - client
           parameters:
+            - in: query
+              name: name
+              description: search by client name (partial match, case-insensitive)
+              schema:
+                type: string
             - in: query
               name: branch
               description: search by branch name
@@ -342,6 +347,17 @@ spec:
           tags:
             - connection
           parameters:
+            - in: query
+              name: name
+              description: search by client name (partial match, case-insensitive)
+              schema:
+                type: string
+            - in: query
+              name: onlyLatest
+              description: if true, returns only the latest version per (name, environment) pair
+              schema:
+                type: boolean
+                default: false
             - $ref: "#/components/parameters/environmentQueryParam"
             - in: query
               name: isEnabled
