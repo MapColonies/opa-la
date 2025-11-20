@@ -785,10 +785,10 @@ export interface operations {
   getConnections: {
     parameters: {
       query?: {
-        /** @description search by connection name (partial match, case-insensitive) */
+        /** @description search by client name (partial match, case-insensitive) */
         name?: string;
         /** @description if true, returns only the latest version per (name, environment) pair */
-        latestOnly?: boolean;
+        onlyLatest?: boolean;
         environment?: components['parameters']['environmentQueryParam'];
         isEnabled?: boolean;
         isNoBrowser?: boolean;

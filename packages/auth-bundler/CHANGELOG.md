@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.10.0) (2025-11-20)
+
+
+### Bug Fixes
+
+* **auth-bundler:** query now correctly takes the max version for each env ([#98](https://github.com/MapColonies/opa-la/issues/98)) ([d7746d7](https://github.com/MapColonies/opa-la/commit/d7746d7bf594dbdaf13c1aba11b6e5084860cfe9))
+
+
+
+
+
 # [1.8.0](https://github.com/MapColonies/opa-la/compare/v1.6.0...v1.8.0) (2025-07-08)
 
 **Note:** Version bump only for package @map-colonies/auth-bundler

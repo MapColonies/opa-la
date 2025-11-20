@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.10.0) (2025-11-20)
+
+
+### Bug Fixes
+
+* latestOnly param ([bb4439d](https://github.com/MapColonies/opa-la/commit/bb4439d5b2dff3c1087efbef1ad5b81fdc8b7174))
+
+
+### Features
+
+* **auth-ui, auth-manager:** fix monaco to not work cdn, latest view in connection, fix clients search + add connection dropdown ([ea7daae](https://github.com/MapColonies/opa-la/commit/ea7daae1534abda0a887d00ed29ca7b7a6c280eb))
+
+
+
+
+
 # [1.9.0](https://github.com/MapColonies/opa-la/compare/v1.8.1...v1.9.0) (2025-07-20)
 
 

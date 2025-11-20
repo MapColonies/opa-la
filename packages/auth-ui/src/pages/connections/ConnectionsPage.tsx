@@ -62,7 +62,7 @@ const updateURL = (params: Record<string, string | number | boolean | string[]>)
 
 const getURLParams = () => {
   const params = new URLSearchParams(window.location.search);
-  const storedLatestOnly = localStorage.getItem('connectionsLatestOnly');
+  const storedOnlyLatest = localStorage.getItem('connectionsOnlyLatest');
   return {
     page: parseInt(params.get('page') || '1', 10),
     pageSize: parseInt(params.get('pageSize') || '10', 10),
@@ -71,7 +71,7 @@ const getURLParams = () => {
     isNoBrowser: params.get('isNoBrowser') ? params.get('isNoBrowser') === 'true' : undefined,
     isNoOrigin: params.get('isNoOrigin') ? params.get('isNoOrigin') === 'true' : undefined,
     searchTerm: params.get('name') || '',
-    latestOnly: params.get('onlyLatest') ? params.get('onlyLatest') === 'true' : storedLatestOnly !== null ? storedLatestOnly === 'true' : true,
+    onlyLatest: params.get('onlyLatest') ? params.get('onlyLatest') === 'true' : storedOnlyLatest !== null ? storedOnlyLatest === 'true' : true,
     sort: params.get('sort')
       ? params
           .get('sort')!
@@ -110,7 +110,7 @@ export const ConnectionsPage = () => {
   const [isEnabled, setIsEnabled] = useState<boolean | undefined>(urlParams.isEnabled);
   const [isNoBrowser, setIsNoBrowser] = useState<boolean | undefined>(urlParams.isNoBrowser);
   const [isNoOrigin, setIsNoOrigin] = useState<boolean | undefined>(urlParams.isNoOrigin);
-  const [latestOnly, setLatestOnly] = useState<boolean>(urlParams.latestOnly);
+  const [onlyLatest, setOnlyLatest] = useState<boolean>(urlParams.onlyLatest);
   const [searchTerm, setSearchTerm] = useState(urlParams.searchTerm);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(urlParams.showAdvancedFilters);
   const [page, setPage] = useState(urlParams.page);
@@ -133,15 +133,15 @@ export const ConnectionsPage = () => {
       isNoBrowser: isNoBrowser !== undefined ? isNoBrowser : '',
       isNoOrigin: isNoOrigin !== undefined ? isNoOrigin : '',
       name: searchTerm,
-      latestOnly,
+      onlyLatest,
       sort: sortParams,
       showFilters: showAdvancedFilters,
     });
-  }, [page, pageSize, selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin, searchTerm, latestOnly, sort, showAdvancedFilters]);
+  }, [page, pageSize, selectedEnvironment, isEnabled, isNoBrowser, isNoOrigin, searchTerm, onlyLatest, sort, showAdvancedFilters]);
 
   useEffect(() => {
-    localStorage.setItem('connectionsLatestOnly', latestOnly.toString());
-  }, [latestOnly]);
+    localStorage.setItem('connectionsOnlyLatest', onlyLatest.toString());
+  }, [onlyLatest]);
 
   const queryParams = {
     ...filters,
@@ -149,7 +149,7 @@ export const ConnectionsPage = () => {
     page_size: pageSize,
     sort: sort.map((s) => `${s.field}:${s.direction}`),
     ...(debouncedSearchTerm && { name: debouncedSearchTerm }),
-    ...(latestOnly && { latestOnly }),
+    ...(onlyLatest && { onlyLatest }),
   };
 
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/connection', {
@@ -465,9 +465,9 @@ export const ConnectionsPage = () => {
               </Label>
               <Switch
                 id="latest-only"
-                checked={latestOnly}
+                checked={onlyLatest}
                 onCheckedChange={(checked: boolean) => {
-                  setLatestOnly(checked);
+                  setOnlyLatest(checked);
                   setPage(1);
                 }}
               />
