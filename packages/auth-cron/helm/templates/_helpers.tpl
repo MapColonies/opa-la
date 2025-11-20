@@ -36,7 +36,7 @@ helm.sh/chart: {{ include "auth-cron.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "mc-labels-and-annotations.labels" . }}
+{{ include "mclabels.labels" . }}
 {{- end }}
 
 {{/*
@@ -52,7 +52,7 @@ Selector labels
 {{- define "auth-cron.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "auth-cron.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{ include "mc-labels-and-annotations.selectorLabels" . }}
+{{ include "mclabels.selectorLabels" . }}
 {{- end }}
 
 {{/*
