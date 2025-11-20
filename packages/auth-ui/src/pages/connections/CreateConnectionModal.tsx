@@ -99,7 +99,7 @@ export const CreateConnectionModal = ({
   const clientQueryParams = {
     page: 1,
     page_size: clientSearch ? 50 : 100,
-    ...(clientSearch && { search: clientSearch }),
+    ...(clientSearch && { name: clientSearch }),
   };
 
   const { data: clientsData, isLoading: isLoadingClients } = $api.useQuery('get', '/client', {

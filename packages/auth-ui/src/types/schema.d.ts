@@ -537,7 +537,7 @@ export interface operations {
     parameters: {
       query?: {
         /** @description search by client name (partial match, case-insensitive) */
-        search?: string;
+        name?: string;
         /** @description search by branch name */
         branch?: string;
         /** @description filters all clients created before given date */
@@ -786,7 +786,7 @@ export interface operations {
     parameters: {
       query?: {
         /** @description search by connection name (partial match, case-insensitive) */
-        search?: string;
+        name?: string;
         /** @description if true, returns only the latest version per (name, environment) pair */
         latestOnly?: boolean;
         environment?: components['parameters']['environmentQueryParam'];

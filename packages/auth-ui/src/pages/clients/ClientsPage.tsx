@@ -30,7 +30,7 @@ type SiteResult = {
 };
 
 type Filters = {
-  search?: string;
+  name?: string;
   branch?: string;
   createdBefore?: string;
   createdAfter?: string;
@@ -68,7 +68,7 @@ const getURLParams = () => {
   return {
     page: parseInt(params.get('page') || '1', 10),
     pageSize: parseInt(params.get('pageSize') || '10', 10),
-    searchTerm: params.get('search') || '',
+    searchTerm: params.get('name') || '',
     branch: params.get('branch') || '',
     createdAfter: params.get('createdAfter') || '',
     createdBefore: params.get('createdBefore') || '',
@@ -128,7 +128,7 @@ export const ClientsPage = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const branchInputRef = useRef<HTMLInputElement>(null);
   const wasLoading = useRef(false);
-  const lastFocusedInput = useRef<'search' | 'branch' | null>(null);
+  const lastFocusedInput = useRef<'name' | 'branch' | null>(null);
 
   const debouncedSearchTerm = useDebounce<string>(searchTerm);
   const debouncedBranch = useDebounce<string>(selectedBranch);
@@ -138,7 +138,7 @@ export const ClientsPage = () => {
     updateURL({
       page,
       pageSize,
-      search: searchTerm,
+      name: searchTerm,
       branch: selectedBranch,
       createdAfter: createdAfterDate?.toISOString() || '',
       createdBefore: createdBeforeDate?.toISOString() || '',
@@ -245,7 +245,7 @@ export const ClientsPage = () => {
     const newFilters: Filters = {};
 
     if (debouncedSearchTerm) {
-      newFilters.search = debouncedSearchTerm;
+      newFilters.name = debouncedSearchTerm;
     }
 
     if (debouncedBranch) {
@@ -285,7 +285,7 @@ export const ClientsPage = () => {
 
   useEffect(() => {
     if (wasLoading.current && !isLoading) {
-      if (lastFocusedInput.current === 'search' && searchInputRef.current) {
+      if (lastFocusedInput.current === 'name' && searchInputRef.current) {
         searchInputRef.current.focus();
         const length = searchInputRef.current.value.length;
         searchInputRef.current.setSelectionRange(length, length);
@@ -553,7 +553,7 @@ export const ClientsPage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onFocus={() => {
-                lastFocusedInput.current = 'search';
+                lastFocusedInput.current = 'name';
               }}
             />
           </div>

@@ -132,7 +132,7 @@ export const ConnectionsPage = () => {
       isEnabled: isEnabled !== undefined ? isEnabled : '',
       isNoBrowser: isNoBrowser !== undefined ? isNoBrowser : '',
       isNoOrigin: isNoOrigin !== undefined ? isNoOrigin : '',
-      search: searchTerm,
+      name: searchTerm,
       latestOnly,
       sort: sortParams,
       showFilters: showAdvancedFilters,
@@ -148,7 +148,7 @@ export const ConnectionsPage = () => {
     page,
     page_size: pageSize,
     sort: sort.map((s) => `${s.field}:${s.direction}`),
-    ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
+    ...(debouncedSearchTerm && { name: debouncedSearchTerm }),
     ...(latestOnly && { latestOnly }),
   };
 
@@ -346,7 +346,7 @@ export const ConnectionsPage = () => {
 
   const removeFilter = (filterType: string) => {
     switch (filterType) {
-      case 'search':
+      case 'name':
         setSearchTerm('');
         break;
       case 'environment':
@@ -502,7 +502,7 @@ export const ConnectionsPage = () => {
             {searchTerm && (
               <Badge variant="secondary" className="gap-1">
                 Name: {searchTerm}
-                <button onClick={() => removeFilter('search')} className="ml-1 hover:text-destructive">
+                <button onClick={() => removeFilter('name')} className="ml-1 hover:text-destructive">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
