@@ -3,7 +3,7 @@ global:
   tracing: {}
   metrics: {}
 
-mcLabelsAndAnnotations:
+mclabels:
   component: backend
   owner: infra
   partOf: authentication
