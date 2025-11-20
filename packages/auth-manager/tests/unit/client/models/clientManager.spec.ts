@@ -24,7 +24,7 @@ describe('ClientManager', () => {
       const client = getFakeClient(true);
       mockedRepository.findAndCount.mockResolvedValue([[client], 1]);
 
-      const domainPromise = clientManager.getClients();
+      const domainPromise = clientManager.getClients({});
 
       await expect(domainPromise).resolves.toStrictEqual([[client], 1]);
     });
@@ -32,7 +32,7 @@ describe('ClientManager', () => {
     it('should throw an error if thrown by the ORM', async function () {
       mockedRepository.findAndCount.mockRejectedValue(new Error());
 
-      const domainPromise = clientManager.getClients();
+      const domainPromise = clientManager.getClients({});
 
       await expect(domainPromise).rejects.toThrow();
     });

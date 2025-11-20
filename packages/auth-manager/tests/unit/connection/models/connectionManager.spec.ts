@@ -1,12 +1,10 @@
 import jsLogger from '@map-colonies/js-logger';
-import { FindOptionsWhere } from 'typeorm';
-import { Connection, Environment } from '@map-colonies/auth-core';
+import { Environment } from '@map-colonies/auth-core';
 import { ConnectionManager } from '@src/connection/models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/connection/models/errors';
 import { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
 import { getFakeConnection } from '@tests/utils/connection';
 import { DomainRepository } from '@src/domain/DAL/domainRepository';
-import { ConnectionSearchParams } from '@src/connection/models/connection';
 import { ClientNotFoundError } from '@src/client/models/errors';
 import { DomainNotFoundError } from '@src/domain/models/errors';
 import { KeyRepository } from '@src/key/DAL/keyRepository';
@@ -19,6 +17,7 @@ describe('ConnectionManager', () => {
     findAndCount: jest.fn<ReturnType<ConnectionRepository['find']>, Parameters<ConnectionRepository['find']>>(),
     findOne: jest.fn(),
     transaction: jest.fn(),
+    createQueryBuilder: jest.fn(),
   };
   const mockedDomainRepository = {};
   const mockedKeysRepository = {};
@@ -32,31 +31,6 @@ describe('ConnectionManager', () => {
     jest.resetAllMocks();
   });
   describe('#getConnections', () => {
-    it('should return the array of connections', async function () {
-      const connection = getFakeConnection();
-      mockedConnectionRepository.findAndCount.mockResolvedValue([connection]);
-
-      const connectionPromise = connectionManager.getConnections({});
-
-      await expect(connectionPromise).resolves.toStrictEqual([connection]);
-    });
-
-    it.each([
-      ['environment', [Environment.NP], 'environment'],
-      ['isNoBrowser', true, 'allowNoBrowserConnection'],
-      ['isNoOrigin', true, 'allowNoOriginConnection'],
-      ['domains', ['avi'], 'domains'],
-      ['isEnabled', true, 'enabled'],
-    ] as [keyof ConnectionSearchParams, unknown, keyof FindOptionsWhere<Connection>][])(
-      'should set the value of the param %s',
-      async (inputName, inputValue, filterProperty) => {
-        await connectionManager.getConnections({ [inputName]: inputValue });
-
-        const call = mockedConnectionRepository.findAndCount.mock.calls[0]?.[0];
-        expect(call?.where).toHaveProperty(filterProperty);
-      }
-    );
-
     it('should throw an error if one is thrown by the repository', async function () {
       mockedConnectionRepository.findAndCount.mockRejectedValue(new Error());
 

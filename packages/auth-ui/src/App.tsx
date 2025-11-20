@@ -11,31 +11,34 @@ import { OPAValidatorPage } from './pages/opa-validator';
 import { Toaster } from './components/ui/sonner';
 import { ConfigProvider } from './contexts/ConfigProvider';
 import { ErrorBoundary } from './hooks/useErrorBoundary';
+import { ThemeProvider } from './components/theme-provider';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <ErrorBoundary>
-      <ConfigProvider>
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Navigate to="/clients" replace />} />
-                <Route path="clients" element={<ClientsPage />} />
-                <Route path="connections" element={<ConnectionsPage />} />
-                <Route path="domains" element={<DomainsPage />} />
-                <Route path="jwt-inspector" element={<JWTInspectorPage />} />
-                <Route path="opa-validator" element={<OPAValidatorPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Route>
-              <Route path="/error" element={<ErrorPage />} />
-            </Routes>
-          </BrowserRouter>
-          <Toaster />
-        </QueryClientProvider>
-      </ConfigProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ConfigProvider>
+          <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Navigate to="/clients" replace />} />
+                  <Route path="clients" element={<ClientsPage />} />
+                  <Route path="connections" element={<ConnectionsPage />} />
+                  <Route path="domains" element={<DomainsPage />} />
+                  <Route path="jwt-inspector" element={<JWTInspectorPage />} />
+                  <Route path="opa-validator" element={<OPAValidatorPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Route>
+                <Route path="/error" element={<ErrorPage />} />
+              </Routes>
+            </BrowserRouter>
+            <Toaster />
+          </QueryClientProvider>
+        </ConfigProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

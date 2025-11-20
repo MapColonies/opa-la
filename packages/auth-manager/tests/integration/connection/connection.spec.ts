@@ -55,6 +55,8 @@ describe('connection', function () {
 
   afterEach(async function () {
     await depContainer.resolve(DataSource).getRepository(Connection).clear();
+    await depContainer.resolve(DataSource).getRepository(Client).clear();
+    await depContainer.resolve(DataSource).getRepository(Domain).clear();
   });
 
   afterAll(async function () {
@@ -72,6 +74,108 @@ describe('connection', function () {
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         const returnedItems = res.body.items as IConnection[];
         expect(returnedItems).toBeArray();
+      });
+
+      it.each([
+        { name: 'avi', searchParam: 'avi', matchType: 'exact' },
+        { name: 'bobavi', searchParam: 'avi', matchType: 'suffix' },
+        { name: 'aviiiiii', searchParam: 'av', matchType: 'prefix' },
+        { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
+        { name: 'avi', searchParam: 'AV', matchType: 'case-insensitive' },
+      ])('type: $matchType - find the connection of $name with search string $searchParam', async function ({ name, searchParam }) {
+        const client = { ...getFakeClient(false), name };
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await requestSender.upsertConnection({ requestBody: connection });
+
+        const res = await requestSender.getConnections({
+          queryParams: {
+            name: searchParam,
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect((res.body as Exclude<typeof res.body, { message: string }>).items).toSatisfyAny((item) => item.name === name);
+      });
+
+      it('should return empty array when no connections match the client name search param', async function () {
+        const client = { ...getFakeClient(false), name: 'bla' };
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await requestSender.upsertConnection({ requestBody: connection });
+
+        const res = await requestSender.getConnections({
+          queryParams: {
+            name: 'avi',
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(0);
+      });
+
+      it('should return only latest connections when the onlyLatest param is true', async function () {
+        // There are 4 connections in the initialization, 3 of them are the latest versions
+        const res = await requestSender.getConnections({
+          queryParams: {
+            onlyLatest: true,
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(3);
+      });
+
+      it('should return latest connections for multiple clients', async function () {
+        const client = { ...getFakeClient(false) };
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await requestSender.upsertConnection({ requestBody: connection });
+        await requestSender.upsertConnection({ requestBody: connection });
+
+        const res = await requestSender.getConnections({
+          queryParams: {
+            onlyLatest: true,
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(4);
+      });
+
+      it('should return latest connections with multiple query params', async function () {
+        const client = { ...getFakeClient(false) };
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await requestSender.upsertConnection({ requestBody: connection });
+        await requestSender.upsertConnection({ requestBody: connection });
+
+        const res = await requestSender.getConnections({
+          queryParams: {
+            onlyLatest: true,
+            name: client.name,
+            domains: connection.domains,
+            isEnabled: connection.enabled,
+            sort: ['name:asc'],
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(1);
       });
 
       it('should return 200 status code and all the connections with specific env', async function () {
@@ -376,7 +480,11 @@ describe('connection', function () {
     describe('GET /connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
+        const qbMock = {
+          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getConnections();
 
@@ -416,7 +524,11 @@ describe('connection', function () {
     describe('GET /client/:clientName/connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
+        const qbMock = {
+          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getClientConnections({ pathParams: { clientName: 'avi' } });
 
@@ -428,7 +540,11 @@ describe('connection', function () {
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
+        const qbMock = {
+          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+        };
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getClientEnvironmentConnections({ pathParams: { clientName: 'avi', environment: Environment.NP } });
 

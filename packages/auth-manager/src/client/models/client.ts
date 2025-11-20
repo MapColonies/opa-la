@@ -1,10 +1,6 @@
-import { IClient } from '@map-colonies/auth-core';
+import type { operations } from '@src/openapi';
 
-export interface ClientSearchParams {
-  branch?: IClient['branch'];
-  createdBefore?: IClient['createdAt'];
-  createdAfter?: IClient['createdAt'];
-  updatedBefore?: IClient['createdAt'];
-  updatedAfter?: IClient['createdAt'];
-  tags?: IClient['tags'];
-}
+type DateKeys = 'createdBefore' | 'createdAfter' | 'updatedBefore' | 'updatedAfter';
+
+// Converts date string query parameters to Date objects
+export type ClientSearchParams = Omit<NonNullable<operations['getClients']['parameters']['query']>, DateKeys> & { [P in DateKeys]?: Date };

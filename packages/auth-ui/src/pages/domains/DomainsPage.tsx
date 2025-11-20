@@ -51,7 +51,7 @@ const getURLParams = () => {
   return {
     page: parseInt(params.get('page') || '1', 10),
     pageSize: parseInt(params.get('pageSize') || '10', 10),
-    search: params.get('search') || '',
+    name: params.get('name') || '',
     sort: params.get('sort')
       ? params
           .get('sort')!
@@ -77,7 +77,7 @@ export const DomainsPage = () => {
   const [currentCreateStep, setCurrentCreateStep] = useState<'create' | 'send'>('create');
 
   const urlParams = getURLParams();
-  const [searchTerm, setSearchTerm] = useState(urlParams.search);
+  const [searchTerm, setSearchTerm] = useState(urlParams.name);
   const [page, setPage] = useState(urlParams.page);
   const [pageSize, setPageSize] = useState(urlParams.pageSize);
   const [sort, setSort] = useState<SortState[]>(urlParams.sort);
@@ -91,7 +91,7 @@ export const DomainsPage = () => {
     updateURL({
       page,
       pageSize,
-      search: searchTerm,
+      name: searchTerm,
       sort: sortParams,
     });
   }, [page, pageSize, searchTerm, sort]);

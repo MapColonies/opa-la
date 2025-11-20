@@ -533,6 +533,8 @@ export interface operations {
   getClients: {
     parameters: {
       query?: {
+        /** @description search by client name (partial match, case-insensitive) */
+        name?: string;
         /** @description search by branch name */
         branch?: string;
         /** @description filters all clients created before given date */
@@ -780,6 +782,10 @@ export interface operations {
   getConnections: {
     parameters: {
       query?: {
+        /** @description search by client name (partial match, case-insensitive) */
+        name?: string;
+        /** @description if true, returns only the latest version per (name, environment) pair */
+        onlyLatest?: boolean;
         environment?: components['parameters']['environmentQueryParam'];
         isEnabled?: boolean;
         isNoBrowser?: boolean;

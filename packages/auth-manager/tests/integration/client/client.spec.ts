@@ -57,6 +57,46 @@ describe('client', function () {
         expect(res.body.items).toIncludeAllPartialMembers(clients);
       });
 
+      it.each([
+        { name: 'avi', searchParam: 'avi', matchType: 'exact' },
+        { name: 'bobavi', searchParam: 'avi', matchType: 'suffix' },
+        { name: 'aviiiiii', searchParam: 'av', matchType: 'prefix' },
+        { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
+        { name: 'avi', searchParam: 'AV', matchType: 'case-insensitive' },
+      ])('type: $matchType - find the user $name with search string $searchParam', async function ({ name, searchParam }) {
+        const client = { ...getFakeClient(false), name };
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Client).insert(client);
+
+        const res = await requestSender.getClients({
+          queryParams: {
+            name: searchParam,
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect((res.body as Exclude<typeof res.body, { message: string }>).items).toSatisfyAny((item) => item.name === name);
+      });
+
+      it('should return empty array when no clients match the name search param', async function () {
+        const client = { ...getFakeClient(false), name: 'bla' };
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Client).insert(client);
+
+        const res = await requestSender.getClients({
+          queryParams: {
+            name: 'avi',
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(0);
+      });
+
       it('should support filtering by dates', async function () {
         const clients = [
           { ...getFakeClient(false), createdAt: new Date('2022-12-01') },

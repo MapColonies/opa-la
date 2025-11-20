@@ -3,6 +3,7 @@ import { type Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { IClient } from '@map-colonies/auth-core';
+import { parseISO } from 'date-fns';
 import type { TypedRequestHandlers, components, operations } from '@openapi';
 import { SERVICES } from '@common/constants';
 import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
@@ -20,14 +21,13 @@ function responseClientToOpenApi(client: IClient): components['schemas']['client
 }
 
 function queryParamsToSearchParams(query: NonNullable<operations['getClients']['parameters']['query']>): ClientSearchParams {
-  const { branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = query;
+  const { createdAfter, createdBefore, updatedAfter, updatedBefore, ...rest } = query;
   return {
-    branch,
-    tags,
-    createdAfter: createdAfter !== undefined ? new Date(createdAfter) : undefined,
-    createdBefore: createdBefore !== undefined ? new Date(createdBefore) : undefined,
-    updatedAfter: updatedAfter !== undefined ? new Date(updatedAfter) : undefined,
-    updatedBefore: updatedBefore !== undefined ? new Date(updatedBefore) : undefined,
+    ...rest,
+    createdAfter: createdAfter !== undefined ? parseISO(createdAfter) : undefined,
+    createdBefore: createdBefore !== undefined ? parseISO(createdBefore) : undefined,
+    updatedAfter: updatedAfter !== undefined ? parseISO(updatedAfter) : undefined,
+    updatedBefore: updatedBefore !== undefined ? parseISO(updatedBefore) : undefined,
   };
 }
 
@@ -51,7 +51,7 @@ export class ClientController {
   public getClients: TypedRequestHandlers['getClients'] = async (req, res, next) => {
     try {
       this.logger.debug({ msg: 'executing #getClients handler', query: req.query });
-      const searchParams = queryParamsToSearchParams(req.query as NonNullable<operations['getClients']['parameters']['query']>);
+      const searchParams = queryParamsToSearchParams(req.query ?? {});
 
       const paginationParams = {
         /* istanbul ignore next */

@@ -15,6 +15,11 @@ paths:
         - client
       parameters:
         - in: query
+          name: name
+          description: search by client name (partial match, case-insensitive)
+          schema:
+            type: string
+        - in: query
           name: branch
           description: search by branch name
           schema:
@@ -281,6 +286,17 @@ paths:
       tags:
         - connection
       parameters:
+        - in: query
+          name: name
+          description: search by client name (partial match, case-insensitive)
+          schema:
+            type: string
+        - in: query
+          name: onlyLatest
+          description: if true, returns only the latest version per (name, environment) pair
+          schema:
+            type: boolean
+            default: false
         - $ref: '#/components/parameters/environmentQueryParam'
         - in: query
           name: isEnabled

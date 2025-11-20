@@ -102,10 +102,8 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     {
       token: 'onSignal',
       provider: {
-        useValue: {
-          useValue: async (): Promise<void> => {
-            await Promise.all([getTracing().stop(), connection.destroy()]);
-          },
+        useValue: async (): Promise<void> => {
+          await Promise.all([getTracing().stop(), connection.destroy()]);
         },
       },
     },
