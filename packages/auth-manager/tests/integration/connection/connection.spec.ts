@@ -134,6 +134,50 @@ describe('connection', function () {
         expect(res.body.items).toBeArrayOfSize(3);
       });
 
+      it('should return latest connections for multiple clients', async function () {
+        const client = { ...getFakeClient(false) };
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await requestSender.upsertConnection({ requestBody: connection });
+        await requestSender.upsertConnection({ requestBody: connection });
+
+        const res = await requestSender.getConnections({
+          queryParams: {
+            onlyLatest: true,
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(4);
+      });
+
+      it('should return latest connections with multiple query params', async function () {
+        const client = { ...getFakeClient(false) };
+        const connection = getFakeIConnection();
+        connection.name = client.name;
+        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await requestSender.upsertConnection({ requestBody: connection });
+        await requestSender.upsertConnection({ requestBody: connection });
+
+        const res = await requestSender.getConnections({
+          queryParams: {
+            onlyLatest: true,
+            name: client.name,
+            domains: connection.domains,
+            isEnabled: connection.enabled,
+            sort: ['name:asc'],
+          },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        expect(res.body.items).toBeArrayOfSize(1);
+      });
+
       it('should return 200 status code and all the connections with specific env', async function () {
         const res = await requestSender.getConnections({ queryParams: { environment: [Environment.PRODUCTION] } });
 
