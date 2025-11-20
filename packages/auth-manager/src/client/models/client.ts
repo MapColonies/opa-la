@@ -1,14 +1,6 @@
 import type { operations } from '@src/openapi';
 
-type QueryParamsWithoutDates = Omit<
-  NonNullable<operations['getClients']['parameters']['query']>,
-  'createdBefore' | 'createdAfter' | 'updatedBefore' | 'updatedAfter'
->;
+type DateKeys = 'createdBefore' | 'createdAfter' | 'updatedBefore' | 'updatedAfter';
 
-export type ClientSearchParams = QueryParamsWithoutDates & {
-  /** The date fields converted to Date type */
-  createdBefore?: Date;
-  createdAfter?: Date;
-  updatedBefore?: Date;
-  updatedAfter?: Date;
-};
+// Converts date string query parameters to Date objects
+export type ClientSearchParams = Omit<NonNullable<operations['getClients']['parameters']['query']>, DateKeys> & { [P in DateKeys]?: Date };
