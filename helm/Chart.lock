@@ -1,0 +1,18 @@
+dependencies:
+- name: opa
+  repository: file://charts/opa
+  version: 1.10.0
+- name: auth-cron
+  repository: file://../packages/auth-cron/helm
+  version: 1.10.0
+- name: auth-manager
+  repository: file://../packages/auth-manager/helm
+  version: 1.10.0
+- name: auth-ui
+  repository: file://../packages/auth-ui/helm
+  version: 1.10.0
+- name: token-kiosk
+  repository: file://../packages/token-kiosk/helm
+  version: 1.10.0
+digest: sha256:164eb2c4310304fd4d51860fe117047c570e721db34f97747a7a958bef3a9c7a
+generated: "2025-11-20T10:36:39.09216741+02:00"

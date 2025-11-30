@@ -30,7 +30,7 @@ spec:
         run: {{ $releaseName }}-{{ $chartName }}
         {{- include "auth-manager.labels" . | nindent 8 }}
       annotations:
-        {{ include "mc-labels-and-annotations.annotations" . | nindent 8 }}
+        {{ include "mclabels.annotations" . | nindent 8 }}
         {{- if .Values.resetOnConfigChange }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- end }}

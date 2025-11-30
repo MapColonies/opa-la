@@ -5,7 +5,7 @@ global:
 
 podLabels: {}
 
-mcLabelsAndAnnotations:
+mclabels:
   component: infrastructure
   owner: infra
   partOf: authentication
