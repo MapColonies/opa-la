@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.11.0) (2025-12-30)
+
+
+### Bug Fixes
+
+* **auth-bundler:** query now correctly takes the max version for each env ([#98](https://github.com/MapColonies/opa-la/issues/98)) ([d7746d7](https://github.com/MapColonies/opa-la/commit/d7746d7bf594dbdaf13c1aba11b6e5084860cfe9))
+* **auth-cron:** use http server instead of express app for terminus MAPCO-9193 ([#117](https://github.com/MapColonies/opa-la/issues/117)) ([7b51724](https://github.com/MapColonies/opa-la/commit/7b51724e8672116d165ef9a80ce9ae90341da8a0))
+* **token-kiosk:** reverse order of lyrx layers MAPCO-8471 ([#107](https://github.com/MapColonies/opa-la/issues/107)) ([2741e6e](https://github.com/MapColonies/opa-la/commit/2741e6e4100ed668cce77de3e000ae0ae5df6572))
+
+
+### Features
+
+* add memory store MAPCO-8528 ([#110](https://github.com/MapColonies/opa-la/issues/110)) ([63f0545](https://github.com/MapColonies/opa-la/commit/63f0545bfcd5d394186a4d87a9347ff33252ca24))
+* **auth-cron:** add metrics MAPCO-8511 ([#102](https://github.com/MapColonies/opa-la/issues/102)) ([af8e937](https://github.com/MapColonies/opa-la/commit/af8e937b4f173d801cc154c73d99a8d93e169825))
+* fix monaco to not work cdn, latest view in connection, fix clients search + add connection dropdown MAPCO-8397 ([#113](https://github.com/MapColonies/opa-la/issues/113)) ([bf6db94](https://github.com/MapColonies/opa-la/commit/bf6db9473ac1329445d486ee7da7582e607f11c6))
+* **opa:** filtering decisions when the result is allowed ([#101](https://github.com/MapColonies/opa-la/issues/101)) ([46a6d66](https://github.com/MapColonies/opa-la/commit/46a6d66357a1f4da1ac77aeb04e2704d2fca3db1))
+
+
+
+
+
 # [1.10.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.10.0) (2025-11-20)
 
 

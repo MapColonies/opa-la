@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.11.0) (2025-12-30)
+
+
+### Bug Fixes
+
+* **auth-cron:** use http server instead of express app for terminus MAPCO-9193 ([#117](https://github.com/MapColonies/opa-la/issues/117)) ([7b51724](https://github.com/MapColonies/opa-la/commit/7b51724e8672116d165ef9a80ce9ae90341da8a0))
+
+
+### Features
+
+* **auth-cron:** add metrics MAPCO-8511 ([#102](https://github.com/MapColonies/opa-la/issues/102)) ([af8e937](https://github.com/MapColonies/opa-la/commit/af8e937b4f173d801cc154c73d99a8d93e169825))
+
+
+
+
+
 # [1.10.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.10.0) (2025-11-20)
 
 

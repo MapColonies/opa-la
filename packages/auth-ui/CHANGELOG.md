@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.11.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.11.0) (2025-12-30)
+
+
+### Features
+
+* fix monaco to not work cdn, latest view in connection, fix clients search + add connection dropdown MAPCO-8397 ([#113](https://github.com/MapColonies/opa-la/issues/113)) ([bf6db94](https://github.com/MapColonies/opa-la/commit/bf6db9473ac1329445d486ee7da7582e607f11c6))
+
+
+
+
+
 # [1.10.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.10.0) (2025-11-20)
 
 
