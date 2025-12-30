@@ -2,6 +2,7 @@ import path from 'node:path';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { env } from 'node:process';
+import { createServer } from 'node:http';
 import express from 'express';
 import { createTerminus } from '@godaddy/terminus';
 import { CatchCallbackFn, Cron } from 'croner';
@@ -49,10 +50,10 @@ const main = async (): Promise<void> => {
     });
   });
 
-  const server = express();
-  server.use(collectMetricsExpressMiddleware({ registry: metricsRegistry }));
+  const app = express();
+  app.use(collectMetricsExpressMiddleware({ registry: metricsRegistry }));
 
-  createTerminus(server, {
+  const server = createTerminus(createServer(app), {
     healthChecks: {
       '/liveness': async () => {
         await dataSource.query('SELECT 1');
