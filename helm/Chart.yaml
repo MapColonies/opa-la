@@ -2,7 +2,7 @@ apiVersion: v2
 name: opa-la
 description: A Helm chart for opa-la
 type: application
-version: 1.10.0
+version: 1.12.4
 dependencies:
   - name: opa
     repository: file://charts/opa

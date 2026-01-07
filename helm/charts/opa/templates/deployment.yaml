@@ -98,7 +98,11 @@ spec:
                   name: {{ .Values.s3.secretName | quote }}
                   key: secretAccessKey
             - name: AWS_REGION
-              value: ' ' # Region is hardcoded since we don't use real AWS S3          
+              {{- if .Values.s3.useAwsS3 }}
+              value: {{ .Values.s3.region | quote }}
+              {{- else }}
+              value: ' ' # Region is set to empty for MinIO
+              {{- end }}          
             {{- if .Values.ca.enabled }}
             - name: SSL_CERT_FILE
               value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}

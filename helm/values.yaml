@@ -45,6 +45,28 @@ opa:
     path: /opa
     tls: *tls
 
+  ingress:
+    enabled: false
+    className: ""
+    labels: {}
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts: []
+      # - host: opa.domain.com
+      #   paths:
+      #     - path: /
+      #       pathType: ImplementationSpecific
+    path: /
+    # host: 'localhost'
+    # cors:
+    #   enabled: true
+    #   origin: '*'
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - opa.domain.com
+
 auth-cron:
   enabled: true
   cloudProvider: *cloudProvider
@@ -75,6 +97,26 @@ auth-manager:
     path: /api
     tls: *tls
 
+  ingress:
+    enabled: false
+    className: ""
+    labels: {}
+    annotations: {}
+    hosts: []
+      # - host: opa.domain.com
+      #   paths:
+      #     - path: /
+      #       pathType: ImplementationSpecific
+    path: /
+    # host: 'localhost'
+    # cors:
+    #   enabled: true
+    #   origin: '*'
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - opa.domain.com
+
 auth-ui:
   enabled: true
   cloudProvider: *cloudProvider
@@ -98,6 +140,29 @@ auth-ui:
     enabled: true
     host: *host
     tls: *tls
+
+  ingress:
+    enabled: false
+    className: ""
+    labels: {}
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts: []
+      # - host: auth-ui.domain.com
+      #   paths:
+      #     - path: /
+      #       pathType: ImplementationSpecific
+    path: /
+    # host: 'localhost'
+    # cors:
+    #   enabled: true
+    #   origin: '*'
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - auth-ui.domain.com
+
 
 token-kiosk:
   enabled: true

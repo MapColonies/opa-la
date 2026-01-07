@@ -101,8 +101,22 @@ route:
 
 ingress:
   enabled: false
+  className: ""
+  labels: {}
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts: []
+    # - host: opa.domain.com
+    #   paths:
+    #     - path: /
+    #       pathType: ImplementationSpecific
   path: /
-  host: 'localhost'
-  cors:
-    enabled: true
-    origin: '*'
+  # host: 'localhost'
+  # cors:
+  #   enabled: true
+  #   origin: '*'
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - opa.domain.com
