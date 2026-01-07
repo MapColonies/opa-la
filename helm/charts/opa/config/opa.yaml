@@ -5,11 +5,19 @@ services:
       s3_signing:
         # Required for finding the envs for S3
         environment_credentials: {}
+{{- if .Values.s3.useAwsS3 }}
+        # AWS S3 specific configuration
+        service: s3
+{{- end }}
 
 bundles:
   authz:
     service: s3
     resource: {{ .Values.s3.filePath }}
+{{- if .Values.s3.useAwsS3 }}
+    # Persist bundle to disk for AWS S3
+    persist: true
+{{- end }}
 
 status:
   console: {{ .Values.status.console }}
