@@ -31,6 +31,8 @@ opa:
   image:
     repository: openpolicyagent/opa
 
+  bundlePersistencePath: /tmp/opa
+
   s3:
     endpoint: http://localhost:9000/opa
     secretName: s3-secret

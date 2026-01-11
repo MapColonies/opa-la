@@ -35,10 +35,13 @@ distributed_tracing:
   sample_percentage: {{ .Values.tracing.samplePercentage | default 100 }}
 {{ end }}
 
+persistence_directory: {{ .Values.bundlePersistencePath }}
+
 storage:
   disk:
     auto_create: true
-    directory: /tmp/opa
+    directory: {{ .Values.bundlePersistencePath }}
+
 
 labels:
   {{- range $key, $value := .Values.labels }}

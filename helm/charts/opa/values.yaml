@@ -38,6 +38,9 @@ targetPort: 8181
 diagnosticTargetPort: 8282
 logLevel: error
 
+# Bundle persistence path (only used when s3.useAwsS3 is true)
+bundlePersistencePath: /tmp/opa
+
 additionalPodAnnotations: {}
 
 s3:

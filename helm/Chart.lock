@@ -15,4 +15,4 @@ dependencies:
   repository: file://../packages/token-kiosk/helm
   version: 1.10.0
 digest: sha256:164eb2c4310304fd4d51860fe117047c570e721db34f97747a7a958bef3a9c7a
-generated: "2026-01-07T23:02:56.953959+02:00"
+generated: "2026-01-11T19:22:51.855858+02:00"

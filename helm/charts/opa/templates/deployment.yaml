@@ -59,6 +59,10 @@ spec:
             items:
             - key: "OPA_CONFIG"
               path: "opa-config.yaml"
+        {{- if .Values.s3.useAwsS3 }}
+        - name: opa-data
+          emptyDir: {}
+        {{- end }}
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}
@@ -74,6 +78,10 @@ spec:
             mountPath: /etc/opa-config.yaml
             readOnly: true
             subPath: opa-config.yaml
+          {{- if .Values.s3.useAwsS3 }}
+          - name: opa-data
+            mountPath: {{ .Values.bundlePersistencePath }}
+          {{- end }}
           args:
           - "run"
           - "--server"
