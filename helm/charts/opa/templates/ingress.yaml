@@ -1,7 +1,7 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "opa.name" . -}}
 {{- $serviceName := include "service.fullname" . -}}
-{{- $servicePort := .Values.targetPort -}}
+{{- $servicePort := .Values.servicePort -}}
 {{- if and (.Values.enabled) (.Values.ingress.enabled) -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
