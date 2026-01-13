@@ -2,8 +2,8 @@ apiVersion: v2
 name: auth-cron
 description: A Helm chart for auth-cron service
 type: application
-version: 1.12.0
-appVersion: 1.12.0
+version: 1.11.0
+appVersion: 1.11.0
 dependencies:
   - name: mclabels
     version: 1.0.1
