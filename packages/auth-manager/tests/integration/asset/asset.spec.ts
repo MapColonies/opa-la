@@ -93,6 +93,22 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
         expect(res.body).toSatisfyAll((a: IAsset) => a.type === AssetType.DATA);
       });
+
+      it('should return 200 status code and all the latest assets', async function () {
+        const asset = getFakeAsset();
+        const assets: IAsset[] = [asset, { ...asset, version: 2 }];
+
+        const connection = depContainer.resolve(DataSource);
+        await connection.getRepository(Asset).save(assets);
+
+        const res = await requestSender.getAssets({ queryParams: { latest: true } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expect(res).toSatisfyApiSpec();
+        const returnedAssetsWithName = (res.body as unknown as IAsset[]).filter((a: IAsset) => a.name === asset.name);
+        expect(returnedAssetsWithName).toHaveLength(1);
+        expect(returnedAssetsWithName[0]?.version).toBe(2);
+      });
     });
 
     describe('POST /asset', function () {
@@ -263,7 +279,7 @@ describe('client', function () {
     describe('GET /asset', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-        jest.spyOn(repo, 'findBy').mockRejectedValue(new Error());
+        jest.spyOn(repo, 'findAllBy').mockRejectedValue(new Error());
 
         const res = await requestSender.getAssets();
 
