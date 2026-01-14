@@ -5,10 +5,6 @@ services:
       s3_signing:
         # Required for finding the envs for S3
         environment_credentials: {}
-{{- if .Values.s3.useAwsS3 }}
-        # AWS S3 specific configuration
-        service: s3
-{{- end }}
 
 bundles:
   authz:
