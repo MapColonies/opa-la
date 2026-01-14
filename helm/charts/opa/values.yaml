@@ -38,12 +38,21 @@ targetPort: 8181
 diagnosticTargetPort: 8282
 logLevel: error
 
+# Bundle persistence path (only used when s3.useAwsS3 is true)
+bundlePersistencePath: /tmp/opa
+
 additionalPodAnnotations: {}
 
 s3:
+  # For MinIO: http://minio.namespace.svc.cluster.local:9000/bucket-name
+  # For AWS S3: https://s3.region.amazonaws.com/bucket-name or https://bucket-name.s3.region.amazonaws.com
   endpoint: http://localhost:9000/opa
   secretName: s3-secret
   filePath: '/dev.tar.gz'
+  # Set to true for AWS S3, false for MinIO
+  useAwsS3: false
+  # AWS region (only used when useAwsS3 is true)
+  region: us-east-1
 
 status:
   console: false
@@ -104,11 +113,25 @@ route:
 
 ingress:
   enabled: false
+  className: ""
+  labels: {}
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts: []
+    # - host: opa.domain.com
+    #   paths:
+    #     - path: /
+    #       pathType: ImplementationSpecific
   path: /
-  host: 'localhost'
-  cors:
-    enabled: true
-    origin: '*'
+  # host: 'localhost'
+  # cors:
+  #   enabled: true
+  #   origin: '*'
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - opa.domain.com
 
 # Add any label you want as `KEY: VALUE`
 labels: {}
