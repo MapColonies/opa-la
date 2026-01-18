@@ -27,6 +27,7 @@ export function openidAuthMiddlewareFactory(container: DependencyContainer): Req
       // eslint-disable-next-line @typescript-eslint/naming-convention
       response_type: 'code',
       scope: authConfig.scopes,
+      resource: authConfig.resource,
     },
     secret: authConfig.secret,
     clientSecret: authConfig.clientSecret,
