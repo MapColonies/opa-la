@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/MapColonies/opa-la/compare/v1.11.0...v1.12.0) (2026-01-18)
+
+
+### Features
+
+* helm ingress changes, support AWS and EKS MAPCO-9348 ([#119](https://github.com/MapColonies/opa-la/issues/119)) ([cdd0fe8](https://github.com/MapColonies/opa-la/commit/cdd0fe8179db744f9c312345f05910c53e39d517))
+
+
+
+
+
 # [1.11.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.11.0) (2025-12-30)
 
 

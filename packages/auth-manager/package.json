@@ -1,6 +1,6 @@
 {
   "name": "auth-manager",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "API server for managing all the authentication data",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",

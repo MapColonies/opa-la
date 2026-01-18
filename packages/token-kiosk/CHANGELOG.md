@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.12.0](https://github.com/MapColonies/opa-la/compare/v1.11.0...v1.12.0) (2026-01-18)
+
+
+### Bug Fixes
+
+* support for ADFS-based OIDC servers ([#121](https://github.com/MapColonies/opa-la/issues/121)) ([3c8d0b8](https://github.com/MapColonies/opa-la/commit/3c8d0b883ef15ebb754b808c1ef4817bc427aa15))
+
+
+
+
+
 # [1.11.0](https://github.com/MapColonies/opa-la/compare/v1.9.0...v1.11.0) (2025-12-30)
 
 
