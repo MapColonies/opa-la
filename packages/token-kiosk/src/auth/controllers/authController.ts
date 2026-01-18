@@ -18,7 +18,8 @@ export class AuthController {
     try {
       // For some reason fetchUserInfo returns an error value but it actually works
       /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-      const userInfo = await req.oidc.fetchUserInfo();
+      const extraUserInfo = await req.oidc.fetchUserInfo();
+      const userInfo = { ...req.oidc.user, ...extraUserInfo };
       this.logger.info('User info fetched successfully', { userInfo });
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       res.status(httpStatus.OK).json(userInfo);
