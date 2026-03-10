@@ -25,8 +25,9 @@ tokens := [token |
 
 claims := {"payload": payload, "valid": valid, "kid": kid} if {
 	token := tokens[_]
-	[valid, header, payload] := io.jwt.decode_verify(token, constraints)
+	[header, payload, _] := io.jwt.decode(token)
 	kid := object.get(header, "kid", null) # Extract kid from JWT header
+    [valid, _, _] := io.jwt.decode_verify(token, constraints)
 }
 
 userData := {"domains": ["raster"], "allowNoOrigin": true, "allowNoBrowser": true, "origins": []} if {
@@ -37,8 +38,12 @@ userData := data.users[claims.payload.sub] if {
     claims.payload.sub != "c2b"
 }
 
-deny contains "no token supplied" if {
+deny contains "no token supplied in any of the possible locations" if {
 	count(tokens) == 0
+}
+
+deny contains "token environment mismatch" if {
+    claims.kid != data.keys.kid
 }
 
 deny contains "token not valid" if {
@@ -46,7 +51,8 @@ deny contains "token not valid" if {
 	count(tokens) > 0
 }
 
-deny contains "user details missing" if {
+deny contains "the token is valid, but the user is not found" if {
+    claims.valid
 	not userData
 }
 
@@ -56,17 +62,6 @@ deny contains "domain missing" if {
 
 deny contains "domain check failed" if {
 	every domain in userData.domains { domain != input.domain }
-}
-
-allowed_empty_origin if {
-	originHeader := object.get(headers, "origin", "A")
-	originHeader = "A"
-	userData.allowNoOrigin
-}
-
-bad_browser_request if {
-	not userData.allowNoBrowser
-	regex.match(".*(Gecko|AppleWebKit|Opera|Trident|Edge|Chrome)\\/\\d.*$", headers["user-agent"])
 }
 
 is_origin_invalid(originHeader, allowedOrigin) if {
@@ -79,11 +74,29 @@ deny contains "origin check failed" if {
 	originHeader := object.get(headers, "origin", "A")
 	every origin in userData.origins { is_origin_invalid(originHeader, origin) }
 
-	not allowed_empty_origin
+	not userData.allowNoOrigin
+    claims.payload.sub != "c2b"
 
-	object.get(headers, "Sec-Fetch-Site", "avi") != "same-origin"
+	object.get(headers, "sec-fetch-site", "avi") != "same-origin"
+}
 
-	bad_browser_request
+need_user_agent := true if {
+    not userData.allowNoBrowser
+}
+
+need_user_agent := true if {
+    claims.payload.sub == "c2b"
+}
+
+
+deny contains "user-agent missing" if {
+    not headers["user-agent"]
+    need_user_agent
+}
+
+deny contains "user-agent is not from allowed browsers" if {
+    not userData.allowNoBrowser
+	not regex.match(".*(Gecko|AppleWebKit|Opera|Trident|Edge|Chrome)\\/\\d.*$", headers["user-agent"])
 }
 
 deny contains "c2b user only allowed from QGIS or ARCGIS" if {
