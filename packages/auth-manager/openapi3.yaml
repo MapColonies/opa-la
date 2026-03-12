@@ -299,6 +299,10 @@ paths:
             default: false
         - $ref: '#/components/parameters/environmentQueryParam'
         - in: query
+          name: latest
+          schema:
+            type: boolean
+        - in: query
           name: isEnabled
           schema:
             type: boolean
@@ -550,6 +554,11 @@ paths:
           name: isTemplate
           schema:
             type: boolean
+        - in: query
+          name: latest
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
           description: OK
