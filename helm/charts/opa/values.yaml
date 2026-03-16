@@ -135,3 +135,73 @@ ingress:
 
 # Add any label you want as `KEY: VALUE`
 labels: {}
+
+fluent-bit:
+  enabled: true
+  kind: Deployment
+  test-framework:
+    enabled: false
+  imagePullSecrets:
+    - name: my-registry-secret
+  serviceAccount:
+    create: false
+  rbac:
+    create: false
+  openshift:
+    enabled: true
+  service:
+    port: 9880
+  resources:
+    limits:
+      cpu: 400m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+  labels:
+    mapcolonies.io/environment: dev
+    mapcolonies.io/component: "infrastructure"
+    mapcolonies.io/part-of: "monitoring"
+    mapcolonies.io/owner: "infra"
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "2020"
+    prometheus.io/path: "/api/v1/metrics/prometheus"
+  env:
+    - name: FLUENT_LOKI_HOST
+      value: "loki"
+    - name: FLUENT_LOKI_PORT
+      value: "3100"
+  luaScripts:
+    transform.lua: |
+      {{ readFile "script/transform.lua" | indent 6 }}
+  config:
+    inputs: |
+      [INPUT]
+        Name         http
+        Listen       0.0.0.0
+        Port         9880
+    filter: |
+      [FILTER]
+        Name         lua
+        Match        *
+        script       /fluent-bit/scripts/transform.lua
+        call         transform_opa_log
+    outputs: |
+      [OUTPUT]
+        Name         loki
+        Match        *
+        Host         ${FLUENT_LOKI_HOST}
+        Port         ${FLUENT_LOKI_PORT}
+        
+        # LABELS: Domain added here for fast stream routing
+        Labels       job=opa, environment=$env, opa_domain=$opa_domain
+        
+        # METADATA: Allowed moved here, along with other high-cardinality data
+        Structured_metadata trace_id=$trace_id, span_id=$span_id, requested_by=$requested_by, reason=$reason, subject=$sub, total_time_ns=$total_time_ns, allowed=$allowed, token_location=$token_location, origin=$origin, user_agent=$user_agent
+        
+        # CLEANUP: Strip these fields from the main JSON log body
+        Remove_Keys  env, domain, allowed, trace_id, span_id, requested_by, reason, sub, total_time_ns, opa_domain, token_location, origin, user_agent
+

@@ -5,7 +5,14 @@ services:
       s3_signing:
         # Required for finding the envs for S3
         environment_credentials: {}
-
+{{- if .Values.fluent-bit.enabled}}
+  fluent-bit:
+    enabled: {{ .Values.fluentBit.enabled }}
+    config:
+      inputs:
+        - name: tail
+          parameters:
+{{- end }}
 bundles:
   authz:
     service: s3
@@ -21,8 +28,13 @@ status:
 
 decision_logs:
   console: {{ .Values.decisionLogs.console }}
+  {{- if .Values.fluent-bit.enabled }}
+  service: fluent-bit
+  {{- end }}
   reporting:
     buffer_size_limit_bytes: {{ .Values.decisionLogs.maxBufferSize }}
+    min_delay_seconds: {{ .Values.decisionLogs.minDelaySeconds }}
+    max_delay_seconds: {{ .Values.decisionLogs.maxDelaySeconds }}
 
 {{ if .Values.tracing.enabled }}
 distributed_tracing:
