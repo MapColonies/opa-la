@@ -60,6 +60,8 @@ status:
 decisionLogs:
   console: true
   maxBufferSize: 5242880 # 5MB
+  min_delay_seconds: 5
+  max_delay_seconds: 60
 
 tracing:
   enabled: false
@@ -136,10 +138,10 @@ ingress:
 # Add any label you want as `KEY: VALUE`
 labels: {}
 
-fluent-bit:
+fluentbit:
   enabled: true
   kind: Deployment
-  test-framework:
+  testFramework:
     enabled: false
   imagePullSecrets:
     - name: my-registry-secret
@@ -149,8 +151,6 @@ fluent-bit:
     create: false
   openshift:
     enabled: true
-  service:
-    port: 9880
   resources:
     limits:
       cpu: 400m
@@ -169,39 +169,110 @@ fluent-bit:
     prometheus.io/scrape: "true"
     prometheus.io/port: "2020"
     prometheus.io/path: "/api/v1/metrics/prometheus"
-  env:
+  loki:
+    url: loki.namespace.svc.cluster.local
+    port: "3100"
+  envWithTpl:
     - name: FLUENT_LOKI_HOST
-      value: "loki"
+      value: "{{ .Values.loki.url }}"
     - name: FLUENT_LOKI_PORT
-      value: "3100"
+      value: "{{ .Values.loki.port }}"
+  extraPorts:
+    - name: input
+      port: 9880
+      containerPort: 9880
+      protocol: TCP
   luaScripts:
     transform.lua: |
-      {{ readFile "script/transform.lua" | indent 6 }}
+      function transform_opa_log(tag, timestamp, record)
+        local new_record = {}
+        -- 1. Input and Bundles
+        new_record["input"] = record["input"]
+        new_record["bundles"] = record["bundles"]
+
+        -- 2. Trace & Span IDs
+        new_record["trace_id"] = record["trace_id"]
+        new_record["span_id"] = record["span_id"]
+
+        -- 3. Extract Environment and Domain
+        if record["labels"] ~= nil then
+            new_record["env"] = record["labels"]["environment"]
+        end
+        
+        new_record["opa_domain"] = record["input"]["domain"]
+
+
+        new_record["token_location"] = "missing"
+        if record["input"]["headers"] ~= nil and record["input"]["headers"]["x-api-key"] ~= nil then
+            new_record["token_location"] = "header"
+        end
+
+        if record["input"]["query"] ~= nil and record["input"]["query"]["token"] ~= nil then
+            if new_record["token_location"] == "header" then
+                new_record["token_location"] = "both"
+            else
+                new_record["token_location"] = "query"
+            end
+        end
+
+        if record["input"]["headers"] ~= nil then 
+            if record["input"]["headers"]["origin"] ~= nil then
+                new_record["origin"] = record["input"]["headers"]["origin"]
+            end
+            if record["input"]["headers"]["user-agent"] ~= nil then
+                new_record["user_agent"] = record["input"]["headers"]["user-agent"]
+            end
+        end
+
+        -- 4. Requested By
+        new_record["requested_by"] = record["requested_by"]
+
+        -- 5. Result splits
+        if record["result"] ~= nil then
+            -- Loki metadata requires strings, so we cast the boolean
+            new_record["allowed"] = tostring(record["result"]["allowed"])
+            new_record["reason"] = record["result"]["reason"]
+            new_record["sub"] = record["result"]["sub"]
+            new_record["codes"] = record["result"]["codes"]
+        end
+
+        -- 6. The original OPA timestamp string
+        new_record["opa_timestamp"] = record["timestamp"]
+
+        -- 7. Total processing time
+        if record["metrics"] ~= nil then
+            new_record["total_time_ns"] = tostring(record["metrics"]["timer_server_handler_ns"])
+        end
+
+        -- We return the Fluent Bit ingestion timestamp as the official log time.
+        return 1, timestamp, new_record
+      end
+
   config:
     inputs: |
       [INPUT]
-        Name         http
-        Listen       0.0.0.0
-        Port         9880
-    filter: |
+          Name         http
+          Listen       0.0.0.0
+          Port         9880
+    filters: |
       [FILTER]
-        Name         lua
-        Match        *
-        script       /fluent-bit/scripts/transform.lua
-        call         transform_opa_log
+          Name         lua
+          Match        *
+          script       /fluent-bit/scripts/transform.lua
+          call         transform_opa_log
     outputs: |
       [OUTPUT]
-        Name         loki
-        Match        *
-        Host         ${FLUENT_LOKI_HOST}
-        Port         ${FLUENT_LOKI_PORT}
-        
-        # LABELS: Domain added here for fast stream routing
-        Labels       job=opa, environment=$env, opa_domain=$opa_domain
-        
-        # METADATA: Allowed moved here, along with other high-cardinality data
-        Structured_metadata trace_id=$trace_id, span_id=$span_id, requested_by=$requested_by, reason=$reason, subject=$sub, total_time_ns=$total_time_ns, allowed=$allowed, token_location=$token_location, origin=$origin, user_agent=$user_agent
-        
-        # CLEANUP: Strip these fields from the main JSON log body
-        Remove_Keys  env, domain, allowed, trace_id, span_id, requested_by, reason, sub, total_time_ns, opa_domain, token_location, origin, user_agent
+          Name         loki
+          Match        *
+          Host         ${FLUENT_LOKI_HOST}
+          Port         ${FLUENT_LOKI_PORT}
+          
+          # LABELS: Domain added here for fast stream routing
+          Labels       job=opa, environment=$env, opa_domain=$opa_domain
+          
+          # METADATA: Allowed moved here, along with other high-cardinality data
+          Structured_metadata trace_id=$trace_id, span_id=$span_id, requested_by=$requested_by, reason=$reason, subject=$sub, total_time_ns=$total_time_ns, allowed=$allowed, token_location=$token_location, origin=$origin, user_agent=$user_agent
+          
+          # CLEANUP: Strip these fields from the main JSON log body
+          Remove_Keys  env, domain, allowed, trace_id, span_id, requested_by, reason, sub, total_time_ns, opa_domain, token_location, origin, user_agent
 

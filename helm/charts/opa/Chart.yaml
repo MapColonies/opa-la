@@ -9,6 +9,7 @@ dependencies:
     version: 1.0.1
     repository: oci://acrarolibotnonprod.azurecr.io/helm/infra
   - name: fluent-bit
-    repository: oci://ghcr.io/fluent/helm-charts/fluent-bit
+    repository: oci://ghcr.io/fluent/helm-charts
     version: 0.56.0
     condition: fluent-bit.enabled
+    alias: fluentbit

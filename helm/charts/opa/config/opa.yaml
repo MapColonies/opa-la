@@ -5,13 +5,9 @@ services:
       s3_signing:
         # Required for finding the envs for S3
         environment_credentials: {}
-{{- if .Values.fluent-bit.enabled}}
+{{- if .Values.fluentbit.enabled }}
   fluent-bit:
-    enabled: {{ .Values.fluentBit.enabled }}
-    config:
-      inputs:
-        - name: tail
-          parameters:
+    url: {{ .Values.fluentbit.url | default (printf "http://%s-fluentbit:9880" .Release.Name)}}
 {{- end }}
 bundles:
   authz:
@@ -28,13 +24,13 @@ status:
 
 decision_logs:
   console: {{ .Values.decisionLogs.console }}
-  {{- if .Values.fluent-bit.enabled }}
+  {{- if .Values.fluentbit.enabled }}
   service: fluent-bit
   {{- end }}
   reporting:
-    buffer_size_limit_bytes: {{ .Values.decisionLogs.maxBufferSize }}
-    min_delay_seconds: {{ .Values.decisionLogs.minDelaySeconds }}
-    max_delay_seconds: {{ .Values.decisionLogs.maxDelaySeconds }}
+    buffer_size_limit_bytes: {{ .Values.decisionLogs.maxBufferSize | int }}
+    min_delay_seconds: {{ .Values.decisionLogs.minDelaySeconds | int }}
+    max_delay_seconds: {{ .Values.decisionLogs.maxDelaySeconds | int }}
 
 {{ if .Values.tracing.enabled }}
 distributed_tracing:
@@ -52,6 +48,7 @@ storage:
 
 
 labels:
+  environment: {{ .Values.opaEnvironment | required "opaEnvironment is required" | quote }}
   {{- range $key, $value := .Values.labels }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
