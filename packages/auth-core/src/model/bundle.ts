@@ -22,4 +22,6 @@ export interface IBundle {
   keyVersion?: number;
   /** The version of the OPA cli that was used to create the bundle. */
   opaVersion: string;
+  /** The revision of the bundle. Computed deterministically from environment and content versions as ${env}-${shortHash}. */
+  revision: string;
 }

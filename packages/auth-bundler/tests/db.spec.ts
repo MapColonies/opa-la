@@ -74,7 +74,7 @@ describe('db.ts', function () {
 
       const db = new BundleDatabase(dataSource);
 
-      const res = await db.saveBundle({ assets: [], connections: [], environment: Environment.PRODUCTION, keyVersion: 3 }, 'xdxd');
+      const res = await db.saveBundle({ assets: [], connections: [], environment: Environment.PRODUCTION, keyVersion: 3 }, 'xdxd', 'lol');
 
       expect(res).toBeGreaterThan(0);
       const bundle = await dataSource.getRepository(Bundle).findOneByOrFail({ id: res });

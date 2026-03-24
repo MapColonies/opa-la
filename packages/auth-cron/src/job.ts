@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { BundleDatabase, createBundle, getVersionCommand } from '@map-colonies/auth-bundler';
+import { BundleDatabase, computeRevision, createBundle, getVersionCommand } from '@map-colonies/auth-bundler';
 import { Bundle, Environments } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import { getS3Client } from './s3';
@@ -35,15 +35,16 @@ export function getJob(
 
     logger?.debug({ msg: 'creating new bundle as ', bundleEnv: environment });
 
+    const revision = computeRevision(latestVersions);
     const bundleContent = await bundleDatabase.getBundleFromVersions(latestVersions);
 
-    await createBundle(bundleContent, workdir, 'bundle.tar.gz');
+    await createBundle(bundleContent, workdir, 'bundle.tar.gz', undefined, revision);
 
     const hash = await getS3Client(environment).uploadFile(path.join(workdir, 'bundle.tar.gz'));
 
     if (shouldSaveBundleToDb) {
       logger?.debug({ msg: 'saving bundle metadata to the database', bundleEnv: environment });
-      await bundleDatabase.saveBundle(latestVersions, hash);
+      await bundleDatabase.saveBundle(latestVersions, hash, revision);
     }
 
     logger?.info({ msg: 'created new bundle successfully', bundleEnv: environment });

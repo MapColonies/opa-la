@@ -1,7 +1,7 @@
 import { tmpdir } from 'node:os';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
+import { BundleDatabase, createBundle, computeRevision } from '@map-colonies/auth-bundler';
 import * as authBundler from '@map-colonies/auth-bundler';
 import { Bundle, Environment } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
@@ -29,6 +29,7 @@ describe('job.ts', function () {
       saveBundle: jest.fn(),
     } as unknown as BundleDatabase);
     const createBundleMock = jest.mocked(createBundle);
+    const computeRevisionMock = jest.mocked(computeRevision);
     let s3client: S3Client;
     let cronOptions: Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
     let getVersionCommandSpy: jest.SpyInstance<Promise<string>, []>;
@@ -40,6 +41,7 @@ describe('job.ts', function () {
         await writeFile(path.join(workdir, filePath), 'aviavi');
       });
       getVersionCommandSpy = jest.spyOn(authBundler, 'getVersionCommand');
+      computeRevisionMock.mockReturnValue('np-mockedrevision');
 
       s3client = new S3Client({
         credentials: { accessKeyId: cronOptions.s3.accessKeyId, secretAccessKey: cronOptions.s3.secretAccessKey },
@@ -51,6 +53,7 @@ describe('job.ts', function () {
 
     beforeEach(function () {
       getVersionCommandSpy.mockResolvedValue('0.52.0');
+      computeRevisionMock.mockReturnValue('np-mockedrevision');
     });
 
     afterEach(function () {
@@ -83,6 +86,7 @@ describe('job.ts', function () {
         assets: [{ name: 'avi', version: 1 }],
         environment: Environment.NP,
         connections: [{ name: 'avi', version: 1 }],
+        revision: 'np-12345678',
         keyVersion: 2,
         opaVersion: '0.52.0',
       });
@@ -107,6 +111,7 @@ describe('job.ts', function () {
         environment: Environment.NP,
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 1,
+        revision: 'np-12345678',
         hash: 'avi',
         opaVersion: '0.52.0',
       });
@@ -135,6 +140,7 @@ describe('job.ts', function () {
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 1,
         hash: res.ETag,
+        revision: 'np-mockedrevision',
         opaVersion: '0.52.0',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
@@ -151,6 +157,25 @@ describe('job.ts', function () {
       expect(bundleDbMock.saveBundle).toHaveBeenCalledTimes(0);
     });
 
+    it('should pass the computed revision to createBundle and saveBundle', async function () {
+      const expectedRevision = 'np-test12345678';
+      computeRevisionMock.mockReturnValueOnce(expectedRevision);
+
+      bundleRepoMock.findOne.mockResolvedValueOnce(null);
+      bundleDbMock.getLatestVersions.mockResolvedValue({
+        assets: [{ name: 'avi', version: 1 }],
+        environment: Environment.NP,
+        connections: [{ name: 'avi', version: 1 }],
+        keyVersion: 1,
+      });
+
+      await getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+
+      expect(createBundleMock).toHaveBeenCalledWith(undefined, expect.anything(), expect.anything(), undefined, expectedRevision);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bundleDbMock.saveBundle).toHaveBeenCalledWith(expect.anything(), expect.anything(), expectedRevision);
+    });
+
     it('should create a bundle if the opa version is different than the one in the db', async function () {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const res = await s3client.send(new PutObjectCommand({ Bucket: cronOptions.s3.bucket, Key: cronOptions.s3.key }));
@@ -161,6 +186,7 @@ describe('job.ts', function () {
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 1,
         hash: res.ETag,
+        revision: 'np-12345678',
         opaVersion: '0.51.0',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({

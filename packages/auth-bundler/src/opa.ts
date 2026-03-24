@@ -71,8 +71,12 @@ export async function testCoverageCommand(path: string): Promise<number> {
  * @see {@link https://www.openpolicyagent.org/docs/latest/cli/#opa-build}
  * @ignore
  */
-export async function createBundleCommand(filesPath: string, bundlePath: string): Promise<[true, undefined] | [false, string]> {
-  const res = await execa('opa', ['build', '-o', bundlePath, '-b', '.'], { cwd: filesPath, reject: false });
+export async function createBundleCommand(filesPath: string, bundlePath: string, revision?: string): Promise<[true, undefined] | [false, string]> {
+  const args = ['build', '-o', bundlePath, '-b', '.'];
+  if (revision !== undefined) {
+    args.push('--revision', revision);
+  }
+  const res = await execa('opa', args, { cwd: filesPath, reject: false });
 
   if (!res.failed) {
     return [true, undefined];

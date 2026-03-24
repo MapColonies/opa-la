@@ -53,7 +53,7 @@ export class BundleDatabase {
    * @param hash The md5 hash of the created bundle tarball
    * @returns The ID of the created bundle
    */
-  public async saveBundle(versions: BundleContentVersions, hash: string): Promise<number> {
+  public async saveBundle(versions: BundleContentVersions, hash: string, revision: string): Promise<number> {
     logger?.debug('saving bundle to db');
     const bundle: Omit<Bundle, 'id'> = {
       environment: versions.environment,
@@ -61,6 +61,7 @@ export class BundleDatabase {
       connections: versions.connections,
       keyVersion: versions.keyVersion,
       hash,
+      revision,
       opaVersion: await getVersionCommand(),
     };
 

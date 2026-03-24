@@ -437,6 +437,7 @@ export type components = {
       /** Format: int32 */
       id?: number;
       hash?: string;
+      revision?: string;
       metadata?: {
         [key: string]: unknown;
       };

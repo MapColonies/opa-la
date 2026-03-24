@@ -32,4 +32,7 @@ export class Bundle implements IBundle {
 
   @Column({ name: 'opa_version', type: 'text', nullable: false })
   public opaVersion!: string;
+
+  @Column({ name: 'revision', type: 'text', nullable: false })
+  public revision!: string;
 }
