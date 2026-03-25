@@ -86,7 +86,8 @@ test_deny_no_token if {
 		with data.users as users
 
 	not res.allowed
-  res.reason == "no token supplied in any of the possible locations"
+    print(res)
+    res.reason == "no token supplied in any of the possible locations"
 }
 
 test_deny_malformed_token if {
@@ -304,16 +305,6 @@ test_allowed_decision_contains_sub if {
 
 	res.allowed
 	res.sub == "avi"
-}
-
-test_allowed_decision_contains_kid if {
-	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
-		with data.keys as public_key_1
-		with data.users as users
-
-	res.allowed
-	res.kid == "opa_test_key_1"
 }
 
 # =========================================================

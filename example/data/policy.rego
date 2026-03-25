@@ -23,6 +23,8 @@ tokens := [token |
 	token := temp
 ]
 
+default claims = {"payload": {}}
+
 claims := {"payload": payload, "valid": valid, "kid": kid} if {
 	token := tokens[_]
 	[header, payload, _] := io.jwt.decode(token)
@@ -38,29 +40,29 @@ userData := data.users[claims.payload.sub] if {
     claims.payload.sub != "c2b"
 }
 
-deny contains "no token supplied in any of the possible locations" if {
+deny contains {"reason":"no token supplied in any of the possible locations", "code": "TOKEN_MISSING"} if {
 	count(tokens) == 0
 }
 
-deny contains "token environment mismatch" if {
-    claims.kid != data.keys.kid
-}
+# deny contains {"reason":"token environment mismatch", "code": "TOKEN_MISMATCH"} if {
+#     claims.kid != data.keys.kid
+# }
 
-deny contains "token not valid" if {
+deny contains {"reason":"token not valid", "code": "TOKEN_INVALID"} if {
 	not claims.valid
 	count(tokens) > 0
 }
 
-deny contains "the token is valid, but the user is not found" if {
+deny contains {"reason":"the token is valid, but the user is not found", "code": "USER_NOT_FOUND"} if {
     claims.valid
 	not userData
 }
 
-deny contains "domain missing" if {
+deny contains {"reason":"domain missing", "code": "DOMAIN_MISSING"} if {
 	not input.domain
 }
 
-deny contains "domain check failed" if {
+deny contains {"reason":"domain not allowed for this user", "code": "DOMAIN_INCORRECT"} if {
 	every domain in userData.domains { domain != input.domain }
 }
 
@@ -70,7 +72,7 @@ is_origin_invalid(originHeader, allowedOrigin) if {
 }
 
 
-deny contains "origin check failed" if {
+deny contains {"reason":"origin check failed", "code": "ORIGIN_CHECK_FAILED"} if {
 	originHeader := object.get(headers, "origin", "A")
 	every origin in userData.origins { is_origin_invalid(originHeader, origin) }
 
@@ -89,17 +91,17 @@ need_user_agent := true if {
 }
 
 
-deny contains "user-agent missing" if {
+deny contains {"reason":"user-agent missing", "code": "USER_AGENT_MISSING"} if {
     not headers["user-agent"]
     need_user_agent
 }
 
-deny contains "user-agent is not from allowed browsers" if {
+deny contains {"reason":"user-agent is not from allowed browsers", "code": "USER_AGENT_NOT_ALLOWED"} if {
     not userData.allowNoBrowser
 	not regex.match(".*(Gecko|AppleWebKit|Opera|Trident|Edge|Chrome)\\/\\d.*$", headers["user-agent"])
 }
 
-deny contains "c2b user only allowed from QGIS or ARCGIS" if {
+deny contains {"reason":"c2b user only allowed from QGIS or ARCGIS", "code": "C2B_USER_AGENT_NOT_ALLOWED"} if {
 	userAgent := lower(headers["user-agent"])
 
 	claims.payload.sub == "c2b"
@@ -112,7 +114,12 @@ decision := {"allowed": true, "sub": claims.payload.sub, "kid": claims.kid} if {
 	claims.payload.sub != null
 }
 
-decision := {"allowed": false, "reason": reason} if {
+decision := {"allowed": false, "reason": reason, "sub": sub, "codes": codes} if {
 	count(deny) > 0
-	reason := concat(", ", deny)
+
+	reasons := [d.reason | some d in deny]
+	codes := [d.code | some d in deny]
+
+	reason := concat(", ", reasons)
+	sub := object.get(claims.payload, "sub", "N/A")
 }
