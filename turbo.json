@@ -1,0 +1,25 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "stream",
+  "globalDependencies": ["turbo.json", "pnpm-workspace.yaml", "vitest.config.ts"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "outputLogs": "errors-only"
+    },
+    "lint": {
+      "dependsOn": []
+    },
+    "test": {
+      "dependsOn": []
+    },
+    "check-dist": {
+      "dependsOn": ["build"],
+      "outputs": []
+    },
+    "knip": {
+      "dependsOn": []
+    }
+  }
+}

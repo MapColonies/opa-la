@@ -2,7 +2,7 @@ import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
 import { instanceCachingFactory } from 'tsyringe';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
-import jsLogger from '@map-colonies/js-logger';
+import { jsLogger } from '@map-colonies/js-logger';
 import { DataSource } from 'typeorm';
 import { HealthCheck } from '@godaddy/terminus';
 import { Bundle, initConnection } from '@map-colonies/auth-core';

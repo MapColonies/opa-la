@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "@map-colonies/tsconfig/tsconfig-app",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -13,5 +13,7 @@
       "@connection/*": ["./src/connection/*"],
       "@openapi": ["src/openapi"]
     }
-  }
+  },
+  "include": ["src", "tests"],
+  "exclude": ["node_modules", "dist"]
 }

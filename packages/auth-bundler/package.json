@@ -29,7 +29,7 @@
     "url": "https://github.com/MapColonies/opa-la/issues"
   },
   "dependencies": {
-    "@map-colonies/auth-core": "^1.8.0",
+    "@map-colonies/auth-core": "workspace:^",
     "execa": "^7.1.1",
     "handlebars": "4.7.7",
     "pg": "^8.10.0",
@@ -49,6 +49,6 @@
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
-    "@map-colonies/js-logger": "^1.0.1"
+    "@map-colonies/js-logger": "catalog:"
   }
 }
