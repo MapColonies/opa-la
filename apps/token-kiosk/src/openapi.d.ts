@@ -1,4 +1,7 @@
 /* eslint-disable */
+// This file was auto-generated. Do not edit manually.
+// To update, run the error generation script again.
+
 import type { TypedRequestHandlers as ImportedTypedRequestHandlers } from '@map-colonies/openapi-helpers/typedRequestHandler';
 export type paths = {
   '/token': {

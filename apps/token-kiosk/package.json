@@ -18,7 +18,7 @@
     "start:dev": "npm run build && cd dist && cross-env CONFIG_OFFLINE_MODE=true  node --enable-source-maps --import ./instrumentation.mjs ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist && copyfiles -u 1 ./src/db/migrations/* ./dist/ && copyfiles -u 1 ./src/db/migrations/meta/* ./dist/",
     "clean": "rimraf dist",
-    "generate:openapi-types": "openapi-helpers ./openapi3.yaml ./src/openapi.d.ts --format --add-typed-request-handler",
+    "generate:openapi-types": "openapi-helpers generate types ./openapi3.yaml ./src/openapi.d.ts --format --add-typed-request-handler",
     "generate:auth-manager-types": "openapi-helpers ../auth-manager/openapi3.yaml ./src/auth-manager.d.ts --format",
     "migration:create": "drizzle-kit generate --config drizzle.config.mts",
     "migration:run": "ts-node ./src/db/runMigrations.ts",
@@ -66,7 +66,7 @@
     "@commitlint/cli": "^19.8.0",
     "@map-colonies/commitlint-config": "^1.1.1",
     "@map-colonies/eslint-config": "^6.0.0",
-    "@map-colonies/openapi-helpers": "^2.1.0",
+    "@map-colonies/openapi-helpers": "catalog:",
     "@map-colonies/prettier-config": "0.0.1",
     "@map-colonies/tsconfig": "^1.0.1",
     "@types/compression": "^1.7.5",
@@ -76,8 +76,8 @@
     "@types/nunjucks": "^3.2.6",
     "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.8",
-    "@vitest/coverage-v8": "^3.1.4",
-    "@vitest/ui": "^3.1.4",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
     "@types/body-parser": "1.19.6",
     "@types/pg": "^8.20.0",
     "copyfiles": "^2.4.1",
@@ -94,6 +94,6 @@
     "supertest": "^7.1.0",
     "tsc-alias": "^1.8.11",
     "typescript": "catalog:",
-    "vitest": "^3.1.4"
+    "vitest": "catalog:"
   }
 }

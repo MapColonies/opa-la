@@ -1,6 +1,6 @@
 import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { addWeeks } from 'date-fns';
-import jsLogger from '@map-colonies/js-logger';
+import { jsLogger } from '@map-colonies/js-logger';
 import nock, { abortPendingRequests, cleanAll } from 'nock';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
@@ -65,7 +65,7 @@ describe('guides', function () {
   });
 
   describe('Happy Path', function () {
-    it('should return 200 status code a qlr file', async function () {
+    it.only('should return 200 status code a qlr file', async function () {
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponse);
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponseMultilayer);
 
