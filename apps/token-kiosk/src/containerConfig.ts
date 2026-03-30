@@ -2,7 +2,7 @@ import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
 import { Registry } from 'prom-client';
 import { DependencyContainer } from 'tsyringe/dist/typings/types';
-import jsLogger from '@map-colonies/js-logger';
+import { jsLogger } from '@map-colonies/js-logger';
 import { Pool } from 'pg';
 import { instanceCachingFactory, instancePerContainerCachingFactory } from 'tsyringe';
 import { InjectionObject, registerDependencies } from '@common/dependencyRegistration';

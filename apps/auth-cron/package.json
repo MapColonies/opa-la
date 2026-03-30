@@ -22,8 +22,8 @@
     "test": "tsc --noEmit && cross-env CONFIG_OFFLINE_MODE=true jest --config=./tests/configurations/jest.config.js",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run assets:copy",
-    "build:docker": "cross-env DOCKER_BUILDKIT=1 docker build -f Dockerfile -t auth-cron ../.. ",
-    "build:docker-no-cache": "cross-env DOCKER_BUILDKIT=1 docker build --no-cache -f Dockerfile -t auth-cron ../.. ",
+    "build:docker": "docker buildx build --build-arg APP_NAME=$npm_package_name -f ../../docker/backend.Dockerfile -t ${DOCKER_REGISTRY:-}${npm_package_name}:${DOCKER_TAG:-latest} ${DOCKER_FLAGS:-} ../..",
+    "build:docker-no-cache": "cross-env DOCKER_FLAGS=--no-cache pnpm run build:docker",
     "start": "npm run build && cd dist && node --enable-source-maps --import ./instrumentation.mjs ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles ./dataSource.mjs dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
     "clean": "rimraf dist"

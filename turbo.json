@@ -8,6 +8,9 @@
       "outputs": ["dist/**"],
       "outputLogs": "errors-only"
     },
+    "build:docker": {
+      "cache": false
+    },
     "lint": {
       "dependsOn": []
     },

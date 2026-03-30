@@ -20,12 +20,12 @@ export class AuthController {
       /* eslint-disable @typescript-eslint/no-unsafe-assignment */
       const extraUserInfo = await req.oidc.fetchUserInfo();
       const userInfo = { ...req.oidc.user, ...extraUserInfo };
-      this.logger.info('User info fetched successfully', { userInfo });
+      this.logger.info({ msg: 'User info fetched successfully', userInfo });
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       res.status(httpStatus.OK).json(userInfo);
       /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     } catch (error) {
-      this.logger.error('Failed to fetch user info', { error });
+      this.logger.error({ msg: 'Failed to fetch user info', error });
       if (typeof error === 'object' && error !== null && 'error' in error && error.error === 'invalid_token') {
         return res.status(httpStatus.UNAUTHORIZED).json({
           message: 'Invalid or expired token',

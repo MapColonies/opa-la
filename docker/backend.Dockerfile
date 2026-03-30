@@ -12,14 +12,16 @@ RUN corepack enable
 
 FROM base AS pruner
 WORKDIR /app
+ARG APP_NAME
 
 RUN pnpm add -g turbo
 COPY . .
-RUN turbo prune auth-manager --docker
+RUN turbo prune ${APP_NAME} --docker
 
 
 FROM base AS builder
-WORKDIR /app/out/full
+WORKDIR /app
+ARG APP_NAME
 
 COPY --from=pruner /app/out/json/ .
 
@@ -27,13 +29,15 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY --from=pruner /app/out/full/ .
 
-RUN pnpm turbo build
+RUN pnpm turbo build --filter ${APP_NAME}...
 
-RUN pnpm --filter auth-manager deploy --prod --legacy /prod-app
+RUN pnpm --filter ${APP_NAME} deploy --prod --legacy /prod-app
 
 
 FROM node:${NODE_VERSION}-alpine AS runner
 RUN apk add dumb-init
+
+ENV NODE_ENV=production
 
 COPY --from=builder /prod-app /app
 

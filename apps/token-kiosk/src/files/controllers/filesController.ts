@@ -23,7 +23,7 @@ export class FileController {
       const userId = req.oidc.user?.[this.authManager.getIdKey()] as string | undefined;
 
       if (req.oidc.user === undefined || userId === undefined) {
-        this.logger.warn('User ID not found in request', { user: req.oidc.user });
+        this.logger.warn({ user: req.oidc.user, msg: 'User ID not found in request' });
         return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized' });
       }
 

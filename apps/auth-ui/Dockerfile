@@ -1,32 +1,50 @@
-FROM node:20.19.1-slim as build
+ARG NODE_VERSION=24.13.1
 
-ARG package=auth-ui
+# Base image for all stages
+FROM node:${NODE_VERSION}-slim AS base
+WORKDIR /app
 
-WORKDIR /tmp/buildApp
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable
 
-RUN --mount=type=bind,target=/docker-context \
-    cd /docker-context/; \
-    find . -name "package*.json" -mindepth 0 -maxdepth 3 -exec cp --parents "{}" /tmp/buildApp/ \;
 
-RUN npm install
+FROM base AS pruner
+WORKDIR /app
+ARG APP_NAME
+
+RUN pnpm add -g turbo
 COPY . .
-RUN npx lerna run --include-dependencies --scope ${package} build
-RUN node scripts/docker-build.mjs -n ${package} -d /tmp/buildRes
+RUN turbo prune ${APP_NAME} --docker
 
-FROM node:20.19.1-alpine3.21 as production
 
-ARG package=auth-ui
+FROM base AS builder
+WORKDIR /app
+ARG APP_NAME
+
+COPY --from=pruner /app/out/json/ .
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+COPY --from=pruner /app/out/full/ .
+
+RUN pnpm turbo build --filter ${APP_NAME}...
+
+RUN pnpm --filter ${APP_NAME} deploy --prod --legacy /prod-app
+
+FROM node:${NODE_VERSION}-alpine AS runner
+
+ARG APP_NAME
 
 ENV NODE_ENV=production
 ENV SERVER_PORT=3000
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY --chown=node:node --from=build /tmp/buildRes .
+COPY --chown=node:node --from=builder /prod-app/dist .
 
 RUN npm i -g serve
-
-WORKDIR /usr/src/app/packages/${package}
 
 USER node
 EXPOSE 3000

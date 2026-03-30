@@ -19,12 +19,13 @@ export class TokenController {
     const userId = req.oidc.user?.[this.authManager.getIdKey()] as string | undefined;
 
     if (req.oidc.user === undefined || userId === undefined) {
-      this.logger.warn('User ID not found in request', { user: req.oidc.user });
+      this.logger.warn({ msg: 'User ID not found in request', user: req.oidc.user });
       return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Unauthorized' });
     }
 
-    this.logger.debug('Received request to get token', {
+    this.logger.debug({
       user: userId,
+      msg: 'Received request to get token',
     });
 
     try {
@@ -32,14 +33,14 @@ export class TokenController {
 
       // We know the user is authenticated at this point because of the OIDC middleware, so we can safely access req.oidc.idToken
       return res.status(httpStatus.OK).json(token);
-    } catch (error) {
-      if (error instanceof UserIsBannedError) {
+    } catch (err) {
+      if (err instanceof UserIsBannedError) {
         return res.status(httpStatus.FORBIDDEN).json({
           message: 'user is banned',
         });
       }
-      this.logger.error('Error while getting token', { error });
-      return next(error);
+      this.logger.error({ msg: 'Error while getting token', error: err });
+      return next(err);
     }
   };
 }
