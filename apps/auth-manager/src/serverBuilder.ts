@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import bodyParser from 'body-parser';
-import compression from 'compression';
+import compression, { CompressionOptions } from 'compression';
 import cors from 'cors';
 import { OpenapiViewerRouter, OpenapiRouterConfig } from '@map-colonies/openapi-express-viewer';
 import { getErrorHandlerMiddleware } from '@map-colonies/error-express-handler';
@@ -52,7 +52,7 @@ export class ServerBuilder {
       filePathOrSpec: this.config.get('openapiConfig.filePath'),
     });
     openapiRouter.setup();
-    this.serverInstance.use(this.config.get<string>('openapiConfig.basePath'), openapiRouter.getRouter());
+    this.serverInstance.use(this.config.get('openapiConfig.basePath'), openapiRouter.getRouter());
   }
 
   private buildRoutes(): void {
@@ -81,7 +81,7 @@ export class ServerBuilder {
     this.serverInstance.use(httpLogger({ logger: this.logger, ignorePaths: ['/metrics'] }));
 
     if (this.config.get('server.response.compression.enabled')) {
-      this.serverInstance.use(compression(this.config.get('server.response.compression.options')));
+      this.serverInstance.use(compression(this.config.get('server.response.compression.options') as CompressionOptions));
     }
 
     this.serverInstance.use(bodyParser.json(this.config.get('server.request.payload')));

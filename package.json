@@ -14,7 +14,8 @@
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "version": "node scripts/version-bump.mjs",
-    "release": "npx lerna version --conventional-commits"
+    "release": "npx lerna version --conventional-commits",
+    "build": "turbo run build"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
