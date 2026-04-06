@@ -1,5 +1,6 @@
 /// <reference types="jest-extended" />
-import jsLogger from '@map-colonies/js-logger';
+import { afterEach, describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import { faker } from '@faker-js/faker';
 import httpStatusCodes from 'http-status-codes';
@@ -20,7 +21,7 @@ describe('bundle', function () {
   const bundles = [getFakeBundle(), { ...getFakeBundle(), environment: Environment.PRODUCTION }, getFakeBundle()];
 
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -114,13 +115,13 @@ describe('bundle', function () {
 
   describe('Sad Path', function () {
     afterEach(function () {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     describe('GET /bundle', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<Repository<Bundle>>(SERVICES.BUNDLE_REPOSITORY);
-        const spy = jest.spyOn(repo, 'findBy');
+        const spy = vi.spyOn(repo, 'findBy');
         spy.mockRejectedValue(new Error());
         const res = await requestSender.getBundles();
 
@@ -133,7 +134,7 @@ describe('bundle', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<Repository<Bundle>>(SERVICES.BUNDLE_REPOSITORY);
 
-        jest.spyOn(repo, 'findOneBy').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'findOneBy').mockRejectedValue(new Error());
 
         const res = await requestSender.getBundle({ pathParams: { id: 1 } });
 

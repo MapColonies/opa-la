@@ -65,7 +65,7 @@ describe('guides', function () {
   });
 
   describe('Happy Path', function () {
-    it.only('should return 200 status code a qlr file', async function () {
+    it('should return 200 status code a qlr file', async function () {
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponse);
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, goodResponseMultilayer);
 

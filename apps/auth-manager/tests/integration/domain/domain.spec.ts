@@ -1,4 +1,5 @@
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, beforeAll, afterAll, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
@@ -19,7 +20,7 @@ describe('domain', function () {
   let depContainer: DependencyContainer;
 
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
 
     const [app, container] = await getApp({
       override: [
@@ -102,7 +103,7 @@ describe('domain', function () {
     });
   });
   describe('Sad Path', function () {
-    const MockProvider = { insert: jest.fn(), find: jest.fn() };
+    const MockProvider = { insert: vi.fn(), find: vi.fn() };
     let mockedSender: RequestSender<paths, operations>;
     beforeEach(async function () {
       const [app, container] = await getApp({
@@ -115,7 +116,7 @@ describe('domain', function () {
       });
       mockedSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
       await container.resolve(DataSource).destroy();
-      jest.resetAllMocks();
+      vi.resetAllMocks();
     });
     describe('GET /domain', function () {
       it('should return 500 status code if db throws an error', async function () {

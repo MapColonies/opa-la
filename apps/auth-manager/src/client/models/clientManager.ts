@@ -12,6 +12,10 @@ import { type ClientRepository } from '../DAL/clientRepository';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
 import { ClientSearchParams } from './client';
 
+export function isQueryFailedError(err: unknown): err is QueryFailedError {
+  return typeof err === 'object' && err !== null && 'name' in err && (err as Error).name === 'QueryFailedError';
+}
+
 @injectable()
 export class ClientManager {
   public constructor(
@@ -78,11 +82,7 @@ export class ClientManager {
 
       return client;
     } catch (error) {
-      if (
-        error instanceof QueryFailedError &&
-        error.driverError instanceof DatabaseError &&
-        error.driverError.code === PgErrorCodes.UNIQUE_VIOLATION
-      ) {
+      if (isQueryFailedError(error) && error.driverError instanceof DatabaseError && error.driverError.code === PgErrorCodes.UNIQUE_VIOLATION) {
         throw new ClientAlreadyExistsError('client already exists');
       }
       this.logger.debug('create client throw an unrecognized error');

@@ -1,4 +1,5 @@
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { Bundle } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
 import { BundleManager } from '../../../../src/bundle/models/bundleManager';
@@ -8,12 +9,12 @@ import { getFakeBundle } from '../../../utils/bundle';
 describe('BundleManager', () => {
   let bundleManager: BundleManager;
   const mockedRepository = {
-    findBy: jest.fn(),
-    findOneBy: jest.fn(),
+    findBy: vi.fn(),
+    findOneBy: vi.fn(),
   };
   beforeEach(function () {
     bundleManager = new BundleManager(jsLogger({ enabled: false }), mockedRepository as unknown as Repository<Bundle>);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   describe('#getBundles', () => {
     it('should return the array of bundles', async function () {

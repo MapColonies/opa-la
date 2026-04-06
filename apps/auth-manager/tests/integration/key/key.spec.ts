@@ -1,5 +1,6 @@
 /// <reference types="jest-extended" />
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, vi, beforeAll, afterEach } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
@@ -21,7 +22,7 @@ describe('key', function () {
   let depContainer: DependencyContainer;
 
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
   });
 
   beforeEach(async function () {
@@ -238,13 +239,13 @@ describe('key', function () {
   });
   describe('Sad Path', function () {
     afterEach(function () {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     describe('GET /key', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
-        jest.spyOn(repo, 'getLatestKeys').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'getLatestKeys').mockRejectedValue(new Error());
 
         const res = await requestSender.getLastestKeys();
 
@@ -255,7 +256,7 @@ describe('key', function () {
     describe('POST /key', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
-        jest.spyOn(repo, 'getMaxVersionWithLock').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'getMaxVersionWithLock').mockRejectedValue(new Error());
         const [privateKey, publicKey] = getMockKeys();
 
         const res = await requestSender.upsertKey({ requestBody: { environment: Environment.NP, version: 1, privateKey, publicKey } });
@@ -267,7 +268,7 @@ describe('key', function () {
       describe('GET /key/:environment', function () {
         it('should return 500 status code if db throws an error', async function () {
           const repo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
-          jest.spyOn(repo, 'find').mockRejectedValue(new Error());
+          vi.spyOn(repo, 'find').mockRejectedValue(new Error());
 
           const res = await requestSender.getKeys({ pathParams: { environment: Environment.NP } });
 
@@ -279,7 +280,7 @@ describe('key', function () {
       describe('GET /key/:environment/:version', function () {
         it('should return 500 status code if db throws an error', async function () {
           const repo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
-          jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+          vi.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
           const res = await requestSender.getSpecificKey({ pathParams: { environment: Environment.NP, version: 1 } });
 
@@ -291,7 +292,7 @@ describe('key', function () {
       describe('GET /key/:environment/latest', () => {
         it('should return 500 status code if db throws an error', async function () {
           const repo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
-          jest.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
+          vi.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
 
           const res = await requestSender.getLatestKey({ pathParams: { environment: Environment.NP } });
 

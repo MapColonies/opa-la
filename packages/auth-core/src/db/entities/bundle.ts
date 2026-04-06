@@ -6,7 +6,7 @@ import { Environment, type Environments, IBundle } from '../../model';
  */
 @Entity()
 export class Bundle implements IBundle {
-  @PrimaryColumn({ generated: 'identity', generatedIdentity: 'ALWAYS', insert: false })
+  @PrimaryColumn({ generated: 'identity', generatedIdentity: 'ALWAYS', insert: false, type: 'integer' })
   public id!: number;
 
   @Column({ type: 'text', nullable: true })

@@ -1,4 +1,5 @@
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { DatabaseError } from 'pg';
 import { QueryFailedError } from 'typeorm';
 import { ClientRepository } from '../../../../src/client/DAL/clientRepository';
@@ -10,14 +11,14 @@ import { getFakeClient } from '../../../utils/client';
 describe('ClientManager', () => {
   let clientManager: ClientManager;
   const mockedRepository = {
-    findAndCount: jest.fn(),
-    insert: jest.fn(),
-    findOne: jest.fn(),
-    updateAndReturn: jest.fn(),
+    findAndCount: vi.fn(),
+    insert: vi.fn(),
+    findOne: vi.fn(),
+    updateAndReturn: vi.fn(),
   };
   beforeEach(function () {
     clientManager = new ClientManager(jsLogger({ enabled: false }), mockedRepository as unknown as ClientRepository);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   describe('#getClients', () => {
     it('should return the array of clients', async function () {

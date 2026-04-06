@@ -1,5 +1,6 @@
 /// <reference types="jest-extended" />
-import jsLogger from '@map-colonies/js-logger';
+import { describe, expect, it, vi, beforeAll, afterAll, afterEach } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
@@ -20,7 +21,7 @@ describe('client', function () {
   let depContainer: DependencyContainer;
 
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -257,13 +258,13 @@ describe('client', function () {
 
   describe('Sad Path', function () {
     afterEach(function () {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     describe('GET /asset', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-        jest.spyOn(repo, 'findBy').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'findBy').mockRejectedValue(new Error());
 
         const res = await requestSender.getAssets();
 
@@ -274,7 +275,7 @@ describe('client', function () {
     describe('POST /asset', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-        jest.spyOn(repo, 'getMaxVersionWithLock').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'getMaxVersionWithLock').mockRejectedValue(new Error());
         const asset = getFakeAsset();
 
         const res = await requestSender.upsertAsset({ requestBody: asset });
@@ -286,7 +287,7 @@ describe('client', function () {
       describe('GET /asset/:name', function () {
         it('should return 500 status code if db throws an error', async function () {
           const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-          jest.spyOn(repo, 'findBy').mockRejectedValue(new Error());
+          vi.spyOn(repo, 'findBy').mockRejectedValue(new Error());
 
           const res = await requestSender.getAsset({ pathParams: { assetName: 'avi' } });
 
@@ -298,7 +299,7 @@ describe('client', function () {
       describe('GET /asset/:name/:version', function () {
         it('should return 500 status code if db throws an error', async function () {
           const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-          jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+          vi.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
           const res = await requestSender.getVersionedAsset({ pathParams: { assetName: 'avi', version: 1 } });
 
@@ -310,7 +311,7 @@ describe('client', function () {
       describe('GET /asset/:name/latest', function () {
         it('should return 500 status code if db throws an error', async function () {
           const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-          jest.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
+          vi.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
 
           const res = await requestSender.getLatestAsset({ pathParams: { assetName: 'avi' } });
 
