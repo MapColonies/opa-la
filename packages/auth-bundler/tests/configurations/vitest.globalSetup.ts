@@ -1,11 +1,11 @@
-import { mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import path from 'node:path';
+import { mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { initConnection } from '@map-colonies/auth-core';
 import { getConfig, initConfig } from '../helpers/config';
 
-export default async (): Promise<void> => {
+export async function setup(): Promise<void> {
   const folder = path.join(tmpdir(), 'authbundlertests');
   if (!existsSync(folder)) {
     await mkdir(folder);
@@ -25,4 +25,16 @@ export default async (): Promise<void> => {
   await connection.query(`CREATE SCHEMA IF NOT EXISTS ${dataSourceOptions.schema}`);
   await connection.runMigrations();
   await connection.destroy();
-};
+}
+
+export async function teardown(): Promise<void> {
+  await initConfig();
+  const configInstance = getConfig();
+  const dataSourceOptions = configInstance.getAll();
+
+  await rm(path.join(tmpdir(), 'authbundlertests'), { force: true, recursive: true });
+
+  const connection = await initConnection(dataSourceOptions);
+  await connection.query(`DROP SCHEMA IF EXISTS ${dataSourceOptions.schema} CASCADE`);
+  await connection.destroy();
+}

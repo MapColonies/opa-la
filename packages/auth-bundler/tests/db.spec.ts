@@ -2,7 +2,8 @@
 
 import { Asset, Bundle, Connection, Environment, Key, createConnectionOptions } from '@map-colonies/auth-core';
 import { DataSource } from 'typeorm';
-import { ConnectionNotInitializedError } from '@src';
+import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
+import { ConnectionNotInitializedError } from '@src/index';
 import { BundleDatabase } from '@src/db';
 import * as execa from '@src/wrappers/execa';
 import { getMockKeys } from './utils/key';
@@ -10,12 +11,11 @@ import { getFakeAsset } from './utils/asset';
 import { getFakeConnection } from './utils/connection';
 import { getConfig, initConfig } from './helpers/config';
 
-jest.mock('../src/wrappers/execa', () => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+vi.mock('../src/wrappers/execa', async () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
-    ...jest.requireActual('../src/wrappers/execa'),
+    ...(await vi.importActual('../src/wrappers/execa')),
   };
 });
 
@@ -70,7 +70,7 @@ describe('db.ts', function () {
   describe('#saveBundle', function () {
     it('should save the bundle to the db', async function () {
       const VERSION_OUTPUT = 'Version: 0.52.0\nBuild Commit: 8d2c137662560cac83d9cf24cbdaecc934910333\nBuild Timestamp: 2023-04-27T17:57:23Z';
-      jest.spyOn(execa, 'execa').mockResolvedValue({ stdout: VERSION_OUTPUT } as ExecaChildProcess);
+      vi.spyOn(execa, 'execa').mockResolvedValue({ stdout: VERSION_OUTPUT } as ExecaChildProcess);
 
       const db = new BundleDatabase(dataSource);
 

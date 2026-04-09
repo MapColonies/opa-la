@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { extractNameAndVersion } from '@src/util';
 
 describe('util.ts', function () {

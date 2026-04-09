@@ -860,20 +860,23 @@ importers:
         version: 0.3.28(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3))
     devDependencies:
       '@map-colonies/config':
-        specifier: ^1.3.0
-        version: 1.3.2(@map-colonies/schemas@1.18.0)(prom-client@15.1.3)
+        specifier: ^4.0.1
+        version: 4.0.1(@map-colonies/schemas@1.18.0)(prom-client@15.1.3)
       '@map-colonies/schemas':
         specifier: ^1.1.0
         version: 1.18.0
       '@types/config':
         specifier: ^3.3.0
         version: 3.3.5
-      '@types/jest':
-        specifier: ^29.4.0
-        version: 29.5.14
       '@types/node':
         specifier: 'catalog:'
         version: 24.12.0
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.0.18(vitest@4.0.18)
+      '@vitest/ui':
+        specifier: 'catalog:'
+        version: 4.0.18(vitest@4.0.18)
       config:
         specifier: ^3.3.9
         version: 3.3.12
@@ -892,6 +895,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@24.12.0)(@vitest/ui@4.0.18)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/auth-core:
     dependencies:
@@ -2347,15 +2353,6 @@ packages:
   '@map-colonies/commitlint-config@1.1.1':
     resolution: { integrity: sha512-CzGXbec9SwpGGngZddUJ7rfZiJeUNUxLjWir1GRACjOYO19EliXF9MwVn4rOtscKQCmuaTEMOg4+21LyFdqRyg== }
     engines: { node: '>=20' }
-
-  '@map-colonies/config@1.3.2':
-    resolution: { integrity: sha512-9+uDdUhXu78CVam5Jz1bwQbNmX7ehOJfrOJ3cA9mqnRgyrR6uqpeJLB6BbLwuO+wjiv0J5PmFOWoAKj/rpIExg== }
-    peerDependencies:
-      '@map-colonies/schemas': ^1.0.0
-      prom-client: ^15.0.0
-    peerDependenciesMeta:
-      prom-client:
-        optional: true
 
   '@map-colonies/config@3.0.2':
     resolution: { integrity: sha512-0cLGqMGwbdVFflVR0TTcelwotwJc1hmil8bVhn5CcaYjMyOR61E8gnnIEExpPeQIfXJ4ri6hlbO8sHM4YMo3aA== }
@@ -4441,9 +4438,6 @@ packages:
 
   '@types/istanbul-reports@3.0.4':
     resolution: { integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ== }
-
-  '@types/jest@29.5.14':
-    resolution: { integrity: sha512-ZN+4sdnLUbo8EVvVc2ao0GFW6oVrQRPn4K2lglySj7APvSrgzxHiNNK99us4WDMi57xxA2yggblIAMNhXOotLQ== }
 
   '@types/json-schema@7.0.15':
     resolution: { integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA== }
@@ -12419,27 +12413,6 @@ snapshots:
     dependencies:
       '@commitlint/config-conventional': 19.8.1
 
-  '@map-colonies/config@1.3.2(@map-colonies/schemas@1.18.0)(prom-client@15.1.3)':
-    dependencies:
-      '@apideck/better-ajv-errors': 0.3.6(ajv@8.18.0)
-      '@apidevtools/json-schema-ref-parser': 11.9.3
-      '@map-colonies/read-pkg': 0.0.1
-      '@map-colonies/schemas': 1.18.0
-      '@types/lodash': 4.17.24
-      ajv: 8.18.0
-      ajv-formats: 3.0.1(ajv@8.18.0)
-      config: 3.3.12
-      debug: 4.4.3(supports-color@10.2.2)
-      deepmerge: 4.3.1
-      http-status-codes: 2.3.0
-      lodash: 4.17.23
-      semver: 7.7.4
-      undici: 6.24.1
-    optionalDependencies:
-      prom-client: 15.1.3
-    transitivePeerDependencies:
-      - supports-color
-
   '@map-colonies/config@3.0.2(@map-colonies/schemas@1.18.0)(prom-client@15.1.3)':
     dependencies:
       '@apideck/better-ajv-errors': 0.3.6(ajv@8.18.0)
@@ -14940,11 +14913,6 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
 
-  '@types/jest@29.5.14':
-    dependencies:
-      expect: 29.7.0
-      pretty-format: 29.7.0
-
   '@types/json-schema@7.0.15': {}
 
   '@types/jsonfile@6.1.4':
@@ -15410,6 +15378,14 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.3.0)
+
+  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3))':
+    dependencies:
+      '@vitest/spy': 4.0.18
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3)
 
   '@vitest/pretty-format@4.0.18':
     dependencies:
@@ -22238,7 +22214,7 @@ snapshots:
   vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@24.12.0)(@vitest/ui@4.0.18)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.3.0))
+      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
