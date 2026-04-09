@@ -1,18 +1,17 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import { mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import path from 'node:path';
+import { mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { S3Client, CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3';
-import { initConfig, getConfig } from '../../src/config';
+import path from 'node:path';
+import { CreateBucketCommand, HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
+import { getConfig, initConfig } from '@src/config';
 
-export default async (): Promise<void> => {
+export async function setup(): Promise<void> {
   const folder = path.join(tmpdir(), 'authcrontests');
   if (!existsSync(folder)) {
     await mkdir(folder);
   }
 
-  await initConfig();
+  await initConfig(true);
   const configInstance = getConfig();
   const cronOptions = configInstance.get('cron.np');
 
@@ -24,9 +23,15 @@ export default async (): Promise<void> => {
   });
 
   try {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     await s3client.send(new HeadBucketCommand({ Bucket: cronOptions?.s3.bucket as string }));
   } catch (err) {
     console.error(err);
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     await s3client.send(new CreateBucketCommand({ Bucket: cronOptions?.s3.bucket as string }));
   }
-};
+}
+
+export async function teardown(): Promise<void> {
+  await rm(path.join(tmpdir(), 'authcrontests'), { force: true, recursive: true });
+}

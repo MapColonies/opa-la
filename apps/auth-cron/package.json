@@ -19,7 +19,9 @@
     "migration:run": "npm run typeorm migration:run -- ",
     "migration:revert": "npm run typeorm migration:revert -- ",
     "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
-    "test": "tsc --noEmit && cross-env CONFIG_OFFLINE_MODE=true jest --config=./tests/configurations/jest.config.js",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:ui": "vitest --ui",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run assets:copy",
     "build:docker": "docker buildx build --build-arg APP_NAME=$npm_package_name -f ../../docker/backend.Dockerfile -t ${DOCKER_REGISTRY:-}${npm_package_name}:${DOCKER_TAG:-latest} ${DOCKER_FLAGS:-} ../..",
@@ -55,14 +57,16 @@
   "devDependencies": {
     "@adobe/jsonschema2md": "^7.1.5",
     "@types/config": "^3.3.0",
-    "@types/jest": "^29.4.0",
-    "@types/node": "^18.15.5",
+    "@types/node": "catalog:",
     "@types/express": "^4.17.17",
     "copyfiles": "^2.4.1",
-    "jest-extended": "^3.2.4",
+    "jest-extended": "^7.0.0",
     "rimraf": "^4.4.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.9.3",
-    "@types/lodash": "^4.17.24"
+    "typescript": "catalog:",
+    "@types/lodash": "^4.17.24",
+    "vitest": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:"
   }
 }

@@ -1,9 +1,10 @@
 import { Environment } from '@map-colonies/auth-core';
-import jsLogger from '@map-colonies/js-logger';
+import { jsLogger } from '@map-colonies/js-logger';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { initConfig } from '@src/config';
 import { validateS3 } from '@src/validators';
 
-jest.mock('../src/telemetry/logger', () => {
+vi.mock('../src/telemetry/logger', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
@@ -13,7 +14,7 @@ jest.mock('../src/telemetry/logger', () => {
 
 describe('validators.ts', function () {
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
   });
   describe('#validateS3', function () {
     it('should not throw if the bucket exists', async function () {

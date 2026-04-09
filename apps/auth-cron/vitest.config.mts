@@ -1,0 +1,55 @@
+import { defineConfig, ViteUserConfig } from 'vitest/config';
+import tsconfig from './tsconfig.json';
+import path from 'path';
+
+// Create an alias object from the paths in tsconfig.json
+const pathAlias = Object.fromEntries(
+  // For Each Path in tsconfig.json
+  Object.entries(tsconfig.compilerOptions.paths).map(([key, [value]]) => [
+    // Remove the "/*" from the key and resolve the path
+    key.replace('/*', ''),
+    // Remove the "/*" from the value Resolve the relative path
+    path.resolve(__dirname, value.replace('/*', '')),
+  ])
+);
+
+const reporters: Exclude<ViteUserConfig['test'], undefined>['reporters'] = ['default', 'html'];
+
+if (process.env.GITHUB_ACTIONS) {
+  reporters.push('github-actions');
+}
+
+export default defineConfig({
+  test: {
+    projects: [
+      {
+        test: {
+          name: 'tests',
+          globalSetup: './tests/configurations/vitest.globalSetup.ts',
+          setupFiles: ['./tests/configurations/vitest.setup.ts'],
+          include: ['tests/**/*.spec.ts'],
+          environment: 'node',
+        },
+        resolve: {
+          alias: pathAlias,
+        },
+      },
+    ],
+    reporters,
+    coverage: {
+      enabled: true,
+      reporter: ['text', 'html', 'json', 'json-summary'],
+      include: ['src/**/*.ts'],
+      exclude: ['**/vendor/**', 'node_modules/**', 'src/common', 'src/db', 'src/auth', 'src/index.ts'],
+      reportOnFailure: true,
+      thresholds: {
+        global: {
+          statements: 80,
+          branches: 80,
+          functions: 80,
+          lines: 80,
+        },
+      },
+    },
+  },
+});
