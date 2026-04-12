@@ -1,4 +1,4 @@
-import { Environments } from './common';
+import type { Environments } from './common';
 
 /**
  * JSON representation of a public key

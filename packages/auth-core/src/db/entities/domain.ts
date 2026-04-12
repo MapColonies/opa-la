@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn } from 'typeorm';
-import { IDomain } from '../../model';
+import type { IDomain } from '../../model';
 
 /**
  * The typeorm implementation of the IDomain interface.

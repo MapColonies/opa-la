@@ -1,4 +1,4 @@
-import { Environments } from './common';
+import type { Environments } from './common';
 
 /**
  * A connection is the object describing the details of

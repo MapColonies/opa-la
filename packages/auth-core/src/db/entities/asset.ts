@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import { AssetType, type AssetTypes, Environment, type Environments, IAsset } from '../../model';
+import type { AssetTypes, Environments, IAsset } from '../../model';
+import { Environment, AssetType } from '../../model';
 
 /**
  * The typeorm implementation of the IAsset interface.
