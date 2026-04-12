@@ -86,6 +86,7 @@
     "@vitest/ui": "catalog:",
     "copyfiles": "^2.4.1",
     "jest-extended": "^7.0.0",
+    "jest-openapi": "^0.14.2",
     "rimraf": "^4.4.0",
     "supertest": "^7.1.0",
     "ts-node": "^10.9.1",

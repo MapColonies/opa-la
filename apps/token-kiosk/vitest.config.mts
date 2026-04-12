@@ -26,7 +26,7 @@ export default defineConfig({
         test: {
           name: 'tests',
           globalSetup: './tests/configurations/globalSetup.ts',
-          setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vite.setup.ts'],
+          setupFiles: ['./tests/configurations/vitest.setup.ts', './tests/configurations/initJestOpenapi.setup.ts'],
           include: ['tests/**/*.spec.ts'],
           environment: 'node',
         },

@@ -33,6 +33,7 @@ export default defineConfig({
         resolve: {
           alias: pathAlias,
         },
+        root: __dirname,
       },
     ],
     reporters,

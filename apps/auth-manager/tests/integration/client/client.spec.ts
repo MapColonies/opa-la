@@ -460,7 +460,6 @@ describe('client', function () {
         expect(res1).toHaveProperty('status', httpStatusCodes.CREATED);
 
         const res2 = await requestSender.createClient({ requestBody: client });
-        console.log(res2.body);
 
         expect(res2).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res2).toSatisfyApiSpec();

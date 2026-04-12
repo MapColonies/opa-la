@@ -2,8 +2,8 @@
   "host": "localhost",
   "schema": "auth_manager",
   "username": "postgres",
-  "password": "1234",
-  "database": "postgres",
+  "password": "postgres",
+  "database": "auth-bundler",
   "ssl": {
     "enabled": false
   }
