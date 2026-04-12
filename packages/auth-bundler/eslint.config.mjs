@@ -1,4 +1,5 @@
-import { config } from '@map-colonies/eslint-config/helpers';
-import baseConfig from '../../eslint.config.mjs';
+import tsBaseConfig from '@map-colonies/eslint-config/ts-base';
+import vitestConfig from '@map-colonies/eslint-config/vitest';
+import { defineConfig } from 'eslint/config';
 
-export default config(baseConfig, {});
+export default defineConfig(tsBaseConfig, vitestConfig, { ignores: ['drizzle.config.ts', 'vitest.config.mts'] });

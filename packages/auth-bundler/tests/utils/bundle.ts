@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { AssetType, Environment, IBundle } from '@map-colonies/auth-core';
-import { BundleContent } from '@src';
+import { AssetType, Environment, type IBundle } from '@map-colonies/auth-core';
+import type { BundleContent } from '@src/index';
 
 const EIGHT = 8;
 

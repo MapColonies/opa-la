@@ -77,6 +77,7 @@ describe('db.ts', function () {
       const res = await db.saveBundle({ assets: [], connections: [], environment: Environment.PRODUCTION, keyVersion: 3 }, 'xdxd');
 
       expect(res).toBeGreaterThan(0);
+
       const bundle = await dataSource.getRepository(Bundle).findOneByOrFail({ id: res });
 
       expect(bundle).toMatchObject({
@@ -98,10 +99,12 @@ describe('db.ts', function () {
         expect(keyVersion).toBe(1);
 
         const asset = assets.filter((a) => a.name === 'aviaviavi');
+
         expect(asset).toHaveLength(1);
         expect(asset[0]).toHaveProperty('version', 2);
 
         const connection = connections.filter((c) => c.name === 'xd');
+
         expect(connection).toHaveLength(1);
         expect(connection[0]).toHaveProperty('version', 2);
       });
