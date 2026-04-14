@@ -50,7 +50,8 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "@vitest/ui": "catalog:"
+    "@vitest/ui": "catalog:",
+    "@map-colonies/vitest-utils": "catalog:"
   },
   "peerDependencies": {
     "@map-colonies/js-logger": "catalog:"
