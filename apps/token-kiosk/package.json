@@ -96,6 +96,7 @@
     "supertest": "^7.1.0",
     "tsc-alias": "^1.8.11",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@map-colonies/vitest-utils": "catalog:"
   }
 }
