@@ -67,6 +67,7 @@
     "@types/lodash": "^4.17.24",
     "vitest": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "@vitest/ui": "catalog:"
+    "@vitest/ui": "catalog:",
+    "@map-colonies/vitest-utils": "catalog:"
   }
 }
