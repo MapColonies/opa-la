@@ -10,7 +10,7 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vitest.setup.mts', '@map-colonies/vitest-utils'],
+          setupFiles: ['./tests/configurations/vitest.setup.mts', '@map-colonies/vitest-utils/extended'],
           include: ['tests/unit/**/*.spec.ts'],
           environment: 'node',
         },
@@ -21,11 +21,7 @@ export default defineConfig({
       {
         test: {
           name: 'integration',
-          setupFiles: [
-            './tests/configurations/initJestOpenapi.setup.ts',
-            './tests/configurations/vitest.setup.mts',
-            '@map-colonies/vitest-utils/extended',
-          ],
+          setupFiles: ['./tests/configurations/vitest.setup.mts', '@map-colonies/vitest-utils/extended'],
           include: ['tests/integration/**/*.spec.ts'],
           environment: 'node',
           globalSetup: './tests/configurations/vitest.globalSetup.ts',

@@ -295,8 +295,8 @@ importers:
         specifier: 'catalog:'
         version: 2.0.0
       '@map-colonies/vitest-utils':
-        specifier: /home/oferade/repos/libot/infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz
-        version: file:../infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz(jest-extended@7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(jest-openapi@0.14.2)(vitest@4.1.4)
+        specifier: 'catalog:'
+        version: 0.2.0(jest-extended@7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(jest-openapi@0.14.2)(vitest@4.1.4)
       '@types/body-parser':
         specifier: 1.19.6
         version: 1.19.6
@@ -2485,24 +2485,6 @@ packages:
 
   '@map-colonies/vitest-utils@0.2.0':
     resolution: { integrity: sha512-1or95Uk1mtiX747jO0tkl1aBdsNSzt/qRLS/aCIASm28CiYQ/2TOaUPka2Cj5idQvB7+LFAa98paE4vQSQwYRg== }
-    engines: { node: '>=24' }
-    peerDependencies:
-      jest-extended: ^7.0.0
-      jest-openapi: ^0.14.2
-      vitest: ^4.1.4
-    peerDependenciesMeta:
-      jest-extended:
-        optional: true
-      jest-openapi:
-        optional: true
-
-  '@map-colonies/vitest-utils@file:../infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz':
-    resolution:
-      {
-        integrity: sha512-bwy2/+KHXklin57blSGxZJ7/nyH35fJXRESorYe5/HpbHL2ZqM7pEqgBp2dPFVQeNJ2bv7WU2tYYlorhAYbIiA==,
-        tarball: file:../infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz,
-      }
-    version: 0.1.0
     engines: { node: '>=24' }
     peerDependencies:
       jest-extended: ^7.0.0
@@ -12652,13 +12634,6 @@ snapshots:
   '@map-colonies/tsconfig@2.0.0': {}
 
   '@map-colonies/vitest-utils@0.2.0(jest-extended@7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(jest-openapi@0.14.2)(vitest@4.1.4)':
-    dependencies:
-      vitest: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@24.12.0)(@vitest/coverage-v8@4.1.4)(@vitest/ui@4.1.4)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3))
-    optionalDependencies:
-      jest-extended: 7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3)
-      jest-openapi: 0.14.2
-
-  '@map-colonies/vitest-utils@file:../infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz(jest-extended@7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(jest-openapi@0.14.2)(vitest@4.1.4)':
     dependencies:
       vitest: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@24.12.0)(@vitest/coverage-v8@4.1.4)(@vitest/ui@4.1.4)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3))
     optionalDependencies:

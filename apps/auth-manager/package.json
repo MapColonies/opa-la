@@ -93,6 +93,6 @@
     "type-fest": "^4.40.0",
     "typescript": "catalog:",
     "vitest": "catalog:",
-    "@map-colonies/vitest-utils": "/home/oferade/repos/libot/infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz"
+    "@map-colonies/vitest-utils": "catalog:"
   }
 }
