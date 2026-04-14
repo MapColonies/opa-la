@@ -6,9 +6,9 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { Asset, type AssetTypes, Key } from '@map-colonies/auth-core';
+import type { Asset, AssetTypes, Key } from '@map-colonies/auth-core';
 import { render } from './templating';
-import { BundleContent } from './types';
+import type { BundleContent } from './types';
 import { logger } from './logger';
 import { MissingPolicyFilesError } from './errors';
 

@@ -1,6 +1,6 @@
-import { DataSource, Repository } from 'typeorm';
-import { Asset, Bundle, Connection, Environments, Key } from '@map-colonies/auth-core';
-import { BundleContent, BundleContentVersions } from './types';
+import type { DataSource, Repository } from 'typeorm';
+import { Asset, Bundle, Connection, type Environments, Key } from '@map-colonies/auth-core';
+import type { BundleContent, BundleContentVersions } from './types';
 import { extractNameAndVersion } from './util';
 import { logger } from './logger';
 import { ConnectionNotInitializedError, KeyNotFoundError } from './errors';
