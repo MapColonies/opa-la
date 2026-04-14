@@ -85,13 +85,14 @@
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "copyfiles": "^2.4.1",
-    "jest-extended": "^7.0.0",
+    "jest-extended": "catalog:",
     "jest-openapi": "^0.14.2",
     "rimraf": "^4.4.0",
     "supertest": "^7.1.0",
     "ts-node": "^10.9.1",
     "type-fest": "^4.40.0",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@map-colonies/vitest-utils": "/home/oferade/repos/libot/infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz"
   }
 }

@@ -1,23 +1,8 @@
-import { defineConfig, ViteUserConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 import tsconfig from './tsconfig.json';
-import path from 'path';
+import { getPathAlias, reporters } from '@map-colonies/vitest-utils';
 
-// Create an alias object from the paths in tsconfig.json
-const pathAlias = Object.fromEntries(
-  // For Each Path in tsconfig.json
-  Object.entries(tsconfig.compilerOptions.paths).map(([key, [value]]) => [
-    // Remove the "/*" from the key and resolve the path
-    key.replace('/*', ''),
-    // Remove the "/*" from the value Resolve the relative path
-    path.resolve(__dirname, value.replace('/*', '')),
-  ])
-);
-
-const reporters: Exclude<ViteUserConfig['test'], undefined>['reporters'] = ['default', 'html'];
-
-if (process.env.GITHUB_ACTIONS) {
-  reporters.push('github-actions');
-}
+const pathAlias = getPathAlias(tsconfig, __dirname);
 
 export default defineConfig({
   test: {
@@ -25,7 +10,7 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vitest.setup.ts'],
+          setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vitest.setup.mts', '@map-colonies/vitest-utils'],
           include: ['tests/unit/**/*.spec.ts'],
           environment: 'node',
         },
@@ -36,7 +21,11 @@ export default defineConfig({
       {
         test: {
           name: 'integration',
-          setupFiles: ['./tests/configurations/initJestOpenapi.setup.ts', './tests/configurations/vitest.setup.ts'],
+          setupFiles: [
+            './tests/configurations/initJestOpenapi.setup.ts',
+            './tests/configurations/vitest.setup.mts',
+            '@map-colonies/vitest-utils/extended',
+          ],
           include: ['tests/integration/**/*.spec.ts'],
           environment: 'node',
           globalSetup: './tests/configurations/vitest.globalSetup.ts',
@@ -51,7 +40,6 @@ export default defineConfig({
         },
       },
     ],
-
     reporters,
     coverage: {
       enabled: true,

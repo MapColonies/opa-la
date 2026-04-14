@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
-import { AssetManager } from '../../../../src/asset/models/assetManager';
-import { AssetNotFoundError, AssetVersionMismatchError } from '../../../../src/asset/models/errors';
-import { AssetRepository } from '../../../../src/asset/DAL/assetRepository';
-import { getFakeAsset } from '../../../utils/asset';
+import { AssetManager } from '@src/asset/models/assetManager';
+import { AssetNotFoundError, AssetVersionMismatchError } from '@src/asset/models/errors';
+import { AssetRepository } from '@src/asset/DAL/assetRepository';
+import { getFakeAsset } from '@tests/utils/asset';
+
+const logger = jsLogger({ enabled: false });
 
 describe('AssetManager', () => {
   let assetManager: AssetManager;
@@ -14,7 +16,7 @@ describe('AssetManager', () => {
     transaction: vi.fn(),
   };
   beforeEach(function () {
-    assetManager = new AssetManager(jsLogger({ enabled: false }), mockedRepository as unknown as AssetRepository);
+    assetManager = new AssetManager(logger, mockedRepository as unknown as AssetRepository);
     vi.resetAllMocks();
   });
   describe('#getAssets', () => {
@@ -92,7 +94,7 @@ describe('AssetManager', () => {
         return fn({ withRepository: vi.fn().mockReturnValue(transactionRepo) });
       });
 
-      manager = new AssetManager(jsLogger({ enabled: false }), repo as unknown as AssetRepository);
+      manager = new AssetManager(logger, repo as unknown as AssetRepository);
     });
 
     it("should insert the asset and return it if it doesn't exist in the database", async () => {

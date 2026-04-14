@@ -2,9 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { Bundle } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
-import { BundleManager } from '../../../../src/bundle/models/bundleManager';
-import { BundleNotFoundError } from '../../../../src/bundle/models/errors';
-import { getFakeBundle } from '../../../utils/bundle';
+import { BundleManager } from '@src/bundle/models/bundleManager';
+import { BundleNotFoundError } from '@src/bundle/models/errors';
+import { getFakeBundle } from '@tests/utils/bundle';
+
+const logger = jsLogger({ enabled: false });
 
 describe('BundleManager', () => {
   let bundleManager: BundleManager;
@@ -13,7 +15,7 @@ describe('BundleManager', () => {
     findOneBy: vi.fn(),
   };
   beforeEach(function () {
-    bundleManager = new BundleManager(jsLogger({ enabled: false }), mockedRepository as unknown as Repository<Bundle>);
+    bundleManager = new BundleManager(logger, mockedRepository as unknown as Repository<Bundle>);
     vi.resetAllMocks();
   });
   describe('#getBundles', () => {

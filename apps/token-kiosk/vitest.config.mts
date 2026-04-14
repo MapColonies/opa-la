@@ -20,21 +20,14 @@ if (process.env.GITHUB_ACTIONS) {
 }
 
 export default defineConfig({
+  resolve: {
+    alias: pathAlias,
+  },
   test: {
-    projects: [
-      {
-        test: {
-          name: 'tests',
-          globalSetup: './tests/configurations/globalSetup.ts',
-          setupFiles: ['./tests/configurations/vitest.setup.ts', './tests/configurations/initJestOpenapi.setup.ts'],
-          include: ['tests/**/*.spec.ts'],
-          environment: 'node',
-        },
-        resolve: {
-          alias: pathAlias,
-        },
-      },
-    ],
+    globalSetup: './tests/configurations/vitest.globalSetup.ts',
+    setupFiles: ['./tests/configurations/vitest.setup.ts', './tests/configurations/initJestOpenapi.setup.ts'],
+    include: ['tests/**/*.spec.ts'],
+    environment: 'node',
     reporters,
     coverage: {
       enabled: true,

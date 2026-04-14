@@ -1,10 +1,10 @@
 /* eslint-disable */
 import path from 'node:path';
 import { expect } from 'vitest';
-import * as matchers from 'jest-extended';
+// import * as matchers from 'jest-extended';
 import jestOpenApi from 'jest-openapi';
 
-expect.extend(matchers);
+// expect.extend(matchers);
 //@ts-ignore
 globalThis.expect = expect;
 

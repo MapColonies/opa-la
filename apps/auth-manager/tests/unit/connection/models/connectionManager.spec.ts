@@ -12,6 +12,8 @@ import { KeyRepository } from '@src/key/DAL/keyRepository';
 import { getRealKeys } from '@tests/utils/key';
 import { KeyNotFoundError } from '@src/key/models/errors';
 
+const logger = jsLogger({ enabled: false });
+
 describe('ConnectionManager', () => {
   let connectionManager: ConnectionManager;
   const mockedConnectionRepository = {
@@ -24,7 +26,7 @@ describe('ConnectionManager', () => {
   const mockedKeysRepository = {};
   beforeEach(function () {
     connectionManager = new ConnectionManager(
-      jsLogger({ enabled: false }),
+      logger,
       mockedConnectionRepository as unknown as ConnectionRepository,
       mockedDomainRepository as DomainRepository,
       mockedKeysRepository as KeyRepository
@@ -108,7 +110,7 @@ describe('ConnectionManager', () => {
       });
 
       manager = new ConnectionManager(
-        jsLogger({ enabled: false }),
+        logger,
         connectionRepo as unknown as ConnectionRepository,
         domainRepo as DomainRepository,
         keysRepo as KeyRepository

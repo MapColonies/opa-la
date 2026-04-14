@@ -24,6 +24,9 @@ catalogs:
     '@vitest/ui':
       specifier: 4.0.18
       version: 4.0.18
+    jest-extended:
+      specifier: ^7.0.0
+      version: 7.0.0
     typescript:
       specifier: ^5.9.3
       version: 5.9.3
@@ -189,7 +192,7 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       jest-extended:
-        specifier: ^7.0.0
+        specifier: 'catalog:'
         version: 7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3)
       rimraf:
         specifier: ^4.4.0
@@ -288,6 +291,9 @@ importers:
       '@map-colonies/tsconfig':
         specifier: 'catalog:'
         version: 2.0.0
+      '@map-colonies/vitest-utils':
+        specifier: /home/oferade/repos/libot/infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz
+        version: file:../infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz(jest-extended@7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(jest-openapi@0.14.2)(vitest@4.0.18)
       '@types/body-parser':
         specifier: 1.19.6
         version: 1.19.6
@@ -334,7 +340,7 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       jest-extended:
-        specifier: ^7.0.0
+        specifier: 'catalog:'
         version: 7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3)
       jest-openapi:
         specifier: ^0.14.2
@@ -878,8 +884,8 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
       jest-extended:
-        specifier: ^3.2.4
-        version: 3.2.4(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))
+        specifier: 'catalog:'
+        version: 7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3)
       rimraf:
         specifier: ^4.4.0
         version: 4.4.1
@@ -2467,6 +2473,24 @@ packages:
   '@map-colonies/tsconfig@2.0.0':
     resolution: { integrity: sha512-5ZisHUuqbrVMgA+4I2QWZ5m3wWulOQMttuUcdq6I2MdaUtWk7zBiOGYY3v201FZQGuEIBSNAxGG9qXVT+kCifw== }
     engines: { node: '>=24' }
+
+  '@map-colonies/vitest-utils@file:../infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz':
+    resolution:
+      {
+        integrity: sha512-bwy2/+KHXklin57blSGxZJ7/nyH35fJXRESorYe5/HpbHL2ZqM7pEqgBp2dPFVQeNJ2bv7WU2tYYlorhAYbIiA==,
+        tarball: file:../infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz,
+      }
+    version: 0.1.0
+    engines: { node: '>=24' }
+    peerDependencies:
+      jest-extended: ^7.0.0
+      jest-openapi: ^0.14.2
+      vitest: ^4.1.4
+    peerDependenciesMeta:
+      jest-extended:
+        optional: true
+      jest-openapi:
+        optional: true
 
   '@monaco-editor/loader@1.7.0':
     resolution: { integrity: sha512-gIwR1HrJrrx+vfyOhYmCZ0/JcWqG5kbfG7+d3f/C1LXk2EvzAbHSg3MQ5lO2sMlo9izoAZ04shohfKLVT6crVA== }
@@ -7156,15 +7180,6 @@ packages:
   jest-environment-node@29.7.0:
     resolution: { integrity: sha512-DOSwCRqXirTOyheM+4d5YZOrWcdu0LNZ87ewUoywbcb2XR4wKgqiG8vNeYwhjFMbEkfju7wx2GYH0P2gevGvFw== }
     engines: { node: ^14.15.0 || ^16.10.0 || >=18.0.0 }
-
-  jest-extended@3.2.4:
-    resolution: { integrity: sha512-lSEYhSmvXZG/7YXI7KO3LpiUiQ90gi5giwCJNDMMsX5a+/NZhdbQF2G4ALOBN+KcXVT3H6FPVPohAuMXooaLTQ== }
-    engines: { node: ^14.15.0 || ^16.10.0 || >=18.0.0 }
-    peerDependencies:
-      jest: '>=27.2.5'
-    peerDependenciesMeta:
-      jest:
-        optional: true
 
   jest-extended@7.0.0:
     resolution: { integrity: sha512-96jBsVJDxZKFh+kWY7E18Is2usUsUYtBn97MxCtb4COnbgD4aE1h+P0fdFQNeJaI6KOeduas4Numc9yTuk0+Gw== }
@@ -12606,6 +12621,13 @@ snapshots:
       typescript: 5.9.3
 
   '@map-colonies/tsconfig@2.0.0': {}
+
+  '@map-colonies/vitest-utils@file:../infra-packages/packages/vitest-utils/map-colonies-vitest-utils-0.1.0-3.tgz(jest-extended@7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(jest-openapi@0.14.2)(vitest@4.0.18)':
+    dependencies:
+      vitest: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@24.12.0)(@vitest/ui@4.0.18)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3)
+    optionalDependencies:
+      jest-extended: 7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3)
+      jest-openapi: 0.14.2
 
   '@monaco-editor/loader@1.7.0':
     dependencies:
@@ -18333,13 +18355,6 @@ snapshots:
       '@types/node': 22.19.15
       jest-mock: 29.7.0
       jest-util: 29.7.0
-
-  jest-extended@3.2.4(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3))):
-    dependencies:
-      jest-diff: 29.7.0
-      jest-get-type: 29.6.3
-    optionalDependencies:
-      jest: 29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3))
 
   jest-extended@7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3):
     dependencies:

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
-import { DomainRepository } from '../../../../src/domain/DAL/domainRepository';
-import { DomainManager } from '../../../../src/domain/models/domainManager';
-import { DomainAlreadyExistsError } from '../../../../src/domain/models/errors';
+import { DomainRepository } from '@src/domain/DAL/domainRepository';
+import { DomainManager } from '@src/domain/models/domainManager';
+import { DomainAlreadyExistsError } from '@src/domain/models/errors';
 
 describe('DomainManager', () => {
   let domainManager: DomainManager;

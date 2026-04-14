@@ -2,11 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { DatabaseError } from 'pg';
 import { QueryFailedError } from 'typeorm';
-import { ClientRepository } from '../../../../src/client/DAL/clientRepository';
-import { ClientManager } from '../../../../src/client/models/clientManager';
-import { ClientAlreadyExistsError, ClientNotFoundError } from '../../../../src/client/models/errors';
-import { PgErrorCodes } from '../../../../src/common/db/constants';
-import { getFakeClient } from '../../../utils/client';
+import { ClientRepository } from '@src/client/DAL/clientRepository';
+import { ClientManager } from '@src/client/models/clientManager';
+import { ClientAlreadyExistsError, ClientNotFoundError } from '@src/client/models/errors';
+import { PgErrorCodes } from '@src/common/db/constants';
+import { getFakeClient } from '@tests/utils/client';
+
+const logger = jsLogger({ enabled: false });
 
 describe('ClientManager', () => {
   let clientManager: ClientManager;
@@ -17,7 +19,7 @@ describe('ClientManager', () => {
     updateAndReturn: vi.fn(),
   };
   beforeEach(function () {
-    clientManager = new ClientManager(jsLogger({ enabled: false }), mockedRepository as unknown as ClientRepository);
+    clientManager = new ClientManager(logger, mockedRepository as unknown as ClientRepository);
     vi.resetAllMocks();
   });
   describe('#getClients', () => {
