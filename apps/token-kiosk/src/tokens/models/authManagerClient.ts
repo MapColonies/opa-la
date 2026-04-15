@@ -1,7 +1,8 @@
-import createClient, { Client } from 'openapi-fetch';
+import type { Client } from 'openapi-fetch';
+import createClient from 'openapi-fetch';
 import type { DependencyContainer } from 'tsyringe';
 import type { paths } from '@src/auth-manager';
-import { ConfigType } from '@src/common/config';
+import type { ConfigType } from '@src/common/config';
 import { SERVICES } from '@src/common/constants';
 
 export type AuthManagerClient = Client<paths>;

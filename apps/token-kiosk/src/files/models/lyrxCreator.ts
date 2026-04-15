@@ -1,4 +1,4 @@
-import { CatalogRecord } from './catalogManager';
+import type { CatalogRecord } from './catalogManager';
 
 function createLayerDefinition(record: CatalogRecord, token: string): object {
   return {

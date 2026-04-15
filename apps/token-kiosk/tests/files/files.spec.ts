@@ -4,12 +4,13 @@ import { jsLogger } from '@map-colonies/js-logger';
 import nock, { abortPendingRequests, cleanAll } from 'nock';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
-import { paths, operations } from '@openapi';
+import type { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
-import { Drizzle } from '@src/db/createConnection';
+import type { Drizzle } from '@src/db/createConnection';
 import { users } from '@src/users/user';
 import { SERVICES } from '@common/constants';
 import { initConfig } from '@src/common/config';
@@ -174,6 +175,7 @@ describe('guides', function () {
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, '<invalidXml>');
 
       const res = await requestSender.getFile({ pathParams: { type: 'qlr' } });
+
       expect(res).toSatisfyApiSpec();
       expect(res).toHaveProperty('statusCode', httpStatusCodes.INTERNAL_SERVER_ERROR);
     });
@@ -191,6 +193,7 @@ describe('guides', function () {
       nock('http://localhost:8085').post('/api/raster/v1').reply(httpStatusCodes.OK, emptyResponse);
 
       const res = await requestSender.getFile({ pathParams: { type: 'qlr' } });
+
       expect(res).toSatisfyApiSpec();
       expect(res).toHaveProperty('statusCode', httpStatusCodes.INTERNAL_SERVER_ERROR);
     });

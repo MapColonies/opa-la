@@ -1,5 +1,5 @@
 import tsBaseConfig from '@map-colonies/eslint-config/ts-base';
 import vitestConfig from '@map-colonies/eslint-config/vitest';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
-export default defineConfig(tsBaseConfig, vitestConfig, { ignores: ['drizzle.config.ts', 'vitest.config.mts', 'dataSource.ts'] });
+export default defineConfig(tsBaseConfig, vitestConfig, globalIgnores(['drizzle.config.ts', 'vitest.config.mts', 'dataSource.ts']));

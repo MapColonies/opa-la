@@ -39,7 +39,7 @@ export class TokenController {
           message: 'user is banned',
         });
       }
-      this.logger.error({ msg: 'Error while getting token', error: err });
+      this.logger.error({ msg: 'Error while getting token', err });
       return next(err);
     }
   };
