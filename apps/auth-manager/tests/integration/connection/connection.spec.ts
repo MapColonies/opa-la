@@ -3,19 +3,21 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterEach, afterAll } 
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DependencyContainer } from 'tsyringe';
+import type { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { Client, Connection, Domain, Environment, Environments, IConnection, Key } from '@map-colonies/auth-core';
+import type { Environments, IConnection } from '@map-colonies/auth-core';
+import { Client, Connection, Domain, Environment, Key } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { paths, operations } from '@openapi';
+import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
 import { SERVICES } from '@common/constants';
-import { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
+import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
 import { getFakeConnection, getFakeIConnection } from '@tests/utils/connection';
-import { KeyRepository } from '@src/key/DAL/keyRepository';
-import { DomainRepository } from '@src/domain/DAL/domainRepository';
+import type { KeyRepository } from '@src/key/DAL/keyRepository';
+import type { DomainRepository } from '@src/domain/DAL/domainRepository';
 import { getFakeClient } from '@tests/utils/client';
 import { getRealKeys } from '@tests/utils/key';
 import { initConfig } from '@common/config';
@@ -45,6 +47,7 @@ describe('connection', function () {
     requestSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
     depContainer = container;
   });
+
   beforeEach(async function () {
     await depContainer.resolve(DataSource).getRepository(Client).save(clients);
     await depContainer.resolve(DataSource).getRepository(Connection).save(connections);
@@ -74,6 +77,7 @@ describe('connection', function () {
 
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         const returnedItems = res.body.items as IConnection[];
+
         expect(returnedItems).toBeArray();
       });
 
@@ -83,7 +87,7 @@ describe('connection', function () {
         { name: 'aviiiiii', searchParam: 'av', matchType: 'prefix' },
         { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
         { name: 'avi', searchParam: 'AV', matchType: 'case-insensitive' },
-      ])('type: $matchType - find the connection of $name with search string $searchParam', async function ({ name, searchParam }) {
+      ])('should find the connection of $name with search string $searchParam with match type $matchType', async function ({ name, searchParam }) {
         const client = { ...getFakeClient(false), name };
         const connection = getFakeIConnection();
         connection.name = client.name;
@@ -184,8 +188,10 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
+
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         const returnedItems = res.body.items as IConnection[];
+
         expect(returnedItems).toSatisfyAll((c: IConnection) => c.environment.includes(Environment.PRODUCTION));
       });
 
@@ -194,8 +200,10 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
+
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         const returnedItems = res.body.items as IConnection[];
+
         expect(returnedItems).toSatisfyAll((c: IConnection) => c.domains.includes('test'));
       });
     });
@@ -283,6 +291,7 @@ describe('connection', function () {
         expect(res.body).toHaveProperty('origins', ['http://example.com', 'http://foo.com', 'https://*.test.com']);
       });
     });
+
     describe('GET /client/:clientName/connection', function () {
       it('should return 200 status code all the connections with the specific name', async function () {
         const res = await requestSender.getClientConnections({ pathParams: { clientName: connections[0]!.name } });

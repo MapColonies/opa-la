@@ -1,4 +1,5 @@
-import { importJWK, JWK, SignJWT } from 'jose';
+import type { JWK } from 'jose';
+import { importJWK, SignJWT } from 'jose';
 import { TOKENS_ISSUER } from './constants';
 
 /**

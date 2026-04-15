@@ -3,16 +3,18 @@ import { describe, expect, it, vi, beforeAll, afterAll, afterEach } from 'vitest
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DependencyContainer } from 'tsyringe';
+import type { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { Asset, AssetType, Environment, IAsset } from '@map-colonies/auth-core';
+import type { IAsset } from '@map-colonies/auth-core';
+import { Asset, AssetType, Environment } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { paths, operations } from '@openapi';
+import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
 import { SERVICES } from '@common/constants';
-import { AssetRepository } from '@src/asset/DAL/assetRepository';
+import type { AssetRepository } from '@src/asset/DAL/assetRepository';
 import { getFakeAsset } from '@tests/utils/asset';
 import { initConfig } from '@common/config';
 
@@ -272,6 +274,7 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
       });
     });
+
     describe('POST /asset', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);

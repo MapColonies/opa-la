@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { FactoryFunction } from 'tsyringe';
+import type { FactoryFunction } from 'tsyringe';
 import { BundleController } from '../controllers/bundleController';
 
 const bundleRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {

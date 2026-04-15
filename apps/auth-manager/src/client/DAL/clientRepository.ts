@@ -1,6 +1,7 @@
 import { Client } from '@map-colonies/auth-core';
-import { FactoryFunction } from 'tsyringe';
-import { DataSource, Repository } from 'typeorm';
+import type { FactoryFunction } from 'tsyringe';
+import type { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 export type ClientRepository = Repository<Client> & { updateAndReturn: (client: Client) => Promise<Client | null> };
 

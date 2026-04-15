@@ -3,15 +3,17 @@ import { beforeEach, describe, expect, it, vi, beforeAll, afterEach } from 'vite
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DependencyContainer } from 'tsyringe';
+import type { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { IKey, Environments, Key, Environment } from '@map-colonies/auth-core';
-import { paths, operations, components } from '@openapi';
+import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { IKey, Environments } from '@map-colonies/auth-core';
+import { Key, Environment } from '@map-colonies/auth-core';
+import type { paths, operations, components } from '@openapi';
 import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
-import { KeyRepository } from '@src/key/DAL/keyRepository';
+import type { KeyRepository } from '@src/key/DAL/keyRepository';
 import { getMockKeys } from '@tests/utils/key';
 import { initConfig } from '@src/common/config';
 
@@ -237,6 +239,7 @@ describe('key', function () {
       });
     });
   });
+
   describe('Sad Path', function () {
     afterEach(function () {
       vi.restoreAllMocks();
@@ -253,6 +256,7 @@ describe('key', function () {
         expect(res).toSatisfyApiSpec();
       });
     });
+
     describe('POST /key', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
