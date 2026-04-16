@@ -191,10 +191,10 @@ export class ConnectionManager {
 
     try {
       return await generateToken(key.privateKey as JWK, connection.name, key.privateKey.kid);
-    } catch (error) {
-      this.logger.error({ msg: 'could not generate token', error });
+    } catch (err) {
+      this.logger.error({ msg: 'could not generate token', err });
       if (throwOnError === true) {
-        throw error;
+        throw err;
       }
       return '';
     }
