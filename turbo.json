@@ -14,6 +14,9 @@
     "lint": {
       "dependsOn": []
     },
+    "lint:fix": {
+      "dependsOn": []
+    },
     "test": {
       "dependsOn": []
     },
