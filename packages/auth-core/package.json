@@ -11,8 +11,6 @@
     "url": "git+https://github.com/MapColonies/opa-la.git"
   },
   "scripts": {
-    "format": "prettier --check .",
-    "format:fix": "prettier --write .",
     "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
     "migration:create": "npm run typeorm migration:generate --",
     "migration:run": "npm run typeorm migration:run -- ",
