@@ -14,7 +14,6 @@ describe('config.ts', function () {
       expect.assertions(2);
 
       vi.resetModules();
-      // await vi.isolateModulesAsync(async () => {
       /* eslint-disable @typescript-eslint/no-require-imports */
       const { initConfig } = (await import('../src/config.js')) as typeof localConfigType;
       const configModule = require('@map-colonies/config') as typeof configType;
