@@ -92,7 +92,7 @@ export async function getVersionCommand(): Promise<string> {
   // Extract version from first line: "Version: X.Y.Z"
   const versionLine = res.stdout.split('\n')[0];
 
-  if (versionLine === undefined) {
+  if (versionLine === undefined || versionLine === '') {
     throw new Error('Unable to read OPA version output');
   }
 
