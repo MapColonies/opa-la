@@ -1,7 +1,7 @@
 import { hostname } from 'node:os';
 import { readFileSync } from 'node:fs';
 import type { TlsOptions } from 'node:tls';
-import type { DataSource, DataSourceOptions } from 'typeorm';
+import { DataSource, type DataSourceOptions } from 'typeorm';
 import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { migrations } from '../migrations';
 import { Asset, Bundle, Client, Connection, Domain, Key } from '../entities';

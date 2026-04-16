@@ -37,7 +37,7 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
     interpolationProgress: 0,
     lastUpdateTime: 0,
   });
-  const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
+  const gameLoopRef = useRef<number | null>(null);
   const [displayScore, setDisplayScore] = useState(0);
   const [displayGameOver, setDisplayGameOver] = useState(false);
   const [displayIsPlaying, setDisplayIsPlaying] = useState(false);

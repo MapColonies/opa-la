@@ -15,7 +15,7 @@ export function useTokenGeneration() {
   // Simulate progress bar for UX when fetching
   useEffect(() => {
     let active = true;
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: number;
 
     if (isLoading) {
       setProgress(0);
