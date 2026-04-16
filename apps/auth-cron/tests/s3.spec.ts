@@ -4,15 +4,16 @@ import { createHash } from 'crypto';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { writeFileSync } from 'node:fs';
+import { vi, describe, beforeAll, it, expect } from 'vitest';
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Environment, Environments } from '@map-colonies/auth-core';
 import { infraOpalaCronV1Type } from '@map-colonies/schemas';
-import jsLogger from '@map-colonies/js-logger';
+import { jsLogger } from '@map-colonies/js-logger';
 import { initConfig, getConfig } from '@src/config';
 import { getS3Client } from '@src/s3';
 import * as appConfig from '@src/config';
 
-jest.mock('../src/telemetry/logger', () => {
+vi.mock('../src/telemetry/logger', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
@@ -20,8 +21,8 @@ jest.mock('../src/telemetry/logger', () => {
   };
 });
 
-jest.mock('../src/config', () => {
-  const originalModule = jest.requireActual<typeof appConfig>('../src/config');
+vi.mock('../src/config', async () => {
+  const originalModule = await vi.importActual<typeof appConfig>('../src/config');
   const getConfigReplacement = () => {
     const instance = originalModule.getConfig();
 
@@ -50,7 +51,7 @@ describe('s3.ts', function () {
   let cronOptions: Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
 
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
     cronOptions = getConfig().get('cron.np') as Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
     s3client = new S3Client({
       credentials: { accessKeyId: cronOptions.s3.accessKeyId, secretAccessKey: cronOptions.s3.secretAccessKey },

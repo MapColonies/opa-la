@@ -1,4 +1,5 @@
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, beforeAll, afterEach } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
@@ -13,7 +14,7 @@ describe('docs', function () {
   let requestSender: DocsRequestSender;
   let depContainer: DependencyContainer;
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
   });
   beforeEach(async function () {
     const [app, container] = await getApp({

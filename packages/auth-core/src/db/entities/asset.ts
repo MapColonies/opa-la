@@ -6,7 +6,7 @@ import { AssetType, type AssetTypes, Environment, type Environments, IAsset } fr
  */
 @Entity()
 export class Asset implements IAsset {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'varchar' })
   public name!: string;
 
   @PrimaryColumn({ type: 'integer' })
@@ -28,7 +28,7 @@ export class Asset implements IAsset {
   })
   public value!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   public uri!: string;
 
   @Column({ type: 'enum', enum: AssetType })

@@ -22,8 +22,8 @@
     "host": "localhost",
     "schema": "token_kiosk",
     "username": "postgres",
-    "password": "1234",
-    "database": "postgres",
+    "password": "postgres",
+    "database": "token-kiosk",
     "ssl": {
       "enabled": false
     }

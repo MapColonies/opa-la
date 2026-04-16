@@ -5,14 +5,15 @@ import { BundleDatabase, createBundle } from '@map-colonies/auth-bundler';
 import * as authBundler from '@map-colonies/auth-bundler';
 import { Bundle, Environment } from '@map-colonies/auth-core';
 import { Repository } from 'typeorm';
-import jsLogger from '@map-colonies/js-logger';
+import { vi, describe, Mock, beforeEach, afterEach, afterAll, it, expect, beforeAll } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getJob } from '@src/job';
 import { getConfig, initConfig } from '@src/config';
 
-jest.mock('@map-colonies/auth-bundler');
-jest.mock('../src/telemetry/logger', () => {
+vi.mock('@map-colonies/auth-bundler');
+vi.mock('../src/telemetry/logger', () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
@@ -22,24 +23,25 @@ jest.mock('../src/telemetry/logger', () => {
 
 describe('job.ts', function () {
   describe('#getJob', function () {
-    const bundleRepoMock = jest.mocked({ findOne: jest.fn() } as unknown as Repository<Bundle>);
-    const bundleDbMock = jest.mocked({
-      getLatestVersions: jest.fn(),
-      getBundleFromVersions: jest.fn(),
-      saveBundle: jest.fn(),
-    } as unknown as BundleDatabase);
-    const createBundleMock = jest.mocked(createBundle);
+    const bundleRepoMock = vi.mocked({ findOne: vi.fn() } as unknown as Repository<Bundle>);
+    const db = {
+      getLatestVersions: vi.fn(),
+      getBundleFromVersions: vi.fn(),
+      saveBundle: vi.fn(),
+    } as unknown as BundleDatabase;
+    const bundleDbMock = vi.mocked(db);
+    const createBundleMock = vi.mocked(createBundle);
     let s3client: S3Client;
     let cronOptions: Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
-    let getVersionCommandSpy: jest.SpyInstance<Promise<string>, []>;
+    let getVersionCommandSpy: Mock<() => Promise<string>>;
 
     beforeAll(async function () {
-      await initConfig();
+      await initConfig(true);
       cronOptions = getConfig().get('cron.np') as Exclude<infraOpalaCronV1Type['cron']['np'], undefined>;
       createBundleMock.mockImplementation(async (content, workdir, filePath) => {
         await writeFile(path.join(workdir, filePath), 'aviavi');
       });
-      getVersionCommandSpy = jest.spyOn(authBundler, 'getVersionCommand');
+      getVersionCommandSpy = vi.spyOn(authBundler, 'getVersionCommand');
 
       s3client = new S3Client({
         credentials: { accessKeyId: cronOptions.s3.accessKeyId, secretAccessKey: cronOptions.s3.secretAccessKey },
@@ -54,11 +56,11 @@ describe('job.ts', function () {
     });
 
     afterEach(function () {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
     });
 
     afterAll(function () {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it('should create a bundle if no bundle exists', async function () {

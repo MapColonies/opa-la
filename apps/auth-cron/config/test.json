@@ -1,14 +1,4 @@
 {
-  "db": {
-    "host": "postgres",
-    "schema": "auth_manager",
-    "username": "postgres",
-    "password": "1234",
-    "database": "postgres",
-    "ssl": {
-      "enabled": false
-    }
-  },
   "cron": {
     "np": {
       "pattern": "*/30 * * * * *",

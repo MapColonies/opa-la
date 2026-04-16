@@ -1,4 +1,5 @@
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
 import { ConnectionManager } from '@src/connection/models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/connection/models/errors';
@@ -11,24 +12,26 @@ import { KeyRepository } from '@src/key/DAL/keyRepository';
 import { getRealKeys } from '@tests/utils/key';
 import { KeyNotFoundError } from '@src/key/models/errors';
 
+const logger = jsLogger({ enabled: false });
+
 describe('ConnectionManager', () => {
   let connectionManager: ConnectionManager;
   const mockedConnectionRepository = {
-    findAndCount: jest.fn<ReturnType<ConnectionRepository['find']>, Parameters<ConnectionRepository['find']>>(),
-    findOne: jest.fn(),
-    transaction: jest.fn(),
-    createQueryBuilder: jest.fn(),
+    findAndCount: vi.fn(),
+    findOne: vi.fn(),
+    transaction: vi.fn(),
+    createQueryBuilder: vi.fn(),
   };
   const mockedDomainRepository = {};
   const mockedKeysRepository = {};
   beforeEach(function () {
     connectionManager = new ConnectionManager(
-      jsLogger({ enabled: false }),
+      logger,
       mockedConnectionRepository as unknown as ConnectionRepository,
       mockedDomainRepository as DomainRepository,
       mockedKeysRepository as KeyRepository
     );
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   describe('#getConnections', () => {
     it('should throw an error if one is thrown by the repository', async function () {
@@ -69,28 +72,28 @@ describe('ConnectionManager', () => {
   describe('#upsertConnection', () => {
     let manager: ConnectionManager;
     const connectionTransactionRepo = {
-      getMaxVersionWithLock: jest.fn(),
-      save: jest.fn(),
+      getMaxVersionWithLock: vi.fn(),
+      save: vi.fn(),
     };
     const domainTransactionRepo = {
-      checkInputForNonExistingDomains: jest.fn(),
+      checkInputForNonExistingDomains: vi.fn(),
     };
     const clientTransactionRepo = {
-      findOneBy: jest.fn(),
+      findOneBy: vi.fn(),
     };
     const keyTransactionRepo = {
-      getLatestKeys: jest.fn(),
+      getLatestKeys: vi.fn(),
     };
     beforeEach(function () {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
       clientTransactionRepo.findOneBy.mockResolvedValue({});
       domainTransactionRepo.checkInputForNonExistingDomains.mockResolvedValue([]);
-      const connectionRepo = { manager: { transaction: jest.fn() } };
+      const connectionRepo = { manager: { transaction: vi.fn() } };
       const domainRepo = {};
       const keysRepo = {};
       connectionRepo.manager.transaction.mockImplementation(async (fn: (a: unknown) => Promise<unknown>) => {
         return fn({
-          withRepository: jest.fn().mockImplementation((callValue) => {
+          withRepository: vi.fn().mockImplementation((callValue) => {
             switch (callValue) {
               case connectionRepo:
                 return connectionTransactionRepo;
@@ -102,12 +105,12 @@ describe('ConnectionManager', () => {
                 throw new Error('unknown repo');
             }
           }),
-          getRepository: jest.fn().mockReturnValue(clientTransactionRepo),
+          getRepository: vi.fn().mockReturnValue(clientTransactionRepo),
         });
       });
 
       manager = new ConnectionManager(
-        jsLogger({ enabled: false }),
+        logger,
         connectionRepo as unknown as ConnectionRepository,
         domainRepo as DomainRepository,
         keysRepo as KeyRepository
@@ -146,7 +149,7 @@ describe('ConnectionManager', () => {
       connection.token = '';
       connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
       connectionTransactionRepo.save.mockResolvedValue(connection);
-      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([{ privateKey: keys[0], environment: connection.environment }]);
+      keyTransactionRepo.getLatestKeys = vi.fn().mockResolvedValue([{ privateKey: keys[0], environment: connection.environment }]);
 
       const connectionRes = await manager.upsertConnection({ ...connection, version: 1 });
 
@@ -158,7 +161,7 @@ describe('ConnectionManager', () => {
       connection.token = '';
       connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
       connectionTransactionRepo.save.mockResolvedValue(connection);
-      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([]);
+      keyTransactionRepo.getLatestKeys = vi.fn().mockResolvedValue([]);
 
       const connectionRes = await manager.upsertConnection({ ...connection, version: 1 }, true);
 
@@ -170,7 +173,7 @@ describe('ConnectionManager', () => {
       connection.token = '';
       connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
       connectionTransactionRepo.save.mockResolvedValue(connection);
-      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([{ environment: connection.environment, privateKey: 'avi' }]);
+      keyTransactionRepo.getLatestKeys = vi.fn().mockResolvedValue([{ environment: connection.environment, privateKey: 'avi' }]);
 
       const connectionRes = await manager.upsertConnection({ ...connection, version: 1 }, true);
 
@@ -182,7 +185,7 @@ describe('ConnectionManager', () => {
       connection.token = '';
       connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
       connectionTransactionRepo.save.mockResolvedValue(connection);
-      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([]);
+      keyTransactionRepo.getLatestKeys = vi.fn().mockResolvedValue([]);
 
       const connectionPromise = manager.upsertConnection({ ...connection, version: 1 });
 
@@ -194,7 +197,7 @@ describe('ConnectionManager', () => {
       connection.token = '';
       connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
       connectionTransactionRepo.save.mockResolvedValue(connection);
-      keyTransactionRepo.getLatestKeys = jest.fn().mockResolvedValue([{ environment: connection.environment, privateKey: 'avi' }]);
+      keyTransactionRepo.getLatestKeys = vi.fn().mockResolvedValue([{ environment: connection.environment, privateKey: 'avi' }]);
 
       const connectionPromise = manager.upsertConnection({ ...connection, version: 1 });
 

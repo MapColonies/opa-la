@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { asteriskStringComparatorLast } from '@src/utils/utils';
 
 describe('asteriskStringComparatorLast', () => {

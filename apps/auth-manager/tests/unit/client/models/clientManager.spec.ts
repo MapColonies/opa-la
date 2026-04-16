@@ -1,23 +1,26 @@
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { DatabaseError } from 'pg';
 import { QueryFailedError } from 'typeorm';
-import { ClientRepository } from '../../../../src/client/DAL/clientRepository';
-import { ClientManager } from '../../../../src/client/models/clientManager';
-import { ClientAlreadyExistsError, ClientNotFoundError } from '../../../../src/client/models/errors';
-import { PgErrorCodes } from '../../../../src/common/db/constants';
-import { getFakeClient } from '../../../utils/client';
+import { ClientRepository } from '@src/client/DAL/clientRepository';
+import { ClientManager } from '@src/client/models/clientManager';
+import { ClientAlreadyExistsError, ClientNotFoundError } from '@src/client/models/errors';
+import { PgErrorCodes } from '@src/common/db/constants';
+import { getFakeClient } from '@tests/utils/client';
+
+const logger = jsLogger({ enabled: false });
 
 describe('ClientManager', () => {
   let clientManager: ClientManager;
   const mockedRepository = {
-    findAndCount: jest.fn(),
-    insert: jest.fn(),
-    findOne: jest.fn(),
-    updateAndReturn: jest.fn(),
+    findAndCount: vi.fn(),
+    insert: vi.fn(),
+    findOne: vi.fn(),
+    updateAndReturn: vi.fn(),
   };
   beforeEach(function () {
-    clientManager = new ClientManager(jsLogger({ enabled: false }), mockedRepository as unknown as ClientRepository);
-    jest.resetAllMocks();
+    clientManager = new ClientManager(logger, mockedRepository as unknown as ClientRepository);
+    vi.resetAllMocks();
   });
   describe('#getClients', () => {
     it('should return the array of clients', async function () {

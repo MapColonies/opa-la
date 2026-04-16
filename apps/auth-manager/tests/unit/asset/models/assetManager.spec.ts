@@ -1,20 +1,23 @@
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
-import { AssetManager } from '../../../../src/asset/models/assetManager';
-import { AssetNotFoundError, AssetVersionMismatchError } from '../../../../src/asset/models/errors';
-import { AssetRepository } from '../../../../src/asset/DAL/assetRepository';
-import { getFakeAsset } from '../../../utils/asset';
+import { AssetManager } from '@src/asset/models/assetManager';
+import { AssetNotFoundError, AssetVersionMismatchError } from '@src/asset/models/errors';
+import { AssetRepository } from '@src/asset/DAL/assetRepository';
+import { getFakeAsset } from '@tests/utils/asset';
+
+const logger = jsLogger({ enabled: false });
 
 describe('AssetManager', () => {
   let assetManager: AssetManager;
   const mockedRepository = {
-    findBy: jest.fn(),
-    findOne: jest.fn(),
-    transaction: jest.fn(),
+    findBy: vi.fn(),
+    findOne: vi.fn(),
+    transaction: vi.fn(),
   };
   beforeEach(function () {
-    assetManager = new AssetManager(jsLogger({ enabled: false }), mockedRepository as unknown as AssetRepository);
-    jest.resetAllMocks();
+    assetManager = new AssetManager(logger, mockedRepository as unknown as AssetRepository);
+    vi.resetAllMocks();
   });
   describe('#getAssets', () => {
     it('should return the array of assets', async function () {
@@ -81,17 +84,17 @@ describe('AssetManager', () => {
   describe('#upsertAsset', () => {
     let manager: AssetManager;
     const transactionRepo = {
-      getMaxVersionWithLock: jest.fn(),
-      save: jest.fn(),
+      getMaxVersionWithLock: vi.fn(),
+      save: vi.fn(),
     };
     beforeEach(function () {
-      jest.resetAllMocks();
-      const repo = { manager: { transaction: jest.fn() } };
+      vi.resetAllMocks();
+      const repo = { manager: { transaction: vi.fn() } };
       repo.manager.transaction.mockImplementation(async (fn: (a: unknown) => Promise<unknown>) => {
-        return fn({ withRepository: jest.fn().mockReturnValue(transactionRepo) });
+        return fn({ withRepository: vi.fn().mockReturnValue(transactionRepo) });
       });
 
-      manager = new AssetManager(jsLogger({ enabled: false }), repo as unknown as AssetRepository);
+      manager = new AssetManager(logger, repo as unknown as AssetRepository);
     });
 
     it("should insert the asset and return it if it doesn't exist in the database", async () => {

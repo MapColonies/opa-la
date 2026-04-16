@@ -3,7 +3,8 @@
 import { mkdir, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import jsLogger from '@map-colonies/js-logger';
+import { describe, expect, it, beforeAll, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
 import { createBundleDirectoryStructure } from '@src/bundler';
 import { setLogger } from '@src/logger';
@@ -48,8 +49,8 @@ describe('bundler.ts', function () {
         enabled: false,
       });
 
-      const warn = jest.spyOn(logger, 'warn');
-      jest.spyOn(logger, 'child').mockReturnValue(logger as unknown as ReturnType<(typeof logger)['child']>);
+      const warn = vi.spyOn(logger, 'warn');
+      vi.spyOn(logger, 'child').mockReturnValue(logger as unknown as ReturnType<(typeof logger)['child']>);
 
       setLogger(logger);
 

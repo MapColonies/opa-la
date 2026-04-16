@@ -1,17 +1,18 @@
-import jsLogger from '@map-colonies/js-logger';
-import { DomainRepository } from '../../../../src/domain/DAL/domainRepository';
-import { DomainManager } from '../../../../src/domain/models/domainManager';
-import { DomainAlreadyExistsError } from '../../../../src/domain/models/errors';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
+import { DomainRepository } from '@src/domain/DAL/domainRepository';
+import { DomainManager } from '@src/domain/models/domainManager';
+import { DomainAlreadyExistsError } from '@src/domain/models/errors';
 
 describe('DomainManager', () => {
   let domainManager: DomainManager;
   const mockedRepository = {
-    findAndCount: jest.fn(),
-    insert: jest.fn(),
+    findAndCount: vi.fn(),
+    insert: vi.fn(),
   };
   beforeEach(function () {
     domainManager = new DomainManager(jsLogger({ enabled: false }), mockedRepository as unknown as DomainRepository);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   describe('#getDomains', () => {
     it('should return the array of domains', async function () {

@@ -4,7 +4,6 @@
     "types": ["lodash"],
     "paths": {
       "@src/*": ["./src/*"],
-      "@src": ["./src/index.ts"],
       "@tests/*": ["./tests/*"]
     }
   },

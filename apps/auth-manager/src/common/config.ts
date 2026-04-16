@@ -10,9 +10,10 @@ let configInstance: ConfigType | undefined;
  * This should only be called from the instrumentation file.
  * @returns A Promise that resolves when the configuration is successfully initialized.
  */
-async function initConfig(): Promise<void> {
+async function initConfig(offlineMode?: boolean): Promise<void> {
   configInstance = await config({
     schema: infraOpalaManagerV1,
+    offlineMode,
   });
 }
 

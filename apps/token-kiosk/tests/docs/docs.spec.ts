@@ -1,5 +1,5 @@
 import { describe, beforeEach, it, expect, beforeAll } from 'vitest';
-import jsLogger from '@map-colonies/js-logger';
+import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { type RequestHandler } from 'express';

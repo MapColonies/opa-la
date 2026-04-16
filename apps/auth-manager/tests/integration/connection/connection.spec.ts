@@ -1,5 +1,6 @@
 /// <reference types="jest-extended" />
-import jsLogger from '@map-colonies/js-logger';
+import { beforeEach, describe, expect, it, vi, beforeAll, afterEach, afterAll } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
@@ -33,7 +34,7 @@ describe('connection', function () {
   ];
 
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -474,17 +475,17 @@ describe('connection', function () {
 
   describe('Sad Path', function () {
     afterEach(function () {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     describe('GET /connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
         const qbMock = {
-          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+          getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
         };
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
+        vi.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getConnections();
 
@@ -499,7 +500,7 @@ describe('connection', function () {
         connection.name = clients[0]!.name;
 
         const repo = depContainer.resolve<DomainRepository>(SERVICES.DOMAIN_REPOSITORY);
-        jest.spyOn(repo, 'checkInputForNonExistingDomains').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'checkInputForNonExistingDomains').mockRejectedValue(new Error());
 
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
@@ -512,7 +513,7 @@ describe('connection', function () {
         connection.name = clients[0]!.name;
         connection.token = '';
         const keyRepo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
-        jest.spyOn(keyRepo, 'getLatestKeys').mockRejectedValue(new Error());
+        vi.spyOn(keyRepo, 'getLatestKeys').mockRejectedValue(new Error());
 
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
@@ -525,10 +526,10 @@ describe('connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
         const qbMock = {
-          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+          getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
         };
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
+        vi.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getClientConnections({ pathParams: { clientName: 'avi' } });
 
@@ -541,10 +542,10 @@ describe('connection', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
         const qbMock = {
-          getMany: jest.fn().mockRejectedValue(new Error('DB Error')),
+          getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
         };
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        jest.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
+        vi.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
 
         const res = await requestSender.getClientEnvironmentConnections({ pathParams: { clientName: 'avi', environment: Environment.NP } });
 
@@ -561,7 +562,7 @@ describe('connection', function () {
 
         await requestSender.upsertConnection({ requestBody: connection });
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
         const res = await requestSender.getClientVersionedConnection({
           pathParams: { clientName: clients[0]!.name, environment: Environment.NP, version: 1 },
@@ -575,7 +576,7 @@ describe('connection', function () {
     describe('GET /client/:clientName/connection/:environment/latest', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        jest.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
 
         const res = await requestSender.getClientLatestConnection({
           pathParams: { clientName: connections[0]!.name, environment: Environment.NP },

@@ -6,7 +6,7 @@ import { Environment, IConnection, type Environments } from '../../model';
  */
 @Entity()
 export class Connection implements IConnection {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'varchar' })
   public name!: string;
 
   @PrimaryColumn({ type: 'integer' })

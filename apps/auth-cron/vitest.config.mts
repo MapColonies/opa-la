@@ -1,5 +1,5 @@
-import { defineConfig, ViteUserConfig } from 'vitest/config';
-import { reporters, getPathAlias } from '@map-colonies/vitest-utils';
+import { defineConfig } from 'vitest/config';
+import { getPathAlias, reporters } from '@map-colonies/vitest-utils';
 import tsconfig from './tsconfig.json';
 
 export default defineConfig({
@@ -8,7 +8,7 @@ export default defineConfig({
   },
   test: {
     globalSetup: './tests/configurations/vitest.globalSetup.ts',
-    setupFiles: ['./tests/configurations/vitest.setup.ts'],
+    setupFiles: ['@map-colonies/vitest-utils/extended'],
     include: ['tests/**/*.spec.ts'],
     environment: 'node',
     reporters,

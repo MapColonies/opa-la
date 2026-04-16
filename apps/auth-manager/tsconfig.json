@@ -2,9 +2,10 @@
   "extends": "@map-colonies/tsconfig/tsconfig-app",
   "compilerOptions": {
     "baseUrl": ".",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "paths": {
       "@src/*": ["./src/*"],
-      "@src": ["./src/index.ts"],
       "@common/*": ["./src/common/*"],
       "@tests/*": ["./tests/*"],
       "@client/*": ["./src/client/*"],

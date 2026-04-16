@@ -1,6 +1,6 @@
 import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { addWeeks } from 'date-fns';
-import jsLogger from '@map-colonies/js-logger';
+import { jsLogger } from '@map-colonies/js-logger';
 import nock, { abortPendingRequests, cleanAll } from 'nock';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';

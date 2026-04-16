@@ -3,6 +3,9 @@
   "include": ["src", "tests"],
   "exclude": ["dist", "node_modules"],
   "compilerOptions": {
-    "experimentalDecorators": true
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@common/*": ["./src/common/*"]
+    }
   }
 }

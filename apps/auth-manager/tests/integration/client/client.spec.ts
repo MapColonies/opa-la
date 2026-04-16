@@ -1,5 +1,6 @@
 /// <reference types="jest-extended" />
-import jsLogger from '@map-colonies/js-logger';
+import { beforeAll, describe, expect, it, afterAll, afterEach, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import { DependencyContainer } from 'tsyringe';
@@ -20,7 +21,7 @@ describe('client', function () {
   let depContainer: DependencyContainer;
 
   beforeAll(async function () {
-    await initConfig();
+    await initConfig(true);
     const [app, container] = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
@@ -492,13 +493,13 @@ describe('client', function () {
   });
   describe('Sad Path', function () {
     afterEach(function () {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     describe('GET /client', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ClientRepository>(SERVICES.CLIENT_REPOSITORY);
-        jest.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'findAndCount').mockRejectedValue(new Error());
 
         const res = await requestSender.getClients();
 
@@ -509,7 +510,7 @@ describe('client', function () {
     describe('POST /client', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ClientRepository>(SERVICES.CLIENT_REPOSITORY);
-        jest.spyOn(repo, 'insert').mockRejectedValue(new Error());
+        vi.spyOn(repo, 'insert').mockRejectedValue(new Error());
 
         const res = await requestSender.createClient({ requestBody: getFakeClient(false) });
 
@@ -520,7 +521,7 @@ describe('client', function () {
       describe('GET /client/:clientName', function () {
         it('should return 500 status code if db throws an error', async function () {
           const repo = depContainer.resolve<ClientRepository>(SERVICES.CLIENT_REPOSITORY);
-          jest.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+          vi.spyOn(repo, 'findOne').mockRejectedValue(new Error());
 
           const res = await requestSender.getClient({ pathParams: { clientName: 'avi' } });
 
@@ -532,7 +533,7 @@ describe('client', function () {
       describe('PATCH /client/:clientName', function () {
         it('should return 500 status code if db throws an error', async function () {
           const repo = depContainer.resolve<ClientRepository>(SERVICES.CLIENT_REPOSITORY);
-          jest.spyOn(repo, 'updateAndReturn').mockRejectedValue(new Error());
+          vi.spyOn(repo, 'updateAndReturn').mockRejectedValue(new Error());
 
           const res = await requestSender.updateClient({
             pathParams: { clientName: 'avi' },

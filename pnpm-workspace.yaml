@@ -9,3 +9,10 @@ catalog:
   '@map-colonies/eslint-config': '^8.0.0'
   '@map-colonies/tsconfig': ^2.0.0
   '@map-colonies/js-logger': ^4.1.0
+  '@map-colonies/openapi-helpers': '5.1.0'
+  'vitest': '4.1.4'
+  '@vitest/coverage-v8': '4.1.4'
+  '@vitest/ui': '4.1.4'
+  '@types/node': '24.12.0'
+  'jest-extended': '^7.0.0'
+  '@map-colonies/vitest-utils': '0.2.0'

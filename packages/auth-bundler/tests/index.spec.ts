@@ -3,6 +3,7 @@
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { mkdir } from 'node:fs/promises';
+import { describe, expect, it, beforeAll, afterEach, vi } from 'vitest';
 import {
   OpaBundleCreationError,
   OpaCoverageTooLowError,
@@ -24,12 +25,12 @@ describe('index.ts', function () {
 
   describe('#createBundle', function () {
     afterEach(function () {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
     });
 
     it('should run without errors', async function () {
-      jest.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
-      jest.spyOn(opa, 'createBundleCommand').mockResolvedValue([true, undefined]);
+      vi.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
+      vi.spyOn(opa, 'createBundleCommand').mockResolvedValue([true, undefined]);
 
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: false });
 
@@ -43,7 +44,7 @@ describe('index.ts', function () {
     });
 
     it('should throw an error if the opa binary is missing', async function () {
-      jest.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(false);
+      vi.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(false);
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz');
 
       await expect(promise).rejects.toThrow(OpaNotFoundError);
@@ -51,8 +52,8 @@ describe('index.ts', function () {
 
     it('should throw an error if the tests failed', async function () {
       const err = { x: 'd' };
-      jest.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
-      jest.spyOn(opa, 'testCommand').mockResolvedValue([false, err]);
+      vi.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
+      vi.spyOn(opa, 'testCommand').mockResolvedValue([false, err]);
 
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: true });
 
@@ -60,9 +61,9 @@ describe('index.ts', function () {
     });
 
     it('should throw an error if the coverage is below the threshold', async function () {
-      jest.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
-      jest.spyOn(opa, 'testCommand').mockResolvedValue([true, undefined]);
-      jest.spyOn(opa, 'testCoverageCommand').mockResolvedValue(60);
+      vi.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
+      vi.spyOn(opa, 'testCommand').mockResolvedValue([true, undefined]);
+      vi.spyOn(opa, 'testCoverageCommand').mockResolvedValue(60);
 
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: true, coverage: 80 });
 
@@ -71,8 +72,8 @@ describe('index.ts', function () {
 
     it('should throw an error if the bundle creation failed', async function () {
       const err = 'xd';
-      jest.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
-      jest.spyOn(opa, 'createBundleCommand').mockResolvedValue([false, err]);
+      vi.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
+      vi.spyOn(opa, 'createBundleCommand').mockResolvedValue([false, err]);
 
       const promise = createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: false });
 
