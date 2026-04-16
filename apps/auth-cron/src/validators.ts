@@ -1,4 +1,4 @@
-import { Environments } from '@map-colonies/auth-core';
+import type { Environments } from '@map-colonies/auth-core';
 import { getS3Client } from './s3';
 import { logger } from './telemetry/logger';
 

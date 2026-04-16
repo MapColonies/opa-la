@@ -1,4 +1,5 @@
-import { Logger, jsLogger } from '@map-colonies/js-logger';
+import type { Logger } from '@map-colonies/js-logger';
+import { jsLogger } from '@map-colonies/js-logger';
 import { setLogger } from '@map-colonies/auth-bundler';
 import { getConfig } from '../config';
 

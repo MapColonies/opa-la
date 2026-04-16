@@ -1,17 +1,18 @@
 // /// <reference types="jest-extended" />
 
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { writeFileSync } from 'node:fs';
 import { vi, describe, beforeAll, it, expect } from 'vitest';
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { Environment, Environments } from '@map-colonies/auth-core';
-import { infraOpalaCronV1Type } from '@map-colonies/schemas';
+import type { Environments } from '@map-colonies/auth-core';
+import { Environment } from '@map-colonies/auth-core';
+import type { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { jsLogger } from '@map-colonies/js-logger';
 import { initConfig, getConfig } from '@src/config';
 import { getS3Client } from '@src/s3';
-import * as appConfig from '@src/config';
+import type * as appConfig from '@src/config';
 
 vi.mock('../src/telemetry/logger', () => {
   return {
@@ -66,6 +67,7 @@ describe('s3.ts', function () {
       expect(() => getS3Client('avi' as Environments)).toThrow();
     });
   });
+
   describe('#getObjectHash', function () {
     it('should return the hash if the object exists', async function () {
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -121,7 +123,7 @@ describe('s3.ts', function () {
       const res = await s3client.send(new GetObjectCommand({ Bucket: cronOptions.s3.bucket, Key: 'xd' }));
 
       expect(res.ETag).toBe(hash);
-      expect(await res.Body?.transformToString()).toBe('abcdefg');
+      await expect(res.Body?.transformToString()).resolves.toBe('abcdefg');
     });
 
     it('should throw if something is wrong', async function () {

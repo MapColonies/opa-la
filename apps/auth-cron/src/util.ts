@@ -1,8 +1,8 @@
 import assert from 'node:assert';
 import { readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { Bundle } from '@map-colonies/auth-core';
-import { BundleContentVersions } from '@map-colonies/auth-bundler/dist/types';
+import type { Bundle } from '@map-colonies/auth-core';
+import type { BundleContentVersions } from '@map-colonies/auth-bundler/dist/types';
 import { logger } from './telemetry/logger';
 
 export function compareVersionsToBundle(bundle: Bundle, versions: BundleContentVersions): boolean {

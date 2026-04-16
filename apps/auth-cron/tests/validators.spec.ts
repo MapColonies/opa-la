@@ -16,9 +16,11 @@ describe('validators.ts', function () {
   beforeAll(async function () {
     await initConfig(true);
   });
+
   describe('#validateS3', function () {
     it('should not throw if the bucket exists', async function () {
       const promise = validateS3([Environment.NP]);
+
       await expect(promise).resolves.not.toThrow();
     });
 
