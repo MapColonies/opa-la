@@ -52,12 +52,15 @@ importers:
       '@commitlint/config-lerna-scopes':
         specifier: ^19.7.0
         version: 19.8.1(lerna@8.2.4(@swc/core@1.15.21)(@types/node@24.12.0)(encoding@0.1.13))
+      '@commitlint/config-pnpm-scopes':
+        specifier: ^20.4.3
+        version: 20.4.3
       '@faker-js/faker':
         specifier: ^9.7.0
         version: 9.9.0
       '@map-colonies/commitlint-config':
-        specifier: ^1.1.1
-        version: 1.1.1
+        specifier: ^2.0.0
+        version: 2.0.0
       '@map-colonies/eslint-config':
         specifier: 'catalog:'
         version: 8.0.0(@typescript-eslint/utils@8.58.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.8.3))(@vitest/eslint-plugin@1.6.15(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.8.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.8.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.8.3)(vitest@4.1.4))(eslint-plugin-jest@28.14.0(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.8.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.8.3))(eslint@9.39.4(jiti@2.6.1))(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.8.3)))(typescript@5.8.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(globals@15.15.0)(typescript@5.8.3)
@@ -68,8 +71,8 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
       '@map-colonies/tsconfig':
-        specifier: ^1.0.1
-        version: 1.0.1(typescript@5.8.3)
+        specifier: ^2.0.0
+        version: 2.0.0
       '@redocly/cli':
         specifier: ^1.34.2
         version: 1.34.11(ajv@8.18.0)(encoding@0.1.13)
@@ -1527,6 +1530,10 @@ packages:
     resolution: { integrity: sha512-/AZHJL6F6B/G959CsMAzrPKKZjeEiAVifRyEwXxcT6qtqbPwGw+iQxmNS+Bu+i09OCtdNRW6pNpBvgPrtMr9EQ== }
     engines: { node: '>=v18' }
 
+  '@commitlint/config-conventional@20.5.0':
+    resolution: { integrity: sha512-t3Ni88rFw1XMa4nZHgOKJ8fIAT9M2j5TnKyTqJzsxea7FUetlNdYFus9dz+MhIRZmc16P0PPyEfh6X2d/qw8SA== }
+    engines: { node: '>=v18' }
+
   '@commitlint/config-lerna-scopes@19.8.1':
     resolution: { integrity: sha512-oyHjIUj/yL54C+UfvMxpd3C6ajzS90sjSeepN0VYwPrRA8vI4l+9obmoJVvg0zx99WG+Pa1Ml/VV5puIJpwYug== }
     engines: { node: '>=v18' }
@@ -1535,6 +1542,10 @@ packages:
     peerDependenciesMeta:
       lerna:
         optional: true
+
+  '@commitlint/config-pnpm-scopes@20.4.3':
+    resolution: { integrity: sha512-rDDhFdZrK1iHlqCrmbVrdU+jan7zh0v2Ki145hviKIjHI24sglw2AwSJyctjLR4OhBp+YFqcu4n4O2TbuTPThQ== }
+    engines: { node: '>=v18' }
 
   '@commitlint/config-validator@19.8.1':
     resolution: { integrity: sha512-0jvJ4u+eqGPBIzzSdqKNX1rvdbSU1lPNYlfQQRIFnBgLy26BtC0cFnr7c/AyuzExMxWsMOte6MkTi9I3SQ3iGQ== }
@@ -1598,6 +1609,10 @@ packages:
 
   '@commitlint/types@19.8.1':
     resolution: { integrity: sha512-/yCrWGCoA1SVKOks25EGadP9Pnj0oAIHGpl2wH2M2Y46dPM2ueb8wyCVOD7O3WCTkaJ0IkKvzhl1JY7+uCT2Dw== }
+    engines: { node: '>=v18' }
+
+  '@commitlint/types@20.5.0':
+    resolution: { integrity: sha512-ZJoS8oSq2CAZEpc/YI9SulLrdiIyXeHb/OGqGrkUP6Q7YV+0ouNAa7GjqRdXeQPncHQIDz/jbCTlHScvYvO/gA== }
     engines: { node: '>=v18' }
 
   '@cspotcode/source-map-support@0.8.1':
@@ -2159,6 +2174,10 @@ packages:
     engines: { node: '>=6' }
     hasBin: true
 
+  '@gwhitney/detect-indent@7.0.1':
+    resolution: { integrity: sha512-7bQW+gkKa2kKZPeJf6+c6gFK9ARxQfn+FKy9ScTBppyKRWH2KzsmweXUoklqeEiHiNVWaeP5csIdsNq6w7QhzA== }
+    engines: { node: '>=12.20' }
+
   '@hapi/hoek@9.3.0':
     resolution: { integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ== }
 
@@ -2353,6 +2372,10 @@ packages:
   '@map-colonies/commitlint-config@1.1.1':
     resolution: { integrity: sha512-CzGXbec9SwpGGngZddUJ7rfZiJeUNUxLjWir1GRACjOYO19EliXF9MwVn4rOtscKQCmuaTEMOg4+21LyFdqRyg== }
     engines: { node: '>=20' }
+
+  '@map-colonies/commitlint-config@2.0.0':
+    resolution: { integrity: sha512-1GOV5rOs0qz7LRJuh1Ii1fWMGsaEDGY0geIIdAwyfmEG76Uu0WO4gdd7Wax33HkE2BE9er48QiKiW4Y0AFsAPA== }
+    engines: { node: '>=24' }
 
   '@map-colonies/config@3.0.2':
     resolution: { integrity: sha512-0cLGqMGwbdVFflVR0TTcelwotwJc1hmil8bVhn5CcaYjMyOR61E8gnnIEExpPeQIfXJ4ri6hlbO8sHM4YMo3aA== }
@@ -3354,6 +3377,34 @@ packages:
     resolution: { integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA== }
     engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
 
+  '@pnpm/constants@7.1.1':
+    resolution: { integrity: sha512-31pZqMtjwV+Vaq7MaPrT1EoDFSYwye3dp6BiHIGRJmVThCQwySRKM7hCvqqI94epNkqFAAYoWrNynWoRYosGdw== }
+    engines: { node: '>=16.14' }
+
+  '@pnpm/error@5.0.3':
+    resolution: { integrity: sha512-ONJU5cUeoeJSy50qOYsMZQHTA/9QKmGgh1ATfEpCLgtbdwqUiwD9MxHNeXUYYI/pocBCz6r1ZCFqiQvO+8SUKA== }
+    engines: { node: '>=16.14' }
+
+  '@pnpm/graceful-fs@3.2.0':
+    resolution: { integrity: sha512-vRoXJxscDpHak7YE9SqCkzfrayn+Lw+YueOeHIPEqkgokrHeYgYeONoc2kGh0ObHaRtNSsonozVfJ456kxLNvA== }
+    engines: { node: '>=16.14' }
+
+  '@pnpm/read-project-manifest@5.0.11':
+    resolution: { integrity: sha512-themRLiDt9Ud6Somlu0PJbeprBBQEhlI1xNG5bZIv26yfLsc1vYLd1TfgGViD1b8fP0jxAqsUrDM+WMaMKI+gw== }
+    engines: { node: '>=16.14' }
+
+  '@pnpm/text.comments-parser@2.0.0':
+    resolution: { integrity: sha512-DRWtTmmxQQtuWHf1xPt9bqzCSq8d0MQF5x1kdpCDMLd7xk3nP4To2/OGkPrb8MKbrWsgCNDwXyKCFlEKrAg7fg== }
+    engines: { node: '>=16.14' }
+
+  '@pnpm/types@9.4.2':
+    resolution: { integrity: sha512-g1hcF8Nv4gd76POilz9gD4LITAPXOe5nX4ijgr8ixCbLQZfcpYiMfJ+C1RlMNRUDo8vhlNB4O3bUlxmT6EAQXA== }
+    engines: { node: '>=16.14' }
+
+  '@pnpm/write-project-manifest@5.0.6':
+    resolution: { integrity: sha512-3qkKCftRE/HXzoWedyDuaMMUQzheDwx8AQXR0DnA9ylsBnZQYNut19Ado/gzi5+IvznaMcqrBszw57j3y1/ILw== }
+    engines: { node: '>=16.14' }
+
   '@polka/url@0.5.0':
     resolution: { integrity: sha512-oZLYFEAzUKyi3SKnXvj32ZCEGH6RDnao7COuCVhDydMS9NrCSVXhM79VaKyP5+Zc33m0QXEd2DN3UkU7OsHcfw== }
 
@@ -4081,6 +4132,10 @@ packages:
   '@sigstore/verify@1.2.1':
     resolution: { integrity: sha512-8iKx79/F73DKbGfRf7+t4dqrc0bRr0thdPrxAtCKWRm/F0tG71i6O1rvlnScncJLLBZHn3h8M3c1BSUAb9yu8g== }
     engines: { node: ^16.14.0 || >=18.0.0 }
+
+  '@simple-libs/stream-utils@1.2.0':
+    resolution: { integrity: sha512-KxXvfapcixpz6rVEB6HPjOUZT22yN6v0vI0urQSk1L8MlEWPDFCZkhw2xmkyoTGYeFw7tWTZd7e3lVzRZRN/EA== }
+    engines: { node: '>=18' }
 
   '@sinclair/typebox@0.27.10':
     resolution: { integrity: sha512-MTBk/3jGLNB2tVxv6uLlFh1iu64iYOQ2PbdOSK3NW8JZsmlaOh2q6sdtKowBhfw8QFLmYNzTW4/oK4uATIi6ZA== }
@@ -5534,6 +5589,10 @@ packages:
     resolution: { integrity: sha512-NKXYmMR/Hr1DevQegFB4MwfM5Vv0m4UIxKZTTYuD98lpTknaZlSRrDOG4X7wIXpGkfsYxZTghUN+Qq+T0YQI7w== }
     engines: { node: '>=16' }
 
+  conventional-changelog-conventionalcommits@9.3.1:
+    resolution: { integrity: sha512-dTYtpIacRpcZgrvBYvBfArMmK2xvIpv2TaxM0/ZI5CBtNUzvF2x0t15HsbRABWprS6UPmvj+PzHVjSx4qAVKyw== }
+    engines: { node: '>=18' }
+
   conventional-changelog-core@5.0.1:
     resolution: { integrity: sha512-Rvi5pH+LvgsqGwZPZ3Cq/tz4ty7mjijhr3qR4m9IBXNbxGGYgTVVO+duXzz9aArmHxFtwZ+LRkrNIMDQzgoY4A== }
     engines: { node: '>=14' }
@@ -5559,6 +5618,11 @@ packages:
   conventional-commits-parser@5.0.0:
     resolution: { integrity: sha512-ZPMl0ZJbw74iS9LuX9YIAiW8pfM5p3yh2o/NbXHbkFuZzY5jvdi5jFycEOkmBW5H5I7nA+D6f3UcsCLP2vvSEA== }
     engines: { node: '>=16' }
+    hasBin: true
+
+  conventional-commits-parser@6.4.0:
+    resolution: { integrity: sha512-tvRg7FIBNlyPzjdG8wWRlPHQJJHI7DylhtRGeU9Lq+JuoPh5BKpPRX83ZdLrvXuOSu5Eo/e7SzOQhU4Hd2Miuw== }
+    engines: { node: '>=18' }
     hasBin: true
 
   conventional-recommended-bump@7.0.1:
@@ -7071,6 +7135,10 @@ packages:
     resolution: { integrity: sha512-yvkRyxmFKEOQ4pNXCmJG5AEQNlXJS5LaONXo5/cLdTZdWvsZ1ioJEonLGAosKlMWE8lwUy/bJzMjcw8az73+Fg== }
     engines: { node: '>=0.10.0' }
 
+  is-plain-obj@2.1.0:
+    resolution: { integrity: sha512-YWnfyRwxL/+SsrWYfOpUtz5b3YD+nyfkHvjbcanzk8zgyO4ASD67uVMRt8k5bM4lLMDnXfriRhOpemw+NfT1eA== }
+    engines: { node: '>=8' }
+
   is-plain-obj@4.1.0:
     resolution: { integrity: sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg== }
     engines: { node: '>=12' }
@@ -7148,6 +7216,10 @@ packages:
   is-weakset@2.0.4:
     resolution: { integrity: sha512-mfcwb6IzQyOKTs84CQMrOwW4gQcaTOAWJ0zzJCl2WSPDrWk/OzDaImWFH3djXhb24g4eudZfLRozAvPGw4d9hQ== }
     engines: { node: '>= 0.4' }
+
+  is-windows@1.0.2:
+    resolution: { integrity: sha512-eXK1UInq2bPmjyX6e3VHIzMLobc4J94i4AWn+Hpq3OU5KkrRC96OAcR3PRJ/pGu6m8TRnBHP9dkXQVsT/COVIA== }
+    engines: { node: '>=0.10.0' }
 
   is-wsl@2.2.0:
     resolution: { integrity: sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww== }
@@ -7851,6 +7923,10 @@ packages:
   meow@12.1.1:
     resolution: { integrity: sha512-BhXM0Au22RwUneMPwSCnyhTOizdWoIEPU9sp0Aqa1PnDMR5Wv2FGXYDjuzJEIX+Eo2Rb8xuYe5jrnm5QowQFkw== }
     engines: { node: '>=16.10' }
+
+  meow@13.2.0:
+    resolution: { integrity: sha512-pxQJQzB6djGPXh08dacEloMFopsOqGVRKFPYvPOt9XDZ1HasbgDZA74CJGreSU4G3Ak7EFJGoiH2auq+yXISgA== }
+    engines: { node: '>=18' }
 
   meow@8.1.2:
     resolution: { integrity: sha512-r85E3NdZ+mpYk1C6RjPFEMSE+s1iZMuHtsHAqY0DT3jZczl0diWUZ8g6oU7h0M9cD2EL+PzaYghhCLzR0ZNn5Q== }
@@ -9160,6 +9236,10 @@ packages:
     resolution: { integrity: sha512-Ug69mNOpfvKDAc2Q8DRpMjjzdtrnv9HcSMX+4VsZxD1aZ6ZzrIE7rlzXBtWTyhULSMKg076AW6WR5iZpD0JiOg== }
     engines: { node: '>=8' }
 
+  read-yaml-file@2.1.0:
+    resolution: { integrity: sha512-UkRNRIwnhG+y7hpqnycCL/xbTk7+ia9VuVTC0S+zVbwd65DI9eUpRMfsWIGrCWxTU/mi+JW8cHQCrv+zfCbEPQ== }
+    engines: { node: '>=10.13' }
+
   read@3.0.1:
     resolution: { integrity: sha512-SLBrDU/Srs/9EoWhU5GdbAoxG1GzpQHo/6qiGItaoLJ1thmYpcNIM1qISEUvyHBzfGlWIyd6p2DNi1oV1VmAuw== }
     engines: { node: ^14.17.0 || ^16.13.0 || >=18.0.0 }
@@ -9530,6 +9610,10 @@ packages:
     resolution: { integrity: sha512-/dPCrG1s3ePpWm6yBbxZq5Be1dXGLyLn9Z791chDC3NFrpkVbWGzkBwPN1knaciexFXgRJ7hzdnwZ4stHSDmjg== }
     engines: { node: '>=4' }
 
+  sort-keys@4.2.0:
+    resolution: { integrity: sha512-aUYIEU/UviqPgc8mHR6IW1EGxkAXpeRETYcrzg8cLAvUPZcpAlleSXHV2mY7G12GphSH6Gzv+4MMVSSkbdteHg== }
+    engines: { node: '>=8' }
+
   source-map-js@1.2.1:
     resolution: { integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA== }
     engines: { node: '>=0.10.0' }
@@ -9682,6 +9766,9 @@ packages:
   strip-bom@4.0.0:
     resolution: { integrity: sha512-3xurFv5tEgii33Zi8Jtp55wEIILR9eh34FAW00PZf+JnSsTmV/ioewSgQl97JHvgjoRGwPShsWm+IdrxB35d0w== }
     engines: { node: '>=8' }
+
+  strip-comments-strings@1.2.0:
+    resolution: { integrity: sha512-zwF4bmnyEjZwRhaak9jUWNxc0DoeKBJ7lwSN/LEc8dQXZcUFG6auaaTQJokQWXopLdM3iTx01nQT8E4aL29DAQ== }
 
   strip-final-newline@2.0.0:
     resolution: { integrity: sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA== }
@@ -10537,6 +10624,10 @@ packages:
   write-pkg@4.0.0:
     resolution: { integrity: sha512-v2UQ+50TNf2rNHJ8NyWttfm/EJUBWMJcx6ZTYZr6Qp52uuegWw/lBkCtCbnYZEmPRNL61m+u67dAmGxo+HTULA== }
     engines: { node: '>=8' }
+
+  write-yaml-file@5.0.0:
+    resolution: { integrity: sha512-FdNA4RyH1L43TlvGG8qOMIfcEczwA5ij+zLXUy3Z83CjxhLvcV7/Q/8pk22wnCgYw7PJhtK+7lhO+qqyT4NdvQ== }
+    engines: { node: '>=16.14' }
 
   ws@7.5.10:
     resolution: { integrity: sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ== }
@@ -11633,12 +11724,23 @@ snapshots:
       '@commitlint/types': 19.8.1
       conventional-changelog-conventionalcommits: 7.0.2
 
+  '@commitlint/config-conventional@20.5.0':
+    dependencies:
+      '@commitlint/types': 20.5.0
+      conventional-changelog-conventionalcommits: 9.3.1
+
   '@commitlint/config-lerna-scopes@19.8.1(lerna@8.2.4(@swc/core@1.15.21)(@types/node@24.12.0)(encoding@0.1.13))':
     dependencies:
       '@commitlint/config-workspace-scopes': 19.8.1
       fast-glob: 3.3.3
     optionalDependencies:
       lerna: 8.2.4(@swc/core@1.15.21)(@types/node@24.12.0)(encoding@0.1.13)
+
+  '@commitlint/config-pnpm-scopes@20.4.3':
+    dependencies:
+      '@pnpm/read-project-manifest': 5.0.11
+      fast-glob: 3.3.3
+      read-yaml-file: 2.1.0
 
   '@commitlint/config-validator@19.8.1':
     dependencies:
@@ -11751,6 +11853,11 @@ snapshots:
     dependencies:
       '@types/conventional-commits-parser': 5.0.2
       chalk: 5.6.2
+
+  '@commitlint/types@20.5.0':
+    dependencies:
+      conventional-commits-parser: 6.4.0
+      picocolors: 1.1.1
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -12108,6 +12215,8 @@ snapshots:
       long: 5.3.2
       protobufjs: 7.5.4
       yargs: 17.7.2
+
+  '@gwhitney/detect-indent@7.0.1': {}
 
   '@hapi/hoek@9.3.0': {}
 
@@ -12520,6 +12629,10 @@ snapshots:
     dependencies:
       '@commitlint/config-conventional': 19.8.1
 
+  '@map-colonies/commitlint-config@2.0.0':
+    dependencies:
+      '@commitlint/config-conventional': 20.5.0
+
   '@map-colonies/config@3.0.2(@map-colonies/schemas@1.18.0)(prom-client@15.1.3)':
     dependencies:
       '@apideck/better-ajv-errors': 0.3.6(ajv@8.18.0)
@@ -12702,10 +12815,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
-
-  '@map-colonies/tsconfig@1.0.1(typescript@5.8.3)':
-    dependencies:
-      typescript: 5.8.3
 
   '@map-colonies/tsconfig@1.0.1(typescript@5.9.3)':
     dependencies:
@@ -13917,6 +14026,47 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
+  '@pnpm/constants@7.1.1': {}
+
+  '@pnpm/error@5.0.3':
+    dependencies:
+      '@pnpm/constants': 7.1.1
+
+  '@pnpm/graceful-fs@3.2.0':
+    dependencies:
+      graceful-fs: 4.2.11
+
+  '@pnpm/read-project-manifest@5.0.11':
+    dependencies:
+      '@gwhitney/detect-indent': 7.0.1
+      '@pnpm/error': 5.0.3
+      '@pnpm/graceful-fs': 3.2.0
+      '@pnpm/text.comments-parser': 2.0.0
+      '@pnpm/types': 9.4.2
+      '@pnpm/write-project-manifest': 5.0.6
+      fast-deep-equal: 3.1.3
+      is-windows: 1.0.2
+      json5: 2.2.3
+      lodash.clonedeep: 4.5.0
+      parse-json: 5.2.0
+      read-yaml-file: 2.1.0
+      sort-keys: 4.2.0
+      strip-bom: 4.0.0
+
+  '@pnpm/text.comments-parser@2.0.0':
+    dependencies:
+      strip-comments-strings: 1.2.0
+
+  '@pnpm/types@9.4.2': {}
+
+  '@pnpm/write-project-manifest@5.0.6':
+    dependencies:
+      '@pnpm/text.comments-parser': 2.0.0
+      '@pnpm/types': 9.4.2
+      json5: 2.2.3
+      write-file-atomic: 5.0.1
+      write-yaml-file: 5.0.0
+
   '@polka/url@0.5.0': {}
 
   '@polka/url@1.0.0-next.29': {}
@@ -14676,6 +14826,8 @@ snapshots:
       '@sigstore/core': 1.1.0
       '@sigstore/protobuf-specs': 0.3.3
     optional: true
+
+  '@simple-libs/stream-utils@1.2.0': {}
 
   '@sinclair/typebox@0.27.10': {}
 
@@ -16241,6 +16393,10 @@ snapshots:
     dependencies:
       compare-func: 2.0.0
 
+  conventional-changelog-conventionalcommits@9.3.1:
+    dependencies:
+      compare-func: 2.0.0
+
   conventional-changelog-core@5.0.1:
     dependencies:
       add-stream: 1.0.0
@@ -16290,6 +16446,11 @@ snapshots:
       is-text-path: 2.0.0
       meow: 12.1.1
       split2: 4.2.0
+
+  conventional-commits-parser@6.4.0:
+    dependencies:
+      '@simple-libs/stream-utils': 1.2.0
+      meow: 13.2.0
 
   conventional-recommended-bump@7.0.1:
     dependencies:
@@ -18043,6 +18204,8 @@ snapshots:
   is-plain-obj@1.1.0:
     optional: true
 
+  is-plain-obj@2.1.0: {}
+
   is-plain-obj@4.1.0: {}
 
   is-plain-object@2.0.4:
@@ -18116,6 +18279,8 @@ snapshots:
     dependencies:
       call-bound: 1.0.4
       get-intrinsic: 1.3.0
+
+  is-windows@1.0.2: {}
 
   is-wsl@2.2.0:
     dependencies:
@@ -19261,6 +19426,8 @@ snapshots:
       - supports-color
 
   meow@12.1.1: {}
+
+  meow@13.2.0: {}
 
   meow@8.1.2:
     dependencies:
@@ -20857,6 +21024,11 @@ snapshots:
       type-fest: 0.6.0
     optional: true
 
+  read-yaml-file@2.1.0:
+    dependencies:
+      js-yaml: 4.1.1
+      strip-bom: 4.0.0
+
   read@3.0.1:
     dependencies:
       mute-stream: 1.0.0
@@ -21381,6 +21553,10 @@ snapshots:
       is-plain-obj: 1.1.0
     optional: true
 
+  sort-keys@4.2.0:
+    dependencies:
+      is-plain-obj: 2.1.0
+
   source-map-js@1.2.1: {}
 
   source-map-support@0.5.13:
@@ -21540,6 +21716,8 @@ snapshots:
     optional: true
 
   strip-bom@4.0.0: {}
+
+  strip-comments-strings@1.2.0: {}
 
   strip-final-newline@2.0.0: {}
 
@@ -22433,7 +22611,6 @@ snapshots:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
-    optional: true
 
   write-json-file@3.2.0:
     dependencies:
@@ -22451,6 +22628,11 @@ snapshots:
       type-fest: 0.4.1
       write-json-file: 3.2.0
     optional: true
+
+  write-yaml-file@5.0.0:
+    dependencies:
+      js-yaml: 4.1.1
+      write-file-atomic: 5.0.1
 
   ws@7.5.10: {}
 
