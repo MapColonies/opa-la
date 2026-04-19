@@ -6,9 +6,16 @@
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
   "main": "dist/index.js",
+  "type": "commonjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MapColonies/opa-la.git"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
   },
   "scripts": {
     "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
@@ -17,11 +24,12 @@
     "migration:revert": "npm run typeorm migration:revert -- ",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "prebuild": "npm run clean",
-    "build": "tsc --project tsconfig.build.json && npm run assets:copy",
-    "prepublish": "npm run build",
+    "prebuild": "pnpm run clean",
+    "build": "tsc --project tsconfig.build.json && pnpm run assets:copy",
     "assets:copy": "copyfiles ./package.json dist",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "prepack": "turbo run build",
+    "check-dist": "publint && attw --pack ."
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"

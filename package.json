@@ -15,7 +15,8 @@
     "lint:fix": "turbo run lint:fix",
     "version": "node scripts/version-bump.mjs",
     "release": "npx lerna version --conventional-commits",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "check-dist": "turbo run check-dist"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
@@ -41,7 +42,9 @@
     "yaml": "2.3.0",
     "zx": "^7.2.2",
     "turbo": "^2.8.20",
-    "@vitest/eslint-plugin": "^1.6.15"
+    "@vitest/eslint-plugin": "^1.6.15",
+    "@arethetypeswrong/cli": "^0.18.2",
+    "publint": "0.3.18"
   },
   "engines": {
     "node": ">=24",
