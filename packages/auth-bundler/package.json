@@ -31,7 +31,8 @@
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
     "clean": "rimraf dist",
     "prepack": "turbo run build",
-    "check-dist": "publint && attw --pack ."
+    "check-dist": "publint && attw --pack .",
+    "knip": "knip --directory ../.. --workspace packages/auth-bundler"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"

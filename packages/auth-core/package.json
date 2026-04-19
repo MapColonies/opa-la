@@ -18,7 +18,7 @@
     }
   },
   "scripts": {
-    "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
+    "typeorm": "node node_modules/typeorm/cli.js -d ./dataSource.mjs",
     "migration:create": "npm run typeorm migration:generate --",
     "migration:run": "npm run typeorm migration:run -- ",
     "migration:revert": "npm run typeorm migration:revert -- ",
@@ -29,15 +29,14 @@
     "assets:copy": "copyfiles ./package.json dist",
     "clean": "rimraf dist",
     "prepack": "turbo run build",
-    "check-dist": "publint && attw --pack ."
+    "check-dist": "publint && attw --pack .",
+    "knip": "knip --directory ../.. --workspace packages/auth-core"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"
   },
   "dependencies": {
-    "@map-colonies/read-pkg": "0.0.1",
     "pg": "^8.10.0",
-    "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.12"
   },
   "devDependencies": {
@@ -46,8 +45,6 @@
     "@map-colonies/tsconfig": "catalog:",
     "@types/node": "catalog:",
     "@types/pg": "^8.6.6",
-    "@types/pg-pool": "^2.0.3",
-    "config": "^3.3.9",
     "copyfiles": "^2.4.1",
     "rimraf": "^4.4.0",
     "ts-node": "^10.9.1",

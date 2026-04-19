@@ -26,7 +26,8 @@
     "build:docker-no-cache": "cross-env DOCKER_FLAGS=--no-cache pnpm run build:docker",
     "start": "npm run build && cd dist && node --enable-source-maps --import ./instrumentation.mjs ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles ./dataSource.mjs dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "knip": "knip --directory ../.. --workspace apps/auth-cron"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"

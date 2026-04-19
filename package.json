@@ -16,7 +16,9 @@
     "version": "node scripts/version-bump.mjs",
     "release": "npx lerna version --conventional-commits",
     "build": "turbo run build",
-    "check-dist": "turbo run check-dist"
+    "check-dist": "turbo run check-dist",
+    "knip": "knip",
+    "docs": "typedoc"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
@@ -44,7 +46,8 @@
     "turbo": "^2.8.20",
     "@vitest/eslint-plugin": "^1.6.15",
     "@arethetypeswrong/cli": "^0.18.2",
-    "publint": "0.3.18"
+    "publint": "0.3.18",
+    "knip": "^6.4.1"
   },
   "engines": {
     "node": ">=24",

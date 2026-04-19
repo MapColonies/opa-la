@@ -33,7 +33,8 @@
     "start:dev": "npm run build && cd dist && cross-env CONFIG_OFFLINE_MODE=true  node --enable-source-maps --import ./instrumentation.mjs ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./dataSource.mjs dist && copyfiles ./package.json dist",
     "clean": "rimraf dist",
-    "generate:openapi-types": "openapi-helpers ./openapi3.yaml ./src/openapi.d.ts --format --add-typed-request-handler"
+    "generate:openapi-types": "openapi-helpers ./openapi3.yaml ./src/openapi.d.ts --format --add-typed-request-handler",
+    "knip": "knip --directory ../.. --workspace apps/auth-manager"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"

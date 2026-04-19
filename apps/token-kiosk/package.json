@@ -21,7 +21,8 @@
     "migration:create": "drizzle-kit generate --config drizzle.config.mts",
     "migration:run": "ts-node ./src/db/runMigrations.ts",
     "build:docker": "docker buildx build --build-arg APP_NAME=$npm_package_name -f ../../docker/backend.Dockerfile -t ${DOCKER_REGISTRY:-}${npm_package_name}:${DOCKER_TAG:-latest} ${DOCKER_FLAGS:-} ../..",
-    "build:docker-no-cache": "cross-env DOCKER_FLAGS=--no-cache pnpm run build:docker"
+    "build:docker-no-cache": "cross-env DOCKER_FLAGS=--no-cache pnpm run build:docker",
+    "knip": "knip --directory ../.. --workspace apps/token-kiosk"
   },
   "directories": {
     "test": "tests"
