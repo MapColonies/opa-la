@@ -12,7 +12,7 @@ import { type ClientRepository } from '../DAL/clientRepository';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
 import { ClientSearchParams } from './client';
 
-export function isQueryFailedError(err: unknown): err is QueryFailedError {
+function isQueryFailedError(err: unknown): err is QueryFailedError {
   return typeof err === 'object' && err !== null && 'name' in err && (err as Error).name === 'QueryFailedError';
 }
 

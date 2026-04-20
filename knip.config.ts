@@ -38,8 +38,9 @@ const config: KnipConfig = {
       ignore: ['example/**'],
       ignoreBinaries: ['opa'],
     },
-    'apps/token-kiosk': {
+    'apps/*': {
       ...basePackageConfig,
+      ignoreDependencies: ['@types/lodash'],
     },
     'apps/kiosk-ui': {
       ignore: ['src/types/**'],
