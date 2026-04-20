@@ -63,18 +63,14 @@
     "zod": "^4.0.5"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.0",
-    "@map-colonies/commitlint-config": "^1.1.1",
     "@map-colonies/openapi-helpers": "catalog:",
     "@map-colonies/tsconfig": "^1.0.1",
     "config": "4.4.1",
     "@types/compression": "^1.7.5",
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.2",
-    "@types/multer": "^1.4.12",
     "@types/nunjucks": "^3.2.6",
     "@types/supertest": "^6.0.2",
-    "@types/swagger-ui-express": "^4.1.8",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "@types/body-parser": "1.19.6",
@@ -90,6 +86,7 @@
     "tsc-alias": "^1.8.11",
     "typescript": "catalog:",
     "vitest": "catalog:",
+    "ts-node": "^10.9.2",
     "@map-colonies/vitest-utils": "catalog:"
   }
 }

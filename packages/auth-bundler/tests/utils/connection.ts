@@ -17,10 +17,3 @@ export function getFakeConnection(): Connection {
     token: faker.string.alpha(),
   };
 }
-
-export function getFakeIConnection(includeCreated?: boolean): IConnection {
-  const connection: IConnection = getFakeConnection();
-  connection.createdAt = includeCreated === true ? faker.date.past() : undefined;
-
-  return connection;
-}

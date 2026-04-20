@@ -1,6 +1,6 @@
 import { integer, jsonb, pgSchema, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-export const pgDbSchema = pgSchema('token_kiosk');
+const pgDbSchema = pgSchema('token_kiosk');
 
 export const users = pgDbSchema.table('users', {
   id: text('id').primaryKey().notNull(),

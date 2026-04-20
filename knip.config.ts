@@ -8,30 +8,41 @@ type UnwrapConfig<T> = T extends (...args: any[]) => infer R // 1. Is it a funct
 
 type PackageConfig = Exclude<UnwrapConfig<KnipConfig>['workspaces'], undefined>[string];
 
+const entry = ['src/index.ts', 'dataSource.{ts,mjs}', 'drizzle.config.mts', 'src/instrumentation.mts', 'src/main.tsx'];
+
 const basePackageConfig: PackageConfig = {
-  entry: ['src/index.ts'],
+  entry,
   vitest: { config: 'vitest.config.mts', entry: ['tests/**/*.spec.ts', 'tests/**/*.test-d.ts'] },
   typescript: {
     config: ['tsconfig.json', 'tsconfig.build.json'],
   },
+  ignoreUnresolved: ['./instrumentation.mjs'],
 };
 
 const config: KnipConfig = {
   $schema: 'https://unpkg.com/knip@5/schema.json',
+  ignoreIssues: {
+    'apps/*/src/components/ui/**': ['exports'],
+  },
   ignoreExportsUsedInFile: {
     interface: true,
     type: true,
   },
   workspaces: {
-    'packages/*': {
-      ...basePackageConfig,
-    },
     'packages/auth-core': {
       ...basePackageConfig,
-      entry: ['src/index.ts', 'src/config.ts', 'dataSource.mjs', 'src/db/migrations/*'], // config.ts is used in a way that knip can't detect, so we need to add it as an entry point
+      entry: [...entry, 'src/config.ts', 'src/db/migrations/*'],
     },
-    'apps/*': {
+    'packages/auth-bundler': {
       ...basePackageConfig,
+      ignore: ['example/**'],
+      ignoreBinaries: ['opa'],
+    },
+    'apps/token-kiosk': {
+      ...basePackageConfig,
+    },
+    'apps/kiosk-ui': {
+      ignore: ['src/types/**'],
     },
   },
 };

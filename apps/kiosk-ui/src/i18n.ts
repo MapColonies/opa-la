@@ -54,4 +54,4 @@ if (i18n && typeof i18n.on === 'function') {
   });
 }
 
-export default i18n;
+// export default i18n;
