@@ -44,6 +44,9 @@ const config: KnipConfig = {
     'apps/kiosk-ui': {
       ignore: ['src/types/**'],
     },
+    'apps/auth-ui': {
+      ignore: ['src/types/**'],
+    },
   },
 };
 
