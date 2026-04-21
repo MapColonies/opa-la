@@ -1,8 +1,8 @@
 import { Tracing } from '@map-colonies/telemetry';
 
 let tracing: Tracing | undefined;
-export const IGNORED_OUTGOING_TRACE_ROUTES = [/^.*\/v1\/metrics.*$/];
-export const IGNORED_INCOMING_TRACE_ROUTES = [/^.*\/docs.*$/];
+const IGNORED_OUTGOING_TRACE_ROUTES = [/^.*\/v1\/metrics.*$/];
+const IGNORED_INCOMING_TRACE_ROUTES = [/^.*\/docs.*$/];
 
 export function tracingFactory(options: ConstructorParameters<typeof Tracing>[0]): Tracing {
   tracing = new Tracing({
@@ -23,9 +23,9 @@ export function tracingFactory(options: ConstructorParameters<typeof Tracing>[0]
   return tracing;
 }
 
-export function getTracing(): Tracing {
-  if (!tracing) {
-    throw new Error('tracing not initialized');
-  }
-  return tracing;
-}
+// export function getTracing(): Tracing {
+//   if (!tracing) {
+//     throw new Error('tracing not initialized');
+//   }
+//   return tracing;
+// }

@@ -3,7 +3,6 @@ packages:
   - apps/*
 
 catalog:
-  rimraf: ^6.1.2
   typescript: ^5.9.3
   eslint: ^9.39.2
   '@map-colonies/eslint-config': '^8.0.0'

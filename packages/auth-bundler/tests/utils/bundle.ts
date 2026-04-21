@@ -1,8 +1,5 @@
-import { faker } from '@faker-js/faker';
-import { AssetType, Environment, type IBundle } from '@map-colonies/auth-core';
+import { AssetType, Environment } from '@map-colonies/auth-core';
 import type { BundleContent } from '@src/index';
-
-const EIGHT = 8;
 
 const baseAsset = { createdAt: new Date(), environment: [Environment.PRODUCTION], version: 1 };
 

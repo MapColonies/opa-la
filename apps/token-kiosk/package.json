@@ -81,7 +81,6 @@
     "drizzle-kit": "^0.31.4",
     "jest-openapi": "^0.14.2",
     "nock": "^14.0.5",
-    "rimraf": "^6.0.1",
     "supertest": "^7.1.0",
     "tsc-alias": "^1.8.11",
     "typescript": "catalog:",

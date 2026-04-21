@@ -1,4 +1,4 @@
-import { type Connection, Environment, type IConnection } from '@map-colonies/auth-core';
+import { type Connection, Environment } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 
 const EIGHT = 8;
