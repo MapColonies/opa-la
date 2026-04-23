@@ -1,27 +1,23 @@
 {
-  "name": "@map-colonies/auth-core",
-  "version": "1.8.0",
-  "description": "package for auth types and functions",
+  "name": "test-utils",
+  "version": "1.0.0",
+  "description": "Shared test utilities for opa-la packages and apps",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
+  "private": true,
+  "type": "module",
   "main": "dist/index.js",
-  "type": "commonjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MapColonies/opa-la.git"
   },
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
-    "typeorm": "node node_modules/typeorm/cli.js -d ./dataSource.mjs",
-    "migration:create": "npm run typeorm migration:generate --",
-    "migration:run": "npm run typeorm migration:run -- ",
-    "migration:revert": "npm run typeorm migration:revert -- ",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prebuild": "pnpm run clean",
@@ -30,25 +26,30 @@
     "clean": "rimraf dist",
     "prepack": "turbo run build",
     "check-dist": "publint && attw --pack .",
-    "knip": "knip --directory ../.. --workspace packages/auth-core"
+    "knip": "knip --directory ../.. --workspace packages/test-utils"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"
   },
   "dependencies": {
-    "pg": "^8.10.0",
-    "typeorm": "catalog:"
-  },
-  "devDependencies": {
-    "@map-colonies/config": "^3.0.0",
+    "@aws-sdk/client-s3": "catalog:",
+    "@faker-js/faker": "catalog:",
+    "@map-colonies/auth-core": "workspace:^",
     "@map-colonies/schemas": "catalog:",
-    "@map-colonies/tsconfig": "catalog:",
-    "@types/node": "catalog:",
-    "@types/pg": "^8.6.6",
-    "ts-node": "^10.9.1",
-    "typescript": "catalog:"
+    "@testcontainers/minio": "~11.14.0",
+    "@testcontainers/postgresql": "^11.14.0",
+    "typeorm": "catalog:",
+    "lodash": "^4.18.1"
   },
   "peerDependencies": {
-    "@map-colonies/js-logger": "catalog:"
+    "vitest": "catalog:"
+  },
+  "devDependencies": {
+    "@map-colonies/eslint-config": "catalog:",
+    "@map-colonies/tsconfig": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "@types/lodash": "^4.17.24"
   }
 }

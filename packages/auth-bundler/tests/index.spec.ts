@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { mkdir } from 'node:fs/promises';
 import { describe, expect, it, beforeAll, afterEach, vi } from 'vitest';
+import { getTempDir } from 'test-utils';
 import {
   OpaBundleCreationError,
   OpaCoverageTooLowError,
@@ -15,7 +16,7 @@ import {
 import * as opa from '@src/opa';
 import { getFakeBundleContent } from './utils/bundle';
 
-const baseFolder = path.join(tmpdir(), 'authbundlertests', 'index');
+const baseFolder = path.join(getTempDir(), 'index');
 const bundleContent = getFakeBundleContent();
 
 describe('index.ts', function () {

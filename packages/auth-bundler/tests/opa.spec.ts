@@ -1,9 +1,9 @@
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { describe, expect, it, vi, beforeAll, afterEach } from 'vitest';
 import * as execa from '@src/wrappers/execa';
 import { checkFilesCommand, createBundleCommand, getVersionCommand, testCommand, testCoverageCommand, validateBinaryExistCommand } from '@src/opa';
+import { getTempDir } from 'test-utils';
 
 vi.mock('../src/wrappers/execa', async () => {
   return {
@@ -13,7 +13,7 @@ vi.mock('../src/wrappers/execa', async () => {
   };
 });
 
-const baseFolder = path.join(tmpdir(), 'authbundlertests', 'opa');
+const baseFolder = path.join(getTempDir(), 'opa');
 type ExecaChildProcess = Awaited<ReturnType<(typeof execa)['execa']>>;
 
 describe('opa.ts', function () {

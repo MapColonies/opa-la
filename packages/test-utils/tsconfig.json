@@ -1,0 +1,10 @@
+{
+  "extends": "@map-colonies/tsconfig/tsconfig-library",
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"],
+  "compilerOptions": {
+    "paths": {
+      "@src/*": ["./src/*"]
+    }
+  }
+}

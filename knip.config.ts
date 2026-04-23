@@ -21,6 +21,7 @@ const config: KnipConfig = {
       ignore: ['example/**'],
       ignoreBinaries: ['opa'],
     },
+    'packages/test-utils': {},
     'apps/auth-manager': {
       ignoreUnresolved: ['./instrumentation.mjs'],
       ignoreDependencies: ['@types/lodash'],

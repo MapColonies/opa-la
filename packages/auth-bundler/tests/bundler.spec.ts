@@ -1,11 +1,11 @@
 /// <reference types="jest-extended" />
 
 import { mkdir, readdir } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it, beforeAll, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
+import { getTempDir } from 'test-utils';
 import { createBundleDirectoryStructure } from '@src/bundler';
 import { setLogger } from '@src/logger';
 import type { BundleContent } from '@src/types';
@@ -14,7 +14,7 @@ import { getFakeBundleContent } from './utils/bundle';
 
 const bundleContent = getFakeBundleContent();
 
-const baseFolder = path.join(tmpdir(), 'authbundlertests', 'bundler');
+const baseFolder = path.join(getTempDir(), 'bundler');
 
 describe('bundler.ts', function () {
   beforeAll(async function () {
