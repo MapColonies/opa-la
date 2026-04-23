@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { JWKPrivateKey, JWKPublicKey } from '@map-colonies/auth-core';
+import type { JWKPrivateKey, JWKPublicKey } from '@map-colonies/auth-core';
 
 const THREE = 3;
 

@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import { Environment, IConnection, type Environments } from '../../model';
+import { Environment, type IConnection, type Environments } from '../../model';
 
 /**
  * The typeorm implementation of the IConnection interface.

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { FactoryFunction } from 'tsyringe';
+import type { FactoryFunction } from 'tsyringe';
 import { FileController } from '../controllers/filesController';
 
 const filesRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {

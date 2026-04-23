@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import { Application } from 'express';
+import type { Application } from 'express';
 
 export class DocsRequestSender {
   public constructor(private readonly app: Application) {}

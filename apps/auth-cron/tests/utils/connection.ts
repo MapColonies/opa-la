@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { Connection, Environment, IConnection } from '@map-colonies/auth-core';
+import type { Connection, IConnection } from '@map-colonies/auth-core';
+import { Environment } from '@map-colonies/auth-core';
 
 const EIGHT = 8;
 

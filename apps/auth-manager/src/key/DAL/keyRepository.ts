@@ -1,6 +1,8 @@
-import { Environments, Key } from '@map-colonies/auth-core';
-import { FactoryFunction } from 'tsyringe';
-import { DataSource, Repository } from 'typeorm';
+import type { Environments } from '@map-colonies/auth-core';
+import { Key } from '@map-colonies/auth-core';
+import type { FactoryFunction } from 'tsyringe';
+import type { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 export type KeyRepository = Repository<Key> & {
   getMaxVersionWithLock: (env: Environments) => Promise<number | null>;

@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { BundleContentVersions } from '@map-colonies/auth-bundler';
+import type { BundleContentVersions } from '@map-colonies/auth-bundler';
 import { describe, expect, it, vi } from 'vitest';
-import { Bundle } from '@map-colonies/auth-core';
+import type { Bundle } from '@map-colonies/auth-core';
 import { jsLogger } from '@map-colonies/js-logger';
 import { compareVersionsToBundle, emptyDir } from '@src/util';
 import { getFakeBundle } from './utils/bundle';

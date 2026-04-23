@@ -1,4 +1,4 @@
-import { Environments } from './common';
+import type { Environments } from './common';
 
 /**
  * Describes the metadata of contents of bundles that were created.

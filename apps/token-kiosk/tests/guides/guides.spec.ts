@@ -2,10 +2,11 @@ import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vite
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
-import { paths, operations } from '@openapi';
+import type { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
 import { SERVICES } from '@common/constants';
 import { initConfig } from '@src/common/config';

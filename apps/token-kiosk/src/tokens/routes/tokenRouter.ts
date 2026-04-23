@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { FactoryFunction } from 'tsyringe';
+import type { FactoryFunction } from 'tsyringe';
 import { TokenController } from '../controllers/tokenController';
 
 const tokenRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {

@@ -1,7 +1,8 @@
 import path from 'node:path';
-import { BundleDatabase, createBundle, getVersionCommand } from '@map-colonies/auth-bundler';
-import { Bundle, Environments } from '@map-colonies/auth-core';
-import { Repository } from 'typeorm';
+import type { BundleDatabase } from '@map-colonies/auth-bundler';
+import { createBundle, getVersionCommand } from '@map-colonies/auth-bundler';
+import type { Bundle, Environments } from '@map-colonies/auth-core';
+import type { Repository } from 'typeorm';
 import { getS3Client } from './s3';
 import { compareVersionsToBundle } from './util';
 import { logger } from './telemetry/logger';

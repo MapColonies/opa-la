@@ -1,4 +1,5 @@
-import { Between, FindOperator, LessThan, MoreThan } from 'typeorm';
+import type { FindOperator } from 'typeorm';
+import { Between, LessThan, MoreThan } from 'typeorm';
 
 export function createDatesComparison(earlyDate?: Date, laterDate?: Date): FindOperator<Date> | undefined {
   if (earlyDate !== undefined && laterDate !== undefined) {

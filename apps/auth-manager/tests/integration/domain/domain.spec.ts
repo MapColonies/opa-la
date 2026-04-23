@@ -2,13 +2,15 @@ import { beforeEach, describe, expect, it, beforeAll, afterAll, vi } from 'vites
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DependencyContainer } from 'tsyringe';
+import type { DependencyContainer } from 'tsyringe';
 import { DataSource } from 'typeorm';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
-import { Domain, IDomain } from '@map-colonies/auth-core';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { paths, operations } from '@openapi';
+import type { IDomain } from '@map-colonies/auth-core';
+import { Domain } from '@map-colonies/auth-core';
+import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
 import { SERVICES } from '@src/common/constants';
 import { initConfig } from '@src/common/config';
@@ -47,8 +49,10 @@ describe('domain', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
+
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         const returnedItems = res.body.items as IDomain[];
+
         expect(returnedItems).toEqual(expect.arrayContaining([{ name: 'avi' }, { name: 'iva' }]));
       });
     });
@@ -65,6 +69,7 @@ describe('domain', function () {
       });
     });
   });
+
   describe('Bad Path', function () {
     describe('POST /domain', function () {
       it('should return 400 status code if the name is too short', async function () {
@@ -102,9 +107,11 @@ describe('domain', function () {
       });
     });
   });
+
   describe('Sad Path', function () {
     const MockProvider = { insert: vi.fn(), find: vi.fn() };
     let mockedSender: RequestSender<paths, operations>;
+
     beforeEach(async function () {
       const [app, container] = await getApp({
         override: [
@@ -118,6 +125,7 @@ describe('domain', function () {
       await container.resolve(DataSource).destroy();
       vi.resetAllMocks();
     });
+
     describe('GET /domain', function () {
       it('should return 500 status code if db throws an error', async function () {
         MockProvider.find.mockRejectedValue(new Error(''));
@@ -128,6 +136,7 @@ describe('domain', function () {
         expect(res).toSatisfyApiSpec();
       });
     });
+
     describe('POST /domain', function () {
       it('should return 500 status code if db throws an error', async function () {
         MockProvider.insert.mockRejectedValue(new Error(''));

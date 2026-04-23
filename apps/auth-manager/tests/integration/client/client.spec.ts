@@ -3,18 +3,20 @@ import { beforeAll, describe, expect, it, afterAll, afterEach, vi } from 'vitest
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DependencyContainer } from 'tsyringe';
+import type { DependencyContainer } from 'tsyringe';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
-import { Client, IClient } from '@map-colonies/auth-core';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { paths, operations } from '@openapi';
+import type { IClient } from '@map-colonies/auth-core';
+import { Client } from '@map-colonies/auth-core';
+import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
 import { SERVICES } from '@common/constants';
 import { getFakeClient } from '@tests/utils/client';
 import { initConfig } from '@common/config';
-import { ClientRepository } from '@src/client/DAL/clientRepository';
+import type { ClientRepository } from '@src/client/DAL/clientRepository';
 
 describe('client', function () {
   let requestSender: RequestSender<paths, operations>;
@@ -64,7 +66,7 @@ describe('client', function () {
         { name: 'aviiiiii', searchParam: 'av', matchType: 'prefix' },
         { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
         { name: 'avi', searchParam: 'AV', matchType: 'case-insensitive' },
-      ])('type: $matchType - find the user $name with search string $searchParam', async function ({ name, searchParam }) {
+      ])('should find the user $name with search string $searchParam with match type $matchType', async function ({ name, searchParam }) {
         const client = { ...getFakeClient(false), name };
         const connection = depContainer.resolve(DataSource);
         await connection.getRepository(Client).insert(client);
@@ -112,6 +114,7 @@ describe('client', function () {
             createdBefore: new Date('2023-03-31').toISOString(),
           },
         });
+
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
@@ -262,8 +265,10 @@ describe('client', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
+
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         const items = res.body.items as IClient[];
+
         expect(items).toHaveLength(clientNames.length);
 
         // Check if items are sorted correctly in descending order
@@ -312,6 +317,7 @@ describe('client', function () {
 
           const currentDate = new Date(currentItem.createdAt);
           const nextDate = new Date(nextItem.createdAt);
+
           expect(currentDate.getTime()).toBeLessThanOrEqual(nextDate.getTime());
         }
       });
@@ -341,11 +347,14 @@ describe('client', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
+
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         const returnedItems = res.body.items as IClient[];
+
         expect(returnedItems).toBeArrayOfSize(PAGE_SIZE);
         // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         expect(res.body.total).toBe(TOTAL_CLIENTS); // Verify the specific items on page 2 with sorting
+
         const isFirstItemCorrect = returnedItems[0]?.name === 'combo-client-02';
         const isSecondItemCorrect = returnedItems[1]?.name === 'combo-client-03';
 
@@ -466,6 +475,7 @@ describe('client', function () {
         expect(res2.body).toStrictEqual({ message: 'client already exists' });
       });
     });
+
     describe('GET /client/:clientName', function () {
       it('should return 404 status code if the client was not found', async function () {
         const res = await requestSender.getClient({ pathParams: { clientName: 'lol' } });
@@ -491,6 +501,7 @@ describe('client', function () {
       });
     });
   });
+
   describe('Sad Path', function () {
     afterEach(function () {
       vi.restoreAllMocks();
@@ -507,6 +518,7 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
       });
     });
+
     describe('POST /client', function () {
       it('should return 500 status code if db throws an error', async function () {
         const repo = depContainer.resolve<ClientRepository>(SERVICES.CLIENT_REPOSITORY);

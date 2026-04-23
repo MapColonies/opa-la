@@ -3,7 +3,7 @@ import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
 import { AssetManager } from '@src/asset/models/assetManager';
 import { AssetNotFoundError, AssetVersionMismatchError } from '@src/asset/models/errors';
-import { AssetRepository } from '@src/asset/DAL/assetRepository';
+import type { AssetRepository } from '@src/asset/DAL/assetRepository';
 import { getFakeAsset } from '@tests/utils/asset';
 
 const logger = jsLogger({ enabled: false });
@@ -15,10 +15,12 @@ describe('AssetManager', () => {
     findOne: vi.fn(),
     transaction: vi.fn(),
   };
+
   beforeEach(function () {
     assetManager = new AssetManager(logger, mockedRepository as unknown as AssetRepository);
     vi.resetAllMocks();
   });
+
   describe('#getAssets', () => {
     it('should return the array of assets', async function () {
       const asset = getFakeAsset();
@@ -37,6 +39,7 @@ describe('AssetManager', () => {
       await expect(assetPromise).rejects.toThrow();
     });
   });
+
   describe('#getNamedAssets', () => {
     it('should return the array of assets', async function () {
       const asset = getFakeAsset();
@@ -55,6 +58,7 @@ describe('AssetManager', () => {
       await expect(assetPromise).rejects.toThrow();
     });
   });
+
   describe('#getAsset', () => {
     it('should return the asset', async function () {
       const asset = getFakeAsset();
@@ -81,12 +85,14 @@ describe('AssetManager', () => {
       await expect(assetPromise).rejects.toThrow(AssetNotFoundError);
     });
   });
+
   describe('#upsertAsset', () => {
     let manager: AssetManager;
     const transactionRepo = {
       getMaxVersionWithLock: vi.fn(),
       save: vi.fn(),
     };
+
     beforeEach(function () {
       vi.resetAllMocks();
       const repo = { manager: { transaction: vi.fn() } };

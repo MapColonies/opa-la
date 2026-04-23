@@ -112,7 +112,7 @@ export class TokenManager {
       params: { path: { environment: env } },
     });
     if (privateKey.error) {
-      this.logger.error({ msg: 'failed to fetch private key', env, error: privateKey.error });
+      this.logger.error({ msg: 'failed to fetch private key', env, err: privateKey.error });
       throw new Error(`Failed to fetch private key for environment ${env}`, { cause: privateKey.error });
     }
     this.logger.info({ msg: 'private key fetched successfully', env });

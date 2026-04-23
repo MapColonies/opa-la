@@ -5,7 +5,7 @@ import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool, type PoolConfig } from 'pg';
-import { HealthCheck } from '@godaddy/terminus';
+import type { HealthCheck } from '@godaddy/terminus';
 import { promiseTimeout } from '../common/utils';
 import { DB_CONNECTION_TIMEOUT } from '../common/constants';
 import { users } from '../users/user';

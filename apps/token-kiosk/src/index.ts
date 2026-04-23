@@ -1,10 +1,11 @@
 // this import must be called before the first import of tsyringe
 import 'reflect-metadata';
-import { createServer } from 'http';
-import { createTerminus, HealthCheck } from '@godaddy/terminus';
-import { Logger } from '@map-colonies/js-logger';
+import { createServer } from 'node:http';
+import type { HealthCheck } from '@godaddy/terminus';
+import { createTerminus } from '@godaddy/terminus';
+import type { Logger } from '@map-colonies/js-logger';
 import { SERVICES } from '@common/constants';
-import { ConfigType } from '@common/config';
+import type { ConfigType } from '@common/config';
 import { getApp } from './app';
 
 void getApp()

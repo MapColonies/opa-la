@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, beforeAll, afterEach } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { DependencyContainer } from 'tsyringe';
+import type { DependencyContainer } from 'tsyringe';
 import { DataSource } from 'typeorm';
 
 import { getApp } from '../../../src/app';
@@ -13,9 +13,11 @@ import { DocsRequestSender } from './helpers/docsRequestSender';
 describe('docs', function () {
   let requestSender: DocsRequestSender;
   let depContainer: DependencyContainer;
+
   beforeAll(async function () {
     await initConfig(true);
   });
+
   beforeEach(async function () {
     const [app, container] = await getApp({
       override: [

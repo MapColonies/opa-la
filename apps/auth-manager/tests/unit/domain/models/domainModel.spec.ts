@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
-import { DomainRepository } from '@src/domain/DAL/domainRepository';
+import type { DomainRepository } from '@src/domain/DAL/domainRepository';
 import { DomainManager } from '@src/domain/models/domainManager';
 import { DomainAlreadyExistsError } from '@src/domain/models/errors';
 
@@ -10,10 +10,12 @@ describe('DomainManager', () => {
     findAndCount: vi.fn(),
     insert: vi.fn(),
   };
+
   beforeEach(function () {
     domainManager = new DomainManager(jsLogger({ enabled: false }), mockedRepository as unknown as DomainRepository);
     vi.resetAllMocks();
   });
+
   describe('#getDomains', () => {
     it('should return the array of domains', async function () {
       mockedRepository.findAndCount.mockResolvedValue([{ name: 'avi' }]);
@@ -31,6 +33,7 @@ describe('DomainManager', () => {
       await expect(domainPromise).rejects.toThrow();
     });
   });
+
   describe('#createDomain', () => {
     it('should insert into the db and return the domain', async function () {
       mockedRepository.insert.mockResolvedValue(undefined);

@@ -1,11 +1,12 @@
 import { getOtelMixin } from '@map-colonies/telemetry';
 import { trace } from '@opentelemetry/api';
 import { Registry } from 'prom-client';
-import { DependencyContainer } from 'tsyringe/dist/typings/types';
+import type { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { jsLogger } from '@map-colonies/js-logger';
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
 import { instanceCachingFactory, instancePerContainerCachingFactory } from 'tsyringe';
-import { InjectionObject, registerDependencies } from '@common/dependencyRegistration';
+import type { InjectionObject } from '@common/dependencyRegistration';
+import { registerDependencies } from '@common/dependencyRegistration';
 import { SERVICES, SERVICE_NAME } from '@common/constants';
 import { getTracing } from '@common/tracing';
 import { tokenRouterFactory, TOKEN_ROUTER_SYMBOL } from './tokens/routes/tokenRouter';

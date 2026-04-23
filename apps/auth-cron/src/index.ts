@@ -5,9 +5,11 @@ import { env } from 'node:process';
 import { createServer } from 'node:http';
 import express from 'express';
 import { createTerminus } from '@godaddy/terminus';
-import { CatchCallbackFn, Cron } from 'croner';
-import { DataSource, Repository } from 'typeorm';
-import { Bundle, Environments, initConnection } from '@map-colonies/auth-core';
+import type { CatchCallbackFn } from 'croner';
+import { Cron } from 'croner';
+import type { DataSource, Repository } from 'typeorm';
+import type { Environments } from '@map-colonies/auth-core';
+import { Bundle, initConnection } from '@map-colonies/auth-core';
 import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { BundleDatabase } from '@map-colonies/auth-bundler';
 import { collectMetricsExpressMiddleware } from '@map-colonies/telemetry/prom-metrics';
@@ -66,5 +68,4 @@ const main = async (): Promise<void> => {
   });
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 main().catch((err) => logger?.error({ msg: 'program terminated with an error', err }));

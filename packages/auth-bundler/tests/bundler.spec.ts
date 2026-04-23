@@ -8,7 +8,7 @@ import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
 import { createBundleDirectoryStructure } from '@src/bundler';
 import { setLogger } from '@src/logger';
-import { BundleContent } from '@src/types';
+import type { BundleContent } from '@src/types';
 import { MissingPolicyFilesError } from '@src/errors';
 import { getFakeBundleContent } from './utils/bundle';
 

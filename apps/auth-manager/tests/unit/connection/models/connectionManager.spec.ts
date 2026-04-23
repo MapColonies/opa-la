@@ -3,12 +3,12 @@ import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
 import { ConnectionManager } from '@src/connection/models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/connection/models/errors';
-import { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
+import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
 import { getFakeConnection } from '@tests/utils/connection';
-import { DomainRepository } from '@src/domain/DAL/domainRepository';
+import type { DomainRepository } from '@src/domain/DAL/domainRepository';
 import { ClientNotFoundError } from '@src/client/models/errors';
 import { DomainNotFoundError } from '@src/domain/models/errors';
-import { KeyRepository } from '@src/key/DAL/keyRepository';
+import type { KeyRepository } from '@src/key/DAL/keyRepository';
 import { getRealKeys } from '@tests/utils/key';
 import { KeyNotFoundError } from '@src/key/models/errors';
 
@@ -24,6 +24,7 @@ describe('ConnectionManager', () => {
   };
   const mockedDomainRepository = {};
   const mockedKeysRepository = {};
+
   beforeEach(function () {
     connectionManager = new ConnectionManager(
       logger,
@@ -33,6 +34,7 @@ describe('ConnectionManager', () => {
     );
     vi.resetAllMocks();
   });
+
   describe('#getConnections', () => {
     it('should throw an error if one is thrown by the repository', async function () {
       mockedConnectionRepository.findAndCount.mockRejectedValue(new Error());
@@ -69,6 +71,7 @@ describe('ConnectionManager', () => {
       await expect(connectionPromise).rejects.toThrow(ConnectionNotFoundError);
     });
   });
+
   describe('#upsertConnection', () => {
     let manager: ConnectionManager;
     const connectionTransactionRepo = {
@@ -84,6 +87,7 @@ describe('ConnectionManager', () => {
     const keyTransactionRepo = {
       getLatestKeys: vi.fn(),
     };
+
     beforeEach(function () {
       vi.resetAllMocks();
       clientTransactionRepo.findOneBy.mockResolvedValue({});

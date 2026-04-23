@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import { Environment, type Environments, IBundle } from '../../model';
+import { Environment, type Environments, type IBundle } from '../../model';
 
 /**
  * The typeorm implementation of the IBundle interface.

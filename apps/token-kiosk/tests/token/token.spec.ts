@@ -1,27 +1,28 @@
-import { setTimeout as sleep } from 'timers/promises';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import nock, { abortPendingRequests, cleanAll } from 'nock';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { createRequestSender, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender, type RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
 import { eq } from 'drizzle-orm';
 import { subWeeks } from 'date-fns';
-import { paths, operations } from '@openapi';
+import type { paths, operations } from '@openapi';
 import { getApp } from '@src/app';
-import { Drizzle } from '@src/db/createConnection';
+import type { Drizzle } from '@src/db/createConnection';
 import { users } from '@src/users/user';
 import { SERVICES } from '@common/constants';
 import { initConfig } from '@src/common/config';
 import privateKey from '../data/key';
 import mockUser from '../data/user';
 
-// Type guard for token response
-const isTokenResponse = (body: unknown): body is { token: string; expiration: string } => {
-  return typeof body === 'object' && body !== null && 'token' in body && 'expiration' in body;
-};
+function assertIsTokenResponse(body: unknown): asserts body is { token: string; expiration: string } {
+  if (!(typeof body === 'object' && body !== null && 'token' in body && 'expiration' in body)) {
+    throw new Error('Expected body to contain token and expiration fields');
+  }
+}
 
 describe('token', function () {
   let requestSender: RequestSender<paths, operations>;
@@ -72,9 +73,9 @@ describe('token', function () {
 
       expect(res).toSatisfyApiSpec();
 
-      if (isTokenResponse(res.body)) {
-        expect(res.body.token).not.toBe('');
-      }
+      assertIsTokenResponse(res.body);
+
+      expect(res.body.token).not.toBe('');
     });
 
     it('should return the same token if requested again while still valid', async function () {
@@ -93,9 +94,10 @@ describe('token', function () {
       expect(firstRes).toSatisfyApiSpec();
       expect(secondRes).toSatisfyApiSpec();
 
-      if (isTokenResponse(firstRes.body) && isTokenResponse(secondRes.body)) {
-        expect(firstRes.body.token).toBe(secondRes.body.token);
-      }
+      assertIsTokenResponse(firstRes.body);
+      assertIsTokenResponse(secondRes.body);
+
+      expect(firstRes.body.token).toBe(secondRes.body.token);
     });
 
     it('should return valid token structure with proper expiration format', async function () {
@@ -105,11 +107,11 @@ describe('token', function () {
 
       expect(res).toSatisfyApiSpec();
 
-      if (isTokenResponse(res.body)) {
-        // Check that expiration is a valid ISO date string
-        const expiration = new Date(res.body.expiration);
-        expect(expiration.getTime()).toBeGreaterThan(Date.now());
-      }
+      assertIsTokenResponse(res.body);
+      // Check that expiration is a valid ISO date string
+      const expiration = new Date(res.body.expiration);
+
+      expect(expiration.getTime()).toBeGreaterThan(Date.now());
     });
 
     it('should return a new token after expiration', async function () {
@@ -125,6 +127,7 @@ describe('token', function () {
       const firstRes = await requestSender.getToken();
 
       expect(firstRes).toHaveProperty('statusCode', httpStatusCodes.OK);
+
       await drizzle
         .update(users)
         .set({
@@ -136,11 +139,13 @@ describe('token', function () {
       await sleep(1000); // Wait for a short period to ensure the token is considered expired
 
       const secondRes = await requestSender.getToken();
+
       expect(secondRes).toHaveProperty('statusCode', httpStatusCodes.OK);
 
-      if (isTokenResponse(firstRes.body) && isTokenResponse(secondRes.body)) {
-        expect(secondRes.body.token).not.toEqual(firstRes.body.token); // Ensure a new token is generated
-      }
+      assertIsTokenResponse(firstRes.body);
+      assertIsTokenResponse(secondRes.body);
+
+      expect(secondRes.body.token).not.toEqual(firstRes.body.token); // Ensure a new token is generated
     });
   });
 

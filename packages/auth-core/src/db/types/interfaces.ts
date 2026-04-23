@@ -1,5 +1,5 @@
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { commonDbFullV1Type } from '@map-colonies/schemas';
+import type { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import type { commonDbFullV1Type } from '@map-colonies/schemas';
 /**
  * An object describing all the necessary configuration to authenticate to a postgresql database.
  * It is an extension of the {@link https://typeorm.io/data-source-options#postgres--cockroachdb-data-source-options | PostgresConnectionOptions}

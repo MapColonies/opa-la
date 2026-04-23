@@ -24,14 +24,14 @@ export class AuthController {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       res.status(httpStatus.OK).json(userInfo);
       /* eslint-enable @typescript-eslint/no-unsafe-assignment */
-    } catch (error) {
-      this.logger.error({ msg: 'Failed to fetch user info', error });
-      if (typeof error === 'object' && error !== null && 'error' in error && error.error === 'invalid_token') {
+    } catch (err) {
+      this.logger.error({ msg: 'Failed to fetch user info', err });
+      if (typeof err === 'object' && err !== null && 'error' in err && err.error === 'invalid_token') {
         return res.status(httpStatus.UNAUTHORIZED).json({
           message: 'Invalid or expired token',
         });
       }
-      next(error);
+      next(err);
     }
   };
 }

@@ -1,4 +1,4 @@
-import { Environments } from './common';
+import type { Environments } from './common';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export const AssetType = {

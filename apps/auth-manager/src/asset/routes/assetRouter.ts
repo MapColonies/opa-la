@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { FactoryFunction } from 'tsyringe';
+import type { FactoryFunction } from 'tsyringe';
 import { AssetController } from '../controllers/assetController';
 
 export const assetRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {

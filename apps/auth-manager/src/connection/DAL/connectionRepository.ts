@@ -1,6 +1,8 @@
-import { Connection, Environments } from '@map-colonies/auth-core';
-import { FactoryFunction } from 'tsyringe';
-import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
+import type { Environments } from '@map-colonies/auth-core';
+import { Connection } from '@map-colonies/auth-core';
+import type { FactoryFunction } from 'tsyringe';
+import type { Repository, SelectQueryBuilder } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 const maxVersionSubQuery = (qb: SelectQueryBuilder<Connection>): string => {
   const subQuery = qb
