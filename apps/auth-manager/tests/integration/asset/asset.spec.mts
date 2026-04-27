@@ -11,12 +11,12 @@ import { Asset, AssetType, Environment } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { getFakeAsset } from 'test-utils';
 import type { paths, operations } from '@openapi';
-import { getApp } from '@src/app';
-import { SERVICES } from '@common/constants';
-import type { AssetRepository } from '@src/asset/DAL/assetRepository';
-import { getFakeAsset } from '@tests/utils/asset';
-import { initConfig } from '@common/config';
+import type { AssetRepository } from '@src/asset/DAL/assetRepository.js';
+import { getApp } from '@src/app.js';
+import { SERVICES } from '@common/constants.js';
+import { initConfig } from '@common/config.js';
 
 describe('client', function () {
   let requestSender: RequestSender<paths, operations>;

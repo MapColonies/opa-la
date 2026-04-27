@@ -6,11 +6,11 @@ import { describe, expect, it, beforeAll, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
 import { getTempDir } from 'test-utils';
-import { createBundleDirectoryStructure } from '@src/bundler';
-import { setLogger } from '@src/logger';
-import type { BundleContent } from '@src/types';
-import { MissingPolicyFilesError } from '@src/errors';
-import { getFakeBundleContent } from './utils/bundle';
+import { createBundleDirectoryStructure } from '@src/bundler.js';
+import { setLogger } from '@src/logger.js';
+import type { BundleContent } from '@src/types.js';
+import { MissingPolicyFilesError } from '@src/errors.js';
+import { getFakeBundleContent } from './utils/bundle.js';
 
 const bundleContent = getFakeBundleContent();
 

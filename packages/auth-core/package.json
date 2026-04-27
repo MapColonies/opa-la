@@ -43,6 +43,7 @@
     "@map-colonies/config": "^3.0.0",
     "@map-colonies/schemas": "catalog:",
     "@map-colonies/tsconfig": "catalog:",
+    "@map-colonies/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@types/pg": "^8.6.6",
     "ts-node": "^10.9.1",

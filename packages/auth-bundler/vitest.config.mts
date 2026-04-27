@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     globalSetup: './tests/configurations/vitest.globalSetup.mts',
     setupFiles: ['@map-colonies/vitest-utils/extended'],
-    include: ['tests/**/*.spec.ts'],
+    include: ['tests/**/*.spec.{ts,mts}'],
     environment: 'node',
     reporters,
     coverage: {

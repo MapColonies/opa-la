@@ -11,12 +11,12 @@ import type { IClient } from '@map-colonies/auth-core';
 import { Client } from '@map-colonies/auth-core';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { getFakeClient } from 'test-utils';
 import type { paths, operations } from '@openapi';
-import { getApp } from '@src/app';
-import { SERVICES } from '@common/constants';
-import { getFakeClient } from '@tests/utils/client';
-import { initConfig } from '@common/config';
-import type { ClientRepository } from '@src/client/DAL/clientRepository';
+import { getApp } from '@src/app.js';
+import { SERVICES } from '@common/constants.js';
+import { initConfig } from '@common/config.js';
+import type { ClientRepository } from '@src/client/DAL/clientRepository.js';
 
 describe('client', function () {
   let requestSender: RequestSender<paths, operations>;

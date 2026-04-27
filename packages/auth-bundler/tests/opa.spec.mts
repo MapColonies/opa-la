@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { describe, expect, it, vi, beforeAll, afterEach } from 'vitest';
-import * as execa from '@src/wrappers/execa';
-import { checkFilesCommand, createBundleCommand, getVersionCommand, testCommand, testCoverageCommand, validateBinaryExistCommand } from '@src/opa';
 import { getTempDir } from 'test-utils';
+import * as execa from '@src/wrappers/execa.js';
+import { checkFilesCommand, createBundleCommand, getVersionCommand, testCommand, testCoverageCommand, validateBinaryExistCommand } from '@src/opa.js';
 
 vi.mock('../src/wrappers/execa', async () => {
   return {

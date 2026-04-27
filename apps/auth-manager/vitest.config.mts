@@ -11,7 +11,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           setupFiles: ['./tests/configurations/vitest.setup.mts', '@map-colonies/vitest-utils/extended'],
-          include: ['tests/unit/**/*.spec.ts'],
+          include: ['tests/unit/**/*.spec.{ts,mts}'],
           environment: 'node',
         },
         resolve: {
@@ -22,9 +22,9 @@ export default defineConfig({
         test: {
           name: 'integration',
           setupFiles: ['./tests/configurations/vitest.setup.mts', '@map-colonies/vitest-utils/extended'],
-          include: ['tests/integration/**/*.spec.ts'],
+          include: ['tests/integration/**/*.spec.{ts,mts}'],
           environment: 'node',
-          globalSetup: './tests/configurations/vitest.globalSetup.ts',
+          globalSetup: './tests/configurations/vitest.globalSetup.mts',
           sequence: {
             concurrent: false,
           },

@@ -12,7 +12,7 @@
       "@domain/*": ["./src/domain/*"],
       "@key/*": ["./src/key/*"],
       "@connection/*": ["./src/connection/*"],
-      "@openapi": ["src/openapi"]
+      "@openapi": ["src/openapi.js"]
     }
   },
   "include": ["src", "tests"],

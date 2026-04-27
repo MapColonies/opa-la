@@ -1,16 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
-import { ConnectionManager } from '@src/connection/models/connectionManager';
-import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/connection/models/errors';
-import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
-import { getFakeConnection } from '@tests/utils/connection';
-import type { DomainRepository } from '@src/domain/DAL/domainRepository';
-import { ClientNotFoundError } from '@src/client/models/errors';
-import { DomainNotFoundError } from '@src/domain/models/errors';
-import type { KeyRepository } from '@src/key/DAL/keyRepository';
-import { getRealKeys } from '@tests/utils/key';
-import { KeyNotFoundError } from '@src/key/models/errors';
+import { getRealKeys, getFakeConnection } from 'test-utils';
+import { ConnectionManager } from '@src/connection/models/connectionManager.js';
+import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/connection/models/errors.js';
+import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository.js';
+import type { DomainRepository } from '@src/domain/DAL/domainRepository.js';
+import { ClientNotFoundError } from '@src/client/models/errors.js';
+import { DomainNotFoundError } from '@src/domain/models/errors.js';
+import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
+import { KeyNotFoundError } from '@src/key/models/errors.js';
 
 const logger = jsLogger({ enabled: false });
 

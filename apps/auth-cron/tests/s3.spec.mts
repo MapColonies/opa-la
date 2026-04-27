@@ -10,9 +10,9 @@ import type { Environments } from '@map-colonies/auth-core';
 import { Environment } from '@map-colonies/auth-core';
 import type { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { jsLogger } from '@map-colonies/js-logger';
-import { initConfig, getConfig } from '@src/config';
-import { getS3Client } from '@src/s3';
-import type * as appConfig from '@src/config';
+import { initConfig, getConfig } from '@src/config.js';
+import { getS3Client } from '@src/s3.js';
+import type * as appConfig from '@src/config.js';
 
 vi.mock('../src/telemetry/logger', () => {
   return {

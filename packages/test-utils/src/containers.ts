@@ -18,12 +18,12 @@ export async function createPostgresContainer(options: {
   return container.withUsername(options.username).withDatabase(options.database).withPassword(options.password).start();
 }
 
-export async function createMinioContainer(): Promise<StartedMinioContainer> {
+export async function createMinioContainer(options: { username: string; password: string }): Promise<StartedMinioContainer> {
   const container = new MinioContainer(MINIO_IMAGE);
 
   if (process.env.CI === undefined) {
     container.withReuse();
   }
 
-  return container.start();
+  return container.withUsername(options.username).withPassword(options.password).start();
 }

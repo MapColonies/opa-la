@@ -21,7 +21,6 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
     "@map-colonies/commitlint-config": "^2.0.0",
-    "@map-colonies/eslint-config": "catalog:",
     "@commitlint/config-pnpm-scopes": "^20.4.3",
     "@map-colonies/infra-copilot-instructions": "^1.1.0",
     "@map-colonies/prettier-config": "^0.0.1",

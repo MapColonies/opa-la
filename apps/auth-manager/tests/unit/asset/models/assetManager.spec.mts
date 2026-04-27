@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { Environment } from '@map-colonies/auth-core';
-import { AssetManager } from '@src/asset/models/assetManager';
-import { AssetNotFoundError, AssetVersionMismatchError } from '@src/asset/models/errors';
-import type { AssetRepository } from '@src/asset/DAL/assetRepository';
-import { getFakeAsset } from '@tests/utils/asset';
+import { getFakeAsset } from 'test-utils';
+import { AssetManager } from '@src/asset/models/assetManager.js';
+import { AssetNotFoundError, AssetVersionMismatchError } from '@src/asset/models/errors.js';
+import type { AssetRepository } from '@src/asset/DAL/assetRepository.js';
 
 const logger = jsLogger({ enabled: false });
 

@@ -61,6 +61,7 @@
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "@map-colonies/vitest-utils": "catalog:",
+    "@map-colonies/eslint-config": "catalog:",
     "@faker-js/faker": "catalog:"
   }
 }

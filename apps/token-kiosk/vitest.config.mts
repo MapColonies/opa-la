@@ -7,7 +7,7 @@ export default defineConfig({
     alias: getPathAlias(tsconfig, __dirname),
   },
   test: {
-    globalSetup: './tests/configurations/vitest.globalSetup.ts',
+    globalSetup: './tests/configurations/vitest.globalSetup.mts',
     setupFiles: ['./tests/configurations/vitest.setup.ts'],
     include: ['tests/**/*.spec.ts'],
     environment: 'node',

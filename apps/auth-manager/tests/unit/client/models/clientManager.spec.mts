@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { DatabaseError } from 'pg';
 import { QueryFailedError } from 'typeorm';
-import type { ClientRepository } from '@src/client/DAL/clientRepository';
-import { ClientManager } from '@src/client/models/clientManager';
-import { ClientAlreadyExistsError, ClientNotFoundError } from '@src/client/models/errors';
-import { PgErrorCodes } from '@src/common/db/constants';
-import { getFakeClient } from '@tests/utils/client';
+import { getFakeClient } from 'test-utils';
+import type { ClientRepository } from '@src/client/DAL/clientRepository.js';
+import { ClientManager } from '@src/client/models/clientManager.js';
+import { ClientAlreadyExistsError, ClientNotFoundError } from '@src/client/models/errors.js';
+import { PgErrorCodes } from '@src/common/db/constants.js';
 
 const logger = jsLogger({ enabled: false });
 

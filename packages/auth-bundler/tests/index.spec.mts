@@ -1,6 +1,5 @@
 /// <reference types="jest-extended" />
 
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { mkdir } from 'node:fs/promises';
 import { describe, expect, it, beforeAll, afterEach, vi } from 'vitest';
@@ -12,9 +11,9 @@ import {
   OpaTestsFailedError,
   WorkdirNotFoundError,
   createBundle,
-} from '@src/index';
-import * as opa from '@src/opa';
-import { getFakeBundleContent } from './utils/bundle';
+} from '@src/index.js';
+import * as opa from '@src/opa.js';
+import { getFakeBundleContent } from './utils/bundle.js';
 
 const baseFolder = path.join(getTempDir(), 'index');
 const bundleContent = getFakeBundleContent();

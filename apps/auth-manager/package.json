@@ -87,6 +87,7 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@map-colonies/vitest-utils": "catalog:",
+    "@map-colonies/eslint-config": "catalog:",
     "@faker-js/faker": "catalog:"
   }
 }

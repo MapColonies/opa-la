@@ -1,12 +1,11 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import type { BundleContentVersions } from '@map-colonies/auth-bundler';
 import { describe, expect, it, vi } from 'vitest';
 import type { Bundle } from '@map-colonies/auth-core';
+import { getFakeBundle, getTempDir } from 'test-utils';
 import { jsLogger } from '@map-colonies/js-logger';
-import { compareVersionsToBundle, emptyDir } from '@src/util';
-import { getFakeBundle } from './utils/bundle';
+import { compareVersionsToBundle, emptyDir } from '@src/util.js';
 
 vi.mock('../src/telemetry/logger', () => {
   return {
@@ -19,7 +18,7 @@ vi.mock('../src/telemetry/logger', () => {
 describe('util.ts', function () {
   describe('#emptyDir', function () {
     it('should empty the dir', async function () {
-      const folderPath = path.join(tmpdir(), 'authcrontests', 'empty');
+      const folderPath = path.join(getTempDir(), 'empty');
       mkdirSync(folderPath);
       writeFileSync(path.join(folderPath, 'file.txt'), 'data');
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { asteriskStringComparatorLast } from '@src/utils/utils';
+import { asteriskStringComparatorLast } from '@src/utils/utils.js';
 
 describe('asteriskStringComparatorLast', () => {
   const comparator = asteriskStringComparatorLast();

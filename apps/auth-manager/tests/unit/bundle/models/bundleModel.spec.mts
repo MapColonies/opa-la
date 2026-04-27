@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import type { Bundle } from '@map-colonies/auth-core';
 import type { Repository } from 'typeorm';
-import { BundleManager } from '@src/bundle/models/bundleManager';
-import { BundleNotFoundError } from '@src/bundle/models/errors';
-import { getFakeBundle } from '@tests/utils/bundle';
+import { getFakeBundle } from 'test-utils';
+import { BundleManager } from '@src/bundle/models/bundleManager.js';
+import { BundleNotFoundError } from '@src/bundle/models/errors.js';
 
 const logger = jsLogger({ enabled: false });
 

@@ -12,11 +12,11 @@ import { Bundle, Environment } from '@map-colonies/auth-core';
 import 'jest-openapi';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { getFakeBundle } from 'test-utils';
 import type { paths, operations } from '@openapi';
-import { getApp } from '@src/app';
-import { SERVICES } from '@common/constants';
-import { getFakeBundle } from '@tests/utils/bundle';
-import { initConfig } from '@common/config';
+import { getApp } from '@src/app.js';
+import { SERVICES } from '@common/constants.js';
+import { initConfig } from '@common/config.js';
 
 describe('bundle', function () {
   let requestSender: RequestSender<paths, operations>;

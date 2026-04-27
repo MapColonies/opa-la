@@ -11,16 +11,14 @@ import { Client, Connection, Domain, Environment, Key } from '@map-colonies/auth
 import { faker } from '@faker-js/faker';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { getRealKeys, getFakeClient, getFakeConnection, getFakeIConnection } from 'test-utils';
 import type { paths, operations } from '@openapi';
-import { getApp } from '@src/app';
-import { SERVICES } from '@common/constants';
-import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository';
-import { getFakeConnection, getFakeIConnection } from '@tests/utils/connection';
-import type { KeyRepository } from '@src/key/DAL/keyRepository';
-import type { DomainRepository } from '@src/domain/DAL/domainRepository';
-import { getFakeClient } from '@tests/utils/client';
-import { getRealKeys } from '@tests/utils/key';
-import { initConfig } from '@common/config';
+import { getApp } from '@src/app.js';
+import { SERVICES } from '@common/constants.js';
+import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository.js';
+import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
+import type { DomainRepository } from '@src/domain/DAL/domainRepository.js';
+import { initConfig } from '@common/config.js';
 
 describe('connection', function () {
   const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
