@@ -11,7 +11,7 @@ const config: KnipConfig = {
   },
   ignoreBinaries: ['lerna'],
   ignoreFiles: ['example/**'],
-  ignoreDependencies: ['@map-colonies/infra-copilot-instructions'],
+  ignoreDependencies: ['@map-colonies/infra-copilot-instructions', '@vitest/eslint-plugin'],
   workspaces: {
     'packages/auth-core': {
       entry: ['src/config.ts', 'src/db/migrations/*', 'dataSource.{ts,mjs}'],

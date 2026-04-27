@@ -10,6 +10,7 @@ catalog:
   '@map-colonies/js-logger': ^4.1.0
   '@map-colonies/openapi-helpers': '5.1.0'
   '@map-colonies/schemas': '1.19.0'
+  '@map-colonies/config': '4.0.1'
   'vitest': '4.1.4'
   '@vitest/coverage-v8': '4.1.4'
   '@vitest/ui': '4.1.4'

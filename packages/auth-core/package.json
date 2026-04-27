@@ -25,7 +25,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prebuild": "pnpm run clean",
-    "build": "tsc --project tsconfig.build.json && pnpm run assets:copy",
+    "build": "tsc --project tsconfig.json && pnpm run assets:copy",
     "assets:copy": "copyfiles ./package.json dist",
     "clean": "rimraf dist",
     "prepack": "turbo run build",
@@ -40,7 +40,7 @@
     "typeorm": "catalog:"
   },
   "devDependencies": {
-    "@map-colonies/config": "^3.0.0",
+    "@map-colonies/config": "catalog:",
     "@map-colonies/schemas": "catalog:",
     "@map-colonies/tsconfig": "catalog:",
     "@map-colonies/eslint-config": "catalog:",

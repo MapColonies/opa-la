@@ -37,7 +37,7 @@
     "@godaddy/terminus": "^4.12.0",
     "@map-colonies/auth-bundler": "workspace:^",
     "@map-colonies/auth-core": "workspace:^",
-    "@map-colonies/config": "^4.0.1",
+    "@map-colonies/config": "catalog:",
     "@map-colonies/js-logger": "catalog:",
     "@map-colonies/schemas": "catalog:",
     "@map-colonies/telemetry": "^10.0.1",
@@ -61,7 +61,6 @@
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
     "@map-colonies/vitest-utils": "catalog:",
-    "@map-colonies/eslint-config": "catalog:",
-    "@faker-js/faker": "catalog:"
+    "@map-colonies/eslint-config": "catalog:"
   }
 }

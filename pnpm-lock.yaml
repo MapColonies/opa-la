@@ -12,6 +12,9 @@ catalogs:
     '@faker-js/faker':
       specifier: ^9.7.0
       version: 9.9.0
+    '@map-colonies/config':
+      specifier: 4.0.1
+      version: 4.0.1
     '@map-colonies/eslint-config':
       specifier: ^8.1.0
       version: 8.1.0
@@ -141,7 +144,7 @@ importers:
         specifier: workspace:^
         version: link:../../packages/auth-core
       '@map-colonies/config':
-        specifier: ^4.0.1
+        specifier: 'catalog:'
         version: 4.0.1(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)
       '@map-colonies/js-logger':
         specifier: 'catalog:'
@@ -174,9 +177,6 @@ importers:
         specifier: 'catalog:'
         version: 0.3.28(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3))
     devDependencies:
-      '@faker-js/faker':
-        specifier: 'catalog:'
-        version: 9.9.0
       '@map-colonies/eslint-config':
         specifier: 'catalog:'
         version: 8.1.0(@typescript-eslint/utils@8.58.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(@vitest/eslint-plugin@1.6.15(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)(vitest@4.1.4))(eslint-plugin-jest@28.14.0(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(globals@15.15.0)(typescript@5.9.3)
@@ -223,8 +223,8 @@ importers:
         specifier: workspace:^
         version: link:../../packages/auth-core
       '@map-colonies/config':
-        specifier: ^3.0.1
-        version: 3.0.2(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)
+        specifier: 'catalog:'
+        version: 4.0.1(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)
       '@map-colonies/error-express-handler':
         specifier: ^2.1.0
         version: 2.1.0
@@ -622,8 +622,8 @@ importers:
         specifier: ^4.12.1
         version: 4.12.1
       '@map-colonies/config':
-        specifier: ^3.0.0
-        version: 3.0.2(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)
+        specifier: 'catalog:'
+        version: 4.0.1(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)
       '@map-colonies/error-express-handler':
         specifier: ^3.0.0
         version: 3.0.0
@@ -810,7 +810,7 @@ importers:
         specifier: 'catalog:'
         version: 9.9.0
       '@map-colonies/config':
-        specifier: ^4.0.1
+        specifier: 'catalog:'
         version: 4.0.1(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)
       '@map-colonies/eslint-config':
         specifier: 'catalog:'
@@ -821,9 +821,6 @@ importers:
       '@map-colonies/vitest-utils':
         specifier: 'catalog:'
         version: 0.2.0(jest-extended@7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(jest-openapi@0.14.2)(vitest@4.1.4)
-      '@types/config':
-        specifier: ^3.3.0
-        version: 3.3.5
       '@types/node':
         specifier: 'catalog:'
         version: 24.12.0
@@ -833,9 +830,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.4(vitest@4.1.4)
-      config:
-        specifier: ^3.3.9
-        version: 3.3.12
       jest-extended:
         specifier: 'catalog:'
         version: 7.0.0(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3)
@@ -865,8 +859,8 @@ importers:
         version: 0.3.28(pg@8.20.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3))
     devDependencies:
       '@map-colonies/config':
-        specifier: ^3.0.0
-        version: 3.0.2(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)
+        specifier: 'catalog:'
+        version: 4.0.1(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)
       '@map-colonies/eslint-config':
         specifier: 'catalog:'
         version: 8.1.0(@typescript-eslint/utils@8.58.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(@vitest/eslint-plugin@1.6.15(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)(vitest@4.1.4))(eslint-plugin-jest@28.14.0(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(jest@29.7.0(@types/node@24.12.0)(ts-node@10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)))(typescript@5.9.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(globals@15.15.0)(typescript@5.9.3)
@@ -2332,16 +2326,6 @@ packages:
   '@map-colonies/commitlint-config@2.0.0':
     resolution: {integrity: sha512-1GOV5rOs0qz7LRJuh1Ii1fWMGsaEDGY0geIIdAwyfmEG76Uu0WO4gdd7Wax33HkE2BE9er48QiKiW4Y0AFsAPA==}
     engines: {node: '>=24'}
-
-  '@map-colonies/config@3.0.2':
-    resolution: {integrity: sha512-0cLGqMGwbdVFflVR0TTcelwotwJc1hmil8bVhn5CcaYjMyOR61E8gnnIEExpPeQIfXJ4ri6hlbO8sHM4YMo3aA==}
-    engines: {node: '>=20.18.1'}
-    peerDependencies:
-      '@map-colonies/schemas': ^1.9.0
-      prom-client: ^15.0.0
-    peerDependenciesMeta:
-      prom-client:
-        optional: true
 
   '@map-colonies/config@4.0.1':
     resolution: {integrity: sha512-NIc+N7dOiSIe/9eoMwHkLvPFlSZcNh8BSR/f8QhEGnjLDGPeFE45lVXuI0QuvnbLrJxTr0rH3O6y+9JIKEK9JQ==}
@@ -4388,9 +4372,6 @@ packages:
 
   '@types/compression@1.8.1':
     resolution: {integrity: sha512-kCFuWS0ebDbmxs0AXYn6e2r2nrGAb5KwQhknjSPSPgJcGd8+HVSILlUyFhGqML2gk39HcG7D1ydW9/qpYkN00Q==}
-
-  '@types/config@3.3.5':
-    resolution: {integrity: sha512-itq2HtXQBrNUKwMNZnb9mBRE3T99VYCdl1gjST9rq+9kFaB1iMMGuDeZnP88qid73DnpAMKH9ZolqDpS1Lz7+w==}
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
@@ -11354,27 +11335,6 @@ snapshots:
     dependencies:
       '@commitlint/config-conventional': 20.5.0
 
-  '@map-colonies/config@3.0.2(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)':
-    dependencies:
-      '@apideck/better-ajv-errors': 0.3.6(ajv@8.18.0)
-      '@apidevtools/json-schema-ref-parser': 11.9.3
-      '@map-colonies/read-pkg': 0.0.1
-      '@map-colonies/schemas': 1.19.0
-      '@types/lodash': 4.17.24
-      ajv: 8.18.0
-      ajv-formats: 3.0.1(ajv@8.18.0)
-      config: 3.3.12
-      debug: 4.4.3(supports-color@10.2.2)
-      deepmerge: 4.3.1
-      http-status-codes: 2.3.0
-      lodash: 4.17.23
-      semver: 7.7.4
-      undici: 7.24.5
-    optionalDependencies:
-      prom-client: 15.1.3
-    transitivePeerDependencies:
-      - supports-color
-
   '@map-colonies/config@4.0.1(@map-colonies/schemas@1.19.0)(prom-client@15.1.3)':
     dependencies:
       '@apideck/better-ajv-errors': 0.3.6(ajv@8.18.0)
@@ -11388,7 +11348,7 @@ snapshots:
       debug: 4.4.3(supports-color@10.2.2)
       deepmerge: 4.3.1
       http-status-codes: 2.3.0
-      lodash: 4.17.23
+      lodash: 4.18.1
       semver: 7.7.4
       undici: 7.24.5
     optionalDependencies:
@@ -13623,8 +13583,6 @@ snapshots:
     dependencies:
       '@types/express': 4.17.25
       '@types/node': 22.19.15
-
-  '@types/config@3.3.5': {}
 
   '@types/connect@3.4.38':
     dependencies:

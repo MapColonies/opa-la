@@ -21,11 +21,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prebuild": "pnpm run clean",
-    "build": "tsc --project tsconfig.build.json && pnpm run assets:copy",
+    "build": "tsc --project tsconfig.json && pnpm run assets:copy",
     "assets:copy": "copyfiles ./package.json dist",
     "clean": "rimraf dist",
     "prepack": "turbo run build",
-    "check-dist": "publint && attw --pack .",
+    "check-dist": "publint && attw --profile esm-only --pack .",
     "knip": "knip --directory ../.. --workspace packages/test-utils"
   },
   "bugs": {

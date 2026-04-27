@@ -31,7 +31,7 @@
   "license": "ISC",
   "dependencies": {
     "@godaddy/terminus": "^4.12.1",
-    "@map-colonies/config": "^3.0.0",
+    "@map-colonies/config": "catalog:",
     "@map-colonies/error-express-handler": "^3.0.0",
     "@map-colonies/express-access-log-middleware": "^4.1.0",
     "@map-colonies/js-logger": "catalog:",

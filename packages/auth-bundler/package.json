@@ -45,13 +45,11 @@
     "typeorm": "catalog:"
   },
   "devDependencies": {
-    "@map-colonies/config": "^4.0.1",
+    "@map-colonies/config": "catalog:",
     "@map-colonies/schemas": "catalog:",
     "@map-colonies/eslint-config": "catalog:",
     "test-utils": "workspace:^",
-    "@types/config": "^3.3.0",
     "@types/node": "catalog:",
-    "config": "^3.3.9",
     "jest-extended": "catalog:",
     "ts-node": "^10.9.1",
     "typescript": "catalog:",
