@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-export interface DirectionContextType {
+interface DirectionContextType {
   direction: 'ltr' | 'rtl';
 }
 

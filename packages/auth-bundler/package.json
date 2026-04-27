@@ -5,10 +5,17 @@
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
+  "type": "commonjs",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MapColonies/opa-la.git"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
   },
   "scripts": {
     "lint": "eslint .",
@@ -16,14 +23,16 @@
     "migration:run": "npm run typeorm migration:run -- ",
     "migration:revert": "npm run typeorm migration:revert -- ",
     "typeorm": "node --require ts-node/register ../../node_modules/typeorm/cli.js -d ./dataSource.ts",
-    "prebuild": "npm run clean",
+    "prebuild": "pnpm run clean",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:ui": "vitest --ui",
-    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run assets:copy",
-    "start": "npm run build && cd dist && node --enable-source-maps ./index.js",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && pnpm run assets:copy",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "prepack": "turbo run build",
+    "check-dist": "publint && attw --pack .",
+    "knip": "knip --directory ../.. --workspace packages/auth-bundler"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"
@@ -43,7 +52,6 @@
     "config": "^3.3.9",
     "copyfiles": "^2.4.1",
     "jest-extended": "catalog:",
-    "rimraf": "^4.4.0",
     "ts-node": "^10.9.1",
     "typescript": "catalog:",
     "vitest": "catalog:",

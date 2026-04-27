@@ -1,8 +1,5 @@
-import { faker } from '@faker-js/faker';
-import { AssetType, Environment, type IBundle } from '@map-colonies/auth-core';
+import { AssetType, Environment } from '@map-colonies/auth-core';
 import type { BundleContent } from '@src/index';
-
-const EIGHT = 8;
 
 const baseAsset = { createdAt: new Date(), environment: [Environment.PRODUCTION], version: 1 };
 
@@ -23,20 +20,6 @@ test_allow {
 ).toString('base64');
 
 const data = Buffer.from(`{{#delimitedEach .}}{{name}}{{/delimitedEach}}`).toString('base64');
-
-export function getFakeBundle(includeCreated?: boolean): IBundle {
-  return {
-    id: includeCreated === true ? faker.number.int() : undefined,
-    hash: faker.string.alpha(EIGHT),
-    createdAt: includeCreated === true ? faker.date.past() : undefined,
-    environment: Environment.NP,
-    keyVersion: 1,
-    assets: [{ name: 'aaaa', version: 1 }],
-    connections: [{ name: 'bbb', version: 2 }],
-    metadata: { ccc: 123 },
-    opaVersion: '0.52.0',
-  };
-}
 
 export function getFakeBundleContent(): BundleContent {
   return {

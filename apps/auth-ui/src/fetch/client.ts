@@ -59,7 +59,7 @@ const recreateDefaultApi = () => {
   $api = createClient(defaultFetchClient);
 };
 
-export const createSiteApis = async () => {
+const createSiteApis = async () => {
   try {
     const config = await configLoader.loadConfig();
     recreateDefaultApi();
@@ -70,7 +70,7 @@ export const createSiteApis = async () => {
   }
 };
 
-export const createApiClientsFromConfig = (config: NetworkConfig) => {
+const createApiClientsFromConfig = (config: NetworkConfig) => {
   const siteApis: Record<string, typeof $api> = {};
 
   Object.entries(config).forEach(([siteName, siteConfig]) => {

@@ -13,13 +13,13 @@
     "prelint:fix": "pnpm run format:fix",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "version": "node scripts/version-bump.mjs",
-    "release": "npx lerna version --conventional-commits",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "check-dist": "turbo run check-dist",
+    "knip": "knip",
+    "docs": "typedoc"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
-    "@commitlint/config-lerna-scopes": "^19.7.0",
     "@faker-js/faker": "^9.7.0",
     "@map-colonies/commitlint-config": "^2.0.0",
     "@map-colonies/eslint-config": "catalog:",
@@ -31,17 +31,17 @@
     "cross-env": "^7.0.3",
     "eslint": "catalog:",
     "husky": "^9.1.7",
-    "just-safe-set": "4.2.1",
     "prettier": "^3.5.3",
     "pretty-quick": "^4.1.1",
-    "ts-jest": "^29.0.5",
     "tsc-alias": "^1.8.10",
     "typedoc": "^0.28.2",
     "typescript": "^5.8.3",
-    "yaml": "2.3.0",
-    "zx": "^7.2.2",
     "turbo": "^2.8.20",
-    "@vitest/eslint-plugin": "^1.6.15"
+    "@vitest/eslint-plugin": "^1.6.15",
+    "@arethetypeswrong/cli": "^0.18.2",
+    "publint": "0.3.18",
+    "knip": "^6.4.1",
+    "rimraf": "^6.1.3"
   },
   "engines": {
     "node": ">=24",

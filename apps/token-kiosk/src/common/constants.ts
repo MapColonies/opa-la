@@ -1,7 +1,6 @@
 import { readPackageJsonSync } from '@map-colonies/read-pkg';
 
 export const SERVICE_NAME = readPackageJsonSync().name ?? 'unknown_service';
-export const DEFAULT_SERVER_PORT = 80;
 
 export const DB_CONNECTION_TIMEOUT = 5000;
 

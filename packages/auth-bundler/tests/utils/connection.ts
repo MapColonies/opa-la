@@ -1,4 +1,4 @@
-import { type Connection, Environment, type IConnection } from '@map-colonies/auth-core';
+import { type Connection, Environment } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 
 const EIGHT = 8;
@@ -16,11 +16,4 @@ export function getFakeConnection(): Connection {
     enabled: true,
     token: faker.string.alpha(),
   };
-}
-
-export function getFakeIConnection(includeCreated?: boolean): IConnection {
-  const connection: IConnection = getFakeConnection();
-  connection.createdAt = includeCreated === true ? faker.date.past() : undefined;
-
-  return connection;
 }
