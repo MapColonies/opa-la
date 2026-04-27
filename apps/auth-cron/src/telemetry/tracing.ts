@@ -22,10 +22,3 @@ export function tracingFactory(options: ConstructorParameters<typeof Tracing>[0]
 
   return tracing;
 }
-
-// export function getTracing(): Tracing {
-//   if (!tracing) {
-//     throw new Error('tracing not initialized');
-//   }
-//   return tracing;
-// }

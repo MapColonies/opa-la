@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@map-colonies/openapi-helpers": "catalog:",
-    "@map-colonies/tsconfig": "^1.0.1",
+    "@map-colonies/tsconfig": "catalog:",
     "config": "4.4.1",
     "@types/compression": "^1.7.5",
     "@types/express": "^4.17.21",
