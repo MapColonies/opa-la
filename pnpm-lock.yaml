@@ -80,9 +80,6 @@ importers:
       '@map-colonies/prettier-config':
         specifier: ^0.0.1
         version: 0.0.1
-      '@map-colonies/tsconfig':
-        specifier: ^2.0.0
-        version: 2.0.0
       '@redocly/cli':
         specifier: ^1.34.2
         version: 1.34.11(ajv@8.18.0)(encoding@0.1.13)

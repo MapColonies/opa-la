@@ -2,6 +2,7 @@
   "name": "token-kiosk",
   "version": "1.12.0",
   "description": "UI for requesting temporary access tokens for Map Colonies services",
+  "dockerfile": "docker/backend.Dockerfile",
   "main": "./src/index.ts",
   "scripts": {
     "test": "vitest run",

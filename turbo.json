@@ -17,6 +17,9 @@
     "lint:fix": {
       "dependsOn": []
     },
+    "lint:openapi": {
+      "dependsOn": []
+    },
     "test": {
       "dependsOn": []
     },

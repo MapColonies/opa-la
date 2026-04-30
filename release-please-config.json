@@ -1,0 +1,140 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "changelog-sections": [
+    {
+      "section": "🎉 Features",
+      "type": "feat"
+    },
+    {
+      "section": "🐛 Bug Fixes",
+      "type": "fix"
+    },
+    {
+      "section": "⚡ Performance Improvements",
+      "type": "perf"
+    },
+    { "type": "helm", "section": "Helm Changes", "hidden": false },
+    {
+      "section": "🔗 Dependencies",
+      "type": "deps"
+    },
+    {
+      "section": "📝 Documentation",
+      "type": "docs"
+    },
+    {
+      "section": "🏗️ Build System",
+      "type": "build",
+      "hidden": true
+    },
+    {
+      "section": "🤖 Continuous Integration",
+      "type": "ci",
+      "hidden": true
+    },
+    {
+      "section": "🔧 Miscellaneous Chores",
+      "type": "chore",
+      "hidden": true
+    },
+    {
+      "section": "⏪ Reverts",
+      "type": "revert"
+    },
+    {
+      "section": "✅ Tests",
+      "type": "test",
+      "hidden": true
+    },
+    {
+      "section": "💄 Style",
+      "type": "style",
+      "hidden": true
+    },
+    {
+      "section": "♻️ Code Refactoring",
+      "type": "refactor",
+      "hidden": true
+    }
+  ],
+  "draft-pull-request": false,
+  "include-v-in-tag": true,
+  "separate-pull-requests": false,
+  "pull-request-title-pattern": "chore(global): release${component} ${version}",
+  "plugins": [
+    {
+      "type": "linked-versions",
+      "groupName": "all",
+      "components": ["auth-bundler", "auth-core", "test-utils", "auth-cron", "auth-manager", "token-kiosk", "auth-ui", "token-ui", "root"]
+    }
+  ],
+  "packages": {
+    "packages/auth-bundler": {
+      "release-type": "node",
+      "component": "auth-bundler",
+      "skip-changelog": true
+    },
+    "packages/auth-core": {
+      "release-type": "node",
+      "component": "auth-core",
+      "skip-changelog": true
+    },
+    "packages/test-utils": {
+      "release-type": "node",
+      "component": "test-utils",
+      "skip-changelog": true
+    },
+    "apps/auth-cron": {
+      "release-type": "node",
+      "component": "auth-cron",
+      "skip-changelog": true
+    },
+    "apps/auth-manager": {
+      "release-type": "node",
+      "component": "auth-manager",
+      "skip-changelog": true,
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "openapi3.yaml",
+          "jsonpath": "$.info.version"
+        }
+      ]
+    },
+    "apps/token-kiosk": {
+      "release-type": "node",
+      "component": "token-kiosk",
+      "skip-changelog": true,
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "openapi3.yaml",
+          "jsonpath": "$.info.version"
+        }
+      ]
+    },
+    "apps/auth-ui": {
+      "release-type": "node",
+      "component": "auth-ui",
+      "skip-changelog": true
+    },
+    "apps/token-ui": {
+      "release-type": "node",
+      "component": "token-ui",
+      "skip-changelog": true
+    },
+    ".": {
+      "release-type": "node",
+      "component": "root",
+      "skip-changelog": true,
+      "extra-files": [
+        {
+          "type": "yaml",
+          "glob": true,
+          "path": "**/Chart.yaml",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  }
+}

@@ -5,6 +5,10 @@ inputs:
     description: 'Node.js version'
     required: true
     default: 24.x
+  install-filter:
+    description: 'Filter for pnpm install (e.g., --filter=packages/*)'
+    required: false
+    default: '*'
 runs:
   using: composite
   steps:
@@ -27,4 +31,4 @@ runs:
       run: pnpm install
     - name: build
       shell: bash
-      run: pnpm run build
+      run: pnpm exec turbo run build --affected --filter=${{ inputs.install-filter }}

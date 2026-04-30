@@ -2,6 +2,7 @@
   "name": "auth-cron",
   "version": "1.11.0",
   "description": "Server for generating and uploading Open Policy Agent bundles",
+  "dockerfile": "docker/backend.Dockerfile",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
