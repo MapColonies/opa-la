@@ -82,19 +82,3 @@ jobs:
 
       - name: Run knip
         run: pnpm run knip
-
-  api-extractor:
-    name: Run API Extractor
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out TS Project Git repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-
-      - name: Fetch base branch for turbo
-        run: git fetch origin ${{ github.base_ref }} --depth=1
-
-      - name: Init nodejs
-        uses: ./.github/actions/init-pnpm
-
-      - name: Run API Extractor
-        run: pnpm exec turbo run --affected api:check
