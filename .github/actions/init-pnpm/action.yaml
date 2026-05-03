@@ -8,7 +8,6 @@ inputs:
   install-filter:
     description: 'Filter for pnpm install (e.g., --filter=packages/*)'
     required: false
-    default: '*'
 runs:
   using: composite
   steps:
@@ -31,4 +30,11 @@ runs:
       run: pnpm install
     - name: build
       shell: bash
-      run: pnpm exec turbo run build --affected --filter=${{ inputs.install-filter }}
+      env:
+        INSTALL_FILTER: ${{ inputs.install-filter }}
+      run: |
+        if [ -n "$INSTALL_FILTER" ]; then
+          pnpm exec turbo run build --filter="$INSTALL_FILTER"
+        else
+          pnpm exec turbo run build --affected
+        fi
