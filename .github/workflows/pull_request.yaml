@@ -80,7 +80,7 @@ jobs:
       - name: Init nodejs
         uses: ./.github/actions/init-pnpm
         with:
-          install-filter: '.'
+          install-filter: '*'
 
       - name: Run knip
         run: pnpm run knip
