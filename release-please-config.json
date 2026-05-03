@@ -79,6 +79,11 @@
       "component": "auth-core",
       "skip-changelog": true
     },
+    "packages/auth-openapi": {
+      "release-type": "node",
+      "component": "auth-openapi",
+      "skip-changelog": true
+    },
     "packages/test-utils": {
       "release-type": "node",
       "component": "test-utils",

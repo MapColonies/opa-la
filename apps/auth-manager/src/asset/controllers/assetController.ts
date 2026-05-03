@@ -2,7 +2,7 @@ import { HttpError } from '@map-colonies/error-express-handler';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
-import type { TypedRequestHandlers, components } from '@openapi';
+import type { TypedRequestHandlers, components } from 'auth-openapi';
 import { SERVICES } from '@common/constants';
 import { AssetManager, type ResponseAsset } from '../models/assetManager';
 import { AssetNotFoundError, AssetVersionMismatchError } from '../models/errors';

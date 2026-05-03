@@ -1,3 +1,4 @@
+import path from 'node:path';
 import express, { Router } from 'express';
 import bodyParser from 'body-parser';
 import compression, { CompressionOptions } from 'compression';
@@ -47,9 +48,10 @@ export class ServerBuilder {
   }
 
   private buildDocsRoutes(): void {
+    const authOpenApi = require.resolve('auth-openapi');
     const openapiRouter = new OpenapiViewerRouter({
       ...this.config.get('openapiConfig'),
-      filePathOrSpec: this.config.get('openapiConfig.filePath'),
+      filePathOrSpec: path.join(path.dirname(authOpenApi), 'openapi3.yaml'),
     });
     openapiRouter.setup();
     this.serverInstance.use(this.config.get('openapiConfig.basePath'), openapiRouter.getRouter());

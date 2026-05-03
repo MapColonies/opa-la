@@ -25,7 +25,6 @@
     "migration:revert": "npm run typeorm migration:revert -- ",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "lint:openapi": "redocly lint --config ../../.redocly.yaml openapi3.yaml",
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run assets:copy",
     "build:docker": "docker buildx build --build-arg APP_NAME=$npm_package_name -f ../../docker/backend.Dockerfile -t ${DOCKER_REGISTRY:-}${npm_package_name}:${DOCKER_TAG:-latest} ${DOCKER_FLAGS:-} ../..",
@@ -34,7 +33,6 @@
     "start:dev": "npm run build && cd dist && cross-env CONFIG_OFFLINE_MODE=true  node --enable-source-maps --import ./instrumentation.mjs ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./dataSource.mjs dist && copyfiles ./package.json dist",
     "clean": "rimraf dist",
-    "generate:openapi-types": "openapi-helpers ./openapi3.yaml ./src/openapi.d.ts --format --add-typed-request-handler",
     "knip": "knip --directory ../.. --workspace apps/auth-manager"
   },
   "bugs": {
@@ -52,6 +50,7 @@
     "@map-colonies/schemas": "catalog:",
     "@map-colonies/telemetry": "^10.0.1",
     "@opentelemetry/api": "^1.9.0",
+    "auth-openapi": "workspace:^",
     "body-parser": "^2.2.2",
     "compression": "^1.7.4",
     "cors": "^2.8.5",

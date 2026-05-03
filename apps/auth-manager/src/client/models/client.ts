@@ -1,4 +1,4 @@
-import type { operations } from '@src/openapi';
+import type { operations } from 'auth-openapi';
 
 type DateKeys = 'createdBefore' | 'createdAfter' | 'updatedBefore' | 'updatedAfter';
 

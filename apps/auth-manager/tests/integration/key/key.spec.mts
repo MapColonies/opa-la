@@ -4,6 +4,8 @@ import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import type { DependencyContainer } from 'tsyringe';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
@@ -11,14 +13,16 @@ import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender
 import type { IKey, Environments } from '@map-colonies/auth-core';
 import { Key, Environment } from '@map-colonies/auth-core';
 import { getMockKeys } from 'test-utils';
-import type { paths, operations, components } from '@openapi';
+import type { paths, operations, components } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@src/common/constants.js';
 import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
 import { initConfig } from '@src/common/config.js';
 
+const authOpenapiPath = fileURLToPath(new URL('.', import.meta.resolve('auth-openapi')));
+
 describe('key', function () {
-  const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
+  const OPENAPI_SPEC_PATH = path.join(authOpenapiPath, 'openapi3.yaml'); // Path to the OpenAPI spec file
 
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;

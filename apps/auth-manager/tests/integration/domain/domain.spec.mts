@@ -10,7 +10,7 @@ import type { IDomain } from '@map-colonies/auth-core';
 import { Domain } from '@map-colonies/auth-core';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@src/common/constants.js';
 import { initConfig } from '@src/common/config.js';

@@ -1,4 +1,7 @@
 /* eslint-disable */
+// This file was auto-generated. Do not edit manually.
+// To update, run the error generation script again.
+
 import type { TypedRequestHandlers as ImportedTypedRequestHandlers } from '@map-colonies/openapi-helpers/typedRequestHandler';
 export type paths = {
   '/client': {
@@ -511,10 +514,11 @@ export type components = {
     };
   };
   parameters: {
-    /** @description page number for pagination. The value is 1-based, meaning the first page is 1.
+    /**
+     * @description page number for pagination. The value is 1-based, meaning the first page is 1.
      *     If the value is greater than the total number of pages, an empty array will be returned.
      *     This simplifies the pagination logic on the client side.
-     *      */
+     */
     page: number;
     /** @description number of items per page */
     pageSize: number;
@@ -564,10 +568,11 @@ export interface operations {
          *     ]
          */
         sort?: string[];
-        /** @description page number for pagination. The value is 1-based, meaning the first page is 1.
+        /**
+         * @description page number for pagination. The value is 1-based, meaning the first page is 1.
          *     If the value is greater than the total number of pages, an empty array will be returned.
          *     This simplifies the pagination logic on the client side.
-         *      */
+         */
         page?: components['parameters']['page'];
         /** @description number of items per page */
         page_size?: components['parameters']['pageSize'];
@@ -808,10 +813,11 @@ export interface operations {
          *     ]
          */
         sort?: string[];
-        /** @description page number for pagination. The value is 1-based, meaning the first page is 1.
+        /**
+         * @description page number for pagination. The value is 1-based, meaning the first page is 1.
          *     If the value is greater than the total number of pages, an empty array will be returned.
          *     This simplifies the pagination logic on the client side.
-         *      */
+         */
         page?: components['parameters']['page'];
         /** @description number of items per page */
         page_size?: components['parameters']['pageSize'];
@@ -1219,10 +1225,11 @@ export interface operations {
          *     ]
          */
         sort?: string[];
-        /** @description page number for pagination. The value is 1-based, meaning the first page is 1.
+        /**
+         * @description page number for pagination. The value is 1-based, meaning the first page is 1.
          *     If the value is greater than the total number of pages, an empty array will be returned.
          *     This simplifies the pagination logic on the client side.
-         *      */
+         */
         page?: components['parameters']['page'];
         /** @description number of items per page */
         page_size?: components['parameters']['pageSize'];

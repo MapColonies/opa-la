@@ -13,7 +13,7 @@ import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/
 import { KeyNotFoundError } from '@key/models/errors';
 import { SortOptions } from '@src/common/db/sort';
 import { asteriskStringComparatorLast } from '@src/utils/utils';
-import { paths } from '@src/openapi';
+import { paths } from 'auth-openapi';
 import { type ConnectionRepository } from '../DAL/connectionRepository';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
 

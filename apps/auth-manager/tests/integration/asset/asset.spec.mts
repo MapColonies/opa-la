@@ -12,7 +12,7 @@ import { faker } from '@faker-js/faker';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { getFakeAsset } from 'test-utils';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'auth-openapi';
 import type { AssetRepository } from '@src/asset/DAL/assetRepository.js';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@common/constants.js';

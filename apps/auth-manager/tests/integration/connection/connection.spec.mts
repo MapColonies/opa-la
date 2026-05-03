@@ -12,7 +12,7 @@ import { faker } from '@faker-js/faker';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { getRealKeys, getFakeClient, getFakeConnection, getFakeIConnection } from 'test-utils';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@common/constants.js';
 import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository.js';
