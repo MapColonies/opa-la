@@ -16,11 +16,12 @@ export async function setup(): Promise<void> {
     password: dataSourceOptions.password,
   });
 
-  const connection = await initConnection({ ...dataSourceOptions });
   await mergeTestConfig(path.join(__dirname, '../../config'), { port: container.getPort() });
   console.log('config path:', path.join(__dirname, '../../config'));
   fs.readdirSync(path.join(__dirname, '../../config')).forEach((file) => {
     console.log('config file:', file);
   });
+
+  const connection = await initConnection({ ...dataSourceOptions });
   await resetAndMigrate(connection, dataSourceOptions.schema);
 }
