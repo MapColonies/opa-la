@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { createPostgresContainer, mergeTestConfig } from 'test-utils';
+import { createPostgresContainer, mergeTestConfig, PG_PORT } from 'test-utils';
 import { initConnection, createConnectionOptions, createDrizzle, runMigrations } from '@src/db/createConnection.js';
 import { getConfig, initConfig } from '@src/common/config.js';
 
@@ -13,9 +13,10 @@ export async function setup(): Promise<void> {
     password: config.password,
   });
 
-  await mergeTestConfig(path.join(__dirname, '../../config'), { 'db.port': container.getPort() });
+  const port = container.getMappedPort(PG_PORT);
+  await mergeTestConfig(path.join(__dirname, '../../config'), { 'db.port': port });
 
-  const pool = await initConnection(createConnectionOptions({ ...config, port: container.getPort() }));
+  const pool = await initConnection(createConnectionOptions({ ...config, port }));
   const drizzle = createDrizzle(pool);
   await runMigrations(drizzle);
   await pool.end();

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { initConnection } from '@map-colonies/auth-core';
 import type { TestProject } from 'vitest/node';
-import { createPostgresContainer, createAndProvideTempDir, removeTempDir, resetAndMigrate, mergeTestConfig } from 'test-utils';
+import { createPostgresContainer, PG_PORT, createAndProvideTempDir, removeTempDir, resetAndMigrate, mergeTestConfig } from 'test-utils';
 import { getConfig, initConfig } from '../helpers/config.js';
 
 export async function setup(project: TestProject): Promise<void> {
@@ -16,9 +16,11 @@ export async function setup(project: TestProject): Promise<void> {
     password: dataSourceOptions.password,
   });
 
-  await mergeTestConfig(path.join(__dirname, '../../config'), { port: container.getPort() });
+  const port = container.getMappedPort(PG_PORT);
 
-  const connection = await initConnection({ ...dataSourceOptions, port: container.getPort() });
+  await mergeTestConfig(path.join(__dirname, '../../config'), { port });
+
+  const connection = await initConnection({ ...dataSourceOptions, port });
 
   await resetAndMigrate(connection, dataSourceOptions.schema);
 }
