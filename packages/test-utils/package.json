@@ -1,0 +1,55 @@
+{
+  "name": "test-utils",
+  "version": "1.0.0",
+  "description": "Shared test utilities for opa-la packages and apps",
+  "author": "MapColonies",
+  "homepage": "https://github.com/MapColonies/opa-la#readme",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MapColonies/opa-la.git"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "prebuild": "pnpm run clean",
+    "build": "tsc --project tsconfig.json && pnpm run assets:copy",
+    "assets:copy": "copyfiles ./package.json dist",
+    "clean": "rimraf dist",
+    "prepack": "turbo run build",
+    "check-dist": "publint && attw --profile esm-only --pack .",
+    "knip": "knip --directory ../.. --workspace packages/test-utils"
+  },
+  "bugs": {
+    "url": "https://github.com/MapColonies/opa-la/issues"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "@faker-js/faker": "catalog:",
+    "@map-colonies/auth-core": "workspace:^",
+    "@map-colonies/schemas": "catalog:",
+    "@testcontainers/minio": "~11.14.0",
+    "@testcontainers/postgresql": "^11.14.0",
+    "typeorm": "catalog:",
+    "lodash": "^4.18.1"
+  },
+  "peerDependencies": {
+    "vitest": "catalog:"
+  },
+  "devDependencies": {
+    "@map-colonies/eslint-config": "catalog:",
+    "@map-colonies/tsconfig": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "@types/lodash": "^4.17.24"
+  }
+}

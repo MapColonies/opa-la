@@ -25,7 +25,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prebuild": "pnpm run clean",
-    "build": "tsc --project tsconfig.build.json && pnpm run assets:copy",
+    "build": "tsc --project tsconfig.json && pnpm run assets:copy",
     "assets:copy": "copyfiles ./package.json dist",
     "clean": "rimraf dist",
     "prepack": "turbo run build",
@@ -37,15 +37,15 @@
   },
   "dependencies": {
     "pg": "^8.10.0",
-    "typeorm": "^0.3.12"
+    "typeorm": "catalog:"
   },
   "devDependencies": {
-    "@map-colonies/config": "^3.0.0",
-    "@map-colonies/schemas": "^1.9.0",
+    "@map-colonies/config": "catalog:",
+    "@map-colonies/schemas": "catalog:",
     "@map-colonies/tsconfig": "catalog:",
+    "@map-colonies/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@types/pg": "^8.6.6",
-    "copyfiles": "^2.4.1",
     "ts-node": "^10.9.1",
     "typescript": "catalog:"
   },

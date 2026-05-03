@@ -1,5 +1,6 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import {} from '@map-colonies/vitest-utils';
 import { jsLogger } from '@map-colonies/js-logger';
 import nock, { abortPendingRequests, cleanAll } from 'nock';
 import { trace } from '@opentelemetry/api';

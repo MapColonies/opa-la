@@ -7,9 +7,9 @@ export default defineConfig({
     alias: getPathAlias(tsconfig, __dirname),
   },
   test: {
-    globalSetup: './tests/configurations/vitest.globalSetup.ts',
+    globalSetup: './tests/configurations/vitest.globalSetup.mts',
     setupFiles: ['@map-colonies/vitest-utils/extended'],
-    include: ['tests/**/*.spec.ts'],
+    include: ['tests/**/*.spec.{ts,mts}'],
     environment: 'node',
     reporters,
     coverage: {

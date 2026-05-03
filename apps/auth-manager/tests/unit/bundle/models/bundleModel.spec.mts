@@ -1,0 +1,68 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
+import type { Bundle } from '@map-colonies/auth-core';
+import type { Repository } from 'typeorm';
+import { getFakeBundle } from 'test-utils';
+import { BundleManager } from '@src/bundle/models/bundleManager.js';
+import { BundleNotFoundError } from '@src/bundle/models/errors.js';
+
+const logger = jsLogger({ enabled: false });
+
+describe('BundleManager', () => {
+  let bundleManager: BundleManager;
+  const mockedRepository = {
+    findBy: vi.fn(),
+    findOneBy: vi.fn(),
+  };
+
+  beforeEach(function () {
+    bundleManager = new BundleManager(logger, mockedRepository as unknown as Repository<Bundle>);
+    vi.resetAllMocks();
+  });
+
+  describe('#getBundles', () => {
+    it('should return the array of bundles', async function () {
+      const bundle = getFakeBundle();
+      mockedRepository.findBy.mockResolvedValue([bundle]);
+
+      const bundlePromise = bundleManager.getBundles({});
+
+      await expect(bundlePromise).resolves.toStrictEqual([bundle]);
+    });
+
+    it('should throw an error if thrown by the ORM', async function () {
+      mockedRepository.findBy.mockRejectedValue(new Error());
+
+      const bundlePromise = bundleManager.getBundles({});
+
+      await expect(bundlePromise).rejects.toThrow();
+    });
+  });
+
+  describe('#getBundle', () => {
+    it('should return the bundle', async function () {
+      const bundle = getFakeBundle();
+      mockedRepository.findOneBy.mockResolvedValue(bundle);
+
+      const bundlePromise = bundleManager.getBundle(1);
+
+      await expect(bundlePromise).resolves.toStrictEqual(bundle);
+    });
+
+    it('should throw NotFoundError if the bundle is not in the db', async function () {
+      mockedRepository.findOneBy.mockResolvedValue(null);
+
+      const bundlePromise = bundleManager.getBundle(1);
+
+      await expect(bundlePromise).rejects.toThrow(BundleNotFoundError);
+    });
+
+    it('should throw an error if the db throws one', async function () {
+      mockedRepository.findOneBy.mockRejectedValue(new Error());
+
+      const bundlePromise = bundleManager.getBundle(1);
+
+      await expect(bundlePromise).rejects.toThrow();
+    });
+  });
+});

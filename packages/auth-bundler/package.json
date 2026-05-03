@@ -42,22 +42,22 @@
     "execa": "^7.1.1",
     "handlebars": "4.7.7",
     "pg": "^8.10.0",
-    "typeorm": "^0.3.12"
+    "typeorm": "catalog:"
   },
   "devDependencies": {
-    "@map-colonies/config": "^4.0.1",
-    "@map-colonies/schemas": "^1.1.0",
-    "@types/config": "^3.3.0",
+    "@map-colonies/config": "catalog:",
+    "@map-colonies/schemas": "catalog:",
+    "@map-colonies/eslint-config": "catalog:",
+    "test-utils": "workspace:^",
     "@types/node": "catalog:",
-    "config": "^3.3.9",
-    "copyfiles": "^2.4.1",
     "jest-extended": "catalog:",
     "ts-node": "^10.9.1",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "@map-colonies/vitest-utils": "catalog:"
+    "@map-colonies/vitest-utils": "catalog:",
+    "@faker-js/faker": "catalog:"
   },
   "peerDependencies": {
     "@map-colonies/js-logger": "catalog:"
