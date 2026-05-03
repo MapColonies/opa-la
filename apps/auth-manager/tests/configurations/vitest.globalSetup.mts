@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import path from 'node:path';
 import fs from 'node:fs';
+import { execSync } from 'node:child_process';
 import { initConnection } from '@map-colonies/auth-core';
 import { createPostgresContainer, resetAndMigrate, mergeTestConfig } from 'test-utils';
 
@@ -21,6 +22,8 @@ export async function setup(): Promise<void> {
   fs.readdirSync(path.join(__dirname, '../../config')).forEach((file) => {
     console.log('config file:', file);
   });
+  const res = execSync('docker ps');
+  console.log('docker ps output:', res.toString());
 
   const connection = await initConnection({ ...dataSourceOptions });
   await resetAndMigrate(connection, dataSourceOptions.schema);
