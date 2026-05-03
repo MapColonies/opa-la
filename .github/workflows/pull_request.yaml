@@ -5,6 +5,8 @@ on: [pull_request, workflow_dispatch]
 env:
   TURBO_SCM_BASE: origin/${{ github.base_ref}}
   NODE_CONFIG_ENV: test
+  DEBUG: 'testcontainers*'
+  TESTCONTAINERS_RYUK_DISABLED: true
 jobs:
   eslint:
     name: Run TS Project eslint
