@@ -11,12 +11,14 @@ export async function setup(): Promise<void> {
   await initConfig(true);
   const dataSourceOptions = getConfig().get('db');
 
+  console.log('time before creating container', new Date().toISOString());
   const container = await createPostgresContainer({
     username: dataSourceOptions.username,
     database: dataSourceOptions.database,
     password: dataSourceOptions.password,
   });
 
+  console.log('time after creating container', new Date().toISOString());
   await mergeTestConfig(path.join(__dirname, '../../config'), { port: container.getPort() });
   console.log('config path:', path.join(__dirname, '../../config'));
   fs.readdirSync(path.join(__dirname, '../../config')).forEach((file) => {
