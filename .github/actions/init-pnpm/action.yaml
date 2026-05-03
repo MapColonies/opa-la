@@ -27,7 +27,14 @@ runs:
         cache: 'pnpm'
     - name: Install TS Project dependencies
       shell: bash
-      run: pnpm install
+      env:
+        INSTALL_FILTER: ${{ inputs.install-filter }}
+      run: |
+        if [ -n "$INSTALL_FILTER" ]; then
+          pnpm install --filter="$INSTALL_FILTER" --frozen-lockfile
+        else
+          pnpm install --frozen-lockfile
+        fi
     - name: build
       shell: bash
       env:

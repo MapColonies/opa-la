@@ -4,7 +4,7 @@ on: [pull_request, workflow_dispatch]
 
 env:
   TURBO_SCM_BASE: origin/${{ github.base_ref}}
-
+  NODE_CONFIG_ENV: test
 jobs:
   eslint:
     name: Run TS Project eslint
@@ -79,6 +79,8 @@ jobs:
 
       - name: Init nodejs
         uses: ./.github/actions/init-pnpm
+        with:
+          install-filter: '.'
 
       - name: Run knip
         run: pnpm run knip
