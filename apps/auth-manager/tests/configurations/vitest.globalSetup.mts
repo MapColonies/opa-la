@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import path from 'node:path';
+import fs from 'node:fs';
 import { initConnection } from '@map-colonies/auth-core';
 import { createPostgresContainer, resetAndMigrate, mergeTestConfig } from 'test-utils';
 
@@ -17,6 +18,9 @@ export async function setup(): Promise<void> {
 
   const connection = await initConnection({ ...dataSourceOptions });
   await mergeTestConfig(path.join(__dirname, '../../config'), { port: container.getPort() });
-
+  console.log('config path:', path.join(__dirname, '../../config'));
+  fs.readdirSync(path.join(__dirname, '../../config')).forEach((file) => {
+    console.log('config file:', file);
+  });
   await resetAndMigrate(connection, dataSourceOptions.schema);
 }
