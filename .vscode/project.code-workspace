@@ -17,6 +17,10 @@
       "path": "../packages/auth-openapi",
     },
     {
+      "name": "Token OpenAPI",
+      "path": "../packages/token-openapi",
+    },
+    {
       "name": "Test Utils",
       "path": "../packages/test-utils",
     },

@@ -2,7 +2,7 @@ import httpStatus from 'http-status-codes';
 import { formatDate } from 'date-fns';
 import { injectable, inject } from 'tsyringe';
 import type { Logger } from '@map-colonies/js-logger';
-import { TypedRequestHandlers } from '@src/openapi';
+import { TypedRequestHandlers } from 'token-openapi';
 import { SERVICES } from '@common/constants';
 import { type ConfigType } from '@src/common/config';
 import { AuthManager } from '@src/auth/model/authManager';

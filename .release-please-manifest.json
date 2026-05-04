@@ -2,6 +2,7 @@
   "packages/auth-bundler": "12.0.0",
   "packages/auth-core": "12.0.0",
   "packages/auth-openapi": "12.0.0",
+  "packages/token-openapi": "12.0.0",
   "packages/test-utils": "12.0.0",
   "apps/auth-cron": "12.0.0",
   "apps/auth-manager": "12.0.0",

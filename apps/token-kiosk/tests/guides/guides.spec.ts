@@ -6,8 +6,9 @@ import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender'
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'token-openapi';
 import { getApp } from '@src/app';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 import { SERVICES } from '@common/constants';
 import { initConfig } from '@src/common/config';
 import mockUser from '../data/user';
@@ -40,7 +41,9 @@ describe('guides', function () {
       useChild: true,
     });
 
-    requestSender = await createRequestSender<paths, operations>('openapi3.yaml', app, { baseUrl: '/api' });
+    console.log('Creating request sender with OPENAPI_PATH:', OPENAPI_PATH);
+
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app, { baseUrl: '/api' });
   });
 
   afterEach(function () {

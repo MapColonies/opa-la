@@ -84,6 +84,11 @@
       "component": "auth-openapi",
       "skip-changelog": true
     },
+    "packages/token-openapi": {
+      "release-type": "node",
+      "component": "token-openapi",
+      "skip-changelog": true
+    },
     "packages/test-utils": {
       "release-type": "node",
       "component": "test-utils",

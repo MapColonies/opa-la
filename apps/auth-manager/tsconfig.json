@@ -11,8 +11,7 @@
       "@client/*": ["./src/client/*"],
       "@domain/*": ["./src/domain/*"],
       "@key/*": ["./src/key/*"],
-      "@connection/*": ["./src/connection/*"],
-      "@openapi": ["src/openapi.js"]
+      "@connection/*": ["./src/connection/*"]
     }
   },
   "include": ["src", "tests"],

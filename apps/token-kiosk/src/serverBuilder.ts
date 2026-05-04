@@ -1,3 +1,4 @@
+import path from 'node:path';
 import express, { Router, static as expressStatic } from 'express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
@@ -16,6 +17,8 @@ import { AUTH_ROUTER_SYMBOL } from './auth/routes/authRouter';
 import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
 import { GUIDES_ROUTER_SYMBOL } from './guides/routes/guidesRouter';
 import { FILES_ROUTER_SYMBOL } from './files/routes/filesRouter';
+
+const OPENAPI_PATH = path.join(path.dirname(require.resolve('auth-openapi')), 'openapi3.yaml');
 
 @injectable()
 export class ServerBuilder {
@@ -45,7 +48,7 @@ export class ServerBuilder {
   private buildDocsRoutes(): void {
     const openapiRouter = new OpenapiViewerRouter({
       ...this.config.get('openapiConfig'),
-      filePathOrSpec: this.config.get('openapiConfig.filePath'),
+      filePathOrSpec: OPENAPI_PATH,
     });
     openapiRouter.setup();
     this.serverInstance.use(this.config.get('openapiConfig.basePath'), openapiRouter.getRouter());
@@ -78,10 +81,9 @@ export class ServerBuilder {
     this.serverInstance.use(this.authMiddleware);
 
     const ignorePathRegex = new RegExp(`^${this.config.get('openapiConfig.basePath')}/.*`, 'i');
-    const apiSpecPath = this.config.get('openapiConfig.filePath');
 
     this.serverInstance.use(
-      OpenApiMiddleware({ apiSpec: apiSpecPath, validateRequests: true, ignorePaths: ignorePathRegex, validateSecurity: false })
+      OpenApiMiddleware({ apiSpec: OPENAPI_PATH, validateRequests: true, ignorePaths: ignorePathRegex, validateSecurity: false })
     );
   }
 
