@@ -1,6 +1,6 @@
 import createClient from 'openapi-react-query';
 import createFetchClient from 'openapi-fetch';
-import type { paths } from '../types/schema';
+import type { paths } from 'auth-openapi';
 import { configLoader } from '../config/loader';
 import { NetworkConfig } from '../types/config';
 

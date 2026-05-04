@@ -488,6 +488,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.7.0(vite@6.4.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)(yaml@2.8.3))
+      auth-openapi:
+        specifier: workspace:*
+        version: link:../../packages/auth-openapi
       eslint:
         specifier: ^9.21.0
         version: 9.39.4(jiti@2.6.1)
@@ -500,9 +503,6 @@ importers:
       globals:
         specifier: ^15.15.0
         version: 15.15.0
-      openapi-typescript:
-        specifier: ^7.6.1
-        version: 7.13.0(typescript@5.8.3)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3

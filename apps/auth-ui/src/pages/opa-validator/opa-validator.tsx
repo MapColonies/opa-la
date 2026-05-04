@@ -12,7 +12,7 @@ import { JSONEditor } from '../../components/json-editor';
 import { SiteConfig } from '../../types/config';
 import { JsonTreeViewer } from '../../components/internal/json-tree-viewer';
 import { siteApis } from '../../fetch';
-import { components } from '../../types/schema';
+import type { components } from 'auth-openapi';
 
 type Domain = components['schemas']['domain'];
 
