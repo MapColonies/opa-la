@@ -19,10 +19,9 @@ import type { ConnectionRepository } from '@src/connection/DAL/connectionReposit
 import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
 import type { DomainRepository } from '@src/domain/DAL/domainRepository.js';
 import { initConfig } from '@common/config.js';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 
 describe('connection', function () {
-  const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
-
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
   const clients = [getFakeClient(false), getFakeClient(false)];
@@ -42,7 +41,7 @@ describe('connection', function () {
       ],
       useChild: true,
     });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     depContainer = container;
   });
 

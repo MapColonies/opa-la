@@ -17,6 +17,7 @@ import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@common/constants.js';
 import { initConfig } from '@common/config.js';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 
 describe('bundle', function () {
   let requestSender: RequestSender<paths, operations>;
@@ -32,7 +33,7 @@ describe('bundle', function () {
       ],
       useChild: true,
     });
-    requestSender = await createRequestSender<paths, operations>('openapi3.yaml', app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     depContainer = container;
 
     await container.resolve(DataSource).getRepository(Bundle).save(bundles);

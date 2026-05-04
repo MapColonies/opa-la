@@ -21,6 +21,8 @@ import { CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
 import { BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
 import type { ConfigType } from './common/config';
 
+const OPENAPI_PATH = path.join(path.dirname(require.resolve('auth-openapi')), 'openapi3.yaml');
+
 @injectable()
 export class ServerBuilder {
   private readonly serverInstance: express.Application;
@@ -48,10 +50,9 @@ export class ServerBuilder {
   }
 
   private buildDocsRoutes(): void {
-    const authOpenApi = require.resolve('auth-openapi');
     const openapiRouter = new OpenapiViewerRouter({
       ...this.config.get('openapiConfig'),
-      filePathOrSpec: path.join(path.dirname(authOpenApi), 'openapi3.yaml'),
+      filePathOrSpec: OPENAPI_PATH,
     });
     openapiRouter.setup();
     this.serverInstance.use(this.config.get('openapiConfig.basePath'), openapiRouter.getRouter());
@@ -90,10 +91,9 @@ export class ServerBuilder {
     this.serverInstance.use(getTraceContexHeaderMiddleware());
 
     const ignorePathRegex = new RegExp(`^${this.config.get('openapiConfig.basePath')}/.*`, 'i');
-    const apiSpecPath = this.config.get('openapiConfig.filePath');
     this.serverInstance.use(
       OpenApiMiddleware({
-        apiSpec: apiSpecPath,
+        apiSpec: OPENAPI_PATH,
         validateRequests: true,
         ignorePaths: ignorePathRegex,
         formats: { phone: true },
