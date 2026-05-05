@@ -41,7 +41,7 @@
     "@map-colonies/auth-core": "workspace:^",
     "execa": "^7.1.1",
     "handlebars": "4.7.7",
-    "pg": "^8.10.0",
+    "pg": "catalog:",
     "typeorm": "catalog:"
   },
   "devDependencies": {
@@ -51,6 +51,7 @@
     "@map-colonies/eslint-config": "catalog:",
     "test-utils": "workspace:^",
     "@types/node": "catalog:",
+    "@types/pg": "catalog:",
     "jest-extended": "catalog:",
     "ts-node": "^10.9.1",
     "typescript": "catalog:",
