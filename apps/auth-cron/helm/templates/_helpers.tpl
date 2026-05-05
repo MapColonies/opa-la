@@ -32,8 +32,8 @@ Common labels
 {{- define "auth-cron.labels" -}}
 helm.sh/chart: {{ include "auth-cron.chart" . }}
 {{ include "auth-cron.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- if .Chart.Version }}
+app.kubernetes.io/version: {{ .Chart.Version | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{ include "mclabels.labels" . }}
@@ -43,7 +43,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Returns the tag of the chart.
 */}}
 {{- define "auth-cron.tag" -}}
-{{- default (printf "v%s" .Chart.AppVersion) .Values.image.tag }}
+{{- default (printf "v%s" .Chart.Version) .Values.image.tag }}
 {{- end }}
 
 {{/*

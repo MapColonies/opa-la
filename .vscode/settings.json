@@ -7,5 +7,8 @@
     {
       "file": "node_modules/@map-colonies/infra-copilot-instructions/instructions/commit.md"
     }
-  ]
+  ],
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

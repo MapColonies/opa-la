@@ -36,8 +36,8 @@ Common labels
 {{- define "token-kiosk.labels" -}}
 helm.sh/chart: {{ include "token-kiosk.chart" . }}
 {{ include "token-kiosk.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- if .Chart.Version }}
+app.kubernetes.io/version: {{ .Chart.Version | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{ include "mclabels.labels" . }}
@@ -47,7 +47,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Returns the tag of the chart.
 */}}
 {{- define "token-kiosk.tag" -}}
-{{- default (printf "v%s" .Chart.AppVersion) .Values.image.tag }}
+{{- default (printf "v%s" .Chart.Version) .Values.image.tag }}
 {{- end }}
 
 {{/*

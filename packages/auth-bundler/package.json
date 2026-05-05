@@ -47,6 +47,7 @@
   "devDependencies": {
     "@map-colonies/config": "catalog:",
     "@map-colonies/schemas": "catalog:",
+    "@map-colonies/tsconfig": "catalog:",
     "@map-colonies/eslint-config": "catalog:",
     "test-utils": "workspace:^",
     "@types/node": "catalog:",

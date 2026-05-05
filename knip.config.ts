@@ -9,8 +9,8 @@ const config: KnipConfig = {
     interface: true,
     type: true,
   },
-  ignoreBinaries: ['lerna'],
-  ignoreFiles: ['example/**'],
+  ignoreBinaries: ['helm'],
+  ignoreFiles: ['example/**', 'scripts/generate-matrix.mjs'],
   ignoreDependencies: ['@map-colonies/infra-copilot-instructions', '@vitest/eslint-plugin'],
   workspaces: {
     'packages/auth-core': {

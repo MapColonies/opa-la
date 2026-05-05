@@ -5,6 +5,9 @@ inputs:
     description: 'Node.js version'
     required: true
     default: 24.x
+  install-filter:
+    description: 'Filter for pnpm install (e.g., --filter=packages/*)'
+    required: false
 runs:
   using: composite
   steps:
@@ -24,7 +27,21 @@ runs:
         cache: 'pnpm'
     - name: Install TS Project dependencies
       shell: bash
-      run: pnpm install
+      env:
+        INSTALL_FILTER: ${{ inputs.install-filter }}
+      run: |
+        if [ -n "$INSTALL_FILTER" ]; then
+          pnpm install --filter="$INSTALL_FILTER" --frozen-lockfile
+        else
+          pnpm install --frozen-lockfile
+        fi
     - name: build
       shell: bash
-      run: pnpm run build
+      env:
+        INSTALL_FILTER: ${{ inputs.install-filter }}
+      run: |
+        if [ -n "$INSTALL_FILTER" ]; then
+          pnpm exec turbo run build --filter="$INSTALL_FILTER"
+        else
+          pnpm exec turbo run build --affected
+        fi

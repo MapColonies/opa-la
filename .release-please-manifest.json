@@ -1,0 +1,11 @@
+{
+  "packages/auth-bundler": "12.0.0",
+  "packages/auth-core": "12.0.0",
+  "packages/test-utils": "12.0.0",
+  "apps/auth-cron": "12.0.0",
+  "apps/auth-manager": "12.0.0",
+  "apps/token-kiosk": "12.0.0",
+  "apps/auth-ui": "12.0.0",
+  "apps/kiosk-ui": "12.0.0",
+  ".": "12.0.0"
+}
