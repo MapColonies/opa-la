@@ -18,7 +18,7 @@ import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
 import { GUIDES_ROUTER_SYMBOL } from './guides/routes/guidesRouter';
 import { FILES_ROUTER_SYMBOL } from './files/routes/filesRouter';
 
-const OPENAPI_PATH = path.join(path.dirname(require.resolve('auth-openapi')), 'openapi3.yaml');
+const OPENAPI_PATH = path.join(path.dirname(require.resolve('token-openapi')), 'openapi3.yaml');
 
 @injectable()
 export class ServerBuilder {
