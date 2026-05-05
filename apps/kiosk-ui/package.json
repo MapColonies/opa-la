@@ -8,7 +8,6 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:openapi-types": "openapi-typescript ../token-kiosk/openapi3.yaml -o ./src/types/openapi.d.ts",
     "knip": "knip --directory ../.. --workspace apps/kiosk-ui"
   },
   "dependencies": {
@@ -42,11 +41,11 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
-    "openapi-typescript": "^7.8.0",
     "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.3"
+    "vite": "^7.0.3",
+    "token-openapi": "workspace:^"
   }
 }

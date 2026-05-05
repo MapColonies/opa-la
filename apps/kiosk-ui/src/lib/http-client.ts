@@ -1,6 +1,6 @@
 import createFetchClient from 'openapi-fetch';
 import createClient from 'openapi-react-query';
-import type { paths } from '../types/openapi';
+import type { paths } from 'token-openapi';
 
 // Create a global handler for 401 responses
 let authRedirectHandler: (() => void) | null = null;

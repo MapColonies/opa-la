@@ -606,6 +606,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.11
         version: 4.2.2
+      token-openapi:
+        specifier: workspace:^
+        version: link:../../packages/token-openapi
       tw-animate-css:
         specifier: ^1.3.5
         version: 1.4.0
