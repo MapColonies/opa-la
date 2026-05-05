@@ -6,6 +6,6 @@
   "apps/auth-manager": "12.0.0",
   "apps/token-kiosk": "12.0.0",
   "apps/auth-ui": "12.0.0",
-  "apps/token-ui": "12.0.0",
+  "apps/kiosk-ui": "12.0.0",
   ".": "12.0.0"
 }

@@ -65,7 +65,7 @@
     {
       "type": "linked-versions",
       "groupName": "all",
-      "components": ["auth-bundler", "auth-core", "test-utils", "auth-cron", "auth-manager", "token-kiosk", "auth-ui", "token-ui", "root"]
+      "components": ["auth-bundler", "auth-core", "test-utils", "auth-cron", "auth-manager", "token-kiosk", "auth-ui", "kiosk-ui", "root"]
     }
   ],
   "packages": {
@@ -118,9 +118,9 @@
       "component": "auth-ui",
       "skip-changelog": true
     },
-    "apps/token-ui": {
+    "apps/kiosk-ui": {
       "release-type": "node",
-      "component": "token-ui",
+      "component": "kiosk-ui",
       "skip-changelog": true
     },
     ".": {

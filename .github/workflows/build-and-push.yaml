@@ -23,7 +23,7 @@ jobs:
         id: set-matrix
         shell: bash
         run: |
-          MATRIX_JSON=$(node scripts/generate-matrix.js)
+          MATRIX_JSON=$(node scripts/generate-matrix.mjs)
           echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
 
   build-and-push-docker:
@@ -73,7 +73,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          tags: ${{ secrets.ACR_URL }}/infra/${{ matrix.image }}:${{ matrix.version }}
+          tags: ${{ secrets.ACR_URL }}/infra/${{ matrix.service }}:${{ matrix.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: ${{ matrix.dockerfile }}
@@ -82,9 +82,6 @@ jobs:
   build-and-push-helm:
     needs: setup
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.setup.outputs.matrix) }}
 
     permissions:
       contents: read
