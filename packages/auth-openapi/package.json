@@ -31,7 +31,8 @@
   "scripts": {
     "check-dist": "publint && attw --profile node16 --pack .",
     "knip": "knip --directory ../.. --workspace packages/auth-openapi",
-    "lint:openapi": "redocly lint --config ../../redocly.yaml openapi3.yaml"
+    "lint:openapi": "redocly lint --config ../../redocly.yaml openapi3.yaml",
+    "generate:openapi-types": "openapi-helpers generate types ./openapi3.yaml ./index.d.ts --format --add-typed-request-handler"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"
