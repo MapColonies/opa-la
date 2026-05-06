@@ -3,6 +3,7 @@ import { Client, Connection, Environments, IConnection } from '@map-colonies/aut
 import { inject, injectable } from 'tsyringe';
 import { SelectQueryBuilder } from 'typeorm';
 import { JWK } from 'jose';
+import { paths } from 'auth-openapi';
 import { ClientNotFoundError } from '@client/models/errors';
 import { SERVICES } from '@common/constants';
 import { type DomainRepository } from '@domain/DAL/domainRepository';
@@ -13,7 +14,6 @@ import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/
 import { KeyNotFoundError } from '@key/models/errors';
 import { SortOptions } from '@src/common/db/sort';
 import { asteriskStringComparatorLast } from '@src/utils/utils';
-import { paths } from '@src/openapi';
 import { type ConnectionRepository } from '../DAL/connectionRepository';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
 

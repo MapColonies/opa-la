@@ -12,17 +12,16 @@ import { faker } from '@faker-js/faker';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { getRealKeys, getFakeClient, getFakeConnection, getFakeIConnection } from 'test-utils';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@common/constants.js';
 import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository.js';
 import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
 import type { DomainRepository } from '@src/domain/DAL/domainRepository.js';
 import { initConfig } from '@common/config.js';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 
 describe('connection', function () {
-  const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
-
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
   const clients = [getFakeClient(false), getFakeClient(false)];
@@ -42,7 +41,7 @@ describe('connection', function () {
       ],
       useChild: true,
     });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     depContainer = container;
   });
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { components } from '../../types/schema';
+import type { components } from 'auth-openapi';
 import { Button } from '../../components/ui/button';
 import { Pencil, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '../../components/ui/badge';

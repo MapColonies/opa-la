@@ -4,7 +4,7 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { IClient } from '@map-colonies/auth-core';
 import { parseISO } from 'date-fns';
-import type { TypedRequestHandlers, components, operations } from '@openapi';
+import type { TypedRequestHandlers, components, operations } from 'auth-openapi';
 import { SERVICES } from '@common/constants';
 import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
 import { sortOptionParser } from '@src/common/db/sort';

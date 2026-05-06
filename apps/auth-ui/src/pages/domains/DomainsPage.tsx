@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Loader2, Plus, Search, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Dialog } from '../../components/ui/dialog';
-import { components } from '../../types/schema';
+import type { components } from 'auth-openapi';
 import { DomainsTable } from './DomainsTable';
 import { CreateDomainModal } from './CreateDomainModal';
 import { toast } from 'sonner';

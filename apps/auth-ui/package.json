@@ -10,10 +10,6 @@
     "build:docker-no-cache": "cross-env DOCKER_FLAGS=--no-cache pnpm run build:docker",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "format": "prettier --check .",
-    "format:fix": "prettier --write .",
-    "prepare": "husky",
-    "generate-openapi": "openapi-typescript http://localhost:8080/docs/api.yaml -o src/types/schema.d.ts",
     "knip": "knip --directory ../.. --workspace apps/auth-ui"
   },
   "overrides": {
@@ -67,9 +63,9 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
-    "openapi-typescript": "^7.6.1",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.6"
+    "vite": "^6.2.6",
+    "auth-openapi": "workspace:*"
   }
 }

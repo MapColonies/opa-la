@@ -3,7 +3,7 @@ import { IAsset } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { ArrayContains } from 'typeorm';
 import type { SetRequired } from 'type-fest';
-import { operations } from '@openapi';
+import { operations } from 'auth-openapi';
 import { SERVICES } from '@common/constants';
 import { type AssetRepository } from '../DAL/assetRepository';
 import { AssetVersionMismatchError, AssetNotFoundError } from './errors';

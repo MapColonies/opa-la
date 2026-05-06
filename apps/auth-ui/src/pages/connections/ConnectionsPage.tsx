@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Loader2, Plus, Filter, X, Search, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Dialog } from '../../components/ui/dialog';
-import { components } from '../../types/schema';
+import type { components } from 'auth-openapi';
 import { ConnectionsTable } from './ConnectionsTable';
 import { CreateConnectionModal } from './CreateConnectionModal';
 import { EditConnectionModal } from './EditConnectionModal';

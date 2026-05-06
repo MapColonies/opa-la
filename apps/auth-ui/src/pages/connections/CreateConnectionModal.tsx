@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { components } from '../../types/schema';
+import type { components } from 'auth-openapi';
 import { Button } from '../../components/ui/button';
 import { Loader2, X, Check, ArrowRight, ChevronsUpDown } from 'lucide-react';
 import { Input } from '../../components/ui/input';

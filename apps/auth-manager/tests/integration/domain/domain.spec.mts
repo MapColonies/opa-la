@@ -10,14 +10,13 @@ import type { IDomain } from '@map-colonies/auth-core';
 import { Domain } from '@map-colonies/auth-core';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@src/common/constants.js';
 import { initConfig } from '@src/common/config.js';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 
 describe('domain', function () {
-  const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
-
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
 
@@ -31,7 +30,7 @@ describe('domain', function () {
       ],
       useChild: true,
     });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     depContainer = container;
   });
 
@@ -121,7 +120,7 @@ describe('domain', function () {
         ],
         useChild: true,
       });
-      mockedSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
+      mockedSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
       await container.resolve(DataSource).destroy();
       vi.resetAllMocks();
     });

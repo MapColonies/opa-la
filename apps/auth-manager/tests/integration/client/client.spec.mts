@@ -12,11 +12,12 @@ import { Client } from '@map-colonies/auth-core';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { getFakeClient } from 'test-utils';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@common/constants.js';
 import { initConfig } from '@common/config.js';
 import type { ClientRepository } from '@src/client/DAL/clientRepository.js';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 
 describe('client', function () {
   let requestSender: RequestSender<paths, operations>;
@@ -31,7 +32,7 @@ describe('client', function () {
       ],
       useChild: true,
     });
-    requestSender = await createRequestSender<paths, operations>('openapi3.yaml', app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     depContainer = container;
   });
 

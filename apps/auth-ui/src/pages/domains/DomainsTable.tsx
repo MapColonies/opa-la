@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { components } from '../../types/schema';
+import type { components } from 'auth-openapi';
 import { Button } from '../../components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';

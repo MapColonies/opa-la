@@ -13,10 +13,11 @@ import 'jest-openapi';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { getFakeBundle } from 'test-utils';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@common/constants.js';
 import { initConfig } from '@common/config.js';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 
 describe('bundle', function () {
   let requestSender: RequestSender<paths, operations>;
@@ -32,7 +33,7 @@ describe('bundle', function () {
       ],
       useChild: true,
     });
-    requestSender = await createRequestSender<paths, operations>('openapi3.yaml', app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     depContainer = container;
 
     await container.resolve(DataSource).getRepository(Bundle).save(bundles);

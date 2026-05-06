@@ -2,8 +2,7 @@ import { HttpError } from '@map-colonies/error-express-handler';
 import { IBundle } from '@map-colonies/auth-core';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import type { TypedRequestHandlers, components, operations } from '@openapi';
-
+import type { TypedRequestHandlers, components, operations } from 'auth-openapi';
 import { BundleManager } from '../models/bundleManager';
 import { BundleNotFoundError } from '../models/errors';
 

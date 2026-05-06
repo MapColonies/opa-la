@@ -3,7 +3,7 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
 import { IConnection } from '@map-colonies/auth-core';
-import type { TypedRequestHandlers, components } from '@openapi';
+import type { TypedRequestHandlers, components } from 'auth-openapi';
 import { SERVICES } from '@common/constants';
 import { ClientNotFoundError } from '@client/models/errors';
 import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';

@@ -11,15 +11,14 @@ import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender
 import type { IKey, Environments } from '@map-colonies/auth-core';
 import { Key, Environment } from '@map-colonies/auth-core';
 import { getMockKeys } from 'test-utils';
-import type { paths, operations, components } from '@openapi';
+import type { paths, operations, components } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@src/common/constants.js';
 import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
 import { initConfig } from '@src/common/config.js';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 
 describe('key', function () {
-  const OPENAPI_SPEC_PATH = 'openapi3.yaml'; // Path to the OpenAPI spec file
-
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
 
@@ -35,7 +34,7 @@ describe('key', function () {
       ],
       useChild: true,
     });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_SPEC_PATH, app);
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     depContainer = container;
   });
 

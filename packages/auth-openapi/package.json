@@ -1,0 +1,46 @@
+{
+  "name": "auth-openapi",
+  "version": "12.0.0",
+  "description": "OpenAPI specification for the authentication services",
+  "author": "MapColonies",
+  "homepage": "https://github.com/MapColonies/opa-la#readme",
+  "license": "MIT",
+  "private": true,
+  "type": "commonjs",
+  "files": [
+    "openapi3.yaml",
+    "index.d.ts",
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MapColonies/opa-la.git"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
+    }
+  },
+  "scripts": {
+    "check-dist": "publint && attw --profile node16 --pack .",
+    "knip": "knip --directory ../.. --workspace packages/auth-openapi",
+    "lint:openapi": "redocly lint --config ../../redocly.yaml openapi3.yaml"
+  },
+  "bugs": {
+    "url": "https://github.com/MapColonies/opa-la/issues"
+  },
+  "dependencies": {},
+  "peerDependencies": {},
+  "devDependencies": {
+    "@map-colonies/eslint-config": "catalog:",
+    "@map-colonies/openapi-helpers": "catalog:",
+    "eslint": "catalog:"
+  }
+}

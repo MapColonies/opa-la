@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import path from 'node:path';
 import { setupOpenapi } from '@map-colonies/vitest-utils';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 
-setupOpenapi(path.join(process.cwd(), 'openapi3.yaml'));
+setupOpenapi(OPENAPI_PATH);
