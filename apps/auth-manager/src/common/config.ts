@@ -1,7 +1,7 @@
 import { type ConfigInstance, config } from '@map-colonies/config';
-import { infraOpalaManagerV1, type infraOpalaManagerV1Type } from '@map-colonies/schemas';
+import { infraOpalaManagerV2, type infraOpalaManagerV2Type } from '@map-colonies/schemas';
 
-type ConfigType = ConfigInstance<infraOpalaManagerV1Type>;
+type ConfigType = ConfigInstance<infraOpalaManagerV2Type>;
 
 let configInstance: ConfigType | undefined;
 
@@ -12,7 +12,7 @@ let configInstance: ConfigType | undefined;
  */
 async function initConfig(offlineMode?: boolean): Promise<void> {
   configInstance = await config({
-    schema: infraOpalaManagerV1,
+    schema: infraOpalaManagerV2,
     offlineMode,
   });
 }
