@@ -29,12 +29,9 @@
     }
   },
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
     "check-dist": "publint && attw --profile node16 --pack .",
     "knip": "knip --directory ../.. --workspace packages/auth-openapi",
-    "lint:openapi": "redocly lint --config ../../redocly.yaml src/openapi3.yaml",
-    "generate:openapi-types": "openapi-helpers generate types ./src/openapi3.yaml ./src/index.d.ts --format --add-typed-request-handler"
+    "lint:openapi": "redocly lint --config ../../redocly.yaml openapi3.yaml"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"
