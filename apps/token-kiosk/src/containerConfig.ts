@@ -1,12 +1,11 @@
-import { getOtelMixin } from '@map-colonies/telemetry';
+import { getOtelMixin } from '@map-colonies/tracing-utils';
 import { trace } from '@opentelemetry/api';
 import { Registry } from 'prom-client';
 import type { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { jsLogger } from '@map-colonies/js-logger';
 import type { Pool } from 'pg';
 import { instanceCachingFactory, instancePerContainerCachingFactory } from 'tsyringe';
-import type { InjectionObject } from '@common/dependencyRegistration';
-import { registerDependencies } from '@common/dependencyRegistration';
+import { registerDependencies, type InjectionObject } from '@common/dependencyRegistration';
 import { SERVICES, SERVICE_NAME } from '@common/constants';
 import { getTracing } from '@common/tracing';
 import { tokenRouterFactory, TOKEN_ROUTER_SYMBOL } from './tokens/routes/tokenRouter';
@@ -28,7 +27,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   const loggerConfig = configInstance.get('telemetry.logger');
 
-  const logger = jsLogger({
+  const logger = await jsLogger({
     ...loggerConfig,
     prettyPrint: loggerConfig.prettyPrint,
     mixin: getOtelMixin(),
