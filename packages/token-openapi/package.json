@@ -29,8 +29,6 @@
     }
   },
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
     "check-dist": "publint && attw --profile node16 --pack .",
     "knip": "knip --directory ../.. --workspace packages/token-openapi",
     "lint:openapi": "redocly lint --config ../../redocly.yaml openapi3.yaml",
