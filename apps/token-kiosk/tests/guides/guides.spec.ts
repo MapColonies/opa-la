@@ -41,8 +41,6 @@ describe('guides', function () {
       useChild: true,
     });
 
-    console.log('Creating request sender with OPENAPI_PATH:', OPENAPI_PATH);
-
     requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app, { baseUrl: '/api' });
   });
 
