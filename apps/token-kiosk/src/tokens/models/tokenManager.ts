@@ -4,13 +4,13 @@ import parseDuration from 'parse-duration';
 import { SignJWT } from 'jose';
 import { inject, injectable } from 'tsyringe';
 import { Cache, createCache } from 'async-cache-dedupe';
-import type { components } from '@openapi';
+import type { components as authManagerComponents } from 'auth-openapi';
+import type { components } from 'token-openapi';
 import type { ConfigType } from '@src/common/config';
 import { AuthManager } from '@src/auth/model/authManager';
 import { UserManager } from '@src/users/userManager';
 import { UserIsBannedError } from '@src/users/errors';
 import { SERVICES } from '@common/constants';
-import type { components as authManagerComponents } from '@src/auth-manager';
 import type { AuthManagerClient } from './authManagerClient';
 
 export type TokenResponse = components['schemas']['tokenResponse'];

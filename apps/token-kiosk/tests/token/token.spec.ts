@@ -10,12 +10,13 @@ import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
 import { eq } from 'drizzle-orm';
 import { subWeeks } from 'date-fns';
-import type { paths, operations } from '@openapi';
+import type { paths, operations } from 'token-openapi';
 import { getApp } from '@src/app';
 import type { Drizzle } from '@src/db/createConnection';
 import { users } from '@src/users/user';
 import { SERVICES } from '@common/constants';
 import { initConfig } from '@src/common/config';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 import privateKey from '../data/key';
 import mockUser from '../data/user';
 
@@ -54,7 +55,7 @@ describe('token', function () {
       useChild: true,
     });
 
-    requestSender = await createRequestSender<paths, operations>('openapi3.yaml', app, { baseUrl: '/api' });
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app, { baseUrl: '/api' });
     drizzle = container.resolve<Drizzle>(SERVICES.DRIZZLE);
   });
 

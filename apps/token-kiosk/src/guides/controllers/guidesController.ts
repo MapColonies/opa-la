@@ -1,6 +1,6 @@
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import type { TypedRequestHandlers } from '@openapi';
+import type { TypedRequestHandlers } from 'token-openapi';
 import { SERVICES } from '@common/constants';
 import { type ConfigType } from '@src/common/config';
 

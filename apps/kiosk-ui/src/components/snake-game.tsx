@@ -308,7 +308,7 @@ export function SnakeGame({ isVisible }: SnakeGameProps) {
     setDisplayIsPlaying(true);
 
     drawGame(0);
-    gameLoopRef.current = setInterval(gameLoop, GAME_SPEED);
+    gameLoopRef.current = window.setInterval(gameLoop, GAME_SPEED);
   }, [drawGame, gameLoop]);
 
   const handleKeyPress = useCallback((e: KeyboardEvent) => {

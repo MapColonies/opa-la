@@ -33,7 +33,7 @@ export function useTokenGeneration() {
           setProgress(easedProgress);
 
           await new Promise((res) => {
-            timeoutId = setTimeout(res, stepDuration);
+            timeoutId = window.setTimeout(res, stepDuration);
           });
         }
 

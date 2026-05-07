@@ -1,7 +1,7 @@
 {
-  "name": "auth-openapi",
+  "name": "token-openapi",
   "version": "12.0.0",
-  "description": "OpenAPI specification for the authentication services",
+  "description": "OpenAPI specification for the token service of OPA LA",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
@@ -30,7 +30,7 @@
   },
   "scripts": {
     "check-dist": "publint && attw --profile node16 --pack .",
-    "knip": "knip --directory ../.. --workspace packages/auth-openapi",
+    "knip": "knip --directory ../.. --workspace packages/token-openapi",
     "lint:openapi": "redocly lint --config ../../redocly.yaml openapi3.yaml",
     "generate:openapi-types": "openapi-helpers generate types ./openapi3.yaml ./index.d.ts --format --add-typed-request-handler"
   },

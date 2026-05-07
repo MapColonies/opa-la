@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import { Cache, createCache } from 'async-cache-dedupe';
 import { hoursToSeconds } from 'date-fns';
 import { renderString } from 'nunjucks';
-import type { components } from '@openapi';
+import type { components } from 'token-openapi';
 import { SERVICES } from '@common/constants';
 import { type ConfigType } from '@src/common/config';
 import { TokenManager } from '@src/tokens/models/tokenManager';
