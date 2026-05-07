@@ -8,7 +8,7 @@ import { ClientManager } from '@src/client/models/clientManager.js';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '@src/client/models/errors.js';
 import { PgErrorCodes } from '@src/common/db/constants.js';
 
-const logger = jsLogger({ enabled: false });
+const logger = await jsLogger({ enabled: false });
 
 describe('ClientManager', () => {
   let clientManager: ClientManager;

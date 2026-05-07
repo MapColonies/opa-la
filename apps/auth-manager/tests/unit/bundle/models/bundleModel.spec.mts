@@ -6,7 +6,7 @@ import { getFakeBundle } from 'test-utils';
 import { BundleManager } from '@src/bundle/models/bundleManager.js';
 import { BundleNotFoundError } from '@src/bundle/models/errors.js';
 
-const logger = jsLogger({ enabled: false });
+const logger = await jsLogger({ enabled: false });
 
 describe('BundleManager', () => {
   let bundleManager: BundleManager;

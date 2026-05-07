@@ -9,8 +9,7 @@ import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { inject, injectable } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
 import { httpLogger } from '@map-colonies/express-access-log-middleware';
-import { getTraceContexHeaderMiddleware } from '@map-colonies/telemetry';
-import { collectMetricsExpressMiddleware } from '@map-colonies/telemetry/prom-metrics';
+import { collectMetricsExpressMiddleware } from '@map-colonies/prometheus';
 import type { Registry } from 'prom-client';
 import { SERVICES } from './common/constants';
 import { DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
@@ -88,7 +87,6 @@ export class ServerBuilder {
     }
 
     this.serverInstance.use(bodyParser.json(this.config.get('server.request.payload')));
-    this.serverInstance.use(getTraceContexHeaderMiddleware());
 
     const ignorePathRegex = new RegExp(`^${this.config.get('openapiConfig.basePath')}/.*`, 'i');
     this.serverInstance.use(

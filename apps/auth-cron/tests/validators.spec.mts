@@ -1,14 +1,14 @@
 import { Environment } from '@map-colonies/auth-core';
 import { jsLogger } from '@map-colonies/js-logger';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { initConfig } from '@src/config';
-import { validateS3 } from '@src/validators';
+import { initConfig } from '@src/config.js';
+import { validateS3 } from '@src/validators.js';
 
-vi.mock('../src/telemetry/logger', () => {
+vi.mock('../src/telemetry/logger', async () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
-    logger: jsLogger({ enabled: false }),
+    logger: await jsLogger({ enabled: false }),
   };
 });
 

@@ -11,7 +11,7 @@ import { DomainNotFoundError } from '@src/domain/models/errors.js';
 import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
 import { KeyNotFoundError } from '@src/key/models/errors.js';
 
-const logger = jsLogger({ enabled: false });
+const logger = await jsLogger({ enabled: false });
 
 describe('ConnectionManager', () => {
   let connectionManager: ConnectionManager;

@@ -6,7 +6,7 @@ import { AssetManager } from '@src/asset/models/assetManager.js';
 import { AssetNotFoundError, AssetVersionMismatchError } from '@src/asset/models/errors.js';
 import type { AssetRepository } from '@src/asset/DAL/assetRepository.js';
 
-const logger = jsLogger({ enabled: false });
+const logger = await jsLogger({ enabled: false });
 
 describe('AssetManager', () => {
   let assetManager: AssetManager;

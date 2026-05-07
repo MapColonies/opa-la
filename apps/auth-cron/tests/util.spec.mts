@@ -7,11 +7,11 @@ import { getFakeBundle, getTempDir } from 'test-utils';
 import { jsLogger } from '@map-colonies/js-logger';
 import { compareVersionsToBundle, emptyDir } from '@src/util.js';
 
-vi.mock('../src/telemetry/logger', () => {
+vi.mock('../src/telemetry/logger', async () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
-    logger: jsLogger({ enabled: false }),
+    logger: await jsLogger({ enabled: false }),
   };
 });
 

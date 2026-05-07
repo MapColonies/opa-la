@@ -12,15 +12,15 @@ import { vi, describe, beforeEach, afterEach, afterAll, it, expect, beforeAll } 
 import { jsLogger } from '@map-colonies/js-logger';
 import type { infraOpalaCronV1Type } from '@map-colonies/schemas';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getJob } from '@src/job';
-import { getConfig, initConfig } from '@src/config';
+import { getJob } from '@src/job.js';
+import { getConfig, initConfig } from '@src/config.js';
 
 vi.mock('@map-colonies/auth-bundler');
-vi.mock('../src/telemetry/logger', () => {
+vi.mock('../src/telemetry/logger', async () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
-    logger: jsLogger({ enabled: false }),
+    logger: await jsLogger({ enabled: false }),
   };
 });
 

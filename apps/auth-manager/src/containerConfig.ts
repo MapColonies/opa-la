@@ -1,4 +1,4 @@
-import { getOtelMixin } from '@map-colonies/telemetry';
+import { getOtelMixin } from '@map-colonies/tracing-utils';
 import { trace } from '@opentelemetry/api';
 import { instanceCachingFactory } from 'tsyringe';
 import type { DependencyContainer } from 'tsyringe/dist/typings/types';
@@ -44,7 +44,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   const loggerConfig = configInstance.get('telemetry.logger');
 
-  const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
+  const logger = await jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
 
   const dataSourceOptions = configInstance.get('db');
   const connection = await initConnection(dataSourceOptions);

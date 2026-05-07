@@ -14,11 +14,11 @@ import { initConfig, getConfig } from '@src/config.js';
 import { getS3Client } from '@src/s3.js';
 import type * as appConfig from '@src/config.js';
 
-vi.mock('../src/telemetry/logger', () => {
+vi.mock('../src/telemetry/logger', async () => {
   return {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
-    logger: jsLogger({ enabled: false }),
+    logger: await jsLogger({ enabled: false }),
   };
 });
 
