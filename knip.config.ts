@@ -10,7 +10,7 @@ const config: KnipConfig = {
     type: true,
   },
   ignoreBinaries: ['helm'],
-  ignoreFiles: ['example/**', 'scripts/generate-matrix.mjs'],
+  ignoreFiles: ['example/**'],
   ignoreDependencies: ['@map-colonies/infra-copilot-instructions', '@vitest/eslint-plugin'],
   workspaces: {
     'packages/auth-core': {
@@ -38,9 +38,7 @@ const config: KnipConfig = {
     'apps/kiosk-ui': {
       ignore: ['src/types/**'],
     },
-    'apps/auth-ui': {
-      ignore: ['src/types/**'],
-    },
+    'apps/auth-ui': {},
   },
 };
 

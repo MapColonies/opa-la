@@ -12,16 +12,19 @@
       "cache": false
     },
     "lint": {
-      "dependsOn": []
+      "dependsOn": [],
+      "outputLogs": "errors-only"
     },
     "lint:fix": {
-      "dependsOn": []
+      "dependsOn": [],
+      "outputLogs": "errors-only"
     },
     "lint:openapi": {
       "dependsOn": []
     },
     "test": {
-      "dependsOn": []
+      "dependsOn": [],
+      "outputLogs": "errors-only"
     },
     "check-dist": {
       "dependsOn": ["build"],
