@@ -9,7 +9,7 @@ catalog:
   '@map-colonies/tsconfig': ^2.0.0
   '@map-colonies/js-logger': '5.0.0'
   '@map-colonies/openapi-helpers': '5.1.0'
-  '@map-colonies/schemas': '/home/oferade/repos/libot/schemas/map-colonies-schemas-1.19.0.tgz'
+  '@map-colonies/schemas': 'https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz'
   '@map-colonies/config': '4.0.1'
   '@map-colonies/read-pkg': '2.0.0'
   '@map-colonies/prometheus': '1.0.0'

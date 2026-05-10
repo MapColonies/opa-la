@@ -43,7 +43,7 @@ catalogs:
       specifier: 2.0.0
       version: 2.0.0
     '@map-colonies/schemas':
-      specifier: /home/oferade/repos/libot/schemas/map-colonies-schemas-1.19.0.tgz
+      specifier: https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz
       version: 1.19.0
     '@map-colonies/tracing':
       specifier: ^1.0.0
@@ -247,7 +247,7 @@ importers:
         version: link:../../packages/auth-core
       '@map-colonies/config':
         specifier: 'catalog:'
-        version: 4.0.1(@map-colonies/schemas@file:../schemas/map-colonies-schemas-1.19.0.tgz)(prom-client@15.1.3)
+        version: 4.0.1(@map-colonies/schemas@https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz)(prom-client@15.1.3)
       '@map-colonies/js-logger':
         specifier: 'catalog:'
         version: 5.0.0(@opentelemetry/api@1.9.0)
@@ -256,7 +256,7 @@ importers:
         version: 1.0.0(prom-client@15.1.3)
       '@map-colonies/schemas':
         specifier: 'catalog:'
-        version: file:../schemas/map-colonies-schemas-1.19.0.tgz
+        version: https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz
       '@map-colonies/tracing':
         specifier: 'catalog:'
         version: 1.0.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.6.1(@opentelemetry/api@1.9.0))(encoding@0.1.13)
@@ -335,7 +335,7 @@ importers:
         version: link:../../packages/auth-core
       '@map-colonies/config':
         specifier: 'catalog:'
-        version: 4.0.1(@map-colonies/schemas@file:../schemas/map-colonies-schemas-1.19.0.tgz)(prom-client@15.1.3)
+        version: 4.0.1(@map-colonies/schemas@https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz)(prom-client@15.1.3)
       '@map-colonies/error-express-handler':
         specifier: 'catalog:'
         version: 4.0.0
@@ -356,7 +356,7 @@ importers:
         version: 2.0.0
       '@map-colonies/schemas':
         specifier: 'catalog:'
-        version: file:../schemas/map-colonies-schemas-1.19.0.tgz
+        version: https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz
       '@map-colonies/tracing':
         specifier: 'catalog:'
         version: 1.0.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.6.1(@opentelemetry/api@1.9.0))(encoding@0.1.13)
@@ -743,7 +743,7 @@ importers:
         version: 4.12.1
       '@map-colonies/config':
         specifier: 'catalog:'
-        version: 4.0.1(@map-colonies/schemas@file:../schemas/map-colonies-schemas-1.19.0.tgz)(prom-client@15.1.3)
+        version: 4.0.1(@map-colonies/schemas@https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz)(prom-client@15.1.3)
       '@map-colonies/error-express-handler':
         specifier: 'catalog:'
         version: 4.0.0
@@ -764,7 +764,7 @@ importers:
         version: 2.0.0
       '@map-colonies/schemas':
         specifier: 'catalog:'
-        version: file:../schemas/map-colonies-schemas-1.19.0.tgz
+        version: https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz
       '@map-colonies/tracing':
         specifier: 'catalog:'
         version: 1.0.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.6.1(@opentelemetry/api@1.9.0))(encoding@0.1.13)
@@ -943,13 +943,13 @@ importers:
         version: 9.9.0
       '@map-colonies/config':
         specifier: 'catalog:'
-        version: 4.0.1(@map-colonies/schemas@file:../schemas/map-colonies-schemas-1.19.0.tgz)(prom-client@15.1.3)
+        version: 4.0.1(@map-colonies/schemas@https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz)(prom-client@15.1.3)
       '@map-colonies/eslint-config':
         specifier: 'catalog:'
         version: 8.1.0(@typescript-eslint/utils@8.58.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(@vitest/eslint-plugin@1.6.15(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)(vitest@4.1.4))(eslint-plugin-jest@28.14.0(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(jest@29.7.0(@types/node@24.12.0))(typescript@5.9.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(globals@15.15.0)(typescript@5.9.3)
       '@map-colonies/schemas':
         specifier: 'catalog:'
-        version: file:../schemas/map-colonies-schemas-1.19.0.tgz
+        version: https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz
       '@map-colonies/tsconfig':
         specifier: 'catalog:'
         version: 2.0.0
@@ -998,13 +998,13 @@ importers:
     devDependencies:
       '@map-colonies/config':
         specifier: 'catalog:'
-        version: 4.0.1(@map-colonies/schemas@file:../schemas/map-colonies-schemas-1.19.0.tgz)(prom-client@15.1.3)
+        version: 4.0.1(@map-colonies/schemas@https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz)(prom-client@15.1.3)
       '@map-colonies/eslint-config':
         specifier: 'catalog:'
         version: 8.1.0(@typescript-eslint/utils@8.58.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(@vitest/eslint-plugin@1.6.15(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)(vitest@4.1.4))(eslint-plugin-jest@28.14.0(@typescript-eslint/eslint-plugin@8.57.2(@typescript-eslint/parser@8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(jest@29.7.0(@types/node@24.12.0))(typescript@5.9.3))(eslint-plugin-react-hooks@5.2.0(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))(globals@15.15.0)(typescript@5.9.3)
       '@map-colonies/schemas':
         specifier: 'catalog:'
-        version: file:../schemas/map-colonies-schemas-1.19.0.tgz
+        version: https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz
       '@map-colonies/tsconfig':
         specifier: 'catalog:'
         version: 2.0.0
@@ -1046,7 +1046,7 @@ importers:
         version: link:../auth-core
       '@map-colonies/schemas':
         specifier: 'catalog:'
-        version: file:../schemas/map-colonies-schemas-1.19.0.tgz
+        version: https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz
       '@testcontainers/minio':
         specifier: ~11.14.0
         version: 11.14.0
@@ -2571,8 +2571,8 @@ packages:
     resolution: {integrity: sha512-rMASq2JeRuaWYGqPN68+FwQa4ZSVJBFpttRypUX6RflZK0svZNNCQSWleqz9iJGw5oVDRILNpAb4HRHm/7rszA==}
     engines: {node: '>=24'}
 
-  '@map-colonies/schemas@file:../schemas/map-colonies-schemas-1.19.0.tgz':
-    resolution: {integrity: sha512-rsNWxYIHR3givZkioKEiVjzAh82RF+E+zrUBJdkEOWnWj4iIO8luCzcqM9x4XQ9TLJM5mw58J/jW0QEvninpOg==, tarball: file:../schemas/map-colonies-schemas-1.19.0.tgz}
+  '@map-colonies/schemas@https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz':
+    resolution: {integrity: sha512-ie/TaOBvNoFC/NrAIXg4F6S1sLq6Q3ASsvRmxhzThn8hfq7zrjAfdeGQhebOTkajnGm0YwuWIVP+4v+ay/zTrQ==, tarball: https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz}
     version: 1.19.0
 
   '@map-colonies/tracing-utils@1.0.0':
@@ -11459,12 +11459,12 @@ snapshots:
     dependencies:
       '@commitlint/config-conventional': 20.5.0
 
-  '@map-colonies/config@4.0.1(@map-colonies/schemas@file:../schemas/map-colonies-schemas-1.19.0.tgz)(prom-client@15.1.3)':
+  '@map-colonies/config@4.0.1(@map-colonies/schemas@https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz)(prom-client@15.1.3)':
     dependencies:
       '@apideck/better-ajv-errors': 0.3.6(ajv@8.18.0)
       '@apidevtools/json-schema-ref-parser': 11.9.3
       '@map-colonies/read-pkg': 0.0.1
-      '@map-colonies/schemas': file:../schemas/map-colonies-schemas-1.19.0.tgz
+      '@map-colonies/schemas': https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz
       '@types/lodash': 4.17.24
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
@@ -11584,7 +11584,7 @@ snapshots:
     dependencies:
       type-fest: 5.5.0
 
-  '@map-colonies/schemas@file:../schemas/map-colonies-schemas-1.19.0.tgz': {}
+  '@map-colonies/schemas@https://ghatmpstorage.blob.core.windows.net/npm-packages/schemas-6d0508766853fb6dbdfdf7987d08248e2ac5410f.tgz': {}
 
   '@map-colonies/tracing-utils@1.0.0(@opentelemetry/api@1.9.0)':
     dependencies:
