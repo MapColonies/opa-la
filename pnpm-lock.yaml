@@ -986,6 +986,9 @@ importers:
       '@map-colonies/js-logger':
         specifier: 'catalog:'
         version: 5.0.0(@opentelemetry/api@1.9.0)
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.45.2(@opentelemetry/api@1.9.0)(@types/pg@8.20.0)(pg@8.20.0)
       pg:
         specifier: 'catalog:'
         version: 8.20.0
@@ -1011,6 +1014,9 @@ importers:
       '@types/pg':
         specifier: 'catalog:'
         version: 8.20.0
+      drizzle-kit:
+        specifier: 'catalog:'
+        version: 0.31.10
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)

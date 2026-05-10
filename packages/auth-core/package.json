@@ -37,7 +37,8 @@
   },
   "dependencies": {
     "pg": "catalog:",
-    "typeorm": "catalog:"
+    "typeorm": "catalog:",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@map-colonies/config": "catalog:",
@@ -47,7 +48,8 @@
     "@types/node": "catalog:",
     "@types/pg": "catalog:",
     "ts-node": "^10.9.1",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "drizzle-kit": "catalog:"
   },
   "peerDependencies": {
     "@map-colonies/js-logger": "catalog:"
