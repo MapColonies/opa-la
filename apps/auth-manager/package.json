@@ -65,7 +65,7 @@
     "prom-client": "catalog:",
     "reflect-metadata": "catalog:",
     "tsyringe": "catalog:",
-    "typeorm": "catalog:"
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@map-colonies/openapi-helpers": "catalog:",
@@ -84,7 +84,6 @@
     "jest-extended": "catalog:",
     "jest-openapi": "catalog:",
     "supertest": "catalog:",
-    "ts-node": "^10.9.1",
     "type-fest": "^4.40.0",
     "typescript": "catalog:",
     "vitest": "catalog:",

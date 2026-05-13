@@ -1,9 +1,9 @@
-import { Asset } from '@map-colonies/auth-core';
+import { assetTable } from '@map-colonies/auth-core';
 import type { FactoryFunction } from 'tsyringe';
 import type { Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
 
-export type AssetRepository = Repository<Asset> & {
+export type AssetRepository = Repository<assetTable> & {
   getMaxVersionWithLock: (name: string) => Promise<number | null>;
   getMaxVersion: (name: string) => Promise<number | null>;
 };
@@ -11,13 +11,13 @@ export type AssetRepository = Repository<Asset> & {
 export const assetRepositoryFactory: FactoryFunction<AssetRepository> = (container) => {
   const dataSource = container.resolve(DataSource);
 
-  return dataSource.getRepository(Asset).extend({
+  return dataSource.getRepository(assetTable).extend({
     async getMaxVersionWithLock(name: string): Promise<number | null> {
       const result = await this.createQueryBuilder()
         .select('version')
         .where('name = :name')
         .andWhere((qb) => {
-          const subQuery = qb.subQuery().select('MAX(version)').from(Asset, 'asset').where('name = :name').getQuery();
+          const subQuery = qb.subQuery().select('MAX(version)').from(assetTable, 'asset').where('name = :name').getQuery();
 
           return 'Asset.version = ' + subQuery;
         })

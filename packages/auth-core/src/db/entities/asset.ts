@@ -1,43 +1,22 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import type { AssetTypes, Environments, IAsset } from '../../model';
-import { Environment, AssetType } from '../../model';
+import { boolean, bytea, integer, primaryKey, varchar } from 'drizzle-orm/pg-core';
+import { authManagerSchema, createdAtColumn, environmentEnum } from './common';
 
-/**
- * The typeorm implementation of the IAsset interface.
- */
-@Entity()
-export class Asset implements IAsset {
-  @PrimaryColumn({ type: 'varchar' })
-  public name!: string;
+export const assetTypeEnum = authManagerSchema.enum('asset_type_enum', ['TEST', 'TEST_DATA', 'POLICY', 'DATA']);
 
-  @PrimaryColumn({ type: 'integer' })
-  public version!: number;
+export const assetTable = authManagerSchema.table(
+  'asset',
+  {
+    name: varchar().notNull(),
+    version: integer().notNull(),
+    createdAt: createdAtColumn,
+    value: bytea().notNull(),
+    uri: varchar().notNull(),
+    type: assetTypeEnum().notNull(),
+    environment: environmentEnum().array().notNull(),
+    isTemplate: boolean().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.name, table.version], name: 'PK_c3670311f777dc6ab9965408f97' })]
+);
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
-  public createdAt!: Date;
-
-  @Column({
-    type: 'bytea',
-    transformer: {
-      from(value: Buffer): string {
-        return value.toString('base64');
-      },
-      to(value: string): Buffer {
-        return Buffer.from(value, 'base64');
-      },
-    },
-  })
-  public value!: string;
-
-  @Column({ type: 'varchar' })
-  public uri!: string;
-
-  @Column({ type: 'enum', enum: AssetType })
-  public type!: AssetTypes;
-
-  @Column({ type: 'enum', enum: Environment, array: true, enumName: 'environment_enum' })
-  public environment!: Environments[];
-
-  @Column({ type: 'boolean', name: 'is_template' })
-  public isTemplate!: boolean;
-}
+export type Asset = typeof assetTable.$inferSelect;
+export type NewAsset = typeof assetTable.$inferInsert;

@@ -1,45 +1,53 @@
 import { hostname } from 'node:os';
-import { readFileSync } from 'node:fs';
-import type { TlsOptions } from 'node:tls';
-import { DataSource, type DataSourceOptions } from 'typeorm';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
+import { Pool, type PoolConfig } from 'pg';
 import type { commonDbFullV1Type } from '@map-colonies/schemas';
-import { migrations } from '../migrations';
-import { Asset, Bundle, Client, Connection, Domain, Key } from '../entities';
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
 
-/**
- * A helper function that creates the typeorm DataSource options to use for creating a new DataSource.
- * Handles SSL and registration of all required entities and migrations.
- * @param dbConfig The typeorm postgres configuration with added SSL options.
- * @returns Options object ready to use with typeorm.
- */
-export const createConnectionOptions = (dbConfig: commonDbFullV1Type): DataSourceOptions => {
-  let ssl: TlsOptions | undefined = undefined;
+export function createConnectionOptions(dbOptions: commonDbFullV1Type): PoolConfig {
+  const { ssl } = dbOptions;
+  const dbConfig: PoolConfig = structuredClone(dbOptions);
+  dbConfig.application_name = `${hostname()}-${process.env.NODE_ENV ?? 'unknown_env'}`;
+  dbConfig.user = dbOptions.username;
+  if (ssl.enabled) {
+    dbConfig.password = undefined;
+    dbConfig.ssl = { key: readFileSync(ssl.key), cert: readFileSync(ssl.cert), ca: readFileSync(ssl.ca) };
+  }
+  return dbConfig;
+}
 
-  const { ssl: inputSsl, ...dataSourceOptions } = dbConfig;
+export async function initConnection(dbConfig: commonDbFullV1Type): Promise<Pool> {
+  const pool = new Pool(createConnectionOptions(dbConfig));
+  await pool.query('SELECT NOW()');
+  return pool;
+}
 
-  if (inputSsl.enabled) {
-    ssl = { key: readFileSync(inputSsl.key), cert: readFileSync(inputSsl.cert), ca: readFileSync(inputSsl.ca) };
+export function createDrizzle(pool: Pool): ReturnType<typeof drizzle> {
+  return drizzle({ client: pool });
+}
+
+export async function runMigrations(drizzle: NodePgDatabase): Promise<void> {
+  const optionalFolders = ['./db/migrations', './src/db/migrations', './migrations'];
+  let migrationsFolder = null;
+
+  for (const folder of optionalFolders) {
+    if (!existsSync(folder)) {
+      continue;
+    }
+    const folderContent = readdirSync(folder, { withFileTypes: true });
+
+    const hasMigrations = folderContent.some((item) => item.isDirectory() && existsSync(path.join(folder, item.name, 'migration.sql')));
+    if (hasMigrations) {
+      migrationsFolder = folder;
+      break;
+    }
   }
 
-  return {
-    type: 'postgres',
-    entities: [Asset, Bundle, Client, Connection, Domain, Key],
-    migrations,
-    migrationsTableName: 'custom_migration_table',
-    applicationName: `${hostname()}-${process.env.NODE_ENV ?? 'unknown_env'}`,
-    ssl,
-    ...dataSourceOptions,
-  };
-};
+  if (migrationsFolder === null) {
+    throw new Error('No migrations folder found');
+  }
 
-/**
- * Helper function to handle both the configuration and initialization of a typeORM datasource.
- * Uses {@link createConnectionOptions} to handle the configuration.
- * @param dbConfig The typeorm postgres configuration with added SSL options.
- * @returns Ready to use typeorm DataSource.
- */
-export const initConnection = async (dbConfig: commonDbFullV1Type): Promise<DataSource> => {
-  const dataSource = new DataSource(createConnectionOptions(dbConfig));
-  await dataSource.initialize();
-  return dataSource;
-};
+  await migrate(drizzle, { migrationsFolder: migrationsFolder, migrationsSchema: 'auth_manager' });
+}

@@ -1,26 +1,36 @@
 import { Domain } from '@map-colonies/auth-core';
-import type { FactoryFunction } from 'tsyringe';
-import type { Repository } from 'typeorm';
+import { SERVICES } from '@src/common/constants';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { inject, Lifecycle, scoped, type FactoryFunction } from 'tsyringe';
+import type { Logger, Repository } from 'typeorm';
 import { DataSource } from 'typeorm';
 
-export type DomainRepository = Repository<Domain> & {
-  checkInputForNonExistingDomains: (domainNames: string[]) => Promise<string[]>;
-};
+// export type DomainRepository = Repository<Domain> & {
+//   checkInputForNonExistingDomains: (domainNames: string[]) => Promise<string[]>;
+// };
 
-export const domainRepositoryFactory: FactoryFunction<DomainRepository> = (container) => {
-  const dataSource = container.resolve(DataSource);
+// export const domainRepositoryFactory: FactoryFunction<DomainRepository> = (container) => {
+//   const dataSource = container.resolve(DataSource);
 
-  return dataSource.getRepository(Domain).extend({
-    async checkInputForNonExistingDomains(domainNames: string[]): Promise<string[]> {
-      // unnest is a postgresql only function on array datatype
-      // I wrote raw sql because typeorm doesn't think that using a function in FROM is a real thing and treats it like a table name
-      const res = (await this.manager.query(
-        `
-        SELECT i.name FROM unnest($1::text[]) i(name) LEFT JOIN auth_manager.domain d ON i.name = d.name WHERE d.name is NULL`,
-        [domainNames]
-      )) as unknown as { name: string }[];
+//   return dataSource.getRepository(Domain).extend({
+//     async checkInputForNonExistingDomains(domainNames: string[]): Promise<string[]> {
+//       // unnest is a postgresql only function on array datatype
+//       // I wrote raw sql because typeorm doesn't think that using a function in FROM is a real thing and treats it like a table name
+//       const res = (await this.manager.query(
+//         `
+//         SELECT i.name FROM unnest($1::text[]) i(name) LEFT JOIN auth_manager.domain d ON i.name = d.name WHERE d.name is NULL`,
+//         [domainNames]
+//       )) as unknown as { name: string }[];
 
-      return res.map((domain) => domain.name);
-    },
-  });
-};
+//       return res.map((domain) => domain.name);
+//     },
+//   });
+// };
+
+@scoped(Lifecycle.ContainerScoped)
+export class ConfigRepository {
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.DRIZZLE) private readonly drizzle: NodePgDatabase
+  ) {}
+}

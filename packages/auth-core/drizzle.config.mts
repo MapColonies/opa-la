@@ -2,21 +2,25 @@ import { ConnectionConfig } from 'pg';
 import { defineConfig } from 'drizzle-kit';
 import { getConfig, initConfig } from './src/config.js';
 
-import { createConnectionOptions } from './src/db/createConnection';
+import { createConnectionOptions } from './src/db/utils/createConnection.js';
 import { ConnectionOptions } from 'node:tls';
 
 await initConfig();
 
-const dbOptions = createConnectionOptions(getConfig().get('db')) as Omit<Required<ConnectionConfig>, 'password' | 'ssl'> & {
+const config = getConfig().getAll();
+
+const dbOptions = createConnectionOptions(config) as Omit<Required<ConnectionConfig>, 'password' | 'ssl'> & {
   password: string;
   ssl?: ConnectionOptions;
 };
 
 export default defineConfig({
-  schema: ['./src/users/user.ts'],
-  out: './src/db/migrations-drizzle',
+  schema: ['./src/db/entities/index.ts'],
+  out: './src/db/migrations',
   dialect: 'postgresql',
-  dbCredentials: dbOptions,
+  schemaFilter: ['auth_manager', 'public'],
+  dbCredentials: { ...dbOptions, user: dbOptions.user, ssl: false },
   verbose: true,
-  strict: true,
+  migrations: { schema: config.schema },
+  strict: false,
 });

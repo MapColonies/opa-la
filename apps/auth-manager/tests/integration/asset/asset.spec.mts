@@ -7,7 +7,7 @@ import type { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { DataSource } from 'typeorm';
 import type { IAsset } from '@map-colonies/auth-core';
-import { Asset, AssetType, Environment } from '@map-colonies/auth-core';
+import { assetTable, AssetType, Environment } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
@@ -52,7 +52,7 @@ describe('client', function () {
         ];
 
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await connection.getRepository(assetTable).save(assets);
 
         const res = await requestSender.getAssets();
 
@@ -71,7 +71,7 @@ describe('client', function () {
         ];
 
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await connection.getRepository(assetTable).save(assets);
 
         const res = await requestSender.getAssets({ queryParams: { environment: ['prod'] } });
 
@@ -89,7 +89,7 @@ describe('client', function () {
         ];
 
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await connection.getRepository(assetTable).save(assets);
 
         const res = await requestSender.getAssets({ queryParams: { type: AssetType.DATA } });
 
@@ -115,7 +115,7 @@ describe('client', function () {
       it('should return 200 status code and the updated asset', async function () {
         const asset = getFakeAsset();
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(asset);
+        await connection.getRepository(assetTable).save(asset);
 
         delete asset.createdAt;
 
@@ -133,7 +133,7 @@ describe('client', function () {
         const assets: IAsset[] = [asset, { ...asset, version: 2 }];
 
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await connection.getRepository(assetTable).save(assets);
 
         const res = await requestSender.getAsset({ pathParams: { assetName: asset.name } });
 
@@ -147,7 +147,7 @@ describe('client', function () {
       it('should return 200 status code and the requested asset', async function () {
         const asset = getFakeAsset();
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(asset);
+        await connection.getRepository(assetTable).save(asset);
 
         const res = await requestSender.getVersionedAsset({ pathParams: { assetName: asset.name, version: asset.version } });
 
@@ -163,7 +163,7 @@ describe('client', function () {
         const assets: IAsset[] = [baseAsset, { ...baseAsset, version: 2 }, { ...baseAsset, version: 3 }];
 
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await connection.getRepository(assetTable).save(assets);
 
         const expectedAsset = assets.find((a) => a.version === 3);
 
@@ -177,7 +177,7 @@ describe('client', function () {
       it('should return 200 status code and the only asset when there is only one version', async function () {
         const asset = getFakeAsset();
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(asset);
+        await connection.getRepository(assetTable).save(asset);
 
         const res = await requestSender.getLatestAsset({ pathParams: { assetName: asset.name } });
 
@@ -201,7 +201,7 @@ describe('client', function () {
       it("should return 409 if the request version doesn't match the DB version", async function () {
         const asset = getFakeAsset();
         const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save({ ...asset });
+        await connection.getRepository(assetTable).save({ ...asset });
 
         const res = await requestSender.upsertAsset({ requestBody: { ...asset, version: 2 } });
 

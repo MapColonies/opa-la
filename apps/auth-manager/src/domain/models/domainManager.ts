@@ -1,18 +1,20 @@
 import { type Logger } from '@map-colonies/js-logger';
-import { Domain, IDomain } from '@map-colonies/auth-core';
+import { Domain, domainTable, IDomain } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { FindManyOptions } from 'typeorm';
+// import { FindManyOptions } from 'typeorm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { where } from 'drizzle-orm';
 import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/pagination';
 import { SortOptions } from '@src/common/db/sort';
 import { SERVICES } from '@common/constants';
-import { type DomainRepository } from '../DAL/domainRepository';
+// import { type DomainRepository } from '../DAL/domainRepository';
 import { DomainAlreadyExistsError } from './errors';
 
 @injectable()
 export class DomainManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.DOMAIN_REPOSITORY) private readonly domainRepository: DomainRepository
+    @inject(SERVICES.DRIZZLE) private readonly drizzle: NodePgDatabase
   ) {}
 
   public async getDomains(paginationParams?: PaginationParams, sortParams?: SortOptions<Domain>): Promise<[IDomain[], number]> {
@@ -28,8 +30,8 @@ export class DomainManager {
     if (sortParams !== undefined) {
       findOptions.order = sortParams;
     }
-
-    return this.domainRepository.findAndCount(findOptions);
+    return this.drizzle.select().from(domainTable);
+    // return this.domainRepository.findAndCount(findOptions);
   }
 
   public async createDomain(domain: IDomain): Promise<IDomain> {

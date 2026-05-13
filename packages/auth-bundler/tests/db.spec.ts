@@ -1,6 +1,6 @@
 /// <reference types="jest-extended" />
 
-import { Asset, Bundle, Connection, Environment, Key, createConnectionOptions } from '@map-colonies/auth-core';
+import { assetTable, Bundle, Connection, Environment, Key, createConnectionOptions } from '@map-colonies/auth-core';
 import { DataSource } from 'typeorm';
 import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
 import { ConnectionNotInitializedError } from '@src/index';
@@ -39,7 +39,7 @@ describe('db.ts', function () {
     const [privateKey, publicKey] = getMockKeys();
     await dataSource.getRepository(Key).save({ environment: Environment.PRODUCTION, version: 1, privateKey, publicKey });
 
-    await dataSource.getRepository(Asset).save([
+    await dataSource.getRepository(assetTable).save([
       { ...asset, version: 1 },
       { ...asset, version: 2 },
     ]);
@@ -110,7 +110,7 @@ describe('db.ts', function () {
       });
 
       it('should return the latest version of the asset even if there is a newer version in the database with a different environment', async function () {
-        await dataSource.getRepository(Asset).save([
+        await dataSource.getRepository(assetTable).save([
           { ...asset, name: 'xd', environment: [Environment.STAGE, Environment.NP], version: 1 },
           { ...asset, name: 'xd', environment: [Environment.STAGE], version: 2 },
         ]);
@@ -133,7 +133,7 @@ describe('db.ts', function () {
           keyVersion: 1,
         });
 
-        expect(assets).toSatisfyAll<Asset>((a) => a.environment.includes(Environment.PRODUCTION));
+        expect(assets).toSatisfyAll<assetTable>((a) => a.environment.includes(Environment.PRODUCTION));
         expect(assets[0]).toHaveProperty('version', 1);
       });
     });

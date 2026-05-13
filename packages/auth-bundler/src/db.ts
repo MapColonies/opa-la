@@ -1,5 +1,5 @@
 import type { DataSource, Repository } from 'typeorm';
-import { Asset, Bundle, Connection, type Environments, Key } from '@map-colonies/auth-core';
+import { assetTable, Bundle, Connection, type Environments, Key } from '@map-colonies/auth-core';
 import type { BundleContent, BundleContentVersions } from './types';
 import { extractNameAndVersion } from './util';
 import { logger } from './logger';
@@ -10,7 +10,7 @@ import { getVersionCommand } from './opa';
  * This class handles all the database interactions required to creating a bundle.
  */
 export class BundleDatabase {
-  private readonly assetRepository: Repository<Asset>;
+  private readonly assetRepository: Repository<assetTable>;
   private readonly keyRepository: Repository<Key>;
   private readonly connectionRepository: Repository<Connection>;
   private readonly bundleRepository: Repository<Bundle>;
@@ -26,7 +26,7 @@ export class BundleDatabase {
     if (!dataSource.isInitialized) {
       throw new ConnectionNotInitializedError('DB connection it not initialized');
     }
-    this.assetRepository = dataSource.getRepository(Asset);
+    this.assetRepository = dataSource.getRepository(assetTable);
     this.keyRepository = dataSource.getRepository(Key);
     this.connectionRepository = dataSource.getRepository(Connection);
     this.bundleRepository = dataSource.getRepository(Bundle);
@@ -77,7 +77,7 @@ export class BundleDatabase {
     logger?.debug('fetching bundle from the db');
 
     const assets = this.dataSource
-      .getRepository(Asset)
+      .getRepository(assetTable)
       .createQueryBuilder()
       .whereInIds(extractNameAndVersion(versions.assets))
       .andWhere(':env = ANY(environment)', { env: versions.environment })

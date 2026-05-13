@@ -3,9 +3,10 @@ import { trace } from '@opentelemetry/api';
 import { instanceCachingFactory } from 'tsyringe';
 import type { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { jsLogger } from '@map-colonies/js-logger';
-import { DataSource } from 'typeorm';
+// import { DataSource } from 'typeorm';
 import type { HealthCheck } from '@godaddy/terminus';
-import { Bundle, initConnection } from '@map-colonies/auth-core';
+import { Pool } from 'pg';
+import { Bundle, createConnectionOptions, initConnection } from '@map-colonies/auth-core';
 import { Registry } from 'prom-client';
 import { DB_CONNECTION_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
 import { domainRouterFactory, DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
@@ -20,12 +21,12 @@ import { assetRouterFactory, ASSET_ROUTER_SYMBOL } from './asset/routes/assetRou
 import { assetRepositoryFactory } from './asset/DAL/assetRepository';
 import { connectionRepositoryFactory } from './connection/DAL/connectionRepository';
 import { connectionRouterFactory, CONNECTION_ROUTER_SYMBOL } from './connection/routes/connectionRouter';
-import { domainRepositoryFactory } from './domain/DAL/domainRepository';
+// import { domainRepositoryFactory } from './domain/DAL/domainRepository';
 import { bundleRouterFactory, BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
 import { getConfig } from './common/config';
 import { getTracing } from './common/tracing';
 
-const healthCheck = (connection: DataSource): HealthCheck => {
+const healthCheck = (connection: Pool): HealthCheck => {
   return async (): Promise<void> => {
     const check = connection.query('SELECT 1').then(() => {
       return;
@@ -47,7 +48,14 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   const logger = await jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
 
   const dataSourceOptions = configInstance.get('db');
-  const connection = await initConnection(dataSourceOptions);
+  // const connection = await initConnection(dataSourceOptions);
+
+  let pool: Pool;
+  try {
+    pool = await initConnection(dataSourceOptions);
+  } catch (error) {
+    throw new Error(`Failed to connect to the database`, { cause: error });
+  }
 
   const tracer = trace.getTracer(SERVICE_NAME);
   const metricsRegistry = new Registry();
@@ -58,53 +66,53 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.LOGGER, provider: { useValue: logger } },
     { token: SERVICES.TRACER, provider: { useValue: tracer } },
     { token: SERVICES.METRICS, provider: { useValue: metricsRegistry } },
-    { token: DataSource, provider: { useValue: connection } },
+    { token: Pool, provider: { useValue: pool } },
     {
       token: SERVICES.HEALTHCHECK,
       provider: {
         useFactory: instanceCachingFactory((container) => {
-          const connection = container.resolve(DataSource);
+          const connection = container.resolve(Pool);
           return healthCheck(connection);
         }),
       },
     },
-    {
-      token: SERVICES.DOMAIN_REPOSITORY,
-      provider: { useFactory: instanceCachingFactory(domainRepositoryFactory) },
-    },
-    { token: DOMAIN_ROUTER_SYMBOL, provider: { useFactory: domainRouterFactory } },
-    {
-      token: SERVICES.CLIENT_REPOSITORY,
-      provider: { useFactory: instanceCachingFactory(clientRepositoryFactory) },
-    },
-    { token: CLIENT_ROUTER_SYMBOL, provider: { useFactory: clientRouterFactory } },
-    {
-      token: SERVICES.KEY_REPOSITORY,
-      provider: { useFactory: instanceCachingFactory(keyRepositoryFactory) },
-    },
-    { token: KEY_ROUTER_SYMBOL, provider: { useFactory: keyRouterFactory } },
-    {
-      token: SERVICES.ASSET_REPOSITORY,
-      provider: { useFactory: instanceCachingFactory(assetRepositoryFactory) },
-    },
-    { token: ASSET_ROUTER_SYMBOL, provider: { useFactory: assetRouterFactory } },
-    {
-      token: SERVICES.CONNECTION_REPOSITORY,
-      provider: { useFactory: instanceCachingFactory(connectionRepositoryFactory) },
-    },
-    { token: CONNECTION_ROUTER_SYMBOL, provider: { useFactory: connectionRouterFactory } },
-    {
-      token: SERVICES.BUNDLE_REPOSITORY,
-      provider: {
-        useFactory: instanceCachingFactory((c) => c.resolve(DataSource).getRepository(Bundle)),
-      },
-    },
+    // {
+    //   token: SERVICES.DOMAIN_REPOSITORY,
+    //   provider: { useFactory: instanceCachingFactory(domainRepositoryFactory) },
+    // },
+    // { token: DOMAIN_ROUTER_SYMBOL, provider: { useFactory: domainRouterFactory } },
+    // {
+    //   token: SERVICES.CLIENT_REPOSITORY,
+    //   provider: { useFactory: instanceCachingFactory(clientRepositoryFactory) },
+    // },
+    // { token: CLIENT_ROUTER_SYMBOL, provider: { useFactory: clientRouterFactory } },
+    // {
+    //   token: SERVICES.KEY_REPOSITORY,
+    //   provider: { useFactory: instanceCachingFactory(keyRepositoryFactory) },
+    // },
+    // { token: KEY_ROUTER_SYMBOL, provider: { useFactory: keyRouterFactory } },
+    // {
+    //   token: SERVICES.ASSET_REPOSITORY,
+    //   provider: { useFactory: instanceCachingFactory(assetRepositoryFactory) },
+    // },
+    // { token: ASSET_ROUTER_SYMBOL, provider: { useFactory: assetRouterFactory } },
+    // {
+    //   token: SERVICES.CONNECTION_REPOSITORY,
+    //   provider: { useFactory: instanceCachingFactory(connectionRepositoryFactory) },
+    // },
+    // { token: CONNECTION_ROUTER_SYMBOL, provider: { useFactory: connectionRouterFactory } },
+    // {
+    //   token: SERVICES.BUNDLE_REPOSITORY,
+    //   provider: {
+    //     useFactory: instanceCachingFactory((c) => c.resolve(DataSource).getRepository(Bundle)),
+    //   },
+    // },
     { token: BUNDLE_ROUTER_SYMBOL, provider: { useFactory: bundleRouterFactory } },
     {
       token: 'onSignal',
       provider: {
         useValue: async (): Promise<void> => {
-          await Promise.all([getTracing().stop(), connection.destroy()]);
+          await Promise.all([getTracing().stop(), pool.end()]);
         },
       },
     },
