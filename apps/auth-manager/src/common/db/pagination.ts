@@ -20,6 +20,7 @@ export function paginationParamsToFindOptions(paginationParams?: PaginationParam
   };
 }
 
+// TODO - move to generic package
 export function withPagination<T extends PgSelect>(qb: T, orderByColumn: PgColumn | SQL | SQL.Aliased, params: PaginationParams): T {
   const { page, pageSize } = params;
   return qb

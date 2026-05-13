@@ -5,6 +5,7 @@ import { Pool, type PoolConfig } from 'pg';
 import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { relations } from '../entities';
 
 export function createConnectionOptions(dbOptions: commonDbFullV1Type): PoolConfig {
   const { ssl } = dbOptions;
@@ -24,8 +25,10 @@ export async function initConnection(dbConfig: commonDbFullV1Type): Promise<Pool
   return pool;
 }
 
-export function createDrizzle(pool: Pool): ReturnType<typeof drizzle> {
-  return drizzle({ client: pool });
+export type Drizzle = ReturnType<typeof drizzle<typeof relations>>;
+
+export function createDrizzle(pool: Pool): Drizzle {
+  return drizzle({ client: pool, relations });
 }
 
 export async function runMigrations(drizzle: NodePgDatabase): Promise<void> {

@@ -1,5 +1,5 @@
 import { type Logger } from '@map-colonies/js-logger';
-import { Domain, domainTable, IDomain } from '@map-colonies/auth-core';
+import { Domain, domainTable, Drizzle, IDomain } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 // import { FindManyOptions } from 'typeorm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -14,7 +14,7 @@ import { DomainAlreadyExistsError } from './errors';
 export class DomainManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.DRIZZLE) private readonly drizzle: NodePgDatabase
+    @inject(SERVICES.DRIZZLE) private readonly drizzle: Drizzle
   ) {}
 
   public async getDomains(paginationParams?: PaginationParams, sortParams?: SortOptions<Domain>): Promise<[IDomain[], number]> {
@@ -30,7 +30,7 @@ export class DomainManager {
     if (sortParams !== undefined) {
       findOptions.order = sortParams;
     }
-    return this.drizzle.select().from(domainTable);
+    return this.drizzle.query.domain.findMany({ extras: {} });
     // return this.domainRepository.findAndCount(findOptions);
   }
 
