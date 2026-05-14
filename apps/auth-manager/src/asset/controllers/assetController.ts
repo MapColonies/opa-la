@@ -3,8 +3,9 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
 import type { TypedRequestHandlers, components } from 'auth-openapi';
+import { Asset } from '@map-colonies/auth-core';
 import { SERVICES } from '@common/constants';
-import { AssetManager, type ResponseAsset } from '../models/assetManager';
+import { AssetManager } from '../models/assetManager';
 import { AssetNotFoundError, AssetVersionMismatchError } from '../models/errors';
 
 /**
@@ -12,9 +13,10 @@ import { AssetNotFoundError, AssetVersionMismatchError } from '../models/errors'
  * @param asset - The asset entity to convert
  * @returns The asset formatted according to OpenAPI schema
  */
-function responseAssetToOpenApi(asset: ResponseAsset): components['schemas']['asset'] {
+function responseAssetToOpenApi(asset: Asset): components['schemas']['asset'] {
   return {
     ...asset,
+    value: asset.value.toString('base64'),
     createdAt: asset.createdAt.toISOString(),
   };
 }

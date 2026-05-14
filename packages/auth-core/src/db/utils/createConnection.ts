@@ -33,6 +33,7 @@ export function createDrizzle(pool: Pool): Drizzle {
 
 export async function runMigrations(drizzle: NodePgDatabase): Promise<void> {
   const optionalFolders = ['./db/migrations', './src/db/migrations', './migrations'];
+  console.log(__dirname);
   let migrationsFolder = null;
 
   for (const folder of optionalFolders) {

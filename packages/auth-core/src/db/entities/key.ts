@@ -2,6 +2,7 @@
 // import { Environment, type Environments, type IKey, type JWKPrivateKey, type JWKPublicKey } from '../../model';
 
 import { integer, jsonb, primaryKey } from 'drizzle-orm/pg-core';
+import type { JWKPrivateKey, JWKPublicKey } from '../../model';
 import { authManagerSchema, environmentEnum } from './common';
 
 // /**
@@ -27,8 +28,8 @@ export const keyTable = authManagerSchema.table(
   {
     environment: environmentEnum().notNull(),
     version: integer().notNull(),
-    privateKey: jsonb().notNull(),
-    publicKey: jsonb().notNull(),
+    privateKey: jsonb().notNull().$type<JWKPrivateKey>(),
+    publicKey: jsonb().notNull().$type<JWKPublicKey>(),
   },
   (table) => [primaryKey({ columns: [table.environment, table.version], name: 'PK_ddf3d991c46b66651794ee56d58' })]
 );

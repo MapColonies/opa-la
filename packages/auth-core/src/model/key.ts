@@ -1,4 +1,4 @@
-import type { Environments } from './common';
+// import type { Environments } from './common';
 
 /**
  * JSON representation of a public key
@@ -26,14 +26,14 @@ export interface JWKPrivateKey extends JWKPublicKey {
 /**
  * A representation of a authentication key for a specific environment.
  */
-export interface IKey {
-  /**
-   * The version of the key with the given {@link environment}. Starts at 1 and automatically increments.
-   * When updated, the POST body should contain the latest version.
-   */
-  environment: Environments;
-  /** The environment this key relates to. */
-  version: number;
-  privateKey: JWKPrivateKey;
-  publicKey: JWKPublicKey;
-}
+// export interface IKey {
+//   /**
+//    * The version of the key with the given {@link environment}. Starts at 1 and automatically increments.
+//    * When updated, the POST body should contain the latest version.
+//    */
+//   environment: Environments;
+//   /** The environment this key relates to. */
+//   version: number;
+//   privateKey: JWKPrivateKey;
+//   publicKey: JWKPublicKey;
+// }
