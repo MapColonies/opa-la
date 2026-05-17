@@ -2,8 +2,8 @@
 // import type { IClient, PointOfContact } from '../../model';
 
 import { json, text, timestamp } from 'drizzle-orm/pg-core';
+import type { PointOfContact } from '../../model';
 import { authManagerSchema, createdAtColumn } from './common';
-import { PointOfContact } from '../../model';
 
 // /**
 //  * The typeorm implementation of the IClient interface.
@@ -44,7 +44,7 @@ export const clientTable = authManagerSchema.table('client', {
   description: text(),
   branch: text(),
   createdAt: createdAtColumn,
-  updateAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('update_at', { withTimezone: true }).defaultNow().notNull(),
   techPointOfContact: json('tech_point_of_contact').$type<PointOfContact>(),
   productPointOfContact: json('product_point_of_contact').$type<PointOfContact>(),
   tags: text().array(),

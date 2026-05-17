@@ -1,4 +1,4 @@
-CREATE SCHEMA "auth_manager";
+CREATE SCHEMA IF NOT EXISTS "auth_manager" ;
 --> statement-breakpoint
 CREATE TYPE "auth_manager"."asset_type_enum" AS ENUM('TEST', 'TEST_DATA', 'POLICY', 'DATA');--> statement-breakpoint
 CREATE TYPE "auth_manager"."environment_enum" AS ENUM('np', 'stage', 'prod');--> statement-breakpoint

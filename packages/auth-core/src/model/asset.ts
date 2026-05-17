@@ -1,18 +1,19 @@
 // import type { Environments } from './common';
 
-// /* eslint-disable @typescript-eslint/naming-convention */
-// export const AssetType = {
-//   /** OPA test files. */
-//   TEST: 'TEST',
-//   TEST_DATA: 'TEST_DATA',
-//   /** OPA policy files. */
-//   POLICY: 'POLICY',
-//   /** OPA data files, name should end with .json or .yaml. */
-//   DATA: 'DATA',
-// } as const;
-// /* eslint-enable @typescript-eslint/naming-convention */
+import type { assetTypeEnum } from '../db';
 
-// export type AssetTypes = (typeof AssetType)[keyof typeof AssetType];
+/* eslint-disable @typescript-eslint/naming-convention */
+type assetTypeEnumValues = typeof assetTypeEnum.enumValues;
+export const AssetType: { [K in assetTypeEnumValues[number]]: K } = {
+  /** OPA test files. */
+  TEST: 'TEST',
+  TEST_DATA: 'TEST_DATA',
+  /** OPA policy files. */
+  POLICY: 'POLICY',
+  /** OPA data files, name should end with .json or .yaml. */
+  DATA: 'DATA',
+} as const;
+/* eslint-enable @typescript-eslint/naming-convention */
 
 // /**
 //  * Describes the metadata and content of assets - files that will be part of the bundle.

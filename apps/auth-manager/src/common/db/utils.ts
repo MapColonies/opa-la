@@ -1,15 +1,14 @@
-import type { FindOperator } from 'typeorm';
-import { Between, LessThan, MoreThan } from 'typeorm';
+import { between, lt, gt, type SQL, type Column } from 'drizzle-orm';
 
-export function createDatesComparison(earlyDate?: Date, laterDate?: Date): FindOperator<Date> | undefined {
+export function createDatesComparison(column: Column, earlyDate?: Date, laterDate?: Date): SQL | undefined {
   if (earlyDate !== undefined && laterDate !== undefined) {
-    return Between(earlyDate, laterDate);
+    return between(column, earlyDate, laterDate);
   }
   if (earlyDate !== undefined) {
-    return MoreThan(earlyDate);
+    return gt(column, earlyDate);
   }
   if (laterDate !== undefined) {
-    return LessThan(laterDate);
+    return lt(column, laterDate);
   }
   return undefined;
 }

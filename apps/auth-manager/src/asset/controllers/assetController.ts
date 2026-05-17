@@ -96,8 +96,10 @@ export class AssetController {
   public upsertAsset: TypedRequestHandlers['upsertAsset'] = async (req, res, next) => {
     this.logger.debug('executing #upsertAsset handler');
 
+    const { createdAt, value, ...rest } = req.body;
+
     try {
-      const createdAsset = await this.manager.upsertAsset(req.body);
+      const createdAsset = await this.manager.upsertAsset({ ...rest, value: Buffer.from(value, 'base64') });
 
       const returnStatus = createdAsset.version === 1 ? httpStatus.CREATED : httpStatus.OK;
       return res.status(returnStatus).json(responseAssetToOpenApi(createdAsset));

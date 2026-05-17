@@ -7,7 +7,7 @@ export interface PaginationParams {
   pageSize: number;
 }
 
-export function paginationParamsToOffsetAndLimit(paginationParams?: PaginationParams): { limit?: number; offset?: number } {
+export function paginationParamsToOffsetAndLimit(paginationParams?: PaginationParams): { limit: number; offset: number } {
   if (paginationParams === undefined) {
     return {};
   }

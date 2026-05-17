@@ -38,7 +38,7 @@ export class DomainManager {
   public async createDomain(domain: NewDomain): Promise<Domain> {
     this.logger.info({ msg: 'creating domain', name: domain.name });
     try {
-      await this.domainRepository.insert(domain);
+      await this.drizzle.insert(domainTable).values(domain);
       return domain;
     } catch (error) {
       if (error instanceof Error && error.message.includes('duplicate key value violates unique constraint')) {

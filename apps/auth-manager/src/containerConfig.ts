@@ -6,7 +6,7 @@ import { jsLogger } from '@map-colonies/js-logger';
 // import { DataSource } from 'typeorm';
 import type { HealthCheck } from '@godaddy/terminus';
 import { Pool } from 'pg';
-import { Bundle, createConnectionOptions, initConnection } from '@map-colonies/auth-core';
+import { Bundle, createConnectionOptions, createDrizzle, initConnection } from '@map-colonies/auth-core';
 import { Registry } from 'prom-client';
 import { DB_CONNECTION_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
 import { domainRouterFactory, DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
@@ -68,6 +68,15 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     { token: SERVICES.METRICS, provider: { useValue: metricsRegistry } },
     { token: Pool, provider: { useValue: pool } },
     {
+      token: SERVICES.DRIZZLE,
+      provider: {
+        useFactory: instanceCachingFactory((container) => {
+          const pool = container.resolve(Pool);
+          return createDrizzle(pool);
+        }),
+      },
+    },
+    {
       token: SERVICES.HEALTHCHECK,
       provider: {
         useFactory: instanceCachingFactory((container) => {
@@ -80,27 +89,27 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     //   token: SERVICES.DOMAIN_REPOSITORY,
     //   provider: { useFactory: instanceCachingFactory(domainRepositoryFactory) },
     // },
-    // { token: DOMAIN_ROUTER_SYMBOL, provider: { useFactory: domainRouterFactory } },
+    { token: DOMAIN_ROUTER_SYMBOL, provider: { useFactory: domainRouterFactory } },
     // {
     //   token: SERVICES.CLIENT_REPOSITORY,
     //   provider: { useFactory: instanceCachingFactory(clientRepositoryFactory) },
     // },
-    // { token: CLIENT_ROUTER_SYMBOL, provider: { useFactory: clientRouterFactory } },
+    { token: CLIENT_ROUTER_SYMBOL, provider: { useFactory: clientRouterFactory } },
     // {
     //   token: SERVICES.KEY_REPOSITORY,
     //   provider: { useFactory: instanceCachingFactory(keyRepositoryFactory) },
     // },
-    // { token: KEY_ROUTER_SYMBOL, provider: { useFactory: keyRouterFactory } },
+    { token: KEY_ROUTER_SYMBOL, provider: { useFactory: keyRouterFactory } },
     // {
     //   token: SERVICES.ASSET_REPOSITORY,
     //   provider: { useFactory: instanceCachingFactory(assetRepositoryFactory) },
     // },
-    // { token: ASSET_ROUTER_SYMBOL, provider: { useFactory: assetRouterFactory } },
+    { token: ASSET_ROUTER_SYMBOL, provider: { useFactory: assetRouterFactory } },
     // {
     //   token: SERVICES.CONNECTION_REPOSITORY,
     //   provider: { useFactory: instanceCachingFactory(connectionRepositoryFactory) },
     // },
-    // { token: CONNECTION_ROUTER_SYMBOL, provider: { useFactory: connectionRouterFactory } },
+    { token: CONNECTION_ROUTER_SYMBOL, provider: { useFactory: connectionRouterFactory } },
     // {
     //   token: SERVICES.BUNDLE_REPOSITORY,
     //   provider: {

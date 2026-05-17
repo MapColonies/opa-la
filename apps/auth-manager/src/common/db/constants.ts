@@ -1,3 +1,4 @@
-export enum PgErrorCodes {
-  UNIQUE_VIOLATION = '23505',
-}
+export const pgErrorCodes = {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  UNIQUE_VIOLATION: '23505',
+};

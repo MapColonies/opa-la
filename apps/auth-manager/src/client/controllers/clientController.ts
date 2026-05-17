@@ -2,21 +2,22 @@ import { HttpError } from '@map-colonies/error-express-handler';
 import { type Logger } from '@map-colonies/js-logger';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { IClient } from '@map-colonies/auth-core';
+import { Client } from '@map-colonies/auth-core';
 import { parseISO } from 'date-fns';
 import type { TypedRequestHandlers, components, operations } from 'auth-openapi';
 import { SERVICES } from '@common/constants';
 import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
+import { removeNulls } from '@src/utils/mapper';
 import { sortOptionParser } from '@src/common/db/sort';
 import { ClientManager } from '../models/clientManager';
 import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
 import { ClientSearchParams } from '../models/client';
 
-function responseClientToOpenApi(client: IClient): components['schemas']['client'] {
+function responseClientToOpenApi(client: Client): components['schemas']['client'] {
   return {
-    ...client,
-    createdAt: (client.createdAt as Date).toISOString(),
-    updatedAt: (client.updatedAt as Date).toISOString(),
+    ...removeNulls(client),
+    createdAt: client.createdAt.toISOString(),
+    updatedAt: client.updatedAt.toISOString(),
   };
 }
 
@@ -31,7 +32,7 @@ function queryParamsToSearchParams(query: NonNullable<operations['getClients']['
   };
 }
 
-const clientSortMap = new Map<string, keyof IClient>(
+const clientSortMap = new Map<string, keyof Client>(
   Object.entries({
     name: 'name',
     branch: 'branch',
@@ -104,7 +105,8 @@ export class ClientController {
   public updateClient: TypedRequestHandlers['updateClient'] = async (req, res, next) => {
     try {
       this.logger.debug('executing #updateClient handler');
-      const updatedClient = await this.manager.updateClient(req.params.clientName, req.body);
+      const { createdAt, updatedAt, ...client } = req.body;
+      const updatedClient = await this.manager.updateClient({ ...client, name: req.params.clientName });
       return res.status(httpStatus.OK).json(responseClientToOpenApi(updatedClient));
     } catch (error) {
       if (error instanceof ClientNotFoundError) {
