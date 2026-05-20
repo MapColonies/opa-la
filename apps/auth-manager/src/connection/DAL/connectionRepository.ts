@@ -1,54 +1,36 @@
-import type { Environments } from '@map-colonies/auth-core';
-import { Connection } from '@map-colonies/auth-core';
-import type { FactoryFunction } from 'tsyringe';
-import type { Repository, SelectQueryBuilder } from 'typeorm';
-import { DataSource } from 'typeorm';
+import { and, eq, max } from 'drizzle-orm';
+import { connectionTable, type Connection, type Drizzle, type DrizzleTx } from '@map-colonies/auth-core';
+import { inject, Lifecycle, scoped } from 'tsyringe';
+import { SERVICES } from '@common/constants';
 
-const maxVersionSubQuery = (qb: SelectQueryBuilder<Connection>): string => {
-  const subQuery = qb
-    .subQuery()
-    .select('MAX(version)')
-    .from(Connection, 'connection')
-    .where('name = :name AND environment = :environment')
-    .getQuery();
+@scoped(Lifecycle.ContainerScoped)
+export class ConnectionRepository {
+  public constructor(@inject(SERVICES.DRIZZLE) private readonly db: Drizzle) {}
 
-  return 'Connection.version = ' + subQuery;
-};
+  public async getMaxVersionWithLock(name: string, environment: Connection['environment'], tx: DrizzleTx): Promise<number | null> {
+    const subQuery = tx
+      .select({ maxVersion: max(connectionTable.version) })
+      .from(connectionTable)
+      .where(and(eq(connectionTable.name, name), eq(connectionTable.environment, environment)));
 
-export type ConnectionRepository = Repository<Connection> & {
-  getMaxVersionWithLock: (name: string, environment: Environments) => Promise<number | null>;
-  getMaxVersion: (name: string, environment: Environments) => Promise<number | null>;
-};
+    const result = await tx
+      .select({ version: connectionTable.version })
+      .from(connectionTable)
+      .where(and(eq(connectionTable.name, name), eq(connectionTable.environment, environment), eq(connectionTable.version, subQuery)))
+      .for('update')
+      .limit(1);
 
-export const connectionRepositoryFactory: FactoryFunction<ConnectionRepository> = (container) => {
-  const dataSource = container.resolve(DataSource);
+    return result[0]?.version ?? null;
+  }
 
-  return dataSource.getRepository(Connection).extend({
-    async getMaxVersionWithLock(name: string, environment: Environments): Promise<number | null> {
-      const result = await this.createQueryBuilder()
-        .select('version')
-        .where('name = :name AND environment = :environment')
-        .andWhere(maxVersionSubQuery)
-        .setLock('pessimistic_write')
-        .setParameters({ name, environment })
-        .getRawOne<{ version: number }>();
+  public async getMaxVersion(name: string, environment: Connection['environment'], tx?: DrizzleTx): Promise<number | null> {
+    const db = tx ?? this.db;
 
-      if (result === undefined) {
-        return null;
-      }
-      return result.version;
-    },
-    async getMaxVersion(name: string, environment: Environments): Promise<number | null> {
-      const result = await this.createQueryBuilder()
-        .select('MAX(version)', 'version')
-        .where('name = :name AND environment = :environment')
-        .setParameters({ name, environment })
-        .getRawOne<{ version: number }>();
+    const result = await db
+      .select({ version: max(connectionTable.version) })
+      .from(connectionTable)
+      .where(and(eq(connectionTable.name, name), eq(connectionTable.environment, environment)));
 
-      if (result === undefined) {
-        return null;
-      }
-      return result.version;
-    },
-  });
-};
+    return result[0]?.version ?? null;
+  }
+}

@@ -1,71 +1,58 @@
-import type { Environments } from '@map-colonies/auth-core';
-import { Key } from '@map-colonies/auth-core';
-import type { FactoryFunction } from 'tsyringe';
-import type { Repository } from 'typeorm';
-import { DataSource } from 'typeorm';
+import { and, eq, max } from 'drizzle-orm';
+import { keyTable, type Key, type Drizzle, type DrizzleTx } from '@map-colonies/auth-core';
+import { inject, injectable, Lifecycle, scoped } from 'tsyringe';
+import { SERVICES } from '@common/constants';
 
-export type KeyRepository = Repository<Key> & {
-  getMaxVersionWithLock: (env: Environments) => Promise<number | null>;
-  getLatestKeys: () => Promise<Key[]>;
-  getMaxVersion: (env: Environments) => Promise<number | null>;
-};
+@scoped(Lifecycle.ContainerScoped)
+export class KeyRepository {
+  public constructor(@inject(SERVICES.DRIZZLE) private readonly db: Drizzle) {}
 
-export const keyRepositoryFactory: FactoryFunction<KeyRepository> = (container) => {
-  const dataSource = container.resolve(DataSource);
+  public async getMaxVersionWithLock(env: Key['environment'], tx: DrizzleTx): Promise<number | null> {
+    const subQuery = tx
+      .select({ maxVersion: max(keyTable.version) })
+      .from(keyTable)
+      .where(eq(keyTable.environment, env));
 
-  return dataSource.getRepository(Key).extend({
-    async getMaxVersionWithLock(env: Environments): Promise<number | null> {
-      const result = await this.createQueryBuilder()
-        .select('version')
-        .where('environment = :environment')
-        .andWhere((qb) => {
-          const subQuery = qb.subQuery().select('MAX(version)').from(Key, 'key').where('environment = :environment').getQuery();
+    const result = await tx
+      .select({ version: keyTable.version })
+      .from(keyTable)
+      .where(and(eq(keyTable.environment, env), eq(keyTable.version, subQuery)))
+      .for('update')
+      .limit(1);
 
-          return 'Key.version = ' + subQuery;
-        })
-        .setLock('pessimistic_write')
-        .setParameter('environment', env)
-        .getRawOne<{ version: number }>();
+    return result[0]?.version ?? null;
+  }
 
-      if (result === undefined) {
-        return null;
-      }
-      return result.version;
-    },
-    async getMaxVersion(env: Environments): Promise<number | null> {
-      const result = await this.createQueryBuilder()
-        .select('MAX(version)', 'version')
-        .where('environment = :environment')
-        .setParameter('environment', env)
-        .getRawOne<{ version: number }>();
+  public async getMaxVersion(env: Key['environment'], tx?: DrizzleTx): Promise<number | null> {
+    const db = tx ?? this.db;
 
-      if (result === undefined) {
-        return null;
-      }
-      return result.version;
-    },
-    async getLatestKeys(): Promise<Key[]> {
-      // This is a way to do it using window functions. i think its more efficient but its less readable.
-      // I left it here because i worked a lot on it, and it got some nice stuff for future reference.
-      // Both this and the version below returns the same result.
-      // const query = this.createQueryBuilder()
-      //   .from<Key>((qb) => {
-      //     return qb.select('*, ROW_NUMBER() OVER(PARTITION BY environment ORDER BY version desc) as rn').from(Key, 'key');
-      //   }, 'Key')
-      //   .where('rn = 1');
+    const result = await db
+      .select({ version: max(keyTable.version) })
+      .from(keyTable)
+      .where(eq(keyTable.environment, env));
 
-      // query.expressionMap.aliases = [query.expressionMap.aliases[1]];
-      // if (query.expressionMap.mainAlias !== undefined) {
-      //   query.expressionMap.mainAlias.metadata = query.connection.getMetadata(Key);
-      // }
+    return result[0]?.version ?? null;
+  }
 
-      const query = this.createQueryBuilder('keys').innerJoin(
-        (qb) => qb.select('environment, MAX(version) as version').from(Key, 'k').groupBy('environment'),
-        'max_keys',
-        'keys.version = max_keys.version AND keys.environment = max_keys.environment'
+  public async getLatestKeys(tx?: DrizzleTx): Promise<Key[]> {
+    const db = tx ?? this.db;
+    const maxVersionsSubQuery = db
+      .select({ environment: keyTable.environment, version: max(keyTable.version).as('version') })
+      .from(keyTable)
+      .groupBy(keyTable.environment)
+      .as('max_keys');
+
+    return db
+      .select({
+        environment: keyTable.environment,
+        version: keyTable.version,
+        privateKey: keyTable.privateKey,
+        publicKey: keyTable.publicKey,
+      })
+      .from(keyTable)
+      .innerJoin(
+        maxVersionsSubQuery,
+        and(eq(keyTable.version, maxVersionsSubQuery.version), eq(keyTable.environment, maxVersionsSubQuery.environment))
       );
-
-      return query.getMany();
-    },
-  });
-};
+  }
+}

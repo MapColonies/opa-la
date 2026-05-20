@@ -28,6 +28,8 @@ export async function initConnection(dbConfig: commonDbFullV1Type): Promise<Pool
 
 export type Drizzle = ReturnType<typeof drizzle<typeof relations>>;
 
+export type DrizzleTx = Parameters<Parameters<Drizzle['transaction']>[0]>[0];
+
 export function createDrizzle(pool: Pool): Drizzle {
   return drizzle({ client: pool, relations });
 }

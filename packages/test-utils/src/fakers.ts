@@ -31,10 +31,10 @@ export function getFakeAsset(includeCreated?: boolean): Asset | NewAsset {
   };
 }
 
-export function getFakeConnection(includeCreated: true): Connection;
-export function getFakeConnection(includeCreated?: false): NewConnection;
-export function getFakeConnection(includeCreated?: boolean): Connection | NewConnection {
-  return {
+export function getFakeConnection(includeCreated: true, override?: Partial<Connection>): Connection;
+export function getFakeConnection(includeCreated?: false, override?: Partial<NewConnection>): NewConnection;
+export function getFakeConnection(includeCreated?: boolean, override?: Partial<Connection | NewConnection>): Connection | NewConnection {
+  const connection: Connection | NewConnection = {
     createdAt: includeCreated === true ? faker.date.past() : undefined,
     environment: Environment.NP,
     version: 1,
@@ -46,6 +46,7 @@ export function getFakeConnection(includeCreated?: boolean): Connection | NewCon
     enabled: true,
     token: faker.string.alpha(),
   };
+  return { ...connection, ...override };
 }
 
 export function getFakeBundle(includeCreated: true): Bundle;
@@ -64,9 +65,9 @@ export function getFakeBundle(includeCreated?: boolean): Bundle | NewBundle {
   };
 }
 
-export function getFakeClient(includeGeneratedFields: true): Client;
-export function getFakeClient(includeGeneratedFields?: false): NewClient;
-export function getFakeClient(includeGeneratedFields?: boolean): NewClient | Client {
+export function getFakeClient(includeGeneratedFields: true, override?: Partial<Client>): Client;
+export function getFakeClient(includeGeneratedFields?: false, override?: Partial<NewClient>): NewClient;
+export function getFakeClient(includeGeneratedFields?: boolean, override?: Partial<Client | NewClient>): NewClient | Client {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
   const client: NewClient = {
@@ -91,7 +92,7 @@ export function getFakeClient(includeGeneratedFields?: boolean): NewClient | Cli
     client.createdAt = faker.date.past();
     client.updatedAt = faker.date.between({ from: client.createdAt, to: Date.now() });
   }
-  return client;
+  return { ...client, ...override };
 }
 
 export function getMockKeys(): [JWKPrivateKey, JWKPublicKey] {

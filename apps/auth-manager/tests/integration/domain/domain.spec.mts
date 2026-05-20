@@ -8,49 +8,39 @@ import 'jest-openapi';
 import { Pool } from 'pg';
 import type { Drizzle } from '@map-colonies/auth-core';
 import { domainTable } from '@map-colonies/auth-core';
-import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { ExpectResponseStatus, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender, expectResponseStatusFactory } from '@map-colonies/openapi-helpers/requestSender';
 import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@src/common/constants.js';
 import { initConfig } from '@src/common/config.js';
 import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
+import { initEnvironment } from '../setup.js';
+
+const expectResponseStatus: ExpectResponseStatus = expectResponseStatusFactory(expect);
 
 describe('domain', function () {
   let requestSender: RequestSender<paths, operations>;
-  let depContainer: DependencyContainer;
+  let drizzle: Drizzle;
 
   beforeAll(async function () {
-    await initConfig(true);
-
-    const [app, container] = await getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
-        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-      ],
-      useChild: true,
-    });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
-    depContainer = container;
-  });
-
-  afterAll(async function () {
-    await depContainer.resolve(Pool).end();
+    const env = await initEnvironment();
+    requestSender = env.requestSender;
+    drizzle = env.drizzle;
   });
 
   describe('Happy Path', function () {
     describe('GET /domain', function () {
       it('should return 200 status code and a list of domains', async function () {
-        const drizzle = depContainer.resolve<Drizzle>(SERVICES.DRIZZLE);
+        // const drizzle = depContainer.resolve<Drizzle>(SERVICES.DRIZZLE);
         await drizzle.insert(domainTable).values([{ name: 'avi' }, { name: 'iva' }]);
 
         const res = await requestSender.getDomains();
 
-        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expectResponseStatus(res, httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
 
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
-        const returnedItems = res.body.items as IDomain[];
+        const returnedItems = res.body.items;
 
         expect(returnedItems).toEqual(expect.arrayContaining([{ name: 'avi' }, { name: 'iva' }]));
       });

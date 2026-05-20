@@ -2,7 +2,7 @@ import { HttpError } from '@map-colonies/error-express-handler';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { type Logger } from '@map-colonies/js-logger';
-import { IConnection } from '@map-colonies/auth-core';
+import { Connection } from '@map-colonies/auth-core';
 import type { TypedRequestHandlers, components } from 'auth-openapi';
 import { SERVICES } from '@common/constants';
 import { ClientNotFoundError } from '@client/models/errors';
@@ -13,14 +13,14 @@ import { KeyNotFoundError } from '@key/models/errors';
 import { ConnectionManager } from '../models/connectionManager';
 import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '../models/errors';
 
-function responseConnectionToOpenApi(connection: IConnection): components['schemas']['connection'] {
+function responseConnectionToOpenApi(connection: Connection): components['schemas']['connection'] {
   return {
     ...connection,
-    createdAt: connection.createdAt?.toISOString(),
+    createdAt: connection.createdAt.toISOString(),
   };
 }
 
-const connectionSortMap = new Map<string, keyof IConnection>([
+const connectionSortMap = new Map<string, keyof Connection>([
   ['name', 'name'],
   ['environment', 'environment'],
   ['version', 'version'],

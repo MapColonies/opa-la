@@ -2,18 +2,19 @@ import { type Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 // import { ArrayContains, ILike, QueryFailedError } from 'typeorm';
 import { DatabaseError } from 'pg';
-import { count, DrizzleQueryError, eq, and, arrayContains, between } from 'drizzle-orm';
+import { count, DrizzleQueryError, eq, and, arrayContains, asc, desc, SQL, AnyColumn, ilike } from 'drizzle-orm';
 import { clientTable, type Client, type Drizzle, type NewClient } from '@map-colonies/auth-core';
+import { PgTable } from 'drizzle-orm/pg-core';
 import { SERVICES } from '@common/constants';
 import { pgErrorCodes } from '@common/db/constants';
-import { createDatesComparison } from '@common/db/utils';
+import { createDatesComparison, sortOptionsToOrderBy } from '@common/db/utils';
 import { SortOptions } from '@src/common/db/sort';
-import { PaginationParams, paginationParamsToFindOptions, paginationParamsToOffsetAndLimit } from '@src/common/db/pagination';
+import { PaginationParams, paginationParamsToOffsetAndLimit } from '@src/common/db/pagination';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
 import { ClientSearchParams } from './client';
 
-function isQueryFailedError(err: unknown): err is DrizzleQueryError {
-  return typeof err === 'object' && err !== null && 'name' in err && (err as Error).name === 'QueryFailedError';
+function isDrizzleQueryError(err: unknown): err is DrizzleQueryError {
+  return typeof err === 'object' && err !== null && 'name' in err && (err as Error).name === 'DrizzleQueryError';
 }
 
 @injectable()
@@ -63,7 +64,7 @@ export class ClientManager {
     // };
 
     const whereClause = and(
-      name !== undefined ? eq(clientTable.name, name) : undefined,
+      name !== undefined ? ilike(clientTable.name, `%${name}%`) : undefined,
       branch !== undefined ? eq(clientTable.branch, branch) : undefined,
       tags !== undefined ? arrayContains(clientTable.tags, tags) : undefined,
       createDatesComparison(clientTable.createdAt, createdAfter, createdBefore),
@@ -72,9 +73,19 @@ export class ClientManager {
 
     const { limit, offset } = paginationParamsToOffsetAndLimit(paginationParams);
 
-    const clients = await this.drizzle.select().from(clientTable).where(whereClause).limit(limit).offset(offset).orderBy(sortParams);
+    const clientsQuery = this.drizzle
+      .select()
+      .from(clientTable)
+      .where(whereClause)
+      .limit(limit)
+      .offset(offset)
+      .orderBy(...sortOptionsToOrderBy(clientTable, sortParams ?? {}));
 
-    const countResult = await this.drizzle.select({ count: count() }).from(clientTable).where(whereClause);
+    const countQuery = this.drizzle.select({ count: count() }).from(clientTable).where(whereClause);
+
+    const [clients, countResult] = await Promise.all([clientsQuery, countQuery]);
+
+    return [clients, countResult[0]?.count ?? 0];
   }
 
   public async getClient(name: string): Promise<Client> {
@@ -101,7 +112,8 @@ export class ClientManager {
 
       return res[0] as Client;
     } catch (error) {
-      if (isQueryFailedError(error) && error.cause instanceof DatabaseError && error.cause.code === pgErrorCodes.UNIQUE_VIOLATION) {
+      console.error(error);
+      if (isDrizzleQueryError(error) && error.cause instanceof DatabaseError && error.cause.code === pgErrorCodes.UNIQUE_VIOLATION) {
         throw new ClientAlreadyExistsError('client already exists');
       }
       this.logger.debug('create client throw an unrecognized error');

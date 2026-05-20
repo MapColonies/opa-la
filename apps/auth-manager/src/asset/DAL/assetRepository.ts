@@ -1,11 +1,9 @@
 import { and, eq, max } from 'drizzle-orm';
-import { assetTable, type Drizzle } from '@map-colonies/auth-core';
-import { inject, injectable } from 'tsyringe';
+import { assetTable, type DrizzleTx, type Drizzle } from '@map-colonies/auth-core';
+import { inject, injectable, Lifecycle, scoped } from 'tsyringe';
 import { SERVICES } from '@common/constants';
 
-type DrizzleTx = Parameters<Parameters<Drizzle['transaction']>[0]>[0];
-
-@injectable()
+@scoped(Lifecycle.ContainerScoped)
 export class AssetRepository {
   public constructor(@inject(SERVICES.DRIZZLE) private readonly db: Drizzle) {}
 

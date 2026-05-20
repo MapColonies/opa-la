@@ -19,5 +19,5 @@ export async function setup(): Promise<void> {
   const connection = await initConnection({ ...dataSourceOptions, port });
   await mergeTestConfig(path.join(__dirname, '../../config'), { 'db.port': port });
 
-  await resetAndMigrate(connection, dataSourceOptions.schema);
+  await resetAndMigrate(connection);
 }
