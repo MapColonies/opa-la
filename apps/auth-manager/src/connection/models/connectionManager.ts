@@ -3,7 +3,7 @@ import { type Connection, connectionTable, type DrizzleTx, Environments, type Ne
 import { inject, injectable } from 'tsyringe';
 import { JWK } from 'jose';
 import { paths } from 'auth-openapi';
-import { ilike, SQL, inArray, eq, arrayContains, count, and, desc, asc, countDistinct, sql } from 'drizzle-orm';
+import { ilike, SQL, inArray, eq, arrayContains, count, and, desc, countDistinct, sql } from 'drizzle-orm';
 import { ClientNotFoundError } from '@client/models/errors';
 import { sortOptionsToOrderBy } from '@src/common/db/utils';
 import { SERVICES } from '@common/constants';
@@ -100,7 +100,6 @@ export class ConnectionManager {
     const connections = await this.drizzle
       .select()
       .from(subQuery)
-      .where(filters)
       .orderBy(...sortOptionsToOrderBy(subQuery, sortParams ?? {}))
       .limit(limit)
       .offset(offset);
@@ -111,7 +110,6 @@ export class ConnectionManager {
   public async getConnection(name: string, environment: Environments, version: number): Promise<Connection> {
     this.logger.info({ msg: 'fetching connection', connection: { name, version, environment } });
 
-    // const connection = await this.connectionRepository.findOne({ where: { name, version } });
     const connection = await this.drizzle.query.connection.findFirst({ where: { name, version, environment } });
 
     if (connection === undefined) {
@@ -134,12 +132,8 @@ export class ConnectionManager {
 
   public async upsertConnection(connection: NewConnection, ignoreTokenErrors = false): Promise<Connection> {
     this.logger.info({ msg: 'upserting connection', connection: { environment: connection.environment, version: connection.version } });
-    // return this.connectionRepository.manager.transaction(async (transactionManager) => {
-    return this.drizzle.transaction(async (tx) => {
-      // const connectionRepo = transactionManager.withRepository(this.connectionRepository);
-      // const domainRepo = transactionManager.withRepository(this.domainRepository);
 
-      // const client = await transactionManager.getRepository(Client).findOneBy({ name: connection.name });
+    return this.drizzle.transaction(async (tx) => {
       const client = await tx.query.client.findFirst({ where: { name: connection.name } });
 
       if (client === undefined) {
@@ -164,8 +158,8 @@ export class ConnectionManager {
           throw new ConnectionVersionMismatchError(msg);
         }
         this.logger.info({ msg: 'creating new connection', connection: { clientName: connection.name, environment: connection.environment } });
+
         // insert
-        // return connectionRepo.save(connection);
         return (await tx.insert(connectionTable).values(connection).returning())[0] as Connection;
       }
 
@@ -180,8 +174,8 @@ export class ConnectionManager {
       // update
       return (
         await tx
-          .update(connectionTable)
-          .set({ ...connection, version: maxVersion + 1 })
+          .insert(connectionTable)
+          .values({ ...connection, version: maxVersion + 1 })
           .returning()
       )[0] as Connection;
     });

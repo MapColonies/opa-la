@@ -1,8 +1,7 @@
-import { beforeEach, describe, expect, it, beforeAll, afterAll, vi } from 'vitest';
+import { beforeEach, describe, expect, it, beforeAll, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import type { DependencyContainer } from 'tsyringe';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
 import { Pool } from 'pg';
@@ -13,7 +12,6 @@ import { createRequestSender, expectResponseStatusFactory } from '@map-colonies/
 import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@src/common/constants.js';
-import { initConfig } from '@src/common/config.js';
 import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 import { initEnvironment } from '../setup.js';
 
@@ -32,7 +30,6 @@ describe('domain', function () {
   describe('Happy Path', function () {
     describe('GET /domain', function () {
       it('should return 200 status code and a list of domains', async function () {
-        // const drizzle = depContainer.resolve<Drizzle>(SERVICES.DRIZZLE);
         await drizzle.insert(domainTable).values([{ name: 'avi' }, { name: 'iva' }]);
 
         const res = await requestSender.getDomains();

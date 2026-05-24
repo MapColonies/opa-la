@@ -80,7 +80,6 @@
     "jest-extended": "catalog:",
     "jest-openapi": "catalog:",
     "supertest": "catalog:",
-    "type-fest": "^4.40.0",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@map-colonies/vitest-utils": "catalog:",

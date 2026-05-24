@@ -1,108 +1,78 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
-import { Environment } from '@map-colonies/auth-core';
-import { getRealKeys, getFakeConnection } from 'test-utils';
+import { getFakeConnection } from 'test-utils';
+import type { Drizzle } from '@map-colonies/auth-core';
 import { ConnectionManager } from '@src/connection/models/connectionManager.js';
-import { ConnectionNotFoundError, ConnectionVersionMismatchError } from '@src/connection/models/errors.js';
 import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository.js';
 import type { DomainRepository } from '@src/domain/DAL/domainRepository.js';
-import { ClientNotFoundError } from '@src/client/models/errors.js';
-import { DomainNotFoundError } from '@src/domain/models/errors.js';
 import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
-import { KeyNotFoundError } from '@src/key/models/errors.js';
 
 const logger = await jsLogger({ enabled: false });
 
 describe('ConnectionManager', () => {
-  let connectionManager: ConnectionManager;
-  const mockedConnectionRepository = {
-    findAndCount: vi.fn(),
-    findOne: vi.fn(),
-    transaction: vi.fn(),
-    createQueryBuilder: vi.fn(),
-  };
-  const mockedDomainRepository = {};
-  const mockedKeysRepository = {};
-
-  beforeEach(function () {
-    connectionManager = new ConnectionManager(
-      logger,
-      mockedConnectionRepository as unknown as ConnectionRepository,
-      mockedDomainRepository as DomainRepository,
-      mockedKeysRepository as KeyRepository
-    );
-    vi.resetAllMocks();
-  });
-
   describe('#upsertConnection', () => {
     let manager: ConnectionManager;
-    const connectionTransactionRepo = {
-      getMaxVersionWithLock: vi.fn(),
-      save: vi.fn(),
+    const mockReturning = vi.fn();
+    const mockValues = vi.fn();
+    const mockTx = {
+      insert: vi.fn(),
+      query: {
+        client: {
+          findFirst: vi.fn(),
+        },
+      },
     };
-    const domainTransactionRepo = {
+    const connectionRepository = {
+      getMaxVersionWithLock: vi.fn(),
+      getMaxVersion: vi.fn(),
+    };
+    const domainRepository = {
       checkInputForNonExistingDomains: vi.fn(),
     };
-    const clientTransactionRepo = {
-      findOneBy: vi.fn(),
-    };
-    const keyTransactionRepo = {
+    const keyRepository = {
       getLatestKeys: vi.fn(),
+    };
+    const drizzle = {
+      transaction: vi.fn(),
     };
 
     beforeEach(function () {
       vi.resetAllMocks();
-      clientTransactionRepo.findOneBy.mockResolvedValue({});
-      domainTransactionRepo.checkInputForNonExistingDomains.mockResolvedValue([]);
-      const connectionRepo = { manager: { transaction: vi.fn() } };
-      const domainRepo = {};
-      const keysRepo = {};
-      connectionRepo.manager.transaction.mockImplementation(async (fn: (a: unknown) => Promise<unknown>) => {
-        return fn({
-          withRepository: vi.fn().mockImplementation((callValue) => {
-            switch (callValue) {
-              case connectionRepo:
-                return connectionTransactionRepo;
-              case domainRepo:
-                return domainTransactionRepo;
-              case keysRepo:
-                return keyTransactionRepo;
-              default:
-                throw new Error('unknown repo');
-            }
-          }),
-          getRepository: vi.fn().mockReturnValue(clientTransactionRepo),
-        });
-      });
+      mockTx.query.client.findFirst.mockResolvedValue({});
+      domainRepository.checkInputForNonExistingDomains.mockResolvedValue([]);
+      mockValues.mockReturnValue({ returning: mockReturning });
+      mockTx.insert.mockReturnValue({ values: mockValues });
+      drizzle.transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn(mockTx));
 
       manager = new ConnectionManager(
         logger,
-        connectionRepo as unknown as ConnectionRepository,
-        domainRepo as DomainRepository,
-        keysRepo as KeyRepository
+        connectionRepository as unknown as ConnectionRepository,
+        domainRepository as unknown as DomainRepository,
+        keyRepository as unknown as KeyRepository,
+        drizzle as unknown as Drizzle
       );
     });
 
     it('should update the connection,return it, and advance the version by 1 if it exist in the database and the version matches', async () => {
       const connection = getFakeConnection();
       connection.version = 2;
-      connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
-      connectionTransactionRepo.save.mockResolvedValue(connection);
+      connectionRepository.getMaxVersionWithLock.mockResolvedValue(1);
+      mockReturning.mockResolvedValue([connection]);
 
       const connectionPromise = manager.upsertConnection({ ...connection, version: 1 });
 
       await expect(connectionPromise).resolves.toStrictEqual(connection);
-      expect(connectionTransactionRepo.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
-      expect(connectionTransactionRepo.save).toHaveBeenCalledTimes(1);
-      expect(connectionTransactionRepo.save).toHaveBeenCalledWith(connection);
+      expect(connectionRepository.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
+      expect(mockTx.insert).toHaveBeenCalledTimes(1);
+      expect(mockValues).toHaveBeenCalledWith(connection);
     });
 
     it('should return the connection with empty token if the token generation failed and ignoreTokenErrors is true', async () => {
       const connection = getFakeConnection();
       connection.token = '';
-      connectionTransactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
-      connectionTransactionRepo.save.mockResolvedValue(connection);
-      keyTransactionRepo.getLatestKeys = vi.fn().mockResolvedValue([{ environment: connection.environment, privateKey: 'avi' }]);
+      connectionRepository.getMaxVersionWithLock.mockResolvedValue(1);
+      mockReturning.mockResolvedValue([connection]);
+      keyRepository.getLatestKeys = vi.fn().mockResolvedValue([{ environment: connection.environment, privateKey: 'avi' }]);
 
       const connectionRes = await manager.upsertConnection({ ...connection, version: 1 }, true);
 

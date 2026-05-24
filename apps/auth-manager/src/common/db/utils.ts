@@ -1,4 +1,4 @@
-import { between, lt, gt, type SQL, type Column, asc, type AnyColumn, desc, type Subquery } from 'drizzle-orm';
+import { between, lt, gt, type SQL, type Column, asc, type AnyColumn, desc, type Subquery, type DrizzleQueryError } from 'drizzle-orm';
 import type { PgTable } from 'drizzle-orm/pg-core';
 import type { SortOptions } from './sort';
 
@@ -27,4 +27,8 @@ export function sortOptionsToOrderBy<T extends PgTable | Subquery>(tableDefiniti
     }
   }
   return result;
+}
+
+export function isDrizzleQueryError(err: unknown): err is DrizzleQueryError {
+  return typeof err === 'object' && err !== null && 'name' in err && (err as Error).name === 'DrizzleQueryError';
 }

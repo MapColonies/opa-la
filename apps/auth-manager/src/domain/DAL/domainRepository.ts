@@ -1,9 +1,9 @@
 import { inArray } from 'drizzle-orm';
 import { domainTable, type Drizzle } from '@map-colonies/auth-core';
-import { inject, injectable } from 'tsyringe';
+import { inject, Lifecycle, scoped } from 'tsyringe';
 import { SERVICES } from '@common/constants';
 
-@injectable()
+@scoped(Lifecycle.ContainerScoped)
 export class DomainRepository {
   public constructor(@inject(SERVICES.DRIZZLE) private readonly db: Drizzle) {}
 

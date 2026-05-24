@@ -19,7 +19,6 @@ export class AssetManager {
     this.logger.info({ msg: 'fetching assets', searchParams });
     const { environment, isTemplate, type } = searchParams;
 
-    // return this.assetRepository.findBy({ environment: environment ? ArrayContains(environment) : undefined, isTemplate, type });
     return this.drizzle.query.asset.findMany({
       where: {
         isTemplate,
@@ -32,14 +31,12 @@ export class AssetManager {
   public async getNamedAssets(name: string): Promise<Asset[]> {
     this.logger.info({ msg: 'fetching all specific environment assets', asset: { name } });
 
-    // return this.assetRepository.findBy({ name });
     return this.drizzle.query.asset.findMany({ where: { name } });
   }
 
   public async getAsset(name: string, version: number): Promise<Asset> {
     this.logger.info({ msg: 'fetching asset', asset: { name, version } });
 
-    // const asset = await this.assetRepository.findOne({ where: { name, version } });
     const asset = await this.drizzle.query.asset.findFirst({ where: { name, version } });
 
     if (asset === undefined) {

@@ -1,7 +1,6 @@
 import { type Logger } from '@map-colonies/js-logger';
 import type { Bundle, Drizzle } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-// import { In, Repository } from 'typeorm';
 import { SERVICES } from '@common/constants';
 import { BundleSearchParams } from './bundle';
 import { BundleNotFoundError } from './errors';
@@ -21,7 +20,6 @@ export class BundleManager {
 
     return this.drizzle.query.bundle.findMany({
       where: {
-        // createdAt: createDatesComparison(createdAfter, createdBefore),
         environment: environment ? { in: environment } : undefined,
         createdAt: { gte: createdAfter, lte: createdBefore },
       },
@@ -31,7 +29,6 @@ export class BundleManager {
   public async getBundle(id: number): Promise<Bundle> {
     this.logger.info({ msg: 'fetching bundle', id });
 
-    // const bundle = await this.bundleRepository.findOneBy({ id });
     const bundle = await this.drizzle.query.bundle.findFirst({ where: { id } });
 
     if (bundle === undefined) {

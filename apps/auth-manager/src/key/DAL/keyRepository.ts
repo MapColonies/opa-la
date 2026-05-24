@@ -1,6 +1,6 @@
 import { and, eq, max } from 'drizzle-orm';
 import { keyTable, type Key, type Drizzle, type DrizzleTx } from '@map-colonies/auth-core';
-import { inject, injectable, Lifecycle, scoped } from 'tsyringe';
+import { inject, Lifecycle, scoped } from 'tsyringe';
 import { SERVICES } from '@common/constants';
 
 @scoped(Lifecycle.ContainerScoped)

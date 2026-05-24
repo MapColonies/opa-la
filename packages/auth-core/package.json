@@ -13,7 +13,10 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": {
+        "default": "./dist/index.js",
+        "types": "./dist/index.d.ts"
+      },
       "require": "./dist/index.js"
     }
   },
@@ -36,7 +39,6 @@
   },
   "dependencies": {
     "pg": "catalog:",
-    "drizzle-orm": "catalog:",
     "@map-colonies/schemas": "catalog:"
   },
   "devDependencies": {
@@ -50,6 +52,7 @@
     "drizzle-kit": "catalog:"
   },
   "peerDependencies": {
-    "@map-colonies/js-logger": "catalog:"
+    "@map-colonies/js-logger": "catalog:",
+    "drizzle-orm": "catalog:"
   }
 }

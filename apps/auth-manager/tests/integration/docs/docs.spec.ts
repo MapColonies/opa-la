@@ -3,8 +3,7 @@ import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import type { DependencyContainer } from 'tsyringe';
-import { DataSource } from 'typeorm';
-
+import { Pool } from 'pg';
 import { getApp } from '../../../src/app';
 import { initConfig } from '../../../src/common/config';
 import { SERVICES } from '../../../src/common/constants';
@@ -31,7 +30,7 @@ describe('docs', function () {
   });
 
   afterEach(async function () {
-    await depContainer.resolve(DataSource).destroy();
+    await depContainer.resolve(Pool).end();
   });
 
   describe('Happy Path', function () {

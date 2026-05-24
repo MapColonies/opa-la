@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { getFakeAsset } from 'test-utils';
+import type { Drizzle } from '@map-colonies/auth-core';
 import { AssetManager } from '@src/asset/models/assetManager.js';
 import { AssetVersionMismatchError } from '@src/asset/models/errors.js';
 import type { AssetRepository } from '@src/asset/DAL/assetRepository.js';
@@ -8,69 +9,67 @@ import type { AssetRepository } from '@src/asset/DAL/assetRepository.js';
 const logger = await jsLogger({ enabled: false });
 
 describe('AssetManager', () => {
-  let assetManager: AssetManager;
-  const mockedRepository = {
-    findBy: vi.fn(),
-    findOne: vi.fn(),
-    transaction: vi.fn(),
-  };
-
-  beforeEach(function () {
-    assetManager = new AssetManager(logger, mockedRepository as unknown as AssetRepository);
-    vi.resetAllMocks();
-  });
-
   describe('#upsertAsset', () => {
     let manager: AssetManager;
-    const transactionRepo = {
+    const mockReturning = vi.fn();
+    const mockWhere = vi.fn();
+    const mockSet = vi.fn();
+    const mockTx = {
+      insert: vi.fn(),
+      update: vi.fn(),
+    };
+    const assetRepository = {
       getMaxVersionWithLock: vi.fn(),
-      save: vi.fn(),
+      getMaxVersion: vi.fn(),
+    };
+    const drizzle = {
+      transaction: vi.fn(),
     };
 
     beforeEach(function () {
       vi.resetAllMocks();
-      const repo = { manager: { transaction: vi.fn() } };
-      repo.manager.transaction.mockImplementation(async (fn: (a: unknown) => Promise<unknown>) => {
-        return fn({ withRepository: vi.fn().mockReturnValue(transactionRepo) });
-      });
-
-      manager = new AssetManager(logger, repo as unknown as AssetRepository);
+      mockReturning.mockResolvedValue([]);
+      mockWhere.mockReturnValue({ returning: mockReturning });
+      mockSet.mockReturnValue({ where: mockWhere });
+      mockTx.update.mockReturnValue({ set: mockSet });
+      drizzle.transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn(mockTx));
+      manager = new AssetManager(logger, assetRepository as unknown as AssetRepository, drizzle as unknown as Drizzle);
     });
 
     it('should update the asset,return it, and advance the version by 1 if it exist in the database and the version matches', async () => {
       const asset = getFakeAsset();
       asset.version = 2;
-      transactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
-      transactionRepo.save.mockResolvedValue(asset);
+      assetRepository.getMaxVersionWithLock.mockResolvedValue(1);
+      mockReturning.mockResolvedValue([asset]);
 
       const assetPromise = manager.upsertAsset({ ...asset, version: 1 });
 
       await expect(assetPromise).resolves.toStrictEqual(asset);
-      expect(transactionRepo.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
-      expect(transactionRepo.save).toHaveBeenCalledTimes(1);
-      expect(transactionRepo.save).toHaveBeenCalledWith(asset);
+      expect(assetRepository.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
+      expect(mockTx.update).toHaveBeenCalledTimes(1);
+      expect(mockSet).toHaveBeenCalledWith(asset);
     });
 
     it("should throw an error if a asset doesn't exist and the version supplied is not 1", async () => {
       const asset = getFakeAsset();
-      transactionRepo.getMaxVersionWithLock.mockResolvedValue(null);
+      assetRepository.getMaxVersionWithLock.mockResolvedValue(null);
 
       const assetPromise = manager.upsertAsset({ ...asset, version: 2 });
 
       await expect(assetPromise).rejects.toThrow(AssetVersionMismatchError);
-      expect(transactionRepo.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
-      expect(transactionRepo.save).not.toHaveBeenCalled();
+      expect(assetRepository.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
+      expect(mockTx.insert).not.toHaveBeenCalled();
     });
 
     it("should throw an error if a asset exist but the supplied version doesn't match database version", async () => {
       const asset = getFakeAsset();
-      transactionRepo.getMaxVersionWithLock.mockResolvedValue(1);
+      assetRepository.getMaxVersionWithLock.mockResolvedValue(1);
 
       const assetPromise = manager.upsertAsset({ ...asset, version: 2 });
 
       await expect(assetPromise).rejects.toThrow(AssetVersionMismatchError);
-      expect(transactionRepo.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
-      expect(transactionRepo.save).not.toHaveBeenCalled();
+      expect(assetRepository.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
+      expect(mockTx.update).not.toHaveBeenCalled();
     });
   });
 });

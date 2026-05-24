@@ -1,21 +1,15 @@
 import { type Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
-// import { ArrayContains, ILike, QueryFailedError } from 'typeorm';
 import { DatabaseError } from 'pg';
-import { count, DrizzleQueryError, eq, and, arrayContains, asc, desc, SQL, AnyColumn, ilike } from 'drizzle-orm';
+import { count, eq, and, arrayContains, ilike } from 'drizzle-orm';
 import { clientTable, type Client, type Drizzle, type NewClient } from '@map-colonies/auth-core';
-import { PgTable } from 'drizzle-orm/pg-core';
 import { SERVICES } from '@common/constants';
 import { pgErrorCodes } from '@common/db/constants';
-import { createDatesComparison, sortOptionsToOrderBy } from '@common/db/utils';
+import { createDatesComparison, isDrizzleQueryError, sortOptionsToOrderBy } from '@common/db/utils';
 import { SortOptions } from '@src/common/db/sort';
 import { PaginationParams, paginationParamsToOffsetAndLimit } from '@src/common/db/pagination';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
 import { ClientSearchParams } from './client';
-
-function isDrizzleQueryError(err: unknown): err is DrizzleQueryError {
-  return typeof err === 'object' && err !== null && 'name' in err && (err as Error).name === 'DrizzleQueryError';
-}
 
 @injectable()
 export class ClientManager {
@@ -32,36 +26,7 @@ export class ClientManager {
     this.logger.info({ msg: 'fetching clients' });
     this.logger.debug({ msg: 'search parameters', searchParams });
 
-    // eslint doesn't recognize this as valid because its in the type definition
-    // let findOptions: Parameters<typeof this.clientRepository.find>[0] = {};
     const { name, branch, tags, createdAfter, createdBefore, updatedAfter, updatedBefore } = searchParams;
-    // findOptions = {
-    //   where: {
-    //     name: name !== undefined ? ILike(`%${name}%`) : undefined,
-    //     tags: tags ? ArrayContains(tags) : undefined,
-    //     branch,
-    //     createdAt: createDatesComparison(createdAfter, createdBefore),
-    //     updatedAt: createDatesComparison(updatedAfter, updatedBefore),
-    //   },
-    // };
-
-    // if (paginationParams !== undefined) {
-    //   findOptions = {
-    //     ...findOptions,
-    //     ...paginationParamsToFindOptions(paginationParams),
-    //   };
-    // }
-
-    // if (sortParams !== undefined) {
-    //   findOptions.order = sortParams;
-    // }
-
-    // return this.clientRepository.findAndCount({ ...findOptions });
-
-    // let findOptions: Parameters<typeof this.drizzle.select()>[0] = {
-    //   where: {
-    //   },
-    // };
 
     const whereClause = and(
       name !== undefined ? ilike(clientTable.name, `%${name}%`) : undefined,
@@ -112,7 +77,6 @@ export class ClientManager {
 
       return res[0] as Client;
     } catch (error) {
-      console.error(error);
       if (isDrizzleQueryError(error) && error.cause instanceof DatabaseError && error.cause.code === pgErrorCodes.UNIQUE_VIOLATION) {
         throw new ClientAlreadyExistsError('client already exists');
       }

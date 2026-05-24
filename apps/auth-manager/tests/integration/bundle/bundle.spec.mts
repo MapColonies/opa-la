@@ -2,7 +2,6 @@
 import { afterEach, describe, expect, it, vi, beforeAll } from 'vitest';
 import { faker } from '@faker-js/faker';
 import httpStatusCodes from 'http-status-codes';
-import type { DependencyContainer } from 'tsyringe';
 import type { Drizzle, Environments, Bundle } from '@map-colonies/auth-core';
 import { bundleTable, Environment } from '@map-colonies/auth-core';
 import 'jest-openapi';
@@ -31,7 +30,6 @@ describe('bundle', function () {
         .values([getFakeBundle(), { ...getFakeBundle(), environment: Environment.PROD }, getFakeBundle()])
         .returning()
     ).map((b) => ({ ...b, createdAt: b.createdAt.toISOString() })) as [ApiBundle, ApiBundle, ApiBundle];
-    // bundles.forEach((b) => delete b.createdAt);
   });
 
   describe('Happy Path', function () {

@@ -9,7 +9,7 @@ export interface PaginationParams {
 
 export function paginationParamsToOffsetAndLimit(paginationParams?: PaginationParams): { limit: number; offset: number } {
   if (paginationParams === undefined) {
-    return {};
+    return { limit: DEFAULT_PAGE_SIZE, offset: 0 };
   }
 
   const { page, pageSize } = paginationParams;
@@ -18,13 +18,4 @@ export function paginationParamsToOffsetAndLimit(paginationParams?: PaginationPa
     limit: pageSize,
     offset: (page - 1) * pageSize,
   };
-}
-
-// TODO - move to generic package
-export function withPagination<T extends PgSelect>(qb: T, orderByColumn: PgColumn | SQL | SQL.Aliased, params: PaginationParams): T {
-  const { page, pageSize } = params;
-  return qb
-    .orderBy(orderByColumn)
-    .limit(pageSize)
-    .offset((page - 1) * pageSize);
 }

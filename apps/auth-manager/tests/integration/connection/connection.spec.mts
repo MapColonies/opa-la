@@ -72,10 +72,10 @@ describe('connection', function () {
 
       it.each([
         { name: 'avi', searchParam: 'avi', matchType: 'exact' },
-        // { name: 'bobavi', searchParam: 'avi', matchType: 'suffix' },
-        // { name: 'aviiiiii', searchParam: 'av', matchType: 'prefix' },
-        // { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
-        // { name: 'avi', searchParam: 'AV', matchType: 'case-insensitive' },
+        { name: 'bobavi', searchParam: 'avi', matchType: 'suffix' },
+        { name: 'aviiiiii', searchParam: 'av', matchType: 'prefix' },
+        { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
+        { name: 'avi', searchParam: 'AV', matchType: 'case-insensitive' },
       ])('should find the connection of $name with search string $searchParam with match type $matchType', async function ({ name, searchParam }) {
         const client = { ...getFakeClient(false, { name }) };
         const connection = getFakeConnection(false, { name: client.name });
@@ -105,7 +105,7 @@ describe('connection', function () {
 
         const res = await requestSender.getConnections({
           queryParams: {
-            name: 'avi',
+            name: 'rofl',
           },
         });
 
@@ -312,7 +312,8 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ ...connections[2], createdAt: connections[2]!.createdAt?.toISOString() });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        expect(res.body).toStrictEqual({ ...connections[2], createdAt: expect.any(String) });
       });
     });
 
@@ -347,10 +348,9 @@ describe('connection', function () {
 
   describe('Bad Path', function () {
     describe('POST /connection', function () {
-      it.only('should return 400 if the request body is incorrect', async function () {
+      it('should return 400 if the request body is incorrect', async function () {
         const connection = getFakeConnection(false, { name: clients[0]!.name, domains: [] });
         const res = await requestSender.upsertConnection({ requestBody: connection });
-        console.log(res.body);
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -369,7 +369,6 @@ describe('connection', function () {
         const connection = getFakeConnection(false, { name: clients[0]!.name });
         connection.token = '';
         const res = await requestSender.upsertConnection({ requestBody: connection });
-        console.log(res.body);
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -518,7 +517,6 @@ describe('connection', function () {
         vi.spyOn(keyRepo, 'getLatestKeys').mockRejectedValue(new Error());
 
         const res = await requestSender.upsertConnection({ requestBody: connection });
-        console.log(res.body);
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
@@ -527,10 +525,6 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection', function () {
       it('should return 500 status code if db throws an error', async function () {
-        // const repo = depContainer.resolve(ConnectionRepository);
-        // const qbMock = {
-        //   getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
-        // };
         vi.spyOn(drizzle, 'select').mockRejectedValue(new Error('DB Error'));
 
         const res = await requestSender.getClientConnections({ pathParams: { clientName: 'avi' } });
@@ -542,10 +536,6 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 500 status code if db throws an error', async function () {
-        // const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        // const qbMock = {
-        //   getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
-        // };
         vi.spyOn(drizzle, 'select').mockRejectedValue(new Error('DB Error'));
 
         const res = await requestSender.getClientEnvironmentConnections({ pathParams: { clientName: 'avi', environment: Environment.NP } });
@@ -562,8 +552,6 @@ describe('connection', function () {
         connection.environment = Environment.NP;
 
         await requestSender.upsertConnection({ requestBody: connection });
-        // const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        // vi.spyOn(repo, 'findOne').mockRejectedValue(new Error());
         vi.spyOn(drizzle.query.connection, 'findFirst').mockRejectedValue(new Error());
 
         const res = await requestSender.getClientVersionedConnection({

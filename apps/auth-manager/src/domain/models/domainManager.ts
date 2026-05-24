@@ -4,6 +4,7 @@ import { inject, injectable } from 'tsyringe';
 import { count } from 'drizzle-orm';
 import { type PaginationParams, paginationParamsToOffsetAndLimit } from '@src/common/db/pagination';
 import type { SortOptions } from '@src/common/db/sort';
+import { isDrizzleQueryError } from '@src/common/db/utils';
 import { SERVICES } from '@common/constants';
 import { DomainAlreadyExistsError } from './errors';
 
@@ -32,7 +33,6 @@ export class DomainManager {
     const result = await Promise.all([domainsQuery, countQuery]);
 
     return [result[0], result[1][0]?.count ?? 0];
-    // return this.domainRepository.findAndCount(findOptions);
   }
 
   public async createDomain(domain: NewDomain): Promise<Domain> {
@@ -41,7 +41,7 @@ export class DomainManager {
       await this.drizzle.insert(domainTable).values(domain);
       return domain;
     } catch (error) {
-      if (error instanceof Error && error.message.includes('duplicate key value violates unique constraint')) {
+      if (isDrizzleQueryError(error) && (error.cause?.message.includes('duplicate key value violates unique constraint') ?? false)) {
         throw new DomainAlreadyExistsError('domain already exists');
       }
       throw error;
