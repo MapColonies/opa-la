@@ -1,21 +1,15 @@
 import path from 'node:path';
 import type { BundleDatabase } from '@map-colonies/auth-bundler';
 import { createBundle, getVersionCommand } from '@map-colonies/auth-bundler';
-import type { Bundle, Environments } from '@map-colonies/auth-core';
-import type { Repository } from 'typeorm';
+import type { Environments } from '@map-colonies/auth-core';
 import { getS3Client } from './s3';
 import { compareVersionsToBundle } from './util';
 import { logger } from './telemetry/logger';
 
-export function getJob(
-  bundleRepository: Repository<Bundle>,
-  bundleDatabase: BundleDatabase,
-  environment: Environments,
-  workdir: string
-): () => Promise<void> {
+export function getJob(bundleDatabase: BundleDatabase, environment: Environments, workdir: string): () => Promise<void> {
   return async () => {
     logger.debug({ msg: 'fetching bundle information from the database', bundleEnv: environment });
-    const latestBundle = await bundleRepository.findOne({ where: { environment }, order: { id: 'DESC' } });
+    const latestBundle = await bundleDatabase.getLatestBundleByEnv(environment);
     const latestVersions = await bundleDatabase.getLatestVersions(environment);
     const currentOpaVersion = await getVersionCommand();
 

@@ -42,7 +42,7 @@
     "execa": "^7.1.1",
     "handlebars": "4.7.7",
     "pg": "catalog:",
-    "typeorm": "catalog:"
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@map-colonies/config": "catalog:",
@@ -58,8 +58,7 @@
     "vitest": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "@map-colonies/vitest-utils": "catalog:",
-    "@faker-js/faker": "catalog:"
+    "@map-colonies/vitest-utils": "catalog:"
   },
   "peerDependencies": {
     "@map-colonies/js-logger": "catalog:"

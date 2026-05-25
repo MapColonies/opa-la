@@ -12,8 +12,8 @@ describe('util.ts', function () {
       const res = extractNameAndVersion(input);
 
       expect(res).toStrictEqual([
-        { name: 'avi', version: 1 },
-        { name: 'iva', version: 1 },
+        ['avi', 'iva'],
+        [1, 1],
       ]);
     });
   });

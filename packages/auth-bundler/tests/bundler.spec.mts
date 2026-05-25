@@ -34,7 +34,7 @@ describe('bundler.ts', function () {
 
     it('should throw an error if there are no policy files', async function () {
       const content: BundleContent = {
-        environment: Environment.PRODUCTION,
+        environment: Environment.PROD,
         assets: [],
         connections: [],
       };
@@ -55,7 +55,7 @@ describe('bundler.ts', function () {
       setLogger(logger);
 
       const content: BundleContent = {
-        environment: Environment.PRODUCTION,
+        environment: Environment.PROD,
         assets: [bundleContent.assets[1]!],
         connections: [],
       };

@@ -15,9 +15,6 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "migration:run": "npm run typeorm migration:run -- ",
-    "migration:revert": "npm run typeorm migration:revert -- ",
-    "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:ui": "vitest --ui",
@@ -49,7 +46,7 @@
     "http-status-codes": "^2.2.0",
     "pg": "catalog:",
     "prom-client": "catalog:",
-    "typeorm": "catalog:"
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
@@ -57,6 +54,7 @@
     "jest-extended": "catalog:",
     "test-utils": "workspace:^",
     "ts-node": "^10.9.1",
+    "@types/pg": "catalog:",
     "typescript": "catalog:",
     "@types/lodash": "catalog:",
     "vitest": "catalog:",

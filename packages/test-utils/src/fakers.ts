@@ -16,9 +16,9 @@ import { AssetType, Environment } from '@map-colonies/auth-core';
 const EIGHT = 8;
 const THREE = 3;
 
-export function getFakeAsset(includeCreated: true): Asset;
-export function getFakeAsset(includeCreated?: false): NewAsset;
-export function getFakeAsset(includeCreated?: boolean): Asset | NewAsset {
+export function getFakeAsset(includeCreated: true, override?: Partial<Asset>): Asset;
+export function getFakeAsset(includeCreated?: false, override?: Partial<NewAsset>): NewAsset;
+export function getFakeAsset(includeCreated?: boolean, override?: Partial<Asset | NewAsset>): Asset | NewAsset {
   return {
     createdAt: includeCreated === true ? faker.date.past() : undefined,
     environment: [Environment.NP],
@@ -28,6 +28,7 @@ export function getFakeAsset(includeCreated?: boolean): Asset | NewAsset {
     uri: faker.system.filePath(),
     value: Buffer.from(faker.lorem.paragraph()),
     version: 1,
+    ...override,
   };
 }
 
