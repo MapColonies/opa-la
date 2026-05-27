@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import path from 'node:path';
-import { initConnection } from '@map-colonies/auth-core';
+import { initConnection } from '@map-colonies/drizzle-utils';
 import { createPostgresContainer, resetAndMigrate, mergeTestConfig, PG_PORT } from 'test-utils';
 import { getConfig, initConfig } from '@src/common/config.js';
 

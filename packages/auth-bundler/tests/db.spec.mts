@@ -1,17 +1,8 @@
 /// <reference types="jest-extended" />
 
-import {
-  assetTable,
-  Environment,
-  initConnection,
-  createDrizzle,
-  type Drizzle,
-  keyTable,
-  connectionTable,
-  bundleTable,
-  type Asset,
-} from '@map-colonies/auth-core';
+import { assetTable, Environment, createDrizzle, type Drizzle, keyTable, connectionTable, bundleTable, type Asset } from '@map-colonies/auth-core';
 import type { Pool } from 'pg';
+import { initConnection } from '@map-colonies/drizzle-utils';
 import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
 import { getFakeAsset, getFakeConnection, getMockKeys } from 'test-utils';
 import { BundleDatabase } from '@src/db.js';

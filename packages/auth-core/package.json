@@ -28,7 +28,7 @@
     "lint:fix": "eslint --fix .",
     "prebuild": "pnpm run clean",
     "build": "tsc --project tsconfig.json && pnpm run assets:copy",
-    "assets:copy": "copyfiles -u 3 src/db/migrations/**/* dist/db/migrations",
+    "assets:copy": "copyfiles -u 2 src/migrations/**/* dist/migrations",
     "clean": "rimraf dist",
     "prepack": "turbo run build",
     "check-dist": "publint && attw --pack .",
@@ -39,7 +39,8 @@
   },
   "dependencies": {
     "pg": "catalog:",
-    "@map-colonies/schemas": "catalog:"
+    "@map-colonies/schemas": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:"
   },
   "devDependencies": {
     "@map-colonies/config": "catalog:",

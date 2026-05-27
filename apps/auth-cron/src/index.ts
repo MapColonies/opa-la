@@ -9,7 +9,7 @@ import { createTerminus } from '@godaddy/terminus';
 import type { CatchCallbackFn } from 'croner';
 import { Cron } from 'croner';
 import type { Environments } from '@map-colonies/auth-core';
-import { initConnection } from '@map-colonies/auth-core';
+import { healthCheck, initConnection } from '@map-colonies/drizzle-utils';
 import type { commonDbFullV1Type } from '@map-colonies/schemas';
 import { BundleDatabase } from '@map-colonies/auth-bundler';
 import { collectMetricsExpressMiddleware } from '@map-colonies/prometheus';
@@ -36,7 +36,7 @@ const main = async (): Promise<void> => {
   const config = getConfig();
   const cronConfig = config.get('cron');
   const dbConfig = config.get('db');
-  const [dataSource, bundleDatabase] = await initDb(dbConfig);
+  const [pool, bundleDatabase] = await initDb(dbConfig);
 
   Object.entries(cronConfig).map(([env, value]) => {
     logger.info({ msg: 'initializing new update bundle job', bundleEnv: env });
@@ -56,10 +56,13 @@ const main = async (): Promise<void> => {
   app.use(collectMetricsExpressMiddleware({ registry: metricsRegistry }));
 
   const server = createTerminus(createServer(app), {
+    onSignal: async () => {
+      logger.info('server is starting cleanup');
+      await pool.end();
+      logger.info('database connection closed');
+    },
     healthChecks: {
-      '/liveness': async () => {
-        await dataSource.query('SELECT 1');
-      },
+      '/liveness': healthCheck(pool),
     },
   });
 

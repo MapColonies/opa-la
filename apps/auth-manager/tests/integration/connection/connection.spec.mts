@@ -250,8 +250,8 @@ describe('connection', function () {
         // connection.environment = Environment.STAGE;
         // await depContainer.resolve(DataSource).getRepository(Client).save(client);
         // await depContainer.resolve(DataSource).getRepository(Connection).save(connection);
-        await drizzle.insert(clientTable).values(client);
-        await drizzle.insert(connectionTable).values(connection);
+        await drizzle.insert(clientTable).values(client).onConflictDoNothing();
+        await drizzle.insert(connectionTable).values(connection).onConflictDoNothing();
         // const keyRepo = depContainer.resolve(DataSource).getRepository(Key);
         // await keyRepo.clear();
         // await keyRepo.save({ environment: connection.environment, version: 1, privateKey: keys[0], publicKey: keys[1] });

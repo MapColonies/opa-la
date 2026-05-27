@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { DatabaseError } from 'pg';
 import { getFakeClient } from 'test-utils';
+import { pgErrorCodes } from '@map-colonies/drizzle-utils';
 import type { Drizzle } from '@map-colonies/auth-core';
 import { ClientManager } from '@src/client/models/clientManager.js';
 import { ClientAlreadyExistsError } from '@src/client/models/errors.js';
-import { pgErrorCodes } from '@src/common/db/constants.js';
 
 const logger = await jsLogger({ enabled: false });
 

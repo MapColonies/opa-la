@@ -3,15 +3,14 @@ import { trace } from '@opentelemetry/api';
 import { instanceCachingFactory } from 'tsyringe';
 import type { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { jsLogger } from '@map-colonies/js-logger';
-import type { HealthCheck } from '@godaddy/terminus';
 import { Pool } from 'pg';
-import { createDrizzle, initConnection } from '@map-colonies/auth-core';
+import { createDrizzle } from '@map-colonies/auth-core';
+import { healthCheck, initConnection } from '@map-colonies/drizzle-utils';
 import { Registry } from 'prom-client';
-import { DB_CONNECTION_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
+import { SERVICES, SERVICE_NAME } from './common/constants';
 import { domainRouterFactory, DOMAIN_ROUTER_SYMBOL } from './domain/routes/domainRouter';
 import type { InjectionObject } from './common/dependencyRegistration';
 import { registerDependencies } from './common/dependencyRegistration';
-import { promiseTimeout } from './common/utils/promiseTimeout';
 import { clientRouterFactory, CLIENT_ROUTER_SYMBOL } from './client/routes/clientRouter';
 import { keyRouterFactory, KEY_ROUTER_SYMBOL } from './key/routes/keyRouter';
 import { assetRouterFactory, ASSET_ROUTER_SYMBOL } from './asset/routes/assetRouter';
@@ -19,15 +18,6 @@ import { connectionRouterFactory, CONNECTION_ROUTER_SYMBOL } from './connection/
 import { bundleRouterFactory, BUNDLE_ROUTER_SYMBOL } from './bundle/routes/bundleRouter';
 import { getConfig } from './common/config';
 import { getTracing } from './common/tracing';
-
-const healthCheck = (connection: Pool): HealthCheck => {
-  return async (): Promise<void> => {
-    const check = connection.query('SELECT 1').then(() => {
-      return;
-    });
-    return promiseTimeout<void>(DB_CONNECTION_TIMEOUT, check);
-  };
-};
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -42,7 +32,6 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
   const logger = await jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
 
   const dataSourceOptions = configInstance.get('db');
-  // const connection = await initConnection(dataSourceOptions);
 
   let pool: Pool;
   try {

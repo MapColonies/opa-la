@@ -47,6 +47,7 @@
     "@map-colonies/prometheus": "catalog:",
     "@map-colonies/tracing": "catalog:",
     "@map-colonies/tracing-utils": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:",
     "@opentelemetry/api": "catalog:",
     "auth-openapi": "workspace:^",
     "body-parser": "catalog:",

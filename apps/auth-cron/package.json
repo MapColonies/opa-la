@@ -40,6 +40,7 @@
     "@map-colonies/schemas": "catalog:",
     "@map-colonies/prometheus": "catalog:",
     "@map-colonies/tracing": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:",
     "@opentelemetry/api": "catalog:",
     "croner": "6.0.3",
     "express": "catalog:",

@@ -12,8 +12,8 @@ import { eq } from 'drizzle-orm';
 import { subWeeks } from 'date-fns';
 import type { paths, operations } from 'token-openapi';
 import { getApp } from '@src/app';
-import type { Drizzle } from '@src/db/createConnection';
-import { users } from '@src/users/user';
+import type { Drizzle } from '@src/db/drizzle';
+import { usersTable } from '@src/users/user';
 import { SERVICES } from '@common/constants';
 import { initConfig } from '@src/common/config';
 import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
@@ -131,11 +131,11 @@ describe('token', function () {
       expect(firstRes).toHaveProperty('statusCode', httpStatusCodes.OK);
 
       await drizzle
-        .update(users)
+        .update(usersTable)
         .set({
           tokenExpirationDate: subWeeks(new Date(), 5), // Set expiration to the past
         })
-        .where(eq(users.id, email))
+        .where(eq(usersTable.id, email))
         .execute();
 
       await sleep(1000); // Wait for a short period to ensure the token is considered expired
@@ -153,7 +153,10 @@ describe('token', function () {
 
   describe('Bad Path', function () {
     it('should return 403 status code when user is banned', async function () {
-      await drizzle.insert(users).values({ id: 'xd@gmail.com', token: '', isBanned: true, tokenExpirationDate: new Date() }).onConflictDoNothing();
+      await drizzle
+        .insert(usersTable)
+        .values({ id: 'xd@gmail.com', token: '', isBanned: true, tokenExpirationDate: new Date() })
+        .onConflictDoNothing();
 
       // Mock user as banned by setting up the context to simulate a banned user
       const bannedUserContext = {

@@ -23,10 +23,6 @@ describe('client', function () {
     drizzle = env.drizzle;
   });
 
-  // afterAll(async function () {
-  //   await depContainer.resolve(Pool).end();
-  // });
-
   describe('Happy Path', function () {
     describe('GET /assets', function () {
       it('should return 200 status code and all the assets', async function () {

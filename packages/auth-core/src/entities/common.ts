@@ -1,7 +1,13 @@
-import type { environmentEnum } from '../db';
+import * as d from 'drizzle-orm/pg-core';
+import { timestamp } from 'drizzle-orm/pg-core';
 
 type EnvironmentValues = typeof environmentEnum.enumValues;
-/** The possible authentication deployment environments. */
+
+export const authManagerSchema = d.snakeCase.schema('auth_manager');
+export const environmentEnum = authManagerSchema.enum('environment_enum', ['np', 'stage', 'prod']);
+
+export const createdAtColumn = timestamp({ withTimezone: true }).defaultNow().notNull();
+
 /* eslint-disable @typescript-eslint/naming-convention */
 export const Environment: { [K in EnvironmentValues[number] as Uppercase<K>]: K } = {
   /** Non production, may also be called dev. */
@@ -12,5 +18,4 @@ export const Environment: { [K in EnvironmentValues[number] as Uppercase<K>]: K 
   PROD: 'prod',
 } as const;
 /* eslint-enable @typescript-eslint/naming-convention */
-
-// export type Environments = (typeof Environment)[keyof typeof Environment];
+export type Environments = (typeof environmentEnum.enumValues)[number];

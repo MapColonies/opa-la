@@ -2,9 +2,8 @@ import type { Logger } from '@map-colonies/js-logger';
 import { Domain, domainTable, type NewDomain, type Drizzle } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
 import { count } from 'drizzle-orm';
-import { type PaginationParams, paginationParamsToOffsetAndLimit } from '@src/common/db/pagination';
-import type { SortOptions } from '@src/common/db/sort';
-import { isDrizzleQueryError } from '@src/common/db/utils';
+import { isDrizzleQueryError } from '@map-colonies/drizzle-utils';
+import { type PaginationParams, paginationParamsToOffsetAndLimit, type SortOptions } from '@map-colonies/drizzle-utils';
 import { SERVICES } from '@common/constants';
 import { DomainAlreadyExistsError } from './errors';
 

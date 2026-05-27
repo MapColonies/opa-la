@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "stream",
+  "concurrency": "4",
   "globalDependencies": ["turbo.json", "pnpm-workspace.yaml", "vitest.config.ts"],
   "tasks": {
     "build": {

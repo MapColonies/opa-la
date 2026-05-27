@@ -18,6 +18,9 @@ catalogs:
     '@map-colonies/config':
       specifier: 4.0.1
       version: 4.0.1
+    '@map-colonies/drizzle-utils':
+      specifier: /home/oferade/repos/libot/infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz
+      version: 0.1.0
     '@map-colonies/error-express-handler':
       specifier: ^4.0.0
       version: 4.0.0
@@ -245,6 +248,9 @@ importers:
       '@map-colonies/config':
         specifier: 'catalog:'
         version: 4.0.1(@map-colonies/schemas@1.21.0)(prom-client@15.1.3)
+      '@map-colonies/drizzle-utils':
+        specifier: 'catalog:'
+        version: file:../infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz(drizzle-orm@1.0.0-rc.2(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.48)(@types/pg@8.20.0)(pg@8.20.0)(zod@4.4.3))(pg@8.20.0)
       '@map-colonies/js-logger':
         specifier: 'catalog:'
         version: 5.0.0(@opentelemetry/api@1.9.0)
@@ -333,6 +339,9 @@ importers:
       '@map-colonies/config':
         specifier: 'catalog:'
         version: 4.0.1(@map-colonies/schemas@1.21.0)(prom-client@15.1.3)
+      '@map-colonies/drizzle-utils':
+        specifier: 'catalog:'
+        version: file:../infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz(drizzle-orm@1.0.0-rc.2(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.48)(@types/pg@8.20.0)(pg@8.20.0)(zod@4.4.3))(pg@8.20.0)
       '@map-colonies/error-express-handler':
         specifier: 'catalog:'
         version: 4.0.0
@@ -735,6 +744,9 @@ importers:
       '@map-colonies/config':
         specifier: 'catalog:'
         version: 4.0.1(@map-colonies/schemas@1.21.0)(prom-client@15.1.3)
+      '@map-colonies/drizzle-utils':
+        specifier: 'catalog:'
+        version: file:../infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz(drizzle-orm@1.0.0-rc.2(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.48)(@types/pg@8.20.0)(pg@8.20.0)(zod@4.4.3))(pg@8.20.0)
       '@map-colonies/error-express-handler':
         specifier: 'catalog:'
         version: 4.0.0
@@ -895,9 +907,6 @@ importers:
       test-utils:
         specifier: workspace:^
         version: link:../../packages/test-utils
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.15.21)(@types/node@24.12.0)(typescript@5.9.3)
       tsc-alias:
         specifier: 'catalog:'
         version: 1.8.17
@@ -913,6 +922,9 @@ importers:
       '@map-colonies/auth-core':
         specifier: workspace:^
         version: link:../auth-core
+      '@map-colonies/drizzle-utils':
+        specifier: 'catalog:'
+        version: file:../infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz(drizzle-orm@1.0.0-rc.2(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.48)(@types/pg@8.20.0)(pg@8.20.0)(zod@4.4.3))(pg@8.20.0)
       '@map-colonies/js-logger':
         specifier: 'catalog:'
         version: 5.0.0(@opentelemetry/api@1.9.0)
@@ -974,6 +986,9 @@ importers:
 
   packages/auth-core:
     dependencies:
+      '@map-colonies/drizzle-utils':
+        specifier: 'catalog:'
+        version: file:../infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz(drizzle-orm@1.0.0-rc.2(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.48)(@types/pg@8.20.0)(pg@8.20.0)(zod@4.4.3))(pg@8.20.0)
       '@map-colonies/js-logger':
         specifier: 'catalog:'
         version: 5.0.0(@opentelemetry/api@1.9.0)
@@ -2356,6 +2371,14 @@ packages:
     peerDependenciesMeta:
       prom-client:
         optional: true
+
+  '@map-colonies/drizzle-utils@file:../infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz':
+    resolution: {integrity: sha512-J2m+qhIkTEOQea3emoPo78B2HLAf8vBSvoq0IfV0WQ7FMTbXSFNWyYH2IMBY4dQnvASeJWTiTb3oXRs/XP53xQ==, tarball: file:../infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz}
+    version: 0.1.0
+    engines: {node: '>=24'}
+    peerDependencies:
+      drizzle-orm: ^1.0.0-rc.2
+      pg: ^8.20.0
 
   '@map-colonies/error-express-handler@4.0.0':
     resolution: {integrity: sha512-3vDxDN0IlBy6gRBIyh5/fiKRQeJV2DZDJDEckPoBCADtWSdtzKhM+F+c3HdSru/8tm4lPYeDS9JVeOPJk419Ag==}
@@ -11197,6 +11220,13 @@ snapshots:
       prom-client: 15.1.3
     transitivePeerDependencies:
       - supports-color
+
+  '@map-colonies/drizzle-utils@file:../infra-packages/packages/drizzle-utils/map-colonies-drizzle-utils-0.1.2.tgz(drizzle-orm@1.0.0-rc.2(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.48)(@types/pg@8.20.0)(pg@8.20.0)(zod@4.4.3))(pg@8.20.0)':
+    dependencies:
+      '@map-colonies/schemas': 1.21.0
+      '@types/pg': 8.20.0
+      drizzle-orm: 1.0.0-rc.2(@opentelemetry/api@1.9.0)(@sinclair/typebox@0.34.48)(@types/pg@8.20.0)(pg@8.20.0)(zod@4.4.3)
+      pg: 8.20.0
 
   '@map-colonies/error-express-handler@4.0.0':
     dependencies:

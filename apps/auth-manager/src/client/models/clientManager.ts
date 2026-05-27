@@ -3,11 +3,16 @@ import { inject, injectable } from 'tsyringe';
 import { DatabaseError } from 'pg';
 import { count, eq, and, arrayContains, ilike } from 'drizzle-orm';
 import { clientTable, type Client, type Drizzle, type NewClient } from '@map-colonies/auth-core';
+import {
+  createDatesComparison,
+  isDrizzleQueryError,
+  type PaginationParams,
+  paginationParamsToOffsetAndLimit,
+  pgErrorCodes,
+  type SortOptions,
+  sortOptionsToOrderBy,
+} from '@map-colonies/drizzle-utils';
 import { SERVICES } from '@common/constants';
-import { pgErrorCodes } from '@common/db/constants';
-import { createDatesComparison, isDrizzleQueryError, sortOptionsToOrderBy } from '@common/db/utils';
-import { SortOptions } from '@src/common/db/sort';
-import { PaginationParams, paginationParamsToOffsetAndLimit } from '@src/common/db/pagination';
 import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
 import { ClientSearchParams } from './client';
 
