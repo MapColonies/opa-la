@@ -1,4 +1,4 @@
-import { Tracing } from '@map-colonies/telemetry';
+import { Tracing } from '@map-colonies/tracing';
 
 let tracing: Tracing | undefined;
 const IGNORED_OUTGOING_TRACE_ROUTES = [/^.*\/v1\/metrics.*$/];

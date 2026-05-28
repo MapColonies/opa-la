@@ -8,7 +8,7 @@ import { middleware as OpenApiMiddleware } from 'express-openapi-validator';
 import { inject, injectable } from 'tsyringe';
 import type { Logger } from '@map-colonies/js-logger';
 import { httpLogger } from '@map-colonies/express-access-log-middleware';
-import { collectMetricsExpressMiddleware } from '@map-colonies/telemetry/prom-metrics';
+import { collectMetricsExpressMiddleware } from '@map-colonies/prometheus';
 import { Registry } from 'prom-client';
 import type { ConfigType } from '@common/config';
 import { SERVICES } from '@common/constants';

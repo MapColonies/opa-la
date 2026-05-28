@@ -7,12 +7,12 @@ import { logger } from './telemetry/logger';
 
 export function compareVersionsToBundle(bundle: Bundle, versions: BundleContentVersions): boolean {
   try {
-    logger?.debug({ msg: 'comparing connections', bundleEnv: versions.environment });
+    logger.debug({ msg: 'comparing connections', bundleEnv: versions.environment });
     assert.deepStrictEqual(bundle.connections, versions.connections);
-    logger?.debug({ msg: 'comparing assets', bundleEnv: versions.environment });
+    logger.debug({ msg: 'comparing assets', bundleEnv: versions.environment });
     assert.deepStrictEqual(bundle.assets, versions.assets);
 
-    logger?.debug({ msg: 'comparing key version', bundleEnv: versions.environment });
+    logger.debug({ msg: 'comparing key version', bundleEnv: versions.environment });
 
     // Added the check because keyVersion can be null in the database
     // and we want a new bundle to be created in that case

@@ -45,7 +45,7 @@ describe('bundler.ts', function () {
     });
 
     it('should log errors if there are no data, tests and key', async function () {
-      const logger = jsLogger({
+      const logger = await jsLogger({
         enabled: false,
       });
 

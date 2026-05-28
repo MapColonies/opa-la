@@ -36,7 +36,7 @@
     "url": "https://github.com/MapColonies/opa-la/issues"
   },
   "dependencies": {
-    "pg": "^8.10.0",
+    "pg": "catalog:",
     "typeorm": "catalog:"
   },
   "devDependencies": {
@@ -45,7 +45,7 @@
     "@map-colonies/tsconfig": "catalog:",
     "@map-colonies/eslint-config": "catalog:",
     "@types/node": "catalog:",
-    "@types/pg": "^8.6.6",
+    "@types/pg": "catalog:",
     "ts-node": "^10.9.1",
     "typescript": "catalog:"
   },

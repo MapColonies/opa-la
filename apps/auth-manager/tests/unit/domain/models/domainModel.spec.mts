@@ -4,6 +4,8 @@ import type { DomainRepository } from '@src/domain/DAL/domainRepository.js';
 import { DomainManager } from '@src/domain/models/domainManager.js';
 import { DomainAlreadyExistsError } from '@src/domain/models/errors.js';
 
+const logger = await jsLogger({ enabled: false });
+
 describe('DomainManager', () => {
   let domainManager: DomainManager;
   const mockedRepository = {
@@ -12,7 +14,7 @@ describe('DomainManager', () => {
   };
 
   beforeEach(function () {
-    domainManager = new DomainManager(jsLogger({ enabled: false }), mockedRepository as unknown as DomainRepository);
+    domainManager = new DomainManager(logger, mockedRepository as unknown as DomainRepository);
     vi.resetAllMocks();
   });
 

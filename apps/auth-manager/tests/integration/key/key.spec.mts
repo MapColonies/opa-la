@@ -29,7 +29,7 @@ describe('key', function () {
   beforeEach(async function () {
     const [app, container] = await getApp({
       override: [
-        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
       ],
       useChild: true,

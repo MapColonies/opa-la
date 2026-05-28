@@ -30,7 +30,7 @@ class S3client {
     try {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const command = new HeadObjectCommand({ Bucket: this.bucket, Key: this.key });
-      logger?.debug({ msg: 'fetching object metadata from s3', bucket: this.bucket, key: this.key, endpoint: this.endpoint });
+      logger.debug({ msg: 'fetching object metadata from s3', bucket: this.bucket, key: this.key, endpoint: this.endpoint });
       const res = await this.s3client.send(command);
 
       return res.ETag;
@@ -46,7 +46,7 @@ class S3client {
     try {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const command = new HeadBucketCommand({ Bucket: this.bucket });
-      logger?.debug({ msg: 'fetching bucket metadata from s3', bucket: this.bucket, endpoint: this.endpoint });
+      logger.debug({ msg: 'fetching bucket metadata from s3', bucket: this.bucket, endpoint: this.endpoint });
       const res = await this.s3client.send(command);
       return res.$metadata.httpStatusCode === StatusCodes.OK;
     } catch (error) {
@@ -60,7 +60,7 @@ class S3client {
   public async uploadFile(filePath: string): Promise<string> {
     const file = readFileSync(filePath);
 
-    logger?.debug({ msg: 'uploading object to s3', bucket: this.bucket, key: this.key, endpoint: this.endpoint });
+    logger.debug({ msg: 'uploading object to s3', bucket: this.bucket, key: this.key, endpoint: this.endpoint });
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const command = new PutObjectCommand({ Body: file, Bucket: this.bucket, Key: this.key, ContentType: 'application/gzip' });
 
@@ -78,11 +78,11 @@ export function getS3Client(env: Environments): S3client {
   if (!client) {
     if (cronConfig !== undefined) {
       const s3Config = cronConfig.s3;
-      logger?.debug({ msg: 'initializing new s3 connection', s3Env: env, endpoint: s3Config.endpoint });
+      logger.debug({ msg: 'initializing new s3 connection', s3Env: env, endpoint: s3Config.endpoint });
       client = new S3client(s3Config);
       s3Clients.set(env, client);
     } else {
-      logger?.warn({ msg: 'failed initializing s3 client for undefined env', s3Env: env });
+      logger.warn({ msg: 'failed initializing s3 client for undefined env', s3Env: env });
       throw new Error();
     }
   }
