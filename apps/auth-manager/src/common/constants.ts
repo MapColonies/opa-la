@@ -17,11 +17,5 @@ export const SERVICES = {
   METRICS: Symbol('Metrics'),
   HEALTHCHECK: Symbol('Healthcheck'),
   DRIZZLE: Symbol('Drizzle'),
-  // DOMAIN_REPOSITORY: Symbol('DOMAIN_REPO'),
-  // CLIENT_REPOSITORY: Symbol('CLIENT_REPO'),
-  // KEY_REPOSITORY: Symbol('KEY_REPO'),
-  // ASSET_REPOSITORY: Symbol('ASSET_REPO'),
-  // CONNECTION_REPOSITORY: Symbol('CONNECTION_REPO'),
-  // BUNDLE_REPOSITORY: Symbol('BUNDLE_REPO'),
 } satisfies Record<string, symbol>;
 /* eslint-enable @typescript-eslint/naming-convention */

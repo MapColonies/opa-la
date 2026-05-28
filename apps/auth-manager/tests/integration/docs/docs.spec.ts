@@ -4,9 +4,9 @@ import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import type { DependencyContainer } from 'tsyringe';
 import { Pool } from 'pg';
-import { getApp } from '../../../src/app';
-import { initConfig } from '../../../src/common/config';
-import { SERVICES } from '../../../src/common/constants';
+import { getApp } from '@src/app';
+import { initConfig } from '@src/common/config';
+import { SERVICES } from '@src/common/constants';
 import { DocsRequestSender } from './helpers/docsRequestSender';
 
 describe('docs', function () {

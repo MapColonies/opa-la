@@ -68,37 +68,11 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
         }),
       },
     },
-    // {
-    //   token: SERVICES.DOMAIN_REPOSITORY,
-    //   provider: { useFactory: instanceCachingFactory(domainRepositoryFactory) },
-    // },
     { token: DOMAIN_ROUTER_SYMBOL, provider: { useFactory: domainRouterFactory } },
-    // {
-    //   token: SERVICES.CLIENT_REPOSITORY,
-    //   provider: { useFactory: instanceCachingFactory(clientRepositoryFactory) },
-    // },
     { token: CLIENT_ROUTER_SYMBOL, provider: { useFactory: clientRouterFactory } },
-    // {
-    //   token: SERVICES.KEY_REPOSITORY,
-    //   provider: { useFactory: instanceCachingFactory(keyRepositoryFactory) },
-    // },
     { token: KEY_ROUTER_SYMBOL, provider: { useFactory: keyRouterFactory } },
-    // {
-    //   token: SERVICES.ASSET_REPOSITORY,
-    //   provider: { useFactory: instanceCachingFactory(assetRepositoryFactory) },
-    // },
     { token: ASSET_ROUTER_SYMBOL, provider: { useFactory: assetRouterFactory } },
-    // {
-    //   token: SERVICES.CONNECTION_REPOSITORY,
-    //   provider: { useFactory: instanceCachingFactory(connectionRepositoryFactory) },
-    // },
     { token: CONNECTION_ROUTER_SYMBOL, provider: { useFactory: connectionRouterFactory } },
-    // {
-    //   token: SERVICES.BUNDLE_REPOSITORY,
-    //   provider: {
-    //     useFactory: instanceCachingFactory((c) => c.resolve(DataSource).getRepository(Bundle)),
-    //   },
-    // },
     { token: BUNDLE_ROUTER_SYMBOL, provider: { useFactory: bundleRouterFactory } },
     {
       token: 'onSignal',

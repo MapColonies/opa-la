@@ -23,27 +23,21 @@ type ConnectionSearchParams = NonNullable<paths['/connection']['get']['parameter
 function getSearchFilters(params: ConnectionSearchParams) {
   const filters: SQL[] = [];
   if (params.name !== undefined) {
-    // qb.andWhere('connection.name ILIKE :name', { name: `%${params.name}%` });
     filters.push(ilike(connectionTable.name, `%${params.name}%`));
   }
   if (params.environment) {
-    // qb.andWhere('connection.environment IN (:...environment)', { environment: params.environment });
     filters.push(inArray(connectionTable.environment, params.environment));
   }
   if (params.isNoBrowser !== undefined) {
-    // qb.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser: params.isNoBrowser });
     filters.push(eq(connectionTable.allowNoBrowserConnection, params.isNoBrowser));
   }
   if (params.isNoOrigin !== undefined) {
-    // qb.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin: params.isNoOrigin });
     filters.push(eq(connectionTable.allowNoOriginConnection, params.isNoOrigin));
   }
   if (params.domains) {
-    // qb.andWhere('connection.domains @> :domains', { domains: params.domains });
     filters.push(arrayContains(connectionTable.domains, params.domains));
   }
   if (params.isEnabled !== undefined) {
-    // qb.andWhere('connection.enabled = :isEnabled', { isEnabled: params.isEnabled });
     filters.push(eq(connectionTable.enabled, params.isEnabled));
   }
   return and(...filters);
