@@ -8,7 +8,7 @@ const loggerConfig = getConfig().get('telemetry.logger');
 let logger: Logger;
 
 export async function initializeLogger(): Promise<void> {
-  const logger: Logger | undefined = await jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint });
+  logger = await jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint });
 
   setLogger(logger);
 }
