@@ -1,0 +1,12 @@
+{{- $chartName := include "opa-la.name" . -}}
+{{- if .Values.auth-ui.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ $chartName }}-configmap
+data:
+  config.json: {{ .Values.auth-ui.config | quote }}
+  extension.conf: |
+      root   /usr/share/nginx/html;
+      index  index.html index.htm;
+{{- end }}

@@ -121,49 +121,26 @@ auth-manager:
 
 auth-ui:
   enabled: true
+  config: |
+    {}
+  replicaCount: 1
   cloudProvider: *cloudProvider
-  ca: *ca
+  mclabels:
+    owner: infra
+    partOf: opa-la
+    compontent: auth-ui
+    logScraping: false
   image:
     repository: infra/auth-ui
-  config: |
-    {
-      "Local": {
-        "name": "localhost",
-        "url": "https://infra-opala-auth-manager",
-        "envs": [
-          {
-            "envKey": "prod",
-            "opaUrl": "https://infra-opala-opa-service"
-          }
-        ]
-      }
-    }
+    tag: v12.0.0 # x-release-please-version
+  extraVolumes:
+    - name: nginx-config
+      configMap:
+        name: '{{ .Release.Name }}-{{ include "opa-la.name" . }}-configmap'
   route:
     enabled: true
     host: *host
     tls: *tls
-
-  ingress:
-    enabled: false
-    className: ""
-    labels: {}
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    hosts: []
-      # - host: auth-ui.domain.com
-      #   paths:
-      #     - path: /
-      #       pathType: ImplementationSpecific
-    path: /
-    # host: 'localhost'
-    # cors:
-    #   enabled: true
-    #   origin: '*'
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - auth-ui.domain.com
 
 
 token-kiosk:
@@ -176,3 +153,20 @@ token-kiosk:
     offlineMode: *configOfflineMode
     serverUrl: *configServerUrl
     name: 'infra-token-kiosk'
+
+kiosk-ui:
+  enabled: true
+  replicaCount: 1
+  cloudProvider: *cloudProvider
+  mclabels:
+    owner: infra
+    partOf: opa-la
+    compontent: kiosk-ui
+    logScraping: false
+  image:
+    repository: infra/kiosk-ui
+    tag: v12.0.0 # x-release-please-version
+  route:
+    enabled: true
+    host: *host
+    tls: *tls

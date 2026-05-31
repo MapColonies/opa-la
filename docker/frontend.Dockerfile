@@ -31,8 +31,8 @@ COPY --from=pruner /app/out/full/ .
 
 RUN pnpm turbo build --filter ${APP_NAME}...
 
-RUN pnpm --filter ${APP_NAME} deploy --prod --legacy /prod-app
-
 FROM acrarolibotnonprod.azurecr.io/common/nginx:v2.1.6 AS runner
 
-COPY --from=builder /prod-app/dist /usr/share/nginx/html
+ARG APP_NAME
+
+COPY --from=builder /app/apps/${APP_NAME}/dist /usr/share/nginx/html
