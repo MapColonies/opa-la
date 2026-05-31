@@ -55,13 +55,10 @@ export class ServerBuilder {
   }
 
   private buildRoutes(): void {
-    const router = Router();
-    router.use('/auth', this.authRouter);
-    router.use('/token', this.tokenRouter);
-    router.use('/guides', this.guidesRouter);
-    router.use('/files', this.qlrRouter);
-
-    this.serverInstance.use('/api', router);
+    this.serverInstance.use('/auth', this.authRouter);
+    this.serverInstance.use('/token', this.tokenRouter);
+    this.serverInstance.use('/guides', this.guidesRouter);
+    this.serverInstance.use('/files', this.qlrRouter);
 
     this.buildDocsRoutes();
   }

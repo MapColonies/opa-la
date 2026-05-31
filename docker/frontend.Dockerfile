@@ -33,14 +33,6 @@ RUN pnpm turbo build --filter ${APP_NAME}...
 
 RUN pnpm --filter ${APP_NAME} deploy --prod --legacy /prod-app
 
+FROM acrarolibotnonprod.azurecr.io/common/nginx:v2.1.6 AS runner
 
-FROM node:${NODE_VERSION}-alpine AS runner
-RUN apk add dumb-init
-
-ENV NODE_ENV=production
-
-COPY --from=builder /prod-app /app
-
-WORKDIR /app/dist
-
-CMD ["dumb-init", "node", "--max_old_space_size=512", "--import", "./instrumentation.mjs", "./index.js"]
+COPY --from=builder /prod-app/dist /usr/share/nginx/html
