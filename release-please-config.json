@@ -143,7 +143,9 @@
           "glob": true,
           "path": "**/Chart.yaml",
           "jsonpath": "$.version"
-        }
+        },
+        { "type": "generic", "glob": true, "path": "**/values.yaml" },
+        { "type": "generic", "path": "helm/Chart.yaml" }
       ]
     }
   }

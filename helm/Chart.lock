@@ -1,6 +1,21 @@
 dependencies:
+- name: opa
+  repository: file://charts/opa
+  version: 1.12.0
+- name: auth-cron
+  repository: file://../apps/auth-cron/helm
+  version: 1.12.0
+- name: auth-manager
+  repository: file://../apps/auth-manager/helm
+  version: 1.12.0
 - name: nginx
   repository: oci://acrarolibotnonprod.azurecr.io/helm/common
   version: 2.1.6
-digest: sha256:be0f36f99d2012df068dc23931c0d92fe560b87015618395987c2d2374db7774
-generated: "2026-05-31T15:04:12.856735523+03:00"
+- name: token-kiosk
+  repository: file://../apps/token-kiosk/helm
+  version: 1.12.0
+- name: nginx
+  repository: oci://acrarolibotnonprod.azurecr.io/helm/common
+  version: 2.1.6
+digest: sha256:49f1a50c589b1760030c7a449e779d5ca15acdbf8173ef953aceb699b88a170f
+generated: "2026-06-01T12:20:36.236385936+03:00"

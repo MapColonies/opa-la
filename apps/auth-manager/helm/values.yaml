@@ -85,7 +85,7 @@ resources:
 
 route:
   enabled: true
-  path: /
+  path: /api
   host: 
   timeout:
     enabled: false # defaults to 30s by openshift

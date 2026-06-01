@@ -119,7 +119,7 @@ auth-manager:
     #    hosts:
     #      - opa.domain.com
 
-auth-ui:
+authUi:
   enabled: true
   config: |
     {}
@@ -128,20 +128,37 @@ auth-ui:
   mclabels:
     owner: infra
     partOf: opa-la
-    compontent: auth-ui
+    component: frontend
     logScraping: false
   image:
     repository: infra/auth-ui
     tag: v12.0.0 # x-release-please-version
   extraVolumes:
-    - name: nginx-config
+    - name: config
       configMap:
-        name: '{{ .Release.Name }}-{{ include "opa-la.name" . }}-configmap'
+        name: '{{ .Release.Name }}-opa-la-configmap'
+  volumeMounts:
+    - name: config
+      mountPath: /etc/nginx/conf.d/extensions/extension.conf
+      subPath: extension.conf
+    - name: config
+      mountPath: /usr/share/nginx/html/config.json
+      subPath: config.json
+  opentelemetry:
+    ratio: 1
+  nginx:
+    extensions:
+      location:
+        enabled: true
+        fileName: extension.conf
+  authorization:
+    enabled: false
+  backend:
+    enabled: false
   route:
     enabled: true
     host: *host
     tls: *tls
-
 
 token-kiosk:
   enabled: true
@@ -154,18 +171,37 @@ token-kiosk:
     serverUrl: *configServerUrl
     name: 'infra-token-kiosk'
 
-kiosk-ui:
+kioskUi:
   enabled: true
   replicaCount: 1
   cloudProvider: *cloudProvider
   mclabels:
     owner: infra
     partOf: opa-la
-    compontent: kiosk-ui
+    component: frontend
     logScraping: false
   image:
     repository: infra/kiosk-ui
     tag: v12.0.0 # x-release-please-version
+  extraVolumes:
+    - name: config
+      configMap:
+        name: '{{ .Release.Name }}-opa-la-configmap'
+  volumeMounts:
+    - name: config
+      mountPath: /etc/nginx/conf.d/extensions/extension.conf
+      subPath: extension.conf
+  opentelemetry:
+    ratio: 1
+  nginx:
+    extensions:
+      location:
+        enabled: true
+        fileName: extension.conf
+  authorization:
+    enabled: false
+  backend:
+    enabled: false
   route:
     enabled: true
     host: *host
