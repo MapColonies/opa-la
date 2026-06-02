@@ -15,8 +15,8 @@ const dbOptions = createConnectionOptions(config) as Omit<Required<ConnectionCon
 };
 
 export default defineConfig({
-  schema: ['./src/db/entities/index.ts'],
-  out: './src/db/migrations',
+  schema: ['./src/entities/index.ts'],
+  out: './src/migrations',
   dialect: 'postgresql',
   schemaFilter: ['auth_manager', 'public'],
   dbCredentials: { ...dbOptions, user: dbOptions.user, ssl: false },

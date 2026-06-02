@@ -19,8 +19,7 @@ import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './error
 
 type ConnectionSearchParams = NonNullable<paths['/connection']['get']['parameters']['query']>;
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-function getSearchFilters(params: ConnectionSearchParams) {
+function getSearchFilters(params: ConnectionSearchParams): SQL | undefined {
   const filters: SQL[] = [];
   if (params.name !== undefined) {
     filters.push(ilike(connectionTable.name, `%${params.name}%`));

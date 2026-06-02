@@ -54,7 +54,6 @@
     "@types/express": "catalog:",
     "jest-extended": "catalog:",
     "test-utils": "workspace:^",
-    "ts-node": "^10.9.1",
     "@types/pg": "catalog:",
     "typescript": "catalog:",
     "@types/lodash": "catalog:",

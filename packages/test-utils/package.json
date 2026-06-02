@@ -37,7 +37,7 @@
     "@map-colonies/schemas": "catalog:",
     "@testcontainers/minio": "~11.14.0",
     "@testcontainers/postgresql": "^11.14.0",
-    "lodash": "^4.18.1",
+    "lodash": "catalog:",
     "drizzle-orm": "catalog:",
     "pg": "catalog:"
   },
@@ -51,6 +51,6 @@
     "@types/pg": "catalog:",
     "eslint": "catalog:",
     "typescript": "catalog:",
-    "@types/lodash": "^4.17.24"
+    "@types/lodash": "catalog:"
   }
 }

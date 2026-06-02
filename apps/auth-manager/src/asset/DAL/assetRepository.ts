@@ -1,4 +1,4 @@
-import { and, eq, max } from 'drizzle-orm';
+import { and, desc, eq, max } from 'drizzle-orm';
 import { assetTable, type DrizzleTx, type Drizzle } from '@map-colonies/auth-core';
 import { inject, Lifecycle, scoped } from 'tsyringe';
 import { SERVICES } from '@common/constants';
@@ -8,17 +8,13 @@ export class AssetRepository {
   public constructor(@inject(SERVICES.DRIZZLE) private readonly db: Drizzle) {}
 
   public async getMaxVersionWithLock(name: string, tx: DrizzleTx): Promise<number | null> {
-    const subQuery = tx
-      .select({ maxVersion: max(assetTable.version) })
-      .from(assetTable)
-      .where(eq(assetTable.name, name));
-
     const result = await tx
       .select({ version: assetTable.version })
       .from(assetTable)
-      .where(and(eq(assetTable.name, name), eq(assetTable.version, subQuery)))
-      .for('update')
-      .limit(1);
+      .where(eq(assetTable.name, name))
+      .orderBy(desc(assetTable.version))
+      .limit(1)
+      .for('update');
 
     return result[0]?.version ?? null;
   }

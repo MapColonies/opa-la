@@ -21,9 +21,8 @@
     }
   },
   "scripts": {
-    "typeorm": "node node_modules/typeorm/cli.js -d ./dataSource.mjs",
     "migration:create": "drizzle-kit generate --config drizzle.config.mts",
-    "migration:run": "npm run typeorm migration:run -- ",
+    "migration:run": "pnpm run build && node runMigrations.mts",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prebuild": "pnpm run clean",
@@ -48,7 +47,6 @@
     "@map-colonies/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@types/pg": "catalog:",
-    "ts-node": "^10.9.1",
     "typescript": "catalog:",
     "drizzle-kit": "catalog:"
   },

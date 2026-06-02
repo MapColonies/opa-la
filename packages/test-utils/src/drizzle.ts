@@ -7,7 +7,6 @@ import type { commonDbFullV1Type } from '@map-colonies/schemas';
  */
 export async function resetAndMigrate(connection: Pool): Promise<void> {
   await connection.query(`DROP SCHEMA IF EXISTS "${authManagerSchema.schemaName}" CASCADE`);
-  // await connection.query(`CREATE SCHEMA "${authManagerSchema.schemaName}"`);
 
   const db = createDrizzle(connection);
   await runMigrations(db);
