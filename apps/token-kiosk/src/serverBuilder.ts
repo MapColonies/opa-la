@@ -73,8 +73,6 @@ export class ServerBuilder {
 
     this.serverInstance.use(bodyParser.json(this.config.get('server.request.payload')));
 
-    this.serverInstance.use(expressStatic('public'));
-
     this.serverInstance.use(this.authMiddleware);
 
     const ignorePathRegex = new RegExp(`^${this.config.get('openapiConfig.basePath')}/.*`, 'i');
