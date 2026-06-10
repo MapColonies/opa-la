@@ -1,11 +1,11 @@
 {{- $chartName := include "opa-la.name" . -}}
-{{- if .Values.authUi.enabled -}}
+{{- if or (index .Values "auth-ui" "enabled") (index .Values "kiosk-ui" "enabled") -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-opa-la-configmap
 data:
-  config.json: {{ .Values.authUi.config | quote }}
+  config.json: {{ index .Values "auth-ui" "config" | quote }}
   extension.conf: |
       root   /usr/share/nginx/html;
       index  index.html index.htm;

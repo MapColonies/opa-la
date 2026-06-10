@@ -19,7 +19,7 @@ dependencies:
   - name: nginx
     repository: oci://acrarolibotnonprod.azurecr.io/helm/common
     condition: auth-ui.enabled
-    alias: authUi
+    alias: auth-ui
     version: 2.1.6
   - name: token-kiosk
     repository: file://../apps/token-kiosk/helm
@@ -28,5 +28,5 @@ dependencies:
   - name: nginx
     repository: oci://acrarolibotnonprod.azurecr.io/helm/common
     condition: kiosk-ui.enabled
-    alias: kioskUi
+    alias: kiosk-ui
     version: 2.1.6

@@ -35,7 +35,9 @@ RUN pnpm --filter ${APP_NAME} deploy --prod --legacy /prod-app
 
 
 FROM node:${NODE_VERSION}-alpine AS runner
-RUN apk add dumb-init
+RUN apk add dumb-init && \
+    wget -O /usr/bin/opa https://openpolicyagent.org/downloads/v1.0.1/opa_linux_amd64_static && \
+    chmod a+x /usr/bin/opa
 
 ENV NODE_ENV=production
 
