@@ -1,56 +1,43 @@
-import { beforeEach, describe, expect, it, beforeAll, afterAll, vi } from 'vitest';
+import { beforeEach, describe, expect, it, beforeAll, vi } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import type { DependencyContainer } from 'tsyringe';
-import { DataSource } from 'typeorm';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
-import type { IDomain } from '@map-colonies/auth-core';
-import { Domain } from '@map-colonies/auth-core';
-import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { Pool } from 'pg';
+import type { Drizzle } from '@map-colonies/auth-core';
+import { domainTable } from '@map-colonies/auth-core';
+import type { ExpectResponseStatus, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender, expectResponseStatusFactory } from '@map-colonies/openapi-helpers/requestSender';
 import type { paths, operations } from 'auth-openapi';
 import { getApp } from '@src/app.js';
 import { SERVICES } from '@src/common/constants.js';
-import { initConfig } from '@src/common/config.js';
 import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
+import { initEnvironment } from '../setup.js';
+
+const expectResponseStatus: ExpectResponseStatus = expectResponseStatusFactory(expect);
 
 describe('domain', function () {
   let requestSender: RequestSender<paths, operations>;
-  let depContainer: DependencyContainer;
+  let drizzle: Drizzle;
 
   beforeAll(async function () {
-    await initConfig(true);
-
-    const [app, container] = await getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
-        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-      ],
-      useChild: true,
-    });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
-    depContainer = container;
-  });
-
-  afterAll(async function () {
-    await depContainer.resolve(DataSource).destroy();
+    const env = await initEnvironment();
+    requestSender = env.requestSender;
+    drizzle = env.drizzle;
   });
 
   describe('Happy Path', function () {
     describe('GET /domain', function () {
       it('should return 200 status code and a list of domains', async function () {
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Domain).save([{ name: 'avi' }, { name: 'iva' }]);
+        await drizzle.insert(domainTable).values([{ name: 'avi' }, { name: 'iva' }]);
 
         const res = await requestSender.getDomains();
 
-        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expectResponseStatus(res, httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
 
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
-        const returnedItems = res.body.items as IDomain[];
+        const returnedItems = res.body.items;
 
         expect(returnedItems).toEqual(expect.arrayContaining([{ name: 'avi' }, { name: 'iva' }]));
       });
@@ -108,7 +95,7 @@ describe('domain', function () {
   });
 
   describe('Sad Path', function () {
-    const MockProvider = { insert: vi.fn(), find: vi.fn() };
+    const MockProvider = { select: vi.fn(), insert: vi.fn() };
     let mockedSender: RequestSender<paths, operations>;
 
     beforeEach(async function () {
@@ -116,18 +103,18 @@ describe('domain', function () {
         override: [
           { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
           { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-          { token: SERVICES.DOMAIN_REPOSITORY, provider: { useValue: MockProvider } },
+          { token: SERVICES.DRIZZLE, provider: { useValue: MockProvider } },
         ],
         useChild: true,
       });
       mockedSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
-      await container.resolve(DataSource).destroy();
+      await container.resolve(Pool).end();
       vi.resetAllMocks();
     });
 
     describe('GET /domain', function () {
       it('should return 500 status code if db throws an error', async function () {
-        MockProvider.find.mockRejectedValue(new Error(''));
+        MockProvider.select.mockRejectedValue(new Error(''));
 
         const res = await mockedSender.getDomains();
 

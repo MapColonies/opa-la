@@ -1,11 +1,24 @@
 import { faker } from '@faker-js/faker';
-import type { Connection, IAsset, IBundle, IClient, IConnection, JWKPrivateKey, JWKPublicKey } from '@map-colonies/auth-core';
+import type {
+  NewAsset,
+  Bundle,
+  Client,
+  Connection,
+  JWKPrivateKey,
+  JWKPublicKey,
+  Asset,
+  NewConnection,
+  NewBundle,
+  NewClient,
+} from '@map-colonies/auth-core';
 import { AssetType, Environment } from '@map-colonies/auth-core';
 
 const EIGHT = 8;
 const THREE = 3;
 
-export function getFakeAsset(includeCreated?: boolean): IAsset {
+export function getFakeAsset(includeCreated: true, override?: Partial<Asset>): Asset;
+export function getFakeAsset(includeCreated?: false, override?: Partial<NewAsset>): NewAsset;
+export function getFakeAsset(includeCreated?: boolean, override?: Partial<Asset | NewAsset>): Asset | NewAsset {
   return {
     createdAt: includeCreated === true ? faker.date.past() : undefined,
     environment: [Environment.NP],
@@ -13,14 +26,17 @@ export function getFakeAsset(includeCreated?: boolean): IAsset {
     name: faker.string.alpha(EIGHT),
     type: faker.helpers.arrayElement(Object.values(AssetType)),
     uri: faker.system.filePath(),
-    value: Buffer.from(faker.lorem.paragraph()).toString('base64'),
+    value: Buffer.from(faker.lorem.paragraph()),
     version: 1,
+    ...override,
   };
 }
 
-export function getFakeConnection(): Connection {
-  return {
-    createdAt: faker.date.past(),
+export function getFakeConnection(includeCreated: true, override?: Partial<Connection>): Connection;
+export function getFakeConnection(includeCreated?: false, override?: Partial<NewConnection>): NewConnection;
+export function getFakeConnection(includeCreated?: boolean, override?: Partial<Connection | NewConnection>): Connection | NewConnection {
+  const connection: Connection | NewConnection = {
+    createdAt: includeCreated === true ? faker.date.past() : undefined,
     environment: Environment.NP,
     version: 1,
     name: faker.string.alpha(EIGHT),
@@ -31,15 +47,12 @@ export function getFakeConnection(): Connection {
     enabled: true,
     token: faker.string.alpha(),
   };
+  return { ...connection, ...override };
 }
 
-export function getFakeIConnection(includeCreated?: boolean): IConnection {
-  const connection: IConnection = getFakeConnection();
-  connection.createdAt = includeCreated === true ? faker.date.past() : undefined;
-  return connection;
-}
-
-export function getFakeBundle(includeCreated?: boolean): IBundle {
+export function getFakeBundle(includeCreated: true): Bundle;
+export function getFakeBundle(includeCreated?: false): NewBundle;
+export function getFakeBundle(includeCreated?: boolean): Bundle | NewBundle {
   return {
     id: includeCreated === true ? faker.number.int() : undefined,
     hash: faker.string.alpha(EIGHT),
@@ -53,10 +66,12 @@ export function getFakeBundle(includeCreated?: boolean): IBundle {
   };
 }
 
-export function getFakeClient(includeGeneratedFields: boolean): IClient {
+export function getFakeClient(includeGeneratedFields: true, override?: Partial<Client>): Client;
+export function getFakeClient(includeGeneratedFields?: false, override?: Partial<NewClient>): NewClient;
+export function getFakeClient(includeGeneratedFields?: boolean, override?: Partial<Client | NewClient>): NewClient | Client {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
-  const client: IClient = {
+  const client: NewClient = {
     name: faker.internet.username({ firstName, lastName }),
     hebName: 'אבי',
     branch: faker.company.buzzVerb(),
@@ -74,11 +89,11 @@ export function getFakeClient(includeGeneratedFields: boolean): IClient {
     tags: [faker.word.adjective(), faker.company.buzzNoun()],
   };
 
-  if (includeGeneratedFields) {
+  if (includeGeneratedFields === true) {
     client.createdAt = faker.date.past();
     client.updatedAt = faker.date.between({ from: client.createdAt, to: Date.now() });
   }
-  return client;
+  return { ...client, ...override };
 }
 
 export function getMockKeys(): [JWKPrivateKey, JWKPublicKey] {

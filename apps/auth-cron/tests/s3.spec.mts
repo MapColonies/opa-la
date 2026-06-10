@@ -80,7 +80,7 @@ describe('s3.ts', function () {
     });
 
     it('should return undefined if the object does not exists', async function () {
-      const hash = await getS3Client(Environment.PRODUCTION).getObjectHash();
+      const hash = await getS3Client(Environment.PROD).getObjectHash();
 
       expect(hash).toBeUndefined();
     });
@@ -100,7 +100,7 @@ describe('s3.ts', function () {
     });
 
     it('should return false if the bucket does not exist', async function () {
-      const res = await getS3Client(Environment.PRODUCTION).doesBucketExist();
+      const res = await getS3Client(Environment.PROD).doesBucketExist();
 
       expect(res).toBe(false);
     });

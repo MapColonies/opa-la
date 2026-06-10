@@ -10,8 +10,8 @@ import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
 import type { paths, operations } from 'token-openapi';
 import { getApp } from '@src/app';
-import type { Drizzle } from '@src/db/createConnection';
-import { users } from '@src/users/user';
+import type { Drizzle } from '@src/db/drizzle';
+import { usersTable } from '@src/users/user';
 import { SERVICES } from '@common/constants';
 import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
 import { initConfig } from '@src/common/config';
@@ -53,9 +53,9 @@ describe('guides', function () {
     nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.OK, privateKey);
 
     await drizzle
-      .insert(users)
+      .insert(usersTable)
       .values({ id: 'files@example.com', token: 'aaaaaaa', isBanned: false, tokenExpirationDate: addWeeks(new Date(), 1) })
-      .onConflictDoUpdate({ set: { token: 'aaaaaaa' }, target: users.id });
+      .onConflictDoUpdate({ set: { token: 'aaaaaaa' }, target: usersTable.id });
   });
 
   afterEach(function () {
@@ -107,7 +107,10 @@ describe('guides', function () {
     });
 
     it('should return 403 status code when user is banned', async function () {
-      await drizzle.insert(users).values({ id: 'xd@gmail.com', token: '', isBanned: true, tokenExpirationDate: new Date() }).onConflictDoNothing();
+      await drizzle
+        .insert(usersTable)
+        .values({ id: 'xd@gmail.com', token: '', isBanned: true, tokenExpirationDate: new Date() })
+        .onConflictDoNothing();
 
       // Mock user as banned by setting up the context to simulate a banned user
       const bannedUserContext = {

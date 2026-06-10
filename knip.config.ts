@@ -14,10 +14,10 @@ const config: KnipConfig = {
   ignoreDependencies: ['@map-colonies/infra-copilot-instructions', '@vitest/eslint-plugin'],
   workspaces: {
     'packages/auth-core': {
-      entry: ['src/config.ts', 'src/db/migrations/*', 'dataSource.{ts,mjs}'],
+      entry: ['src/config.ts'],
+      ignoreFiles: ['drizzle.config.mts'],
     },
     'packages/auth-bundler': {
-      entry: ['dataSource.ts'],
       ignore: ['example/**'],
       ignoreBinaries: ['opa'],
     },
@@ -25,14 +25,16 @@ const config: KnipConfig = {
     'apps/auth-manager': {
       ignoreUnresolved: ['./instrumentation.mjs'],
       ignoreDependencies: ['@types/lodash'],
-      entry: ['src/instrumentation.mts', 'dataSource.mjs'],
+      ignoreFiles: ['src/runMigrations.mts'],
+      entry: ['src/instrumentation.mts'],
     },
     'apps/auth-cron': {
       ignoreUnresolved: ['./instrumentation.mjs'],
-      entry: ['src/instrumentation.mts', 'dataSource.mjs'],
+      entry: ['src/instrumentation.mts'],
     },
     'apps/token-kiosk': {
       ignoreUnresolved: ['./instrumentation.mjs'],
+      ignoreFiles: ['src/runMigrations.mts'],
       entry: ['src/instrumentation.mts', 'drizzle.config.mts'],
     },
     'apps/kiosk-ui': {

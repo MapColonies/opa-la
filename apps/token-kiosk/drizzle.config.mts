@@ -1,8 +1,8 @@
 import { ConnectionConfig } from 'pg';
 import type { Config as DrizzleConfig } from 'drizzle-kit';
+import { createConnectionOptions } from '@map-colonies/drizzle-utils';
 import config from 'config';
 
-import { createConnectionOptions } from './src/db/createConnection';
 import { ConnectionOptions } from 'node:tls';
 
 const dbOptions = createConnectionOptions(config.get('db')) as Omit<Required<ConnectionConfig>, 'password' | 'ssl'> & {

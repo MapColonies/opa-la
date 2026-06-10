@@ -13,20 +13,21 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
       "require": "./dist/index.js"
     }
   },
   "scripts": {
-    "typeorm": "node node_modules/typeorm/cli.js -d ./dataSource.mjs",
-    "migration:create": "npm run typeorm migration:generate --",
-    "migration:run": "npm run typeorm migration:run -- ",
-    "migration:revert": "npm run typeorm migration:revert -- ",
+    "migration:create": "drizzle-kit generate --config drizzle.config.mts",
+    "migration:run": "pnpm run build && node runMigrations.mts",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prebuild": "pnpm run clean",
     "build": "tsc --project tsconfig.json && pnpm run assets:copy",
-    "assets:copy": "copyfiles ./package.json dist",
+    "assets:copy": "copyfiles -u 2 src/migrations/**/* dist/migrations",
     "clean": "rimraf dist",
     "prepack": "turbo run build",
     "check-dist": "publint && attw --pack .",
@@ -37,19 +38,20 @@
   },
   "dependencies": {
     "pg": "catalog:",
-    "typeorm": "catalog:"
+    "@map-colonies/schemas": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:"
   },
   "devDependencies": {
     "@map-colonies/config": "catalog:",
-    "@map-colonies/schemas": "catalog:",
     "@map-colonies/tsconfig": "catalog:",
     "@map-colonies/eslint-config": "catalog:",
     "@types/node": "catalog:",
     "@types/pg": "catalog:",
-    "ts-node": "^10.9.1",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "drizzle-kit": "catalog:"
   },
   "peerDependencies": {
-    "@map-colonies/js-logger": "catalog:"
+    "@map-colonies/js-logger": "catalog:",
+    "drizzle-orm": "catalog:"
   }
 }

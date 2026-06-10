@@ -1,46 +1,32 @@
-import { Asset } from '@map-colonies/auth-core';
-import type { FactoryFunction } from 'tsyringe';
-import type { Repository } from 'typeorm';
-import { DataSource } from 'typeorm';
+import { and, desc, eq, max } from 'drizzle-orm';
+import { assetTable, type DrizzleTx, type Drizzle } from '@map-colonies/auth-core';
+import { inject, Lifecycle, scoped } from 'tsyringe';
+import { SERVICES } from '@common/constants';
 
-export type AssetRepository = Repository<Asset> & {
-  getMaxVersionWithLock: (name: string) => Promise<number | null>;
-  getMaxVersion: (name: string) => Promise<number | null>;
-};
+@scoped(Lifecycle.ContainerScoped)
+export class AssetRepository {
+  public constructor(@inject(SERVICES.DRIZZLE) private readonly db: Drizzle) {}
 
-export const assetRepositoryFactory: FactoryFunction<AssetRepository> = (container) => {
-  const dataSource = container.resolve(DataSource);
+  public async getMaxVersionWithLock(name: string, tx: DrizzleTx): Promise<number | null> {
+    const result = await tx
+      .select({ version: assetTable.version })
+      .from(assetTable)
+      .where(eq(assetTable.name, name))
+      .orderBy(desc(assetTable.version))
+      .limit(1)
+      .for('update');
 
-  return dataSource.getRepository(Asset).extend({
-    async getMaxVersionWithLock(name: string): Promise<number | null> {
-      const result = await this.createQueryBuilder()
-        .select('version')
-        .where('name = :name')
-        .andWhere((qb) => {
-          const subQuery = qb.subQuery().select('MAX(version)').from(Asset, 'asset').where('name = :name').getQuery();
+    return result[0]?.version ?? null;
+  }
 
-          return 'Asset.version = ' + subQuery;
-        })
-        .setLock('pessimistic_write')
-        .setParameter('name', name)
-        .getRawOne<{ version: number }>();
+  public async getMaxVersion(name: string, tx?: DrizzleTx): Promise<number | null> {
+    const db = tx ?? this.db;
 
-      if (result === undefined) {
-        return null;
-      }
-      return result.version;
-    },
-    async getMaxVersion(name: string): Promise<number | null> {
-      const result = await this.createQueryBuilder()
-        .select('MAX(version)', 'version')
-        .where('name = :name')
-        .setParameter('name', name)
-        .getRawOne<{ version: number }>();
+    const result = await db
+      .select({ version: max(assetTable.version) })
+      .from(assetTable)
+      .where(eq(assetTable.name, name));
 
-      if (result === undefined) {
-        return null;
-      }
-      return result.version;
-    },
-  });
-};
+    return result[0]?.version ?? null;
+  }
+}

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { initConnection } from '@map-colonies/auth-core';
+import { initConnection } from '@map-colonies/drizzle-utils';
 import type { TestProject } from 'vitest/node';
 import { createPostgresContainer, PG_PORT, createAndProvideTempDir, removeTempDir, resetAndMigrate, mergeTestConfig } from 'test-utils';
 import { getConfig, initConfig } from '../helpers/config.js';
@@ -22,7 +22,7 @@ export async function setup(project: TestProject): Promise<void> {
 
   const connection = await initConnection({ ...dataSourceOptions, port });
 
-  await resetAndMigrate(connection, dataSourceOptions.schema);
+  await resetAndMigrate(connection);
 }
 
 export async function teardown(): Promise<void> {

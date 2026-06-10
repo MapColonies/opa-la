@@ -1,7 +1,7 @@
 import { AssetType, Environment } from '@map-colonies/auth-core';
 import type { BundleContent } from '@src/index';
 
-const baseAsset = { createdAt: new Date(), environment: [Environment.PRODUCTION], version: 1 };
+const baseAsset = { createdAt: new Date(), environment: [Environment.PROD], version: 1 };
 
 const policy = Buffer.from(
   `
@@ -9,7 +9,7 @@ allow {
   true
 }
 `
-).toString('base64');
+);
 
 const test = Buffer.from(
   `
@@ -17,13 +17,13 @@ test_allow {
   true
 }
 `
-).toString('base64');
+);
 
-const data = Buffer.from(`{{#delimitedEach .}}{{name}}{{/delimitedEach}}`).toString('base64');
+const data = Buffer.from(`{{#delimitedEach .}}{{name}}{{/delimitedEach}}`);
 
 export function getFakeBundleContent(): BundleContent {
   return {
-    environment: Environment.PRODUCTION,
+    environment: Environment.PROD,
     assets: [
       {
         ...baseAsset,
@@ -57,7 +57,7 @@ export function getFakeBundleContent(): BundleContent {
         createdAt: new Date(),
         domains: [],
         enabled: true,
-        environment: Environment.PRODUCTION,
+        environment: Environment.PROD,
         name: 'avi',
         origins: [],
         token: '',
@@ -65,7 +65,7 @@ export function getFakeBundleContent(): BundleContent {
       },
     ],
     key: {
-      environment: Environment.PRODUCTION,
+      environment: Environment.PROD,
       version: 1,
       publicKey: { alg: 'a', e: 'a', kid: 'a', kty: 'a', n: 'a' },
       privateKey: { alg: 'a', e: 'a', kid: 'a', kty: 'a', n: 'a', d: 'a', dp: 'a', dq: 'a', p: 'a', q: 'a', qi: 'a' },

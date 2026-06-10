@@ -1,58 +1,40 @@
 /// <reference types="jest-extended" />
-import { describe, expect, it, vi, beforeAll, afterAll, afterEach } from 'vitest';
-import { jsLogger } from '@map-colonies/js-logger';
-import { trace } from '@opentelemetry/api';
+import { describe, expect, it, vi, beforeAll, afterEach } from 'vitest';
 import httpStatusCodes from 'http-status-codes';
 import type { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
-import { DataSource } from 'typeorm';
-import type { IAsset } from '@map-colonies/auth-core';
-import { Asset, AssetType, Environment } from '@map-colonies/auth-core';
+import { type Asset, assetTable, AssetType, type Drizzle, Environment, type NewAsset } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
 import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { getFakeAsset } from 'test-utils';
 import type { paths, operations } from 'auth-openapi';
-import type { AssetRepository } from '@src/asset/DAL/assetRepository.js';
-import { getApp } from '@src/app.js';
-import { SERVICES } from '@common/constants.js';
-import { initConfig } from '@common/config.js';
-import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
+import { AssetRepository } from '@src/asset/DAL/assetRepository.js';
+import { initEnvironment } from '../setup.js';
 
 describe('client', function () {
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
+  let drizzle: Drizzle;
 
   beforeAll(async function () {
-    await initConfig(true);
-    const [app, container] = await getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
-        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-      ],
-      useChild: true,
-    });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
-    depContainer = container;
-  });
-
-  afterAll(async function () {
-    await depContainer.resolve(DataSource).destroy();
+    const env = await initEnvironment();
+    depContainer = env.container;
+    requestSender = env.requestSender;
+    drizzle = env.drizzle;
   });
 
   describe('Happy Path', function () {
     describe('GET /assets', function () {
       it('should return 200 status code and all the assets', async function () {
         const asset = getFakeAsset();
-        asset.environment = [Environment.PRODUCTION];
-        const assets: IAsset[] = [
+        asset.environment = [Environment.PROD];
+        const assets: NewAsset[] = [
           asset,
           { ...asset, version: 2 },
           { ...asset, name: faker.string.sample(9), environment: [Environment.NP, Environment.STAGE] },
         ];
 
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await drizzle.insert(assetTable).values(assets).execute();
 
         const res = await requestSender.getAssets();
 
@@ -63,39 +45,37 @@ describe('client', function () {
 
       it('should return 200 status code and all the assets with specific env', async function () {
         const asset = getFakeAsset();
-        asset.environment = [Environment.PRODUCTION];
-        const assets: IAsset[] = [
+        asset.environment = [Environment.PROD];
+        const assets: NewAsset[] = [
           asset,
           { ...asset, version: 2 },
           { ...asset, name: faker.string.sample(9), environment: [Environment.NP, Environment.STAGE] },
         ];
 
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await drizzle.insert(assetTable).values(assets).execute();
 
         const res = await requestSender.getAssets({ queryParams: { environment: ['prod'] } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((a: IAsset) => a.environment.includes(Environment.PRODUCTION));
+        expect(res.body).toSatisfyAll((a: Asset) => a.environment.includes(Environment.PROD));
       });
 
       it('should return 200 status code and all the assets with specific type', async function () {
         const asset = getFakeAsset();
         asset.type = AssetType.DATA;
-        const assets: IAsset[] = [
+        const assets: NewAsset[] = [
           { ...asset, name: faker.string.sample(9) },
           { ...asset, type: AssetType.POLICY },
         ];
 
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await drizzle.insert(assetTable).values(assets).execute();
 
         const res = await requestSender.getAssets({ queryParams: { type: AssetType.DATA } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((a: IAsset) => a.type === AssetType.DATA);
+        expect(res.body).toSatisfyAll((a: Asset) => a.type === AssetType.DATA);
       });
     });
 
@@ -103,67 +83,64 @@ describe('client', function () {
       it('should return 201 status code and the created asset', async function () {
         const asset = getFakeAsset();
 
-        const res = await requestSender.upsertAsset({ requestBody: asset });
+        const res = await requestSender.upsertAsset({ requestBody: { ...asset, value: asset.value.toString('base64') } });
 
         delete asset.createdAt;
 
         expect(res).toHaveProperty('status', httpStatusCodes.CREATED);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toMatchObject(asset);
+        expect(res.body).toMatchObject({ ...asset, value: asset.value.toString('base64') });
       });
 
       it('should return 200 status code and the updated asset', async function () {
         const asset = getFakeAsset();
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(asset);
+        await drizzle.insert(assetTable).values(asset).execute();
 
         delete asset.createdAt;
 
-        const res = await requestSender.upsertAsset({ requestBody: asset });
+        const res = await requestSender.upsertAsset({ requestBody: { ...asset, value: asset.value.toString('base64') } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toMatchObject({ ...asset, version: 2 });
+        expect(res.body).toMatchObject({ ...asset, version: 2, value: asset.value.toString('base64') });
       });
     });
 
     describe('GET /asset/:name', function () {
       it('should return 200 status code all the assets with the specific name', async function () {
         const asset = getFakeAsset();
-        const assets: IAsset[] = [asset, { ...asset, version: 2 }];
+        const assets: NewAsset[] = [asset, { ...asset, version: 2 }];
 
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await drizzle.insert(assetTable).values(assets).execute();
 
         const res = await requestSender.getAsset({ pathParams: { assetName: asset.name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((a: IAsset) => a.name === asset.name);
+        expect(res.body).toSatisfyAll((a: NewAsset) => a.name === asset.name);
       });
     });
 
     describe('GET /asset/:name/:version', function () {
       it('should return 200 status code and the requested asset', async function () {
         const asset = getFakeAsset();
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(asset);
+        await drizzle.insert(assetTable).values(asset).execute();
 
         const res = await requestSender.getVersionedAsset({ pathParams: { assetName: asset.name, version: asset.version } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ ...asset, createdAt: asset.createdAt?.toISOString() });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        expect(res.body).toStrictEqual({ ...asset, value: asset.value.toString('base64'), createdAt: expect.any(String) });
       });
     });
 
     describe('GET /asset/:name/latest', function () {
       it('should return 200 status code and the latest asset when multiple versions exist', async function () {
         const baseAsset = getFakeAsset();
-        const assets: IAsset[] = [baseAsset, { ...baseAsset, version: 2 }, { ...baseAsset, version: 3 }];
+        const assets: NewAsset[] = [baseAsset, { ...baseAsset, version: 2 }, { ...baseAsset, version: 3 }];
 
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(assets);
+        await drizzle.insert(assetTable).values(assets).execute();
 
         const expectedAsset = assets.find((a) => a.version === 3);
 
@@ -171,19 +148,20 @@ describe('client', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ ...expectedAsset, createdAt: expectedAsset!.createdAt?.toISOString() });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        expect(res.body).toStrictEqual({ ...expectedAsset, value: expectedAsset!.value.toString('base64'), createdAt: expect.any(String) });
       });
 
       it('should return 200 status code and the only asset when there is only one version', async function () {
         const asset = getFakeAsset();
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save(asset);
+        await drizzle.insert(assetTable).values(asset).execute();
 
         const res = await requestSender.getLatestAsset({ pathParams: { assetName: asset.name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ ...asset, createdAt: asset.createdAt?.toISOString() });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        expect(res.body).toStrictEqual({ ...asset, createdAt: expect.any(String), value: asset.value.toString('base64') });
       });
     });
   });
@@ -192,7 +170,12 @@ describe('client', function () {
     describe('POST /asset', function () {
       it('should return 400 if the request body is incorrect', async function () {
         const { version, ...asset } = getFakeAsset();
-        const res = await requestSender.upsertAsset({ requestBody: asset as IAsset });
+        const res = await requestSender.upsertAsset({
+          requestBody: {
+            ...asset,
+            value: asset.value.toString('base64'),
+          } as unknown as paths['/asset']['post']['requestBody']['content']['application/json'],
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
         expect(res).toSatisfyApiSpec();
@@ -200,17 +183,21 @@ describe('client', function () {
 
       it("should return 409 if the request version doesn't match the DB version", async function () {
         const asset = getFakeAsset();
-        const connection = depContainer.resolve(DataSource);
-        await connection.getRepository(Asset).save({ ...asset });
+        await drizzle
+          .insert(assetTable)
+          .values({ ...asset })
+          .execute();
 
-        const res = await requestSender.upsertAsset({ requestBody: { ...asset, version: 2 } });
+        const res = await requestSender.upsertAsset({ requestBody: { ...asset, value: asset.value.toString('base64'), version: 2 } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
       });
 
       it("should return 409 if the no asset exists and request version isn't 1", async function () {
-        const res = await requestSender.upsertAsset({ requestBody: { ...getFakeAsset(), version: 2 } });
+        const res = await requestSender.upsertAsset({
+          requestBody: { ...getFakeAsset(), value: getFakeAsset().value.toString('base64'), version: 2 },
+        });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
@@ -266,8 +253,9 @@ describe('client', function () {
 
     describe('GET /asset', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-        vi.spyOn(repo, 'findBy').mockRejectedValue(new Error());
+        // const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
+        // vi.spyOn(repo, 'findBy').mockRejectedValue(new Error());
+        vi.spyOn(drizzle.query.asset, 'findMany').mockRejectedValue(new Error());
 
         const res = await requestSender.getAssets();
 
@@ -278,11 +266,11 @@ describe('client', function () {
 
     describe('POST /asset', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
+        const repo = depContainer.resolve(AssetRepository);
         vi.spyOn(repo, 'getMaxVersionWithLock').mockRejectedValue(new Error());
         const asset = getFakeAsset();
 
-        const res = await requestSender.upsertAsset({ requestBody: asset });
+        const res = await requestSender.upsertAsset({ requestBody: { ...asset, value: asset.value.toString('base64') } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(res).toSatisfyApiSpec();
@@ -290,8 +278,9 @@ describe('client', function () {
 
       describe('GET /asset/:name', function () {
         it('should return 500 status code if db throws an error', async function () {
-          const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-          vi.spyOn(repo, 'findBy').mockRejectedValue(new Error());
+          // const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
+          // vi.spyOn(repo, 'findBy').mockRejectedValue(new Error());
+          vi.spyOn(drizzle.query.asset, 'findMany').mockRejectedValue(new Error());
 
           const res = await requestSender.getAsset({ pathParams: { assetName: 'avi' } });
 
@@ -302,8 +291,9 @@ describe('client', function () {
 
       describe('GET /asset/:name/:version', function () {
         it('should return 500 status code if db throws an error', async function () {
-          const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-          vi.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+          // const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
+          // vi.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+          vi.spyOn(drizzle.query.asset, 'findFirst').mockRejectedValue(new Error());
 
           const res = await requestSender.getVersionedAsset({ pathParams: { assetName: 'avi', version: 1 } });
 
@@ -314,7 +304,7 @@ describe('client', function () {
 
       describe('GET /asset/:name/latest', function () {
         it('should return 500 status code if db throws an error', async function () {
-          const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
+          const repo = depContainer.resolve(AssetRepository);
           vi.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
 
           const res = await requestSender.getLatestAsset({ pathParams: { assetName: 'avi' } });

@@ -4,9 +4,7 @@ import path from 'node:path';
 import type { BundleDatabase } from '@map-colonies/auth-bundler';
 import { createBundle } from '@map-colonies/auth-bundler';
 import * as authBundler from '@map-colonies/auth-bundler';
-import type { Bundle } from '@map-colonies/auth-core';
 import { Environment } from '@map-colonies/auth-core';
-import type { Repository } from 'typeorm';
 import type { Mock } from 'vitest';
 import { vi, describe, beforeEach, afterEach, afterAll, it, expect, beforeAll } from 'vitest';
 import { jsLogger } from '@map-colonies/js-logger';
@@ -26,10 +24,10 @@ vi.mock('../src/telemetry/logger', async () => {
 
 describe('job.ts', function () {
   describe('#getJob', function () {
-    const bundleRepoMock = vi.mocked({ findOne: vi.fn() } as unknown as Repository<Bundle>);
     const db = {
       getLatestVersions: vi.fn(),
       getBundleFromVersions: vi.fn(),
+      getLatestBundleByEnv: vi.fn(),
       saveBundle: vi.fn(),
     } as unknown as BundleDatabase;
     const bundleDbMock = vi.mocked(db);
@@ -67,7 +65,7 @@ describe('job.ts', function () {
     });
 
     it('should create a bundle if no bundle exists', async function () {
-      bundleRepoMock.findOne.mockResolvedValueOnce(null);
+      bundleDbMock.getLatestBundleByEnv.mockResolvedValueOnce(null);
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
         environment: Environment.NP,
@@ -75,7 +73,7 @@ describe('job.ts', function () {
         keyVersion: 1,
       });
 
-      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+      const promise = getJob(bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
 
       await expect(promise).resolves.not.toThrow();
       // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -83,13 +81,16 @@ describe('job.ts', function () {
     });
 
     it('should create a bundle if the data versions changed', async function () {
-      bundleRepoMock.findOne.mockResolvedValueOnce({
+      bundleDbMock.getLatestBundleByEnv.mockResolvedValueOnce({
         id: 1,
         assets: [{ name: 'avi', version: 1 }],
         environment: Environment.NP,
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 2,
         opaVersion: '0.52.0',
+        createdAt: new Date(),
+        hash: 'avi',
+        metadata: null,
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -98,7 +99,7 @@ describe('job.ts', function () {
         keyVersion: 1,
       });
 
-      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+      const promise = getJob(bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
 
       await expect(promise).resolves.not.toThrow();
       // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -106,7 +107,7 @@ describe('job.ts', function () {
     });
 
     it('should create a bundle and not save the metadata to the db if there is a mismatch between s3 and the db', async function () {
-      bundleRepoMock.findOne.mockResolvedValueOnce({
+      bundleDbMock.getLatestBundleByEnv.mockResolvedValueOnce({
         id: 1,
         assets: [{ name: 'avi', version: 1 }],
         environment: Environment.NP,
@@ -114,6 +115,8 @@ describe('job.ts', function () {
         keyVersion: 1,
         hash: 'avi',
         opaVersion: '0.52.0',
+        createdAt: new Date(),
+        metadata: null,
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -122,7 +125,7 @@ describe('job.ts', function () {
         keyVersion: 1,
       });
 
-      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+      const promise = getJob(bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
 
       await expect(promise).resolves.not.toThrow();
       expect(createBundle).toHaveBeenCalled();
@@ -133,14 +136,16 @@ describe('job.ts', function () {
     it('should not create a bundle if the bundle in s3 is up to date', async function () {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const res = await s3client.send(new PutObjectCommand({ Bucket: cronOptions.s3.bucket, Key: cronOptions.s3.key }));
-      bundleRepoMock.findOne.mockResolvedValueOnce({
+      bundleDbMock.getLatestBundleByEnv.mockResolvedValueOnce({
         id: 1,
         assets: [{ name: 'avi', version: 1 }],
         environment: Environment.NP,
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 1,
-        hash: res.ETag,
+        hash: res.ETag as string,
         opaVersion: '0.52.0',
+        createdAt: new Date(),
+        metadata: null,
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -149,7 +154,7 @@ describe('job.ts', function () {
         keyVersion: 1,
       });
 
-      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+      const promise = getJob(bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
 
       await expect(promise).resolves.not.toThrow();
       // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -159,14 +164,16 @@ describe('job.ts', function () {
     it('should create a bundle if the opa version is different than the one in the db', async function () {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const res = await s3client.send(new PutObjectCommand({ Bucket: cronOptions.s3.bucket, Key: cronOptions.s3.key }));
-      bundleRepoMock.findOne.mockResolvedValueOnce({
+      bundleDbMock.getLatestBundleByEnv.mockResolvedValueOnce({
         id: 1,
         assets: [{ name: 'avi', version: 1 }],
         environment: Environment.NP,
         connections: [{ name: 'avi', version: 1 }],
         keyVersion: 1,
-        hash: res.ETag,
+        hash: res.ETag as string,
         opaVersion: '0.51.0',
+        createdAt: new Date(),
+        metadata: null,
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -175,7 +182,7 @@ describe('job.ts', function () {
         keyVersion: 1,
       });
 
-      const promise = getJob(bundleRepoMock, bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
+      const promise = getJob(bundleDbMock, Environment.NP, path.join(tmpdir(), 'authcrontests'))();
 
       await expect(promise).resolves.not.toThrow();
       // eslint-disable-next-line @typescript-eslint/unbound-method

@@ -17,7 +17,6 @@ export function compareVersionsToBundle(bundle: Bundle, versions: BundleContentV
     // Added the check because keyVersion can be null in the database
     // and we want a new bundle to be created in that case
     // the bigger fix should be to not allow null keyVersion in the database
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     return bundle.environment === versions.environment && bundle.keyVersion !== null && bundle.keyVersion === versions.keyVersion;
   } catch {
     return false;

@@ -1,67 +1,59 @@
 /// <reference types="jest-extended" />
-import { beforeEach, describe, expect, it, vi, beforeAll, afterEach, afterAll } from 'vitest';
-import { jsLogger } from '@map-colonies/js-logger';
-import { trace } from '@opentelemetry/api';
+import { beforeEach, describe, expect, it, vi, beforeAll, afterEach } from 'vitest';
 import httpStatusCodes from 'http-status-codes';
 import type { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
-import { DataSource } from 'typeorm';
-import type { Environments, IConnection } from '@map-colonies/auth-core';
-import { Client, Connection, Domain, Environment, Key } from '@map-colonies/auth-core';
+import type { Drizzle, Connection, Environments } from '@map-colonies/auth-core';
+import { clientTable, connectionTable, domainTable, Environment, keyTable } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
-import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { getRealKeys, getFakeClient, getFakeConnection, getFakeIConnection } from 'test-utils';
+import type { ExpectResponseStatus, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { expectResponseStatusFactory } from '@map-colonies/openapi-helpers/requestSender';
+import { getRealKeys, getFakeClient, getFakeConnection } from 'test-utils';
 import type { paths, operations } from 'auth-openapi';
-import { getApp } from '@src/app.js';
-import { SERVICES } from '@common/constants.js';
-import type { ConnectionRepository } from '@src/connection/DAL/connectionRepository.js';
-import type { KeyRepository } from '@src/key/DAL/keyRepository.js';
-import type { DomainRepository } from '@src/domain/DAL/domainRepository.js';
-import { initConfig } from '@common/config.js';
-import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
+import { ConnectionRepository } from '@src/connection/DAL/connectionRepository.js';
+import { KeyRepository } from '@src/key/DAL/keyRepository.js';
+import { DomainRepository } from '@src/domain/DAL/domainRepository.js';
+import { initEnvironment } from '../setup.js';
+
+const expectResponseStatus: ExpectResponseStatus = expectResponseStatusFactory(expect);
 
 describe('connection', function () {
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
+  let drizzle: Drizzle;
   const clients = [getFakeClient(false), getFakeClient(false)];
   const connections = [
-    { ...getFakeIConnection(), name: clients[0]!.name, environment: Environment.NP, domains: ['test'] },
-    { ...getFakeIConnection(), name: clients[0]!.name, environment: Environment.PRODUCTION },
-    { ...getFakeIConnection(), name: clients[0]!.name, environment: Environment.PRODUCTION, version: 2 },
-    { ...getFakeIConnection(), name: clients[1]!.name, environment: Environment.NP },
+    { ...getFakeConnection(), name: clients[0]!.name, environment: Environment.NP, domains: ['test'] },
+    { ...getFakeConnection(), name: clients[0]!.name, environment: Environment.PROD },
+    { ...getFakeConnection(), name: clients[0]!.name, environment: Environment.PROD, version: 2 },
+    { ...getFakeConnection(), name: clients[1]!.name, environment: Environment.NP },
   ];
 
   beforeAll(async function () {
-    await initConfig(true);
-    const [app, container] = await getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
-        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-      ],
-      useChild: true,
-    });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
-    depContainer = container;
+    const env = await initEnvironment();
+    depContainer = env.container;
+    requestSender = env.requestSender;
+    drizzle = env.drizzle;
+    await drizzle.insert(domainTable).values([{ name: 'alpha' }, { name: 'bravo' }, { name: 'test' }]);
   });
 
   beforeEach(async function () {
-    await depContainer.resolve(DataSource).getRepository(Client).save(clients);
-    await depContainer.resolve(DataSource).getRepository(Connection).save(connections);
-    await depContainer
-      .resolve(DataSource)
-      .getRepository(Domain)
-      .save([{ name: 'alpha' }, { name: 'bravo' }, { name: 'test' }]);
+    // await depContainer.resolve(DataSource).getRepository(Client).save(clients);
+    // await depContainer.resolve(DataSource).getRepository(Connection).save(connections);
+    // await depContainer
+    //   .resolve(DataSource)
+    //   .getRepository(Domain)
+    //   .save([{ name: 'alpha' }, { name: 'bravo' }, { name: 'test' }]);
+    const clientQuery = drizzle.insert(clientTable).values(clients);
+    const connectionQuery = drizzle.insert(connectionTable).values(connections);
+    await Promise.all([clientQuery, connectionQuery]);
   });
 
   afterEach(async function () {
-    await depContainer.resolve(DataSource).getRepository(Connection).clear();
-    await depContainer.resolve(DataSource).getRepository(Client).clear();
-    await depContainer.resolve(DataSource).getRepository(Domain).clear();
-  });
-
-  afterAll(async function () {
-    await depContainer.resolve(DataSource).destroy();
+    // await depContainer.resolve(DataSource).getRepository(Connection).clear();
+    // await depContainer.resolve(DataSource).getRepository(Client).clear();
+    // await depContainer.resolve(DataSource).getRepository(Domain).clear();
+    await Promise.all([drizzle.delete(connectionTable), drizzle.delete(clientTable)]);
   });
 
   describe('Happy Path', function () {
@@ -85,10 +77,12 @@ describe('connection', function () {
         { name: 'blaviabla', searchParam: 'avi', matchType: 'middle' },
         { name: 'avi', searchParam: 'AV', matchType: 'case-insensitive' },
       ])('should find the connection of $name with search string $searchParam with match type $matchType', async function ({ name, searchParam }) {
-        const client = { ...getFakeClient(false), name };
-        const connection = getFakeIConnection();
-        connection.name = client.name;
-        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        const client = { ...getFakeClient(false, { name }) };
+        const connection = getFakeConnection(false, { name: client.name });
+        // connection.name = client.name;
+        // await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        // await requestSender.upsertConnection({ requestBody: connection });
+        await drizzle.insert(clientTable).values(client);
         await requestSender.upsertConnection({ requestBody: connection });
 
         const res = await requestSender.getConnections({
@@ -104,21 +98,19 @@ describe('connection', function () {
       });
 
       it('should return empty array when no connections match the client name search param', async function () {
-        const client = { ...getFakeClient(false), name: 'bla' };
-        const connection = getFakeIConnection();
-        connection.name = client.name;
-        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        const client = { ...getFakeClient(false, { name: 'bla' }) };
+        const connection = getFakeConnection(false, { name: client.name });
+        await drizzle.insert(clientTable).values(client);
         await requestSender.upsertConnection({ requestBody: connection });
 
         const res = await requestSender.getConnections({
           queryParams: {
-            name: 'avi',
+            name: 'rofl',
           },
         });
 
-        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expectResponseStatus(res, httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         expect(res.body.items).toBeArrayOfSize(0);
       });
 
@@ -130,17 +122,16 @@ describe('connection', function () {
           },
         });
 
-        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expectResponseStatus(res, httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         expect(res.body.items).toBeArrayOfSize(3);
       });
 
       it('should return latest connections for multiple clients', async function () {
         const client = { ...getFakeClient(false) };
-        const connection = getFakeIConnection();
-        connection.name = client.name;
-        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        const connection = getFakeConnection(false, { name: client.name });
+        // await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await drizzle.insert(clientTable).values(client);
         await requestSender.upsertConnection({ requestBody: connection });
         await requestSender.upsertConnection({ requestBody: connection });
 
@@ -150,17 +141,16 @@ describe('connection', function () {
           },
         });
 
-        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expectResponseStatus(res, httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         expect(res.body.items).toBeArrayOfSize(4);
       });
 
       it('should return latest connections with multiple query params', async function () {
         const client = { ...getFakeClient(false) };
-        const connection = getFakeIConnection();
-        connection.name = client.name;
-        await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        const connection = getFakeConnection(false, { name: client.name });
+        // await depContainer.resolve(DataSource).getRepository(Client).insert(client);
+        await drizzle.insert(clientTable).values(client);
         await requestSender.upsertConnection({ requestBody: connection });
         await requestSender.upsertConnection({ requestBody: connection });
 
@@ -174,43 +164,40 @@ describe('connection', function () {
           },
         });
 
-        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expectResponseStatus(res, httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
         expect(res.body.items).toBeArrayOfSize(1);
       });
 
       it('should return 200 status code and all the connections with specific env', async function () {
-        const res = await requestSender.getConnections({ queryParams: { environment: [Environment.PRODUCTION] } });
+        const res = await requestSender.getConnections({ queryParams: { environment: [Environment.PROD] } });
 
-        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expectResponseStatus(res, httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
 
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
-        const returnedItems = res.body.items as IConnection[];
+        const returnedItems = res.body.items;
 
-        expect(returnedItems).toSatisfyAll((c: IConnection) => c.environment.includes(Environment.PRODUCTION));
+        expect(returnedItems).toSatisfyAll((c: Connection) => c.environment.includes(Environment.PROD));
       });
 
       it('should return 200 status code and all the connections with specific domain', async function () {
         const res = await requestSender.getConnections({ queryParams: { domains: ['test'] } });
 
-        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+        expectResponseStatus(res, httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
 
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
-        const returnedItems = res.body.items as IConnection[];
+        const returnedItems = res.body.items;
 
-        expect(returnedItems).toSatisfyAll((c: IConnection) => c.domains.includes('test'));
+        expect(returnedItems).toSatisfyAll((c: Connection) => c.domains.includes('test'));
       });
     });
 
     describe('POST /connection', function () {
       it('should return 201 status code and the created connection', async function () {
         const client = getFakeClient(false);
-        const connection = getFakeIConnection();
-        connection.name = client.name;
-        await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        const connection = getFakeConnection(false, { name: client.name });
+        // await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        await drizzle.insert(clientTable).values(client);
 
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
@@ -224,10 +211,11 @@ describe('connection', function () {
 
       it('should return 200 status code and the updated connection', async function () {
         const client = getFakeClient(false);
-        const connection = getFakeIConnection();
-        connection.name = client.name;
-        await depContainer.resolve(DataSource).getRepository(Client).save(client);
-        await depContainer.resolve(DataSource).getRepository(Connection).save(connection);
+        const connection = getFakeConnection(false, { name: client.name });
+        // await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        // await depContainer.resolve(DataSource).getRepository(Connection).save(connection);
+        await drizzle.insert(clientTable).values(client);
+        await drizzle.insert(connectionTable).values(connection);
 
         delete connection.createdAt;
 
@@ -240,10 +228,11 @@ describe('connection', function () {
 
       it('should not generate a token and return an empty string if no token is supplied and no private key is available and ignoreErrors is true', async function () {
         const client = getFakeClient(false);
-        const connection = getFakeIConnection();
-        connection.name = client.name;
-        connection.token = '';
-        await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        const connection = getFakeConnection(false, { name: client.name, token: '' });
+        // connection.name = client.name;
+        // connection.token = '';
+        // await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        await drizzle.insert(clientTable).values(client);
 
         const res = await requestSender.upsertConnection({ requestBody: connection, queryParams: { shouldIgnoreTokenErrors: true } });
         delete connection.createdAt;
@@ -255,15 +244,18 @@ describe('connection', function () {
 
       it('should generate a token if no token is supplied and private key is available', async function () {
         const client = getFakeClient(false);
-        const connection = getFakeIConnection();
+        const connection = getFakeConnection(false, { name: client.name, environment: Environment.STAGE });
         const keys = getRealKeys();
-        connection.name = client.name;
-        connection.environment = Environment.STAGE;
-        await depContainer.resolve(DataSource).getRepository(Client).save(client);
-        await depContainer.resolve(DataSource).getRepository(Connection).save(connection);
-        const keyRepo = depContainer.resolve(DataSource).getRepository(Key);
-        await keyRepo.clear();
-        await keyRepo.save({ environment: connection.environment, version: 1, privateKey: keys[0], publicKey: keys[1] });
+        // connection.name = client.name;
+        // connection.environment = Environment.STAGE;
+        // await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        // await depContainer.resolve(DataSource).getRepository(Connection).save(connection);
+        await drizzle.insert(clientTable).values(client).onConflictDoNothing();
+        await drizzle.insert(connectionTable).values(connection).onConflictDoNothing();
+        // const keyRepo = depContainer.resolve(DataSource).getRepository(Key);
+        // await keyRepo.clear();
+        // await keyRepo.save({ environment: connection.environment, version: 1, privateKey: keys[0], publicKey: keys[1] });
+        await drizzle.insert(keyTable).values({ environment: connection.environment, version: 1, privateKey: keys[0], publicKey: keys[1] });
 
         delete connection.createdAt;
 
@@ -276,10 +268,11 @@ describe('connection', function () {
 
       it('should create a connection with origins sorted with asterisk strings last', async function () {
         const client = getFakeClient(false);
-        const connection = getFakeIConnection();
-        connection.name = client.name;
-        connection.origins = ['http://example.com', 'https://*.test.com', 'http://foo.com'];
-        await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        const connection = getFakeConnection(false, { name: client.name, origins: ['http://example.com', 'https://*.test.com', 'http://foo.com'] });
+        // connection.name = client.name;
+        // connection.origins = ['http://example.com', 'https://*.test.com', 'http://foo.com'];
+        // await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        await drizzle.insert(clientTable).values(client);
 
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
@@ -295,19 +288,19 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((c: IConnection) => c.name === connections[0]!.name);
+        expect(res.body).toSatisfyAll((c: Connection) => c.name === connections[0]!.name);
       });
     });
 
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 200 status code all the connections with the specific name', async function () {
         const res = await requestSender.getClientEnvironmentConnections({
-          pathParams: { clientName: connections[0]!.name, environment: Environment.PRODUCTION },
+          pathParams: { clientName: connections[0]!.name, environment: Environment.PROD },
         });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toSatisfyAll((c: IConnection) => c.name === connections[0]!.name && c.environment === Environment.PRODUCTION);
+        expect(res.body).toSatisfyAll((c: Connection) => c.name === connections[0]!.name && c.environment === Environment.PROD);
       });
     });
 
@@ -319,23 +312,23 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ ...connections[2], createdAt: connections[2]!.createdAt?.toISOString() });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        expect(res.body).toStrictEqual({ ...connections[2], createdAt: expect.any(String) });
       });
     });
 
     describe('GET /client/:clientName/connection/:environment/latest', function () {
       it('should return 200 status code and the latest connection for the environment', async function () {
-        const expectedConnection = connections.find(
-          (c) => c.name === connections[0]!.name && c.environment === Environment.PRODUCTION && c.version === 2
-        );
+        const expectedConnection = connections.find((c) => c.name === connections[0]!.name && c.environment === Environment.PROD && c.version === 2);
 
         const res = await requestSender.getClientLatestConnection({
-          pathParams: { clientName: connections[0]!.name, environment: Environment.PRODUCTION },
+          pathParams: { clientName: connections[0]!.name, environment: Environment.PROD },
         });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ ...expectedConnection, createdAt: expectedConnection!.createdAt?.toISOString() });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        expect(res.body).toStrictEqual({ ...expectedConnection, createdAt: expect.any(String) });
       });
 
       it('should return 200 status code and the only connection when there is only one version', async function () {
@@ -347,7 +340,8 @@ describe('connection', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toStrictEqual({ ...expectedConnection, createdAt: expectedConnection!.createdAt?.toISOString() });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        expect(res.body).toStrictEqual({ ...expectedConnection, createdAt: expect.any(String) });
       });
     });
   });
@@ -355,8 +349,7 @@ describe('connection', function () {
   describe('Bad Path', function () {
     describe('POST /connection', function () {
       it('should return 400 if the request body is incorrect', async function () {
-        const connection = getFakeConnection();
-        connection.domains = [];
+        const connection = getFakeConnection(false, { name: clients[0]!.name, domains: [] });
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
@@ -364,7 +357,7 @@ describe('connection', function () {
       });
 
       it('should return 400 if a domain is not in the DB', async function () {
-        const connection = getFakeConnection();
+        const connection = getFakeConnection(false, { name: clients[0]!.name });
         connection.domains = ['c'];
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
@@ -373,7 +366,7 @@ describe('connection', function () {
       });
 
       it('should return 400 if token generation failed because of missing private key', async function () {
-        const connection = getFakeConnection();
+        const connection = getFakeConnection(false, { name: clients[0]!.name });
         connection.token = '';
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
@@ -382,8 +375,8 @@ describe('connection', function () {
       });
 
       it('should return 404 if a client with name is not in the DB', async function () {
-        const connection = getFakeIConnection();
-        connection.name = faker.string.alpha(5);
+        const connection = getFakeConnection(false, { name: faker.string.alpha(5) });
+        // connection.name = faker.string.alpha(5);
         const res = await requestSender.upsertConnection({ requestBody: connection });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
@@ -400,9 +393,10 @@ describe('connection', function () {
 
       it("should return 409 if the no connection exists and request version isn't 1", async function () {
         const client = getFakeClient(false);
-        await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        // await depContainer.resolve(DataSource).getRepository(Client).save(client);
+        await drizzle.insert(clientTable).values(client);
 
-        const res = await requestSender.upsertConnection({ requestBody: { ...getFakeIConnection(), name: client.name, version: 2 } });
+        const res = await requestSender.upsertConnection({ requestBody: { ...getFakeConnection(), name: client.name, version: 2 } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
@@ -486,12 +480,13 @@ describe('connection', function () {
 
     describe('GET /connection', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        const qbMock = {
-          getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
-        };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        vi.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
+        // const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
+        // const qbMock = {
+        //   getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
+        // };
+        // // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+        // vi.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
+        vi.spyOn(drizzle, 'select').mockRejectedValue(new Error('DB Error'));
 
         const res = await requestSender.getConnections();
 
@@ -502,10 +497,10 @@ describe('connection', function () {
 
     describe('POST /connection', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const connection = getFakeIConnection();
+        const connection = getFakeConnection();
         connection.name = clients[0]!.name;
 
-        const repo = depContainer.resolve<DomainRepository>(SERVICES.DOMAIN_REPOSITORY);
+        const repo = depContainer.resolve(DomainRepository);
         vi.spyOn(repo, 'checkInputForNonExistingDomains').mockRejectedValue(new Error());
 
         const res = await requestSender.upsertConnection({ requestBody: connection });
@@ -515,10 +510,10 @@ describe('connection', function () {
       });
 
       it('should return 500 if token generation fails', async function () {
-        const connection = getFakeIConnection();
+        const connection = getFakeConnection();
         connection.name = clients[0]!.name;
         connection.token = '';
-        const keyRepo = depContainer.resolve<KeyRepository>(SERVICES.KEY_REPOSITORY);
+        const keyRepo = depContainer.resolve(KeyRepository);
         vi.spyOn(keyRepo, 'getLatestKeys').mockRejectedValue(new Error());
 
         const res = await requestSender.upsertConnection({ requestBody: connection });
@@ -530,12 +525,7 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        const qbMock = {
-          getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
-        };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        vi.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
+        vi.spyOn(drizzle, 'select').mockRejectedValue(new Error('DB Error'));
 
         const res = await requestSender.getClientConnections({ pathParams: { clientName: 'avi' } });
 
@@ -546,12 +536,7 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        const qbMock = {
-          getMany: vi.fn().mockRejectedValue(new Error('DB Error')),
-        };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-        vi.spyOn(repo, 'createQueryBuilder').mockReturnValue(qbMock as any);
+        vi.spyOn(drizzle, 'select').mockRejectedValue(new Error('DB Error'));
 
         const res = await requestSender.getClientEnvironmentConnections({ pathParams: { clientName: 'avi', environment: Environment.NP } });
 
@@ -562,13 +547,12 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment/:version', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const connection = getFakeIConnection();
+        const connection = getFakeConnection();
         connection.name = clients[0]!.name;
         connection.environment = Environment.NP;
 
         await requestSender.upsertConnection({ requestBody: connection });
-        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
-        vi.spyOn(repo, 'findOne').mockRejectedValue(new Error());
+        vi.spyOn(drizzle.query.connection, 'findFirst').mockRejectedValue(new Error());
 
         const res = await requestSender.getClientVersionedConnection({
           pathParams: { clientName: clients[0]!.name, environment: Environment.NP, version: 1 },
@@ -581,7 +565,7 @@ describe('connection', function () {
 
     describe('GET /client/:clientName/connection/:environment/latest', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const repo = depContainer.resolve<ConnectionRepository>(SERVICES.CONNECTION_REPOSITORY);
+        const repo = depContainer.resolve(ConnectionRepository);
         vi.spyOn(repo, 'getMaxVersion').mockRejectedValue(new Error());
 
         const res = await requestSender.getClientLatestConnection({

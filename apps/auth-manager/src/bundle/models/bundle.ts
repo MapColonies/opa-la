@@ -1,7 +1,7 @@
-import type { IBundle } from '@map-colonies/auth-core';
+import type { Bundle } from '@map-colonies/auth-core';
 
 export interface BundleSearchParams {
-  environment?: IBundle['environment'][];
-  createdBefore?: IBundle['createdAt'];
-  createdAfter?: IBundle['createdAt'];
+  environment?: Bundle['environment'][];
+  createdBefore?: Bundle['createdAt'];
+  createdAfter?: Bundle['createdAt'];
 }

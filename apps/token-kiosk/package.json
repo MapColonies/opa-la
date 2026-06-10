@@ -14,10 +14,10 @@
     "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run assets:copy",
     "start": "npm run build && cd dist && node --import ./instrumentation.mjs ./index.js",
     "start:dev": "npm run build && cd dist && cross-env CONFIG_OFFLINE_MODE=true  node --enable-source-maps --import ./instrumentation.mjs ./index.js",
-    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist && copyfiles -u 1 ./src/db/migrations/* ./dist/ && copyfiles -u 1 ./src/db/migrations/meta/* ./dist/",
+    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist && copyfiles -u 1 ./src/db/migrations/**/* ./dist/",
     "clean": "rimraf dist",
     "migration:create": "drizzle-kit generate --config drizzle.config.mts",
-    "migration:run": "ts-node ./src/db/runMigrations.ts",
+    "migration:run": "node ./dist/db/runMigrations.mjs",
     "build:docker": "docker buildx build --build-arg APP_NAME=$npm_package_name -f ../../docker/backend.Dockerfile -t ${DOCKER_REGISTRY:-}${npm_package_name}:${DOCKER_TAG:-latest} ${DOCKER_FLAGS:-} ../..",
     "build:docker-no-cache": "cross-env DOCKER_FLAGS=--no-cache pnpm run build:docker",
     "knip": "knip --directory ../.. --workspace apps/token-kiosk"
@@ -39,6 +39,7 @@
     "@map-colonies/prometheus": "catalog:",
     "@map-colonies/tracing": "catalog:",
     "@map-colonies/tracing-utils": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:",
     "@opentelemetry/api": "catalog:",
     "async-cache-dedupe": "^2.2.0",
     "compression": "catalog:",
@@ -87,7 +88,6 @@
     "tsc-alias": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
-    "ts-node": "^10.9.2",
     "@map-colonies/vitest-utils": "catalog:"
   }
 }

@@ -1,47 +1,35 @@
 /// <reference types="jest-extended" />
-import { afterEach, describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
-import { jsLogger } from '@map-colonies/js-logger';
-import { trace } from '@opentelemetry/api';
+import { afterEach, describe, expect, it, vi, beforeAll } from 'vitest';
 import { faker } from '@faker-js/faker';
 import httpStatusCodes from 'http-status-codes';
-import type { DependencyContainer } from 'tsyringe';
-import type { Repository } from 'typeorm';
-import { DataSource } from 'typeorm';
-import type { Environments, IBundle } from '@map-colonies/auth-core';
-import { Bundle, Environment } from '@map-colonies/auth-core';
+import type { Drizzle, Environments, Bundle } from '@map-colonies/auth-core';
+import { bundleTable, Environment } from '@map-colonies/auth-core';
 import 'jest-openapi';
-import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { ExpectResponseStatus, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { expectResponseStatusFactory } from '@map-colonies/openapi-helpers/requestSender';
 import { getFakeBundle } from 'test-utils';
 import type { paths, operations } from 'auth-openapi';
-import { getApp } from '@src/app.js';
-import { SERVICES } from '@common/constants.js';
-import { initConfig } from '@common/config.js';
-import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
+import { initEnvironment } from '../setup.js';
+
+const expectResponseStatus: ExpectResponseStatus = expectResponseStatusFactory(expect);
+type ApiBundle = operations['getBundle']['responses']['200']['content']['application/json'];
 
 describe('bundle', function () {
   let requestSender: RequestSender<paths, operations>;
-  let depContainer: DependencyContainer;
-  const bundles = [getFakeBundle(), { ...getFakeBundle(), environment: Environment.PRODUCTION }, getFakeBundle()];
+  let drizzle: Drizzle;
+  let bundles: [ApiBundle, ApiBundle, ApiBundle];
 
   beforeAll(async function () {
-    await initConfig(true);
-    const [app, container] = await getApp({
-      override: [
-        { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
-        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
-      ],
-      useChild: true,
-    });
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
-    depContainer = container;
+    const env = await initEnvironment();
+    requestSender = env.requestSender;
+    drizzle = env.drizzle;
 
-    await container.resolve(DataSource).getRepository(Bundle).save(bundles);
-    bundles.forEach((b) => delete b.createdAt);
-  });
-
-  afterAll(async function () {
-    await depContainer.resolve(DataSource).destroy();
+    bundles = (
+      await drizzle
+        .insert(bundleTable)
+        .values([getFakeBundle(), { ...getFakeBundle(), environment: Environment.PROD }, getFakeBundle()])
+        .returning()
+    ).map((b) => ({ ...b, createdAt: b.createdAt.toISOString() })) as [ApiBundle, ApiBundle, ApiBundle];
   });
 
   describe('Happy Path', function () {
@@ -63,8 +51,11 @@ describe('bundle', function () {
       });
 
       it('should support filtering bundles by createdBefore and createdAfter', async function () {
-        const bundle = await requestSender.getBundle({ pathParams: { id: bundles[0]?.id as number } });
-        const bundleBody = bundle.body as IBundle;
+        const bundle = await requestSender.getBundle({ pathParams: { id: bundles[0].id as number } });
+
+        expectResponseStatus(bundle, httpStatusCodes.OK);
+        const bundleBody = bundle.body;
+
         const createdBefore = faker.date.future({ refDate: bundleBody.createdAt });
         const createdAfter = faker.date.past({ refDate: bundleBody.createdAt });
 
@@ -79,12 +70,11 @@ describe('bundle', function () {
 
     describe('GET /bundle/:id', function () {
       it('should return 201 status code and the created bundle', async function () {
-        const firstBundle = bundles[0] as IBundle;
-        const res = await requestSender.getBundle({ pathParams: { id: firstBundle.id as number } });
+        const res = await requestSender.getBundle({ pathParams: { id: bundles[0].id as number } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toMatchObject(firstBundle);
+        expect(res.body).toMatchObject(bundles[0]);
       });
     });
   });
@@ -124,9 +114,7 @@ describe('bundle', function () {
 
     describe('GET /bundle', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const repo = depContainer.resolve<Repository<Bundle>>(SERVICES.BUNDLE_REPOSITORY);
-        const spy = vi.spyOn(repo, 'findBy');
-        spy.mockRejectedValue(new Error());
+        vi.spyOn(drizzle.query.bundle, 'findMany').mockRejectedValue(new Error());
         const res = await requestSender.getBundles();
 
         expect(res).toHaveProperty('status', httpStatusCodes.INTERNAL_SERVER_ERROR);
@@ -136,9 +124,7 @@ describe('bundle', function () {
 
     describe('GET /bundle/:id', function () {
       it('should return 500 status code if db throws an error', async function () {
-        const repo = depContainer.resolve<Repository<Bundle>>(SERVICES.BUNDLE_REPOSITORY);
-
-        vi.spyOn(repo, 'findOneBy').mockRejectedValue(new Error());
+        vi.spyOn(drizzle.query.bundle, 'findFirst').mockRejectedValue(new Error());
 
         const res = await requestSender.getBundle({ pathParams: { id: 1 } });
 

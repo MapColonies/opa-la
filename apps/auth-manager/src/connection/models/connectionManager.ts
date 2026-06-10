@@ -1,31 +1,55 @@
 import { type Logger } from '@map-colonies/js-logger';
-import { Client, Connection, Environments, IConnection } from '@map-colonies/auth-core';
+import { type Connection, connectionTable, type DrizzleTx, Environments, type NewConnection, type Drizzle } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { SelectQueryBuilder } from 'typeorm';
 import { JWK } from 'jose';
 import { paths } from 'auth-openapi';
+import { ilike, SQL, inArray, eq, arrayContains, count, and, desc, countDistinct, sql } from 'drizzle-orm';
+import { sortOptionsToOrderBy } from '@map-colonies/drizzle-utils';
+import { type PaginationParams, type SortOptions, paginationParamsToOffsetAndLimit } from '@map-colonies/drizzle-utils';
 import { ClientNotFoundError } from '@client/models/errors';
 import { SERVICES } from '@common/constants';
-import { type DomainRepository } from '@domain/DAL/domainRepository';
+import { DomainRepository } from '@domain/DAL/domainRepository';
 import { DomainNotFoundError } from '@domain/models/errors';
-import { type KeyRepository } from '@key/DAL/keyRepository';
+import { KeyRepository } from '@key/DAL/keyRepository';
 import { generateToken } from '@common/crypto';
-import { PaginationParams, paginationParamsToFindOptions } from '@src/common/db/pagination';
 import { KeyNotFoundError } from '@key/models/errors';
-import { SortOptions } from '@src/common/db/sort';
 import { asteriskStringComparatorLast } from '@src/utils/utils';
-import { type ConnectionRepository } from '../DAL/connectionRepository';
+import { ConnectionRepository } from '../DAL/connectionRepository';
 import { ConnectionVersionMismatchError, ConnectionNotFoundError } from './errors';
 
 type ConnectionSearchParams = NonNullable<paths['/connection']['get']['parameters']['query']>;
+
+function getSearchFilters(params: ConnectionSearchParams): SQL | undefined {
+  const filters: SQL[] = [];
+  if (params.name !== undefined) {
+    filters.push(ilike(connectionTable.name, `%${params.name}%`));
+  }
+  if (params.environment) {
+    filters.push(inArray(connectionTable.environment, params.environment));
+  }
+  if (params.isNoBrowser !== undefined) {
+    filters.push(eq(connectionTable.allowNoBrowserConnection, params.isNoBrowser));
+  }
+  if (params.isNoOrigin !== undefined) {
+    filters.push(eq(connectionTable.allowNoOriginConnection, params.isNoOrigin));
+  }
+  if (params.domains) {
+    filters.push(arrayContains(connectionTable.domains, params.domains));
+  }
+  if (params.isEnabled !== undefined) {
+    filters.push(eq(connectionTable.enabled, params.isEnabled));
+  }
+  return and(...filters);
+}
 
 @injectable()
 export class ConnectionManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.CONNECTION_REPOSITORY) private readonly connectionRepository: ConnectionRepository,
-    @inject(SERVICES.DOMAIN_REPOSITORY) private readonly domainRepository: DomainRepository,
-    @inject(SERVICES.KEY_REPOSITORY) private readonly keyRepository: KeyRepository
+    @inject(ConnectionRepository) private readonly connectionRepository: ConnectionRepository,
+    @inject(DomainRepository) private readonly domainRepository: DomainRepository,
+    @inject(KeyRepository) private readonly keyRepository: KeyRepository,
+    @inject(SERVICES.DRIZZLE) private readonly drizzle: Drizzle
   ) {}
 
   /**
@@ -42,78 +66,52 @@ export class ConnectionManager {
     searchParams: ConnectionSearchParams,
     paginationParams?: PaginationParams,
     sortParams?: SortOptions<Connection>
-  ): Promise<[IConnection[], number]> {
+  ): Promise<[Connection[], number]> {
     this.logger.info({ msg: 'fetching connections', searchParams });
+    const filters = getSearchFilters(searchParams);
 
-    const qb = this.connectionRepository.createQueryBuilder('connection');
+    const countQuery =
+      searchParams.onlyLatest === true
+        ? this.drizzle.select({ count: countDistinct(sql`(${connectionTable.name},${connectionTable.environment})`) })
+        : this.drizzle.select({ count: count() });
 
-    // 1. Apply Base Filters
-    this.applySearchFilters(qb, searchParams);
+    const countResult = await countQuery.from(connectionTable).where(filters);
+    const total = countResult[0]?.count ?? 0;
 
-    // 2. Calculate Total Count
-    let total: number;
+    const selectQuery =
+      searchParams.onlyLatest === true ? this.drizzle.selectDistinctOn([connectionTable.name, connectionTable.environment]) : this.drizzle.select();
 
-    if (searchParams.onlyLatest!) {
-      // STRATEGY: Distinct Count
-      // Standard .getCount() returns total rows. We need total *unique clients and environments*.
-      // We clone the query to avoid modifying the main QB instance used for fetching data.
-      const countResult = await qb
-        .clone()
-        .select('COUNT(DISTINCT (connection.name, connection.environment))', 'count')
-        .getRawOne<{ count: string }>();
+    const subQuery = selectQuery
+      .from(connectionTable)
+      .where(filters)
+      .orderBy(connectionTable.name, connectionTable.environment, desc(connectionTable.version))
+      .as('sq');
 
-      total = parseInt(countResult?.count ?? '0', 10);
-    } else {
-      // STRATEGY: Standard Count
-      total = await qb.getCount();
-    }
+    const { limit, offset } = paginationParamsToOffsetAndLimit(paginationParams);
 
-    // 3. Apply Scope & Sorting
-    if (searchParams.onlyLatest!) {
-      // STRATEGY: Postgres DISTINCT ON
-      // We group by name/env and keep the first row Postgres sees.
-      qb.distinctOn(['connection.name', 'connection.environment']);
+    const connections = await this.drizzle
+      .select()
+      .from(subQuery)
+      .orderBy(...sortOptionsToOrderBy(subQuery, sortParams ?? {}))
+      .limit(limit)
+      .offset(offset);
 
-      // REQUIREMENT: Postgres mandates that DISTINCT ON columns match the initial ORDER BY keys.
-      // We must apply the user's sort direction to these keys first.
-      const nameOrder = sortParams?.name?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-      const envOrder = sortParams?.environment?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-
-      qb.orderBy('connection.name', nameOrder).addOrderBy('connection.environment', envOrder);
-
-      // CRITICAL: The "Latest" Logic
-      // Within the unique (name, env) group, we force a sort by version DESC.
-      // Since DISTINCT ON picks the *first* row it encounters, this ensures the "Latest" version is picked.
-      qb.addOrderBy('connection.version', 'DESC');
-    } else if (sortParams) {
-      Object.entries(sortParams).forEach(([key, order]) => {
-        qb.addOrderBy(`connection.${key}`, order.toUpperCase() as 'ASC' | 'DESC');
-      });
-    }
-
-    // 4. Pagination & Execution
-    if (paginationParams) {
-      const { skip, take } = paginationParamsToFindOptions(paginationParams);
-      qb.skip(skip).take(take);
-    }
-
-    const connections = await qb.getMany();
     return [connections, total];
   }
 
-  public async getConnection(name: string, environment: Environments, version: number): Promise<IConnection> {
+  public async getConnection(name: string, environment: Environments, version: number): Promise<Connection> {
     this.logger.info({ msg: 'fetching connection', connection: { name, version, environment } });
 
-    const connection = await this.connectionRepository.findOne({ where: { name, version } });
+    const connection = await this.drizzle.query.connection.findFirst({ where: { name, version, environment } });
 
-    if (connection === null) {
+    if (connection === undefined) {
       this.logger.debug('connection was not found in the database');
       throw new ConnectionNotFoundError('connection was not found in the database');
     }
     return connection;
   }
 
-  public async getLatestConnection(name: string, environment: Environments): Promise<IConnection> {
+  public async getLatestConnection(name: string, environment: Environments): Promise<Connection> {
     this.logger.info({ msg: 'fetching latest connection', connection: { name, environment } });
     const version = await this.connectionRepository.getMaxVersion(name, environment);
 
@@ -124,27 +122,25 @@ export class ConnectionManager {
     return this.getConnection(name, environment, version);
   }
 
-  public async upsertConnection(connection: IConnection, ignoreTokenErrors = false): Promise<IConnection> {
+  public async upsertConnection(connection: NewConnection, ignoreTokenErrors = false): Promise<Connection> {
     this.logger.info({ msg: 'upserting connection', connection: { environment: connection.environment, version: connection.version } });
-    return this.connectionRepository.manager.transaction(async (transactionManager) => {
-      const connectionRepo = transactionManager.withRepository(this.connectionRepository);
-      const domainRepo = transactionManager.withRepository(this.domainRepository);
 
-      const client = await transactionManager.getRepository(Client).findOneBy({ name: connection.name });
+    return this.drizzle.transaction(async (tx) => {
+      const client = await tx.query.client.findFirst({ where: { name: connection.name } });
 
-      if (client === null) {
+      if (client === undefined) {
         throw new ClientNotFoundError('no client exists with given name');
       }
 
-      const notExistingDomains = await domainRepo.checkInputForNonExistingDomains(connection.domains);
+      const notExistingDomains = await this.domainRepository.checkInputForNonExistingDomains(connection.domains);
 
       if (notExistingDomains.length > 0) {
         throw new DomainNotFoundError(`the following domains do not exist: ${notExistingDomains.join(', ')}`);
       }
 
-      connection.token = await this.handleToken(connection, transactionManager.withRepository(this.keyRepository), !ignoreTokenErrors);
+      connection.token = await this.handleToken(connection, tx, !ignoreTokenErrors);
 
-      const maxVersion = await connectionRepo.getMaxVersionWithLock(connection.name, connection.environment);
+      const maxVersion = await this.connectionRepository.getMaxVersionWithLock(connection.name, connection.environment, tx);
       connection.origins = connection.origins.sort(asteriskStringComparatorLast());
 
       if (maxVersion === null) {
@@ -154,8 +150,9 @@ export class ConnectionManager {
           throw new ConnectionVersionMismatchError(msg);
         }
         this.logger.info({ msg: 'creating new connection', connection: { clientName: connection.name, environment: connection.environment } });
+
         // insert
-        return connectionRepo.save(connection);
+        return (await tx.insert(connectionTable).values(connection).returning())[0] as Connection;
       }
 
       if (maxVersion !== connection.version) {
@@ -167,16 +164,21 @@ export class ConnectionManager {
 
       this.logger.info({ msg: 'updating existing connection', connection: { clientName: connection.name, environment: connection.environment } });
       // update
-      return connectionRepo.save({ ...connection, version: maxVersion + 1 });
+      return (
+        await tx
+          .insert(connectionTable)
+          .values({ ...connection, version: maxVersion + 1 })
+          .returning()
+      )[0] as Connection;
     });
   }
 
-  private async handleToken(connection: IConnection, transactionKeyRepo: KeyRepository, throwOnError?: boolean): Promise<string> {
+  private async handleToken(connection: NewConnection, transaction: DrizzleTx, throwOnError?: boolean): Promise<string> {
     if (connection.token !== '') {
       return connection.token;
     }
 
-    const key = (await transactionKeyRepo.getLatestKeys()).find((key) => key.environment === connection.environment);
+    const key = (await this.keyRepository.getLatestKeys(transaction)).find((key) => key.environment === connection.environment);
 
     if (key?.privateKey === undefined) {
       this.logger.warn({
@@ -197,30 +199,6 @@ export class ConnectionManager {
         throw err;
       }
       return '';
-    }
-  }
-
-  /**
-   * Centralized filter logic to avoid duplication
-   */
-  private applySearchFilters(qb: SelectQueryBuilder<Connection>, params: ConnectionSearchParams): void {
-    if (params.name !== undefined) {
-      qb.andWhere('connection.name ILIKE :name', { name: `%${params.name}%` });
-    }
-    if (params.environment) {
-      qb.andWhere('connection.environment IN (:...environment)', { environment: params.environment });
-    }
-    if (params.isNoBrowser !== undefined) {
-      qb.andWhere('connection.allowNoBrowserConnection = :isNoBrowser', { isNoBrowser: params.isNoBrowser });
-    }
-    if (params.isNoOrigin !== undefined) {
-      qb.andWhere('connection.allowNoOriginConnection = :isNoOrigin', { isNoOrigin: params.isNoOrigin });
-    }
-    if (params.domains) {
-      qb.andWhere('connection.domains @> :domains', { domains: params.domains });
-    }
-    if (params.isEnabled !== undefined) {
-      qb.andWhere('connection.enabled = :isEnabled', { isEnabled: params.isEnabled });
     }
   }
 }

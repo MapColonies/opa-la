@@ -25,7 +25,7 @@ describe('validators.ts', function () {
     });
 
     it('should throw if the bucket does not exists', async function () {
-      const promise = validateS3([Environment.PRODUCTION]);
+      const promise = validateS3([Environment.PROD]);
 
       await expect(promise).rejects.toThrow();
     });

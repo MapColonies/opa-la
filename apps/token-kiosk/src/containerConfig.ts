@@ -5,6 +5,7 @@ import type { DependencyContainer } from 'tsyringe/dist/typings/types';
 import { jsLogger } from '@map-colonies/js-logger';
 import type { Pool } from 'pg';
 import { instanceCachingFactory, instancePerContainerCachingFactory } from 'tsyringe';
+import { healthCheck, initConnection } from '@map-colonies/drizzle-utils';
 import { registerDependencies, type InjectionObject } from '@common/dependencyRegistration';
 import { SERVICES, SERVICE_NAME } from '@common/constants';
 import { getTracing } from '@common/tracing';
@@ -12,10 +13,10 @@ import { tokenRouterFactory, TOKEN_ROUTER_SYMBOL } from './tokens/routes/tokenRo
 import { getConfig } from './common/config';
 import { AUTH_ROUTER_SYMBOL, authRouterFactory } from './auth/routes/authRouter';
 import { authManagerClientFactory } from './tokens/models/authManagerClient';
-import { createConnectionOptions, createDrizzle, healthCheck, initConnection } from './db/createConnection';
 import { openidAuthMiddlewareFactory } from './auth/middlewares/openid';
 import { GUIDES_ROUTER_SYMBOL, guidesRouterFactory } from './guides/routes/guidesRouter';
 import { FILES_ROUTER_SYMBOL, filesRouterFactory } from './files/routes/filesRouter';
+import { createDrizzle } from './db/drizzle';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -40,7 +41,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   let pool: Pool;
   try {
-    pool = await initConnection(createConnectionOptions(configInstance.get('db')));
+    pool = await initConnection(configInstance.get('db'));
   } catch (error) {
     throw new Error(`Failed to connect to the database`, { cause: error });
   }

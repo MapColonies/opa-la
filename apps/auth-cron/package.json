@@ -15,9 +15,6 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "migration:run": "npm run typeorm migration:run -- ",
-    "migration:revert": "npm run typeorm migration:revert -- ",
-    "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:ui": "vitest --ui",
@@ -43,20 +40,21 @@
     "@map-colonies/schemas": "catalog:",
     "@map-colonies/prometheus": "catalog:",
     "@map-colonies/tracing": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:",
     "@opentelemetry/api": "catalog:",
     "croner": "6.0.3",
     "express": "catalog:",
     "http-status-codes": "^2.2.0",
     "pg": "catalog:",
     "prom-client": "catalog:",
-    "typeorm": "catalog:"
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/express": "catalog:",
     "jest-extended": "catalog:",
     "test-utils": "workspace:^",
-    "ts-node": "^10.9.1",
+    "@types/pg": "catalog:",
     "typescript": "catalog:",
     "@types/lodash": "catalog:",
     "vitest": "catalog:",

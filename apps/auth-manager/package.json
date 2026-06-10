@@ -19,10 +19,6 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:ui": "vitest --ui",
-    "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
-    "migration:create": "npm run typeorm migration:generate --",
-    "migration:run": "npm run typeorm migration:run -- ",
-    "migration:revert": "npm run typeorm migration:revert -- ",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "prebuild": "npm run clean",
@@ -51,6 +47,7 @@
     "@map-colonies/prometheus": "catalog:",
     "@map-colonies/tracing": "catalog:",
     "@map-colonies/tracing-utils": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:",
     "@opentelemetry/api": "catalog:",
     "auth-openapi": "workspace:^",
     "body-parser": "catalog:",
@@ -65,7 +62,7 @@
     "prom-client": "catalog:",
     "reflect-metadata": "catalog:",
     "tsyringe": "catalog:",
-    "typeorm": "catalog:"
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@map-colonies/openapi-helpers": "catalog:",
@@ -84,8 +81,6 @@
     "jest-extended": "catalog:",
     "jest-openapi": "catalog:",
     "supertest": "catalog:",
-    "ts-node": "^10.9.1",
-    "type-fest": "^4.40.0",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@map-colonies/vitest-utils": "catalog:",

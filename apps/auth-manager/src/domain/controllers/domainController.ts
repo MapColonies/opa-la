@@ -1,10 +1,9 @@
 import { HttpError } from '@map-colonies/error-express-handler';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { Domain } from '@map-colonies/auth-core';
+import type { Domain } from '@map-colonies/auth-core';
 import type { TypedRequestHandlers } from 'auth-openapi';
-import { sortOptionParser } from '@src/common/db/sort';
-import { DEFAULT_PAGE_SIZE } from '@src/common/db/pagination';
+import { DEFAULT_PAGE_SIZE, sortOptionParser } from '@map-colonies/drizzle-utils';
 import { DomainManager } from '../models/domainManager';
 import { DomainAlreadyExistsError } from '../models/errors';
 
