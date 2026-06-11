@@ -11,6 +11,7 @@ export const bundleTable = authManagerSchema.table('bundle', {
   createdAt: createdAtColumn,
   keyVersion: integer(),
   opaVersion: text().notNull(),
+  revision: text().notNull(),
 });
 
 export type Bundle = typeof bundleTable.$inferSelect;
