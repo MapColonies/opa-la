@@ -934,6 +934,9 @@ importers:
       execa:
         specifier: ^7.1.1
         version: 7.2.0
+      fast-json-stable-stringify:
+        specifier: ^2.1.0
+        version: 2.1.0
       handlebars:
         specifier: 4.7.7
         version: 4.7.7
