@@ -57,7 +57,7 @@ describe('db.ts', function () {
 
       const db = new BundleDatabase(pool);
 
-      const res = await db.saveBundle({ assets: [], connections: [], environment: Environment.PROD, keyVersion: 3 }, 'xdxd');
+      const res = await db.saveBundle({ assets: [], connections: [], environment: Environment.PROD, keyVersion: 3 }, 'xdxd', 'lol');
 
       expect(res).toBeGreaterThan(0);
 
@@ -134,8 +134,8 @@ describe('db.ts', function () {
 
     it('should return the latest bundle ordered by id for the given environment', async function () {
       await drizzle.insert(bundleTable).values([
-        { environment: Environment.STAGE, hash: 'hash1', opaVersion: '0.52.0', assets: [], connections: [] },
-        { environment: Environment.STAGE, hash: 'hash2', opaVersion: '0.52.0', assets: [], connections: [] },
+        { environment: Environment.STAGE, hash: 'hash1', opaVersion: '0.52.0', assets: [], connections: [], revision: 'revision1' },
+        { environment: Environment.STAGE, hash: 'hash2', opaVersion: '0.52.0', assets: [], connections: [], revision: 'revision2' },
       ]);
 
       const db = new BundleDatabase(pool);
