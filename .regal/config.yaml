@@ -1,0 +1,9 @@
+rules:
+  imports:
+    unresolved-reference:
+      level: error
+      except-paths:
+        - data.keys
+        - data.possibleLocations
+        - data.users
+        - data.keys.kid
