@@ -48,7 +48,7 @@ describe('guides', function () {
       useChild: true,
     });
 
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app, { baseUrl: '/api' });
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     drizzle = container.resolve<Drizzle>(SERVICES.DRIZZLE);
     nock('http://localhost:8082').get('/key/prod/latest').reply(httpStatusCodes.OK, privateKey);
 

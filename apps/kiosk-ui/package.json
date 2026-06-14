@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "knip": "knip --directory ../.. --workspace apps/kiosk-ui"
+    "knip": "knip --directory ../.. --workspace apps/kiosk-ui",
+    "build:docker": "docker buildx build --build-arg APP_NAME=$npm_package_name -f ../../docker/frontend.Dockerfile -t ${DOCKER_REGISTRY:-}${npm_package_name}:${DOCKER_TAG:-latest} ${DOCKER_FLAGS:-} ../..",
+    "build:docker-no-cache": "cross-env DOCKER_FLAGS=--no-cache pnpm run build:docker"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",

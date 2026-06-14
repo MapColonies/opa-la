@@ -55,7 +55,7 @@ describe('token', function () {
       useChild: true,
     });
 
-    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app, { baseUrl: '/api' });
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
     drizzle = container.resolve<Drizzle>(SERVICES.DRIZZLE);
   });
 

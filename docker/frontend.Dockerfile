@@ -5,7 +5,7 @@ FROM node:${NODE_VERSION}-slim AS base
 WORKDIR /app
 
 ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+ENV PATH="$PNPM_HOME/bin:$PATH"
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable
 
@@ -31,21 +31,8 @@ COPY --from=pruner /app/out/full/ .
 
 RUN pnpm turbo build --filter ${APP_NAME}...
 
-RUN pnpm --filter ${APP_NAME} deploy --prod --legacy /prod-app
-
-FROM node:${NODE_VERSION}-alpine AS runner
+FROM acrarolibotnonprod.azurecr.io/common/nginx:v2.1.6 AS runner
 
 ARG APP_NAME
 
-ENV NODE_ENV=production
-ENV SERVER_PORT=3000
-
-WORKDIR /app
-
-COPY --chown=node:node --from=builder /prod-app/dist .
-
-RUN npm i -g serve
-
-USER node
-EXPOSE 3000
-CMD [ "serve", "-s", "." ]
+COPY --from=builder /app/apps/${APP_NAME}/dist /usr/share/nginx/html
