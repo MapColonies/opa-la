@@ -7,3 +7,11 @@ rules:
         - data.possibleLocations
         - data.users
         - data.keys.kid
+        - data.users.avi.allowNoBrowser
+        - data.users.avi.allowNoOrigin
+  style:
+    line-length:
+      level: ignore
+  idiomatic:
+    directory-package-mismatch:
+      level: ignore
