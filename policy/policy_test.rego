@@ -1,4 +1,6 @@
-package http.authz
+package http.authz_test
+
+import data.http.authz
 
 private_key_1 := {
 	"kty": "RSA",
@@ -43,35 +45,35 @@ postman_agent := "PostmanRuntime/7.32.2"
 qgis_agent := "Mozilla/5.0 QGIS/34400/Ubuntu 22.04.5 LTS"
 
 users := {
-		"avi": {
+	"avi": {
 		"allowNoBrowser": false,
 		"allowNoOrigin": false,
 		"domains": ["avi"],
 		"origins": ["https://avi.com"],
-		}, 
-		"itzik": {
-			"allowNoBrowser": false,
-			"allowNoOrigin": false,
-			"domains": ["avi"],
-			"origins": ["*.itzik.maps.com"],
-		}, 
-		"zvika": {
-			"allowNoBrowser": false,
-			"allowNoOrigin": false,
-			"domains": ["avi"],
-			"origins": ["https://google.com", "*.zvika.maps.com"],
-		}
+	},
+	"itzik": {
+		"allowNoBrowser": false,
+		"allowNoOrigin": false,
+		"domains": ["avi"],
+		"origins": ["*.itzik.maps.com"],
+	},
+	"zvika": {
+		"allowNoBrowser": false,
+		"allowNoOrigin": false,
+		"domains": ["avi"],
+		"origins": ["https://google.com", "*.zvika.maps.com"],
+	},
 }
 
 generate_token(key, payload) := token if {
-	newPayload := json.patch(payload, [{"op": "add", "path": "iss", "value": "mapcolonies-token-cli"}])
+	new_payload := json.patch(payload, [{"op": "add", "path": "iss", "value": "mapcolonies-token-cli"}])
 	token := io.jwt.encode_sign(
 		{
 			"typ": "JWT",
 			"alg": "RS256",
-            "kid": key.kid,
+			"kid": key.kid,
 		},
-		newPayload,
+		new_payload,
 		key,
 	)
 }
@@ -81,33 +83,33 @@ generate_token(key, payload) := token if {
 # =========================================================
 
 test_deny_no_token if {
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
 	not res.allowed
-  res.reason == "no token supplied in any of the possible locations"
+	res.reason == "no token supplied in any of the possible locations"
 }
 
 test_deny_malformed_token if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": substring(token, 0, 40), "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": substring(token, 0, 40), "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
 	not res.allowed
-  
-  res.reason == "token not valid"
+
+	res.reason == "token not valid"
 }
 
 test_deny_token_signed_with_wrong_key if {
 	token := generate_token(private_key_2, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
 	not res.allowed
-    contains(res.reason, "token environment mismatch")
+	contains(res.reason, "token environment mismatch")
 }
 
 # =========================================================
@@ -116,18 +118,18 @@ test_deny_token_signed_with_wrong_key if {
 
 test_allow_token_supplied_in_header if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
-    with data.users as users
+		with data.users as users
 
 	res.allowed
 }
 
 test_allow_token_supplied_in_query_param if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "User-Agent": chrome_agent}, "query": {"token": token}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "User-Agent": chrome_agent}, "query": {"token": token}}
 		with data.keys as public_key_1
-    with data.users as users
+		with data.users as users
 
 	res.allowed
 }
@@ -138,12 +140,12 @@ test_allow_token_supplied_in_query_param if {
 
 test_deny_user_not_found if {
 	token := generate_token(private_key_1, {"sub": "nx_user"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
 	not res.allowed
-  res.reason == "the token is valid, but the user is not found"
+	res.reason == "the token is valid, but the user is not found"
 }
 
 # =========================================================
@@ -152,22 +154,22 @@ test_deny_user_not_found if {
 
 test_deny_domain_missing_from_request if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
 	not res.allowed
-  contains(res.reason, "domain missing")
+	contains(res.reason, "domain missing")
 }
 
 test_deny_domain_not_allowed_for_user if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"itzik", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "itzik", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
 	not res.allowed
-  contains(res.reason, "domain check failed")
+	contains(res.reason, "domain check failed")
 }
 
 # =========================================================
@@ -176,7 +178,7 @@ test_deny_domain_not_allowed_for_user if {
 
 test_deny_wrong_origin if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi2.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi2.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -185,7 +187,7 @@ test_deny_wrong_origin if {
 
 test_deny_missing_origin if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -195,7 +197,7 @@ test_deny_missing_origin if {
 # sec-fetch-site: same-origin bypasses origin header check (browser same-origin requests don't always send Origin)
 test_allow_same_origin_fetch_site_bypasses_origin_check if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Sec-Fetch-Site": "same-origin"}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Sec-Fetch-Site": "same-origin"}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -204,17 +206,17 @@ test_allow_same_origin_fetch_site_bypasses_origin_check if {
 
 test_allow_no_origin_when_user_permits_it if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
-    with data.users as users
-    with data.users.avi.allowNoOrigin as true
+		with data.users as users
+		with data.users.avi.allowNoOrigin as true
 
 	res.allowed
 }
 
 test_allow_wildcard_origin_matching_subdomain if {
 	token := generate_token(private_key_1, {"sub": "itzik"})
-	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://meow.itzik.maps.com"}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://meow.itzik.maps.com"}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -223,7 +225,7 @@ test_allow_wildcard_origin_matching_subdomain if {
 
 test_deny_wildcard_origin_not_matching_subdomain if {
 	token := generate_token(private_key_1, {"sub": "itzik"})
-	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://meow.avi.maps.com"}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://meow.avi.maps.com"}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -232,7 +234,7 @@ test_deny_wildcard_origin_not_matching_subdomain if {
 
 test_allow_specific_origin_for_user_with_multiple_origins if {
 	token := generate_token(private_key_1, {"sub": "zvika"})
-	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://google.com"}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent, "Origin": "https://google.com"}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -241,7 +243,7 @@ test_allow_specific_origin_for_user_with_multiple_origins if {
 
 test_deny_unrecognised_origin_for_user_with_multiple_origins if {
 	token := generate_token(private_key_1, {"sub": "zvika"})
-	res := decision with input as {"domain":"avi", "headers": { "User-Agent": chrome_agent, "Origin": "https://ggl.com"}, "query": {"token": token}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"User-Agent": chrome_agent, "Origin": "https://ggl.com"}, "query": {"token": token}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -250,7 +252,7 @@ test_deny_unrecognised_origin_for_user_with_multiple_origins if {
 
 test_deny_origin_matching_wrong_glob_pattern if {
 	token := generate_token(private_key_1, {"sub": "zvika"})
-	res := decision with input as {"domain":"avi", "headers": { "User-Agent": chrome_agent, "Origin": "https://avi.bla.zvika.maps.com"}, "query": {"token": token}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"User-Agent": chrome_agent, "Origin": "https://avi.bla.zvika.maps.com"}, "query": {"token": token}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -263,7 +265,7 @@ test_deny_origin_matching_wrong_glob_pattern if {
 
 test_deny_non_browser_user_agent if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": postman_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": postman_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -273,7 +275,7 @@ test_deny_non_browser_user_agent if {
 
 test_deny_missing_user_agent if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -283,22 +285,22 @@ test_deny_missing_user_agent if {
 
 test_allow_non_browser_user_agent_when_user_permits_it if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": postman_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"X-Api-Key": token, "User-Agent": postman_agent}}
 		with data.keys as public_key_1
 		with data.users as users
-    with data.users.avi.allowNoBrowser as true
-    with data.users.avi.allowNoOrigin as true
+		with data.users.avi.allowNoBrowser as true
+		with data.users.avi.allowNoOrigin as true
 
 	res.allowed
 }
 
 # =========================================================
-# Decision response shape tests
+# authz.decision response shape tests
 # =========================================================
 
 test_allowed_decision_contains_sub if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -308,7 +310,7 @@ test_allowed_decision_contains_sub if {
 
 test_allowed_decision_contains_kid if {
 	token := generate_token(private_key_1, {"sub": "avi"})
-	res := decision with input as {"domain":"avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"Origin": "https://avi.com", "X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -322,7 +324,7 @@ test_allowed_decision_contains_kid if {
 
 test_allow_c2b_connection_from_qgis if {
 	token := generate_token(private_key_1, {"sub": "c2b"})
-	res := decision with input as {"domain":"raster", "headers": {"X-Api-Key": token, "User-Agent": qgis_agent}}
+	res := authz.decision with input as {"domain": "raster", "headers": {"X-Api-Key": token, "User-Agent": qgis_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -331,7 +333,7 @@ test_allow_c2b_connection_from_qgis if {
 
 test_allow_c2b_connection_from_arcgis if {
 	token := generate_token(private_key_1, {"sub": "c2b"})
-	res := decision with input as {"domain":"raster", "headers": {"X-Api-Key": token, "User-Agent": "ArcGIS Map Viewer/10.9.1"}}
+	res := authz.decision with input as {"domain": "raster", "headers": {"X-Api-Key": token, "User-Agent": "ArcGIS Map Viewer/10.9.1"}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -340,7 +342,7 @@ test_allow_c2b_connection_from_arcgis if {
 
 test_deny_c2b_connection_from_browser if {
 	token := generate_token(private_key_1, {"sub": "c2b"})
-	res := decision with input as {"domain":"raster", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
+	res := authz.decision with input as {"domain": "raster", "headers": {"X-Api-Key": token, "User-Agent": chrome_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -349,7 +351,7 @@ test_deny_c2b_connection_from_browser if {
 
 test_deny_c2b_connection_no_user_agent if {
 	token := generate_token(private_key_1, {"sub": "c2b"})
-	res := decision with input as {"domain":"raster", "headers": {"X-Api-Key": token}}
+	res := authz.decision with input as {"domain": "raster", "headers": {"X-Api-Key": token}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -359,7 +361,7 @@ test_deny_c2b_connection_no_user_agent if {
 
 test_deny_c2b_connection_wrong_domain if {
 	token := generate_token(private_key_1, {"sub": "c2b"})
-	res := decision with input as {"domain":"avi", "headers": {"X-Api-Key": token, "User-Agent": qgis_agent}}
+	res := authz.decision with input as {"domain": "avi", "headers": {"X-Api-Key": token, "User-Agent": qgis_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
@@ -368,8 +370,8 @@ test_deny_c2b_connection_wrong_domain if {
 }
 
 test_deny_c2b_connection_if_token_expired if {
-	token := generate_token(private_key_1, {"sub": "c2b", "exp": time.now_ns() / 1000000000 - 60})  # 1 minute ago
-	res := decision with input as {"domain":"raster", "headers": {"X-Api-Key": token, "User-Agent": qgis_agent}}
+	token := generate_token(private_key_1, {"sub": "c2b", "exp": (time.now_ns() / 1000000000) - 60}) # 1 minute ago
+	res := authz.decision with input as {"domain": "raster", "headers": {"X-Api-Key": token, "User-Agent": qgis_agent}}
 		with data.keys as public_key_1
 		with data.users as users
 
