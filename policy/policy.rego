@@ -105,6 +105,8 @@ deny contains "c2b user only allowed from QGIS or ARCGIS" if {
 	not contains(user_agent, "arcgis")
 }
 
+# METADATA
+# entrypoint: true
 decision := {"allowed": true, "sub": claims.payload.sub, "kid": claims.kid} if {
 	count(deny) == 0
 	claims.payload.sub != null
