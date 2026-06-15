@@ -1135,6 +1135,8 @@ components:
           format: int32
         hash:
           type: string
+        revision:
+          type: string
         metadata:
           type: object
           additionalProperties: true
