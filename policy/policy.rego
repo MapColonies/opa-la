@@ -14,15 +14,15 @@ constraints := {
 headers := lower_object_keys(input.headers)
 
 tokens := [token |
-	# keys := data.possibleLocations[_]
 	some key in data.possibleLocations
 	lower_obj := lower_object_keys(object.get(input, key[0], ""))
 	token := object.get(lower_obj, key[1], null)
 	token != null
 ]
 
+default claims := {"payload": {}}
+
 claims := {"payload": payload, "valid": valid, "kid": kid} if {
-	# token := tokens[_]
 	some token in tokens
 	[header, payload, _] := io.jwt.decode(token)
 	kid := object.get(header, "kid", null) # Extract kid from JWT header
