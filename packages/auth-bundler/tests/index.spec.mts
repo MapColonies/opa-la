@@ -79,23 +79,5 @@ describe('index.ts', function () {
 
       await expect(promise).rejects.toThrow(OpaBundleCreationError);
     });
-
-    it('should pass the revision to createBundleCommand when provided', async function () {
-      const createBundleCommandSpy = vi.spyOn(opa, 'createBundleCommand').mockResolvedValue([true, undefined]);
-      vi.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
-
-      await createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: false }, 'np-abc123def456');
-
-      expect(createBundleCommandSpy).toHaveBeenCalledWith(baseFolder, 'bundle.tar.gz', 'np-abc123def456');
-    });
-
-    it('should pass undefined revision to createBundleCommand when not provided', async function () {
-      const createBundleCommandSpy = vi.spyOn(opa, 'createBundleCommand').mockResolvedValue([true, undefined]);
-      vi.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
-
-      await createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: false });
-
-      expect(createBundleCommandSpy).toHaveBeenCalledWith(baseFolder, 'bundle.tar.gz', undefined);
-    });
   });
 });

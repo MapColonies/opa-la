@@ -91,7 +91,6 @@ describe('job.ts', function () {
         createdAt: new Date(),
         hash: 'avi',
         metadata: null,
-        revision: 'revision',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -118,7 +117,6 @@ describe('job.ts', function () {
         opaVersion: '0.52.0',
         createdAt: new Date(),
         metadata: null,
-        revision: 'revision',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -148,7 +146,6 @@ describe('job.ts', function () {
         opaVersion: '0.52.0',
         createdAt: new Date(),
         metadata: null,
-        revision: 'revision',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
@@ -177,7 +174,6 @@ describe('job.ts', function () {
         opaVersion: '0.51.0',
         createdAt: new Date(),
         metadata: null,
-        revision: 'revision',
       });
       bundleDbMock.getLatestVersions.mockResolvedValue({
         assets: [{ name: 'avi', version: 1 }],
