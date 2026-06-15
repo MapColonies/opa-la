@@ -1,0 +1,34 @@
+{
+  "cron": {
+    "np": {
+      "pattern": "*/30 * * * * *",
+      "s3": {
+        "accessKeyId": "minioadmin",
+        "secretAccessKey": "minioadmin",
+        "endpoint": "http://localhost:9000",
+        "bucket": "auth-cron-tests",
+        "key": "np-bundle.tar.gz"
+      }
+    },
+    "stage": {
+      "pattern": "*/30 * * * * *",
+      "s3": {
+        "accessKeyId": "minioadmin",
+        "secretAccessKey": "minioadmin",
+        "endpoint": "http://localhost:1",
+        "bucket": "auth-cron-tests",
+        "key": "stage-bundle.tar.gz"
+      }
+    },
+    "prod": {
+      "pattern": "*/30 * * * * *",
+      "s3": {
+        "accessKeyId": "minioadmin",
+        "secretAccessKey": "minioadmin",
+        "endpoint": "http://localhost:9000",
+        "bucket": "avi",
+        "key": "prod-bundle.tar.gz"
+      }
+    }
+  }
+}

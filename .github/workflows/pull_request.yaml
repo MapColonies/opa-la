@@ -3,7 +3,8 @@ name: pull_request
 on: [pull_request, workflow_dispatch]
 
 env:
-  DB_HOST: localhost
+  TURBO_SCM_BASE: origin/${{ github.base_ref}}
+  NODE_CONFIG_ENV: test
 
 jobs:
   eslint:
@@ -12,63 +13,37 @@ jobs:
 
     strategy:
       matrix:
-        node: [22.x, 24.x]
+        node: [24.x]
 
     steps:
       - name: Check out TS Project Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
+          filter: 'blob:none' # Fetch only the commit history and tree, not file contents
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Init nodejs
+        uses: ./.github/actions/init-pnpm
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
 
-      - name: Install TS Project dependencies
-        run: npm ci
-
-      - name: build packages
-        run: npx lerna run build
-
-      - name: Run TS Project linters
-        run: npm run lint
+      - name: Run linters
+        run: pnpm exec turbo run lint --affected
 
   openapi-lint:
     name: Run OpenAPI lint Check
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        package: [auth-manager]
-
     steps:
       - name: Check out TS Project Git repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
-          node-version: ${{ matrix.node }}
-          cache: npm
+          fetch-depth: 0 # Fetch all history for all branches and tags
+          filter: 'blob:none' # Fetch only the commit history and tree, not file contents
 
-      - name: Install TS Project dependencies
-        run: npm ci
-
-      - name: build packages
-        run: npx lerna run build
-
-      - name: OpenAPI Lint Checks
-        run: npx @redocly/cli lint --format=github-actions ./packages/${{ matrix.package }}/openapi3.yaml
-
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Init nodejs
+        uses: ./.github/actions/init-pnpm
+      - name: Run openapi linters
+        run: pnpm exec turbo run lint:openapi --affected
 
   tests:
     name: Run Tests
@@ -76,66 +51,37 @@ jobs:
 
     strategy:
       matrix:
-        node: [22.x, 24.x]
-        package: [auth-manager, '@map-colonies/auth-bundler', 'auth-cron']
-
-    services:
-      # Label used to access the service container
-      minio:
-        image: acrarolibotnonprod.azurecr.io/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
-        credentials:
-          username: ${{ secrets.ACR_PUSH_USER }}
-          password: ${{ secrets.ACR_PUSH_TOKEN }}
-        ports:
-          - 9000:9000
-          - 9001:9001
-        env:
-          MINIO_ROOT_USER: minioadmin
-          MINIO_ROOT_PASSWORD: minioadmin
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/minio/health/live || exit 1"
-          --health-interval 30s
-          --health-timeout 10s
-          --health-retries 10
-          --health-start-period 30s
-      postgres:
-        # Docker Hub image
-        image: postgres:14
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: 1234
-          POSTGRES_USER: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        node: [24.x]
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v3
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
+          filter: 'blob:none' # Fetch only the commit history and tree, not file contents
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Init nodejs
+        uses: ./.github/actions/init-pnpm
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
-
-      - name: Install TS Project dependencies
-        run: npm ci
-
-      - name: build packages
-        run: npx lerna run build
 
       - name: Run tests
-        run: npx lerna run test --scope ${{ matrix.package }}
+        run: pnpm exec turbo run test --affected
 
-      - uses: actions/upload-artifact@v4
-        continue-on-error: true
+  knip:
+    name: Run knip to detect unused dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out TS Project Git repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Fetch base branch for turbo
+        run: git fetch origin ${{ github.base_ref }} --depth=1
+
+      - name: Init nodejs
+        uses: ./.github/actions/init-pnpm
         with:
-          name: Test Reporters for ${{ matrix.package }} Node-${{ matrix.node }}
-          path: reports/**
+          install-filter: '*'
+
+      - name: Run knip
+        run: pnpm run knip

@@ -1,6 +1,4 @@
 {
-  "extends": ["./tsconfig.json", "../../tsconfig.build.json"],
-  "compilerOptions": {
-    "declaration": true
-  }
+  "extends": "./tsconfig.json",
+  "exclude": ["tests/**"]
 }

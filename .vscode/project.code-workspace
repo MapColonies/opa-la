@@ -13,6 +13,18 @@
       "path": "../packages/auth-core",
     },
     {
+      "name": "Auth OpenAPI",
+      "path": "../packages/auth-openapi",
+    },
+    {
+      "name": "Token OpenAPI",
+      "path": "../packages/token-openapi",
+    },
+    {
+      "name": "Test Utils",
+      "path": "../packages/test-utils",
+    },
+    {
       "name": "Auth Cron",
       "path": "../packages/auth-cron",
     },

@@ -1,0 +1,15 @@
+{
+  "extends": "@map-colonies/tsconfig/tsconfig-app",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": ["ESNext"],
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@tests/*": ["./tests/*"],
+      "@common/*": ["./src/common/*"]
+    },
+    "types": ["jest-openapi", "lodash"]
+  },
+  "include": ["src", "tests"],
+  "exclude": ["node_modules", "dist"]
+}

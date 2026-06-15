@@ -1,0 +1,47 @@
+import { HttpError } from '@map-colonies/error-express-handler';
+import { Bundle } from '@map-colonies/auth-core';
+import httpStatus from 'http-status-codes';
+import { injectable, inject } from 'tsyringe';
+import type { TypedRequestHandlers, components, operations } from 'auth-openapi';
+import { removeNulls } from '@src/utils/mapper';
+import { BundleManager } from '../models/bundleManager';
+import { BundleNotFoundError } from '../models/errors';
+
+function responseBundleToOpenApi(bundle: Bundle): components['schemas']['bundle'] {
+  return {
+    ...removeNulls(bundle),
+    createdAt: bundle.createdAt.toISOString(),
+  };
+}
+
+@injectable()
+export class BundleController {
+  public constructor(@inject(BundleManager) private readonly manager: BundleManager) {}
+
+  public getBundles: TypedRequestHandlers['getBundles'] = async (req, res, next) => {
+    try {
+      const query = req.query as NonNullable<operations['getBundles']['parameters']['query']>;
+      const searchParams = {
+        ...query,
+        createdBefore: query.createdBefore !== undefined ? new Date(query.createdBefore) : undefined,
+        createdAfter: query.createdAfter !== undefined ? new Date(query.createdAfter) : undefined,
+      };
+      const bundles = await this.manager.getBundles(searchParams);
+      return res.status(httpStatus.OK).json(bundles.map(responseBundleToOpenApi));
+    } catch (error) {
+      return next(error);
+    }
+  };
+
+  public getBundle: TypedRequestHandlers['getBundle'] = async (req, res, next) => {
+    try {
+      const bundle = await this.manager.getBundle(req.params.id);
+      return res.status(httpStatus.OK).json(responseBundleToOpenApi(bundle));
+    } catch (error) {
+      if (error instanceof BundleNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+  };
+}

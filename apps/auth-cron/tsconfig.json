@@ -1,0 +1,12 @@
+{
+  "extends": "@map-colonies/tsconfig/tsconfig-app",
+  "compilerOptions": {
+    "types": ["lodash"],
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@tests/*": ["./tests/*"]
+    }
+  },
+  "include": ["src", "tests"],
+  "exclude": ["node_modules", "dist"]
+}

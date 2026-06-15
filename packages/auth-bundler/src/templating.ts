@@ -1,4 +1,4 @@
-import handleBars, { HelperOptions } from 'handlebars';
+import handleBars, { type HelperOptions } from 'handlebars';
 import { logger } from './logger';
 
 handleBars.registerHelper('escapeJson', (value: string) => {

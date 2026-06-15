@@ -1,8 +1,9 @@
+import { describe, expect, it } from 'vitest';
 import { extractNameAndVersion } from '@src/util';
 
 describe('util.ts', function () {
   describe('#extractNameAndVersion', function () {
-    it('extract only the name and version from the object', function () {
+    it('should extract only the name and version from the object', function () {
       const input = [
         { name: 'avi', version: 1, x: 'd' },
         { name: 'iva', version: 1, x: 'd' },
@@ -11,8 +12,8 @@ describe('util.ts', function () {
       const res = extractNameAndVersion(input);
 
       expect(res).toStrictEqual([
-        { name: 'avi', version: 1 },
-        { name: 'iva', version: 1 },
+        ['avi', 'iva'],
+        [1, 1],
       ]);
     });
   });

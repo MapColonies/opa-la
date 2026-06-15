@@ -10,7 +10,7 @@
 import { existsSync } from 'node:fs';
 import { createBundleCommand, testCommand, validateBinaryExistCommand, testCoverageCommand } from './opa';
 import { createBundleDirectoryStructure } from './bundler';
-import { BundleContent, TestOptions } from './types';
+import type { BundleContent, TestOptions } from './types';
 import { logger } from './logger';
 import { OpaBundleCreationError, OpaCoverageTooLowError, OpaNotFoundError, OpaTestsFailedError, WorkdirNotFoundError } from './errors';
 

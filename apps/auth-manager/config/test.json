@@ -1,0 +1,12 @@
+{
+  "db": {
+    "host": "localhost",
+    "schema": "auth_manager",
+    "username": "postgres",
+    "password": "postgres",
+    "database": "auth-manager",
+    "ssl": {
+      "enabled": false
+    }
+  }
+}

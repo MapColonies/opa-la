@@ -1,0 +1,122 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+
+mclabels:
+  component: backend
+  owner: infra
+  partOf: authentication
+  prometheus:
+    enabled: true
+
+enabled: true
+replicaCount: 1
+initialDelaySeconds: 60
+resetOnConfigChange: true
+
+extraEnvVars: []
+# extraEnvVars:
+#   - name: DB_HOST
+#     value: localhost
+#   - name: DB_NAME
+#     value: postgres
+
+cloudProvider:
+  dockerRegistryUrl: my-registry-url.io
+  imagePullSecretName: 'my-registry-secret'
+  flavor: openshift
+
+ca:
+  enabled: false
+  secretName: 'root-ca'
+  path: '/usr/local/share/ca-certificates'
+  key: 'ca.crt'
+
+image:
+  repository: auth-manager
+  # tag: 'latest'
+
+env:
+  port: 8080
+  targetPort: 8080
+  logLevel: info
+  logPrettyPrintEnabled: false
+  responseCompressionEnabled: true
+  requestPayloadLimit: 1mb
+  tracing:
+    enabled: false
+    url: http://localhost:55681/v1/trace
+  metrics:
+    enabled: false
+    url: http://localhost:55681/v1/metrics
+
+configManager:
+  offlineMode: false
+  serverUrl: 'https://infra-config-config/api'
+  name: 'auth-manager'
+  version: 'latest'
+
+dbConfig:
+  host: localhost
+  username: postgres
+  password: postgres
+  database: auth-manager
+  port: 5432
+  useExternalSecret: true
+  secretName: ''
+  sslAuth:
+    enabled: false
+    certFileName: certFile
+    keyFileName: keyFile
+    caFileName: caFile
+
+additionalPodAnnotations: {}
+
+resources:
+  enabled: true
+  value:
+    limits:
+      cpu: 400m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+route:
+  enabled: true
+  path: /api
+  host: 
+  timeout:
+    enabled: false # defaults to 30s by openshift
+    duration: 60s # supported units (us, ms, s, m, h, d)
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+    useCerts: false
+    certificate:
+    key:
+    caCertificate:
+
+ingress:
+  enabled: false
+  className: ""
+  labels: {}
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts: []
+    # - host: opa.domain.com
+    #   paths:
+    #     - path: /
+    #       pathType: ImplementationSpecific
+  path: /
+  # host: 'localhost'
+  # cors:
+  #   enabled: true
+  #   origin: '*'
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - opa.domain.com

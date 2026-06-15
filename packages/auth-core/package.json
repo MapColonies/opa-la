@@ -6,47 +6,52 @@
   "homepage": "https://github.com/MapColonies/opa-la#readme",
   "license": "MIT",
   "main": "dist/index.js",
+  "type": "commonjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MapColonies/opa-la.git"
   },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "format": "prettier --check .",
-    "format:fix": "prettier --write .",
-    "typeorm": "node ../../node_modules/typeorm/cli.js -d ./dataSource.mjs",
-    "migration:create": "npm run typeorm migration:generate --",
-    "migration:run": "npm run typeorm migration:run -- ",
-    "migration:revert": "npm run typeorm migration:revert -- ",
+    "migration:create": "drizzle-kit generate --config drizzle.config.mts",
+    "migration:run": "pnpm run build && node runMigrations.mts",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "prebuild": "npm run clean",
-    "build": "tsc --project tsconfig.build.json && npm run assets:copy",
-    "prepublish": "npm run build",
-    "assets:copy": "copyfiles ./package.json dist",
-    "clean": "rimraf dist"
+    "prebuild": "pnpm run clean",
+    "build": "tsc --project tsconfig.json && pnpm run assets:copy",
+    "assets:copy": "copyfiles -u 2 src/migrations/**/* dist/migrations",
+    "clean": "rimraf dist",
+    "prepack": "turbo run build",
+    "check-dist": "publint && attw --pack .",
+    "knip": "knip --directory ../.. --workspace packages/auth-core"
   },
   "bugs": {
     "url": "https://github.com/MapColonies/opa-la/issues"
   },
   "dependencies": {
-    "@map-colonies/read-pkg": "0.0.1",
-    "pg": "^8.10.0",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.12"
+    "pg": "catalog:",
+    "@map-colonies/schemas": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:"
   },
   "devDependencies": {
-    "@map-colonies/config": "^3.0.0",
-    "@map-colonies/schemas": "^1.9.0",
-    "@types/node": "^18.15.5",
-    "@types/pg": "^8.6.6",
-    "@types/pg-pool": "^2.0.3",
-    "config": "^3.3.9",
-    "copyfiles": "^2.4.1",
-    "rimraf": "^4.4.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.8.3"
+    "@map-colonies/config": "catalog:",
+    "@map-colonies/tsconfig": "catalog:",
+    "@map-colonies/eslint-config": "catalog:",
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "typescript": "catalog:",
+    "drizzle-kit": "catalog:"
   },
   "peerDependencies": {
-    "@map-colonies/js-logger": "^1.0.1"
+    "@map-colonies/js-logger": "catalog:",
+    "drizzle-orm": "catalog:"
   }
 }

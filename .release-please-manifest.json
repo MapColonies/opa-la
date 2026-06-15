@@ -1,0 +1,13 @@
+{
+  "packages/auth-bundler": "1.13.0",
+  "packages/auth-core": "1.13.0",
+  "packages/auth-openapi": "1.13.0",
+  "packages/token-openapi": "1.13.0",
+  "packages/test-utils": "1.13.0",
+  "apps/auth-cron": "1.13.0",
+  "apps/auth-manager": "1.13.0",
+  "apps/token-kiosk": "1.13.0",
+  "apps/auth-ui": "1.13.0",
+  "apps/kiosk-ui": "1.13.0",
+  ".": "1.13.0"
+}

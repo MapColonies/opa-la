@@ -1,0 +1,67 @@
+{
+  "name": "auth-cron",
+  "version": "1.11.0",
+  "description": "Server for generating and uploading Open Policy Agent bundles",
+  "dockerfile": "docker/backend.Dockerfile",
+  "author": "MapColonies",
+  "homepage": "https://github.com/MapColonies/opa-la#readme",
+  "license": "MIT",
+  "private": "true",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MapColonies/opa-la.git"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:ui": "vitest --ui",
+    "prebuild": "npm run clean",
+    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run assets:copy",
+    "build:docker": "docker buildx build --build-arg APP_NAME=$npm_package_name -f ../../docker/backend.Dockerfile -t ${DOCKER_REGISTRY:-}${npm_package_name}:${DOCKER_TAG:-latest} ${DOCKER_FLAGS:-} ../..",
+    "build:docker-no-cache": "cross-env DOCKER_FLAGS=--no-cache pnpm run build:docker",
+    "start": "npm run build && cd dist && node --enable-source-maps --import ./instrumentation.mjs ./index.js",
+    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles ./package.json dist && copyfiles ./dataSource.mjs dist && copyfiles -f ./src/wrappers/* ./dist/wrappers",
+    "clean": "rimraf dist",
+    "knip": "knip --directory ../.. --workspace apps/auth-cron"
+  },
+  "bugs": {
+    "url": "https://github.com/MapColonies/opa-la/issues"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "@godaddy/terminus": "catalog:",
+    "@map-colonies/auth-bundler": "workspace:^",
+    "@map-colonies/auth-core": "workspace:^",
+    "@map-colonies/config": "catalog:",
+    "@map-colonies/js-logger": "catalog:",
+    "@map-colonies/schemas": "catalog:",
+    "@map-colonies/prometheus": "catalog:",
+    "@map-colonies/tracing": "catalog:",
+    "@map-colonies/drizzle-utils": "catalog:",
+    "@opentelemetry/api": "catalog:",
+    "croner": "6.0.3",
+    "express": "catalog:",
+    "http-status-codes": "^2.2.0",
+    "pg": "catalog:",
+    "prom-client": "catalog:",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/express": "catalog:",
+    "jest-extended": "catalog:",
+    "test-utils": "workspace:^",
+    "@types/pg": "catalog:",
+    "typescript": "catalog:",
+    "@types/lodash": "catalog:",
+    "vitest": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "@map-colonies/vitest-utils": "catalog:",
+    "@map-colonies/eslint-config": "catalog:",
+    "@map-colonies/tsconfig": "catalog:"
+  }
+}

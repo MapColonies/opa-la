@@ -114,3 +114,8 @@ local.json
 *.tar.gz*
 
 html
+
+out
+prod
+.turbo
+docs

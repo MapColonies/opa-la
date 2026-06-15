@@ -6,9 +6,9 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { Asset, type AssetTypes, Key } from '@map-colonies/auth-core';
+import type { Asset, AssetType, Key } from '@map-colonies/auth-core';
 import { render } from './templating';
-import { BundleContent } from './types';
+import type { BundleContent } from './types';
 import { logger } from './logger';
 import { MissingPolicyFilesError } from './errors';
 
@@ -46,7 +46,7 @@ async function handleKey(basePath: string, key: Key): Promise<void> {
  * @ignore
  */
 async function handleAsset(basePath: string, asset: Asset, context: unknown): Promise<void> {
-  let value = Buffer.from(asset.value, 'base64').toString('utf-8');
+  let value = asset.value.toString('utf-8');
 
   if (asset.isTemplate) {
     value = render(value, context);
@@ -75,7 +75,7 @@ async function handleAsset(basePath: string, asset: Asset, context: unknown): Pr
  * @ignore
  */
 export async function createBundleDirectoryStructure(bundle: BundleContent, path: string): Promise<void> {
-  const hasAssetType: Record<AssetTypes, boolean> = {
+  const hasAssetType: Record<keyof typeof AssetType, boolean> = {
     /* eslint-disable @typescript-eslint/naming-convention */
     DATA: false,
     POLICY: false,

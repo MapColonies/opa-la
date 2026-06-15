@@ -1,0 +1,65 @@
+import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
+import { trace } from '@opentelemetry/api';
+import httpStatusCodes from 'http-status-codes';
+import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { RequestContext } from 'express-openid-connect';
+import type { RequestHandler } from 'express';
+import type { paths, operations } from 'token-openapi';
+import { getApp } from '@src/app';
+import { OPENAPI_PATH } from '@tests/utils/paths.mjs';
+import { SERVICES } from '@common/constants';
+import { initConfig } from '@src/common/config';
+import mockUser from '../data/user';
+
+describe('guides', function () {
+  let requestSender: RequestSender<paths, operations>;
+  let oidcContext = { user: mockUser } as unknown as RequestContext;
+
+  beforeAll(async function () {
+    try {
+      await initConfig(true);
+    } catch (error) {
+      console.error('Failed to initialize configuration:', error);
+      throw error;
+    }
+  });
+
+  beforeEach(async function () {
+    const middlewareMock: RequestHandler = (req, res, next) => {
+      req.oidc = oidcContext as unknown as RequestContext;
+      next();
+    };
+
+    const [app] = await getApp({
+      override: [
+        { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
+        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+        { token: SERVICES.AUTH_MIDDLEWARE, provider: { useValue: middlewareMock } },
+      ],
+      useChild: true,
+    });
+
+    requestSender = await createRequestSender<paths, operations>(OPENAPI_PATH, app);
+  });
+
+  afterEach(function () {
+    oidcContext = { user: mockUser } as unknown as RequestContext;
+    vi.resetAllMocks();
+  });
+
+  describe('Happy Path', function () {
+    it('should return 200 status code and the token', async function () {
+      const res = await requestSender.getGuides();
+
+      expect(res.status).toBe(httpStatusCodes.OK);
+      expect(res).toSatisfyApiSpec();
+      expect(res.body).toEqual({
+        qgis: 'https://example.com/qgis-guide',
+        arcgis: 'https://example.com/arcgis-guide',
+        enabled: true,
+      });
+    });
+  });
+});

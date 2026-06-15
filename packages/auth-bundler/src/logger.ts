@@ -1,4 +1,4 @@
-import { Logger } from '@map-colonies/js-logger';
+import type { Logger } from '@map-colonies/js-logger';
 
 /**
  * The optional logger instance for any logging required in this package

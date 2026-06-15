@@ -1,0 +1,53 @@
+import { beforeEach, describe, expect, it, beforeAll, afterEach } from 'vitest';
+import { jsLogger } from '@map-colonies/js-logger';
+import { trace } from '@opentelemetry/api';
+import httpStatusCodes from 'http-status-codes';
+import type { DependencyContainer } from 'tsyringe';
+import { Pool } from 'pg';
+import { getApp } from '@src/app';
+import { initConfig } from '@src/common/config';
+import { SERVICES } from '@src/common/constants';
+import { DocsRequestSender } from './helpers/docsRequestSender';
+
+describe('docs', function () {
+  let requestSender: DocsRequestSender;
+  let depContainer: DependencyContainer;
+
+  beforeAll(async function () {
+    await initConfig(true);
+  });
+
+  beforeEach(async function () {
+    const [app, container] = await getApp({
+      override: [
+        { token: SERVICES.LOGGER, provider: { useValue: await jsLogger({ enabled: false }) } },
+        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+      ],
+      useChild: true,
+    });
+    requestSender = new DocsRequestSender(app);
+    depContainer = container;
+  });
+
+  afterEach(async function () {
+    await depContainer.resolve(Pool).end();
+  });
+
+  describe('Happy Path', function () {
+    it('should return 200 status code and the resource', async function () {
+      const response = await requestSender.getDocs();
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+      expect(response.type).toBe('text/html');
+    });
+
+    it('should return 200 status code and the json spec', async function () {
+      const response = await requestSender.getDocsJson();
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+
+      expect(response.type).toBe('application/json');
+      expect(response.body).toHaveProperty('openapi');
+    });
+  });
+});

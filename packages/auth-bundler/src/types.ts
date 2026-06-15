@@ -1,4 +1,4 @@
-import { Asset, Connection, Environments, Key } from '@map-colonies/auth-core';
+import type { Asset, Connection, Environments, Key } from '@map-colonies/auth-core';
 
 /**
  * Interface for describing bundle versions

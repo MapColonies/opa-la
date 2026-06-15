@@ -8,14 +8,7 @@
       "file": "node_modules/@map-colonies/infra-copilot-instructions/instructions/commit.md"
     }
   ],
-  "github.copilot.chat.testGeneration.instructions": [
-    {
-      "file": "node_modules/@map-colonies/infra-copilot-instructions/instructions/test.md"
-    }
-  ],
-  "github.copilot.chat.codeGeneration.instructions": [
-    {
-      "file": "node_modules/@map-colonies/infra-copilot-instructions/instructions/code.md"
-    }
-  ]
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
