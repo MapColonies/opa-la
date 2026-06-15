@@ -19,6 +19,7 @@ export { setLogger } from './logger';
 export { BundleDatabase } from './db';
 export * from './types';
 export { getVersionCommand } from './opa';
+export { computeRevision } from './util';
 
 /**
  * This function creates an opa bundle tarball from the given content
@@ -33,7 +34,13 @@ export { getVersionCommand } from './opa';
  * @throws {@link OpaBundleCreationError} If the OPA bundle creation process failed.
 
  */
-export async function createBundle(content: BundleContent, workDir: string, bundlePath: string, tests?: TestOptions): Promise<void> {
+export async function createBundle(
+  content: BundleContent,
+  workDir: string,
+  bundlePath: string,
+  tests?: TestOptions,
+  revision?: string
+): Promise<void> {
   logger?.info({ msg: 'creating bundle', workDir, bundlePath });
   if (!existsSync(workDir)) {
     logger?.debug('workdir does not exists');
@@ -66,7 +73,7 @@ export async function createBundle(content: BundleContent, workDir: string, bund
     }
   }
 
-  const [creationCompleted, creationErr] = await createBundleCommand(workDir, bundlePath);
+  const [creationCompleted, creationErr] = await createBundleCommand(workDir, bundlePath, revision);
 
   if (!creationCompleted) {
     logger?.debug('failed creating bundle');

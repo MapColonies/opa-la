@@ -138,6 +138,21 @@ describe('opa.ts', function () {
 
       expect(err).toBe('oh no');
     });
+
+    it('should include the --revision flag when revision is provided', async function () {
+      const execaSpy = vi.spyOn(execa, 'execa').mockResolvedValue({ failed: false } as ExecaChildProcess);
+      await createBundleCommand(baseFolder, 'bundle.tar.gz', 'np-abc123def456');
+
+      expect(execaSpy).toHaveBeenCalledWith('opa', expect.arrayContaining(['--revision', 'np-abc123def456']), expect.anything());
+    });
+
+    it('should not include the --revision flag when revision is not provided', async function () {
+      const execaSpy = vi.spyOn(execa, 'execa').mockResolvedValue({ failed: false } as ExecaChildProcess);
+      await createBundleCommand(baseFolder, 'bundle.tar.gz');
+
+      const calledArgs = execaSpy.mock.calls[0]?.[1] as string[];
+      expect(calledArgs).not.toContain('--revision');
+    });
   });
 
   describe('#getVersionCommand', function () {
