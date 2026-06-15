@@ -2,7 +2,7 @@ import { ConnectionConfig } from 'pg';
 import { defineConfig } from 'drizzle-kit';
 import { getConfig, initConfig } from './src/config.js';
 
-import { createConnectionOptions } from '@map-colonies/drizzle-utils';
+import { createConnectionOptions } from './src/db/utils/createConnection.js';
 import { ConnectionOptions } from 'node:tls';
 
 await initConfig();

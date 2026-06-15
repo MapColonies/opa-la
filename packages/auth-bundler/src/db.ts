@@ -92,7 +92,7 @@ export class BundleDatabase {
    * @param hash The md5 hash of the created bundle tarball
    * @returns The ID of the created bundle
    */
-  public async saveBundle(versions: BundleContentVersions, hash: string, revision: string): Promise<number> {
+  public async saveBundle(versions: BundleContentVersions, hash: string): Promise<number> {
     logger?.debug('saving bundle to db');
     const bundle: NewBundle = {
       environment: versions.environment,
@@ -101,7 +101,6 @@ export class BundleDatabase {
       keyVersion: versions.keyVersion,
       hash,
       opaVersion: await getVersionCommand(),
-      revision,
     };
 
     const res = await this.drizzle.insert(bundleTable).values(bundle).returning();

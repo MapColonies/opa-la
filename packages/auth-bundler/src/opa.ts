@@ -67,17 +67,13 @@ export async function testCoverageCommand(path: string): Promise<number> {
  * Runs the build command to create a bundle tarball from the given directory
  * @param filesPath The path of the files from which to create the bundle
  * @param bundlePath The path in which to save the created bundle. note: the path is relative to filesPath.
- * @param revision The revision string to associate with the bundle
  * @returns true if the command ran successfully, false and the returned error otherwise
  * @see {@link https://www.openpolicyagent.org/docs/latest/cli/#opa-build}
  * @ignore
  */
-export async function createBundleCommand(filesPath: string, bundlePath: string, revision?: string): Promise<[true, undefined] | [false, string]> {
-  const args = ['build', '-o', bundlePath, '-b', '.'];
-  if (revision !== undefined) {
-    args.push('--revision', revision);
-  }
-  const res = await execa('opa', args, { cwd: filesPath, reject: false });
+export async function createBundleCommand(filesPath: string, bundlePath: string): Promise<[true, undefined] | [false, string]> {
+  const res = await execa('opa', ['build', '-o', bundlePath, '-b', '.'], { cwd: filesPath, reject: false });
+
   if (!res.failed) {
     return [true, undefined];
   }

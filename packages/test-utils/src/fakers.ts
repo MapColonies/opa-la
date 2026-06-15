@@ -58,7 +58,6 @@ export function getFakeBundle(includeCreated?: boolean): Bundle | NewBundle {
     hash: faker.string.alpha(EIGHT),
     createdAt: includeCreated === true ? faker.date.past() : undefined,
     environment: Environment.NP,
-    revision: `${Environment.NP}-${faker.string.hexadecimal({ length: 12, casing: 'lower', prefix: '' })}`,
     keyVersion: 1,
     assets: [{ name: 'aaaa', version: 1 }],
     connections: [{ name: 'bbb', version: 2 }],
