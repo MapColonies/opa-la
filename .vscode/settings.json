@@ -10,5 +10,7 @@
   ],
   "[github-actions-workflow]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "opa.dependency_paths.opa": "${workspaceFolder}/policy/opa",
+  "opa.dependency_paths.regal": "${workspaceFolder}/policy/regal"
 }
