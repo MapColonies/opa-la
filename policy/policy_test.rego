@@ -305,7 +305,7 @@ test_allowed_decision_contains_sub if {
 		with data.users as users
 
 	res.allowed
-	res.sub == "avi"
+	res.metadata.sub == "avi"
 }
 
 test_allowed_decision_contains_kid if {
@@ -315,7 +315,7 @@ test_allowed_decision_contains_kid if {
 		with data.users as users
 
 	res.allowed
-	res.kid == "opa_test_key_1"
+	res.metadata.kid == "opa_test_key_1"
 }
 
 # =========================================================

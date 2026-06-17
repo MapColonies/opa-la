@@ -12,4 +12,5 @@ mask contains {"op": "upsert", "path": "/input/headers/x-api-key", "value": "**r
 
 drop if {
 	input.result.allowed == true
+	not input.result.warnings
 }
