@@ -234,8 +234,8 @@ fluentbit:
         if record["result"] ~= nil then
             -- Loki metadata requires strings, so we cast the boolean
             new_record["allowed"] = tostring(record["result"]["allowed"])
-            new_record["reason"] = record["result"]["reason"]
-            new_record["warnings"] = record["result"]["warnings"]
+            new_record["reasons"] = record["result"]["reasons"]
+            new_record["codes"] = record["result"]["codes"]
             new_record["sub"] = record["result"]["metadata"]["sub"]
             new_record["kid"] = record["result"]["metadata"]["kid"]
             new_record["warnings"] = record["result"]["warnings"]
@@ -252,6 +252,7 @@ fluentbit:
         -- We return the Fluent Bit ingestion timestamp as the official log time.
         return 1, timestamp, new_record
       end
+
   config:
     inputs: |
       [INPUT]
@@ -278,4 +279,4 @@ fluentbit:
           Structured_metadata trace_id=$trace_id, span_id=$span_id, requested_by=$requested_by, reason=$reason, subject=$sub, token_kid=$kid, warnings=$warnings, total_time_ns=$total_time_ns, allowed=$allowed, token_location=$token_location, origin=$origin, user_agent=$user_agent, bundle_revision=$bundle_revision
           
           # CLEANUP: Strip these fields from the main JSON log body
-          Remove_Keys  env, domain, allowed, trace_id, span_id, requested_by, reason, sub, total_time_ns, opa_domain, token_location, origin, user_agent, bundles
+          Remove_Keys  env, domain, allowed, trace_id, span_id, requested_by, sub, total_time_ns, opa_domain, token_location, origin, user_agent, bundles, referer

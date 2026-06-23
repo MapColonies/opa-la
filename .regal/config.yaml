@@ -12,6 +12,8 @@ rules:
   style:
     line-length:
       level: ignore
+    file-length:
+      level: ignore
   idiomatic:
     directory-package-mismatch:
       level: ignore
