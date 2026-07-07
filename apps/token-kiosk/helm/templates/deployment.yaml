@@ -93,7 +93,7 @@ spec:
             - name: REQUESTS_CA_BUNDLE
               value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
             - name: NODE_EXTRA_CA_CERTS
-              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key }}
+              value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
             {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
