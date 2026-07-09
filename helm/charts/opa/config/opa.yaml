@@ -7,7 +7,7 @@ services:
         environment_credentials: {}
 {{- if .Values.fluentbit.enabled }}
   fluent-bit:
-    url: {{ .Values.fluentbit.url | default (printf "http://%s-fluentbit:9880" .Release.Name)}}
+    url: {{ .Values.fluentbit.url | default (printf "http://%s-fluentbit:9880" .Release.Name)}}/opa.logs
 {{- end }}
 
 bundles:

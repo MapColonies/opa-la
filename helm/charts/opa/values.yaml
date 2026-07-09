@@ -168,8 +168,8 @@ fluentbit:
     mapcolonies.io/owner: "infra"
   podAnnotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "2020"
-    prometheus.io/path: "/api/v1/metrics/prometheus"
+    prometheus.io/port: "2021"
+    prometheus.io/path: "/metrics"
   loki:
     url: loki.namespace.svc.cluster.local
     port: "3100"
@@ -182,6 +182,10 @@ fluentbit:
     - name: input
       port: 9880
       containerPort: 9880
+      protocol: TCP
+    - name: prom-metrics
+      port: 2021
+      containerPort: 2021
       protocol: TCP
   luaScripts:
     transform.lua: |
@@ -238,7 +242,7 @@ fluentbit:
             new_record["codes"] = record["result"]["codes"]
             new_record["sub"] = record["result"]["metadata"]["sub"]
             new_record["kid"] = record["result"]["metadata"]["kid"]
-            new_record["warnings"] = record["result"]["warnings"]
+            new_record["warn"] = record["result"]["warnings"]
         end
 
         -- 6. The original OPA timestamp string
@@ -259,16 +263,60 @@ fluentbit:
           Name         http
           Listen       0.0.0.0
           Port         9880
+          Tag opa.logs
+
+      [INPUT]
+          Name fluentbit_metrics
+          Tag internal.metrics
+          Scrape_Interval 30
     filters: |
       [FILTER]
+          Name                log_to_metrics
+          Match               opa.logs*
+          Tag                 opa.metrics
+          Metric_Name         opa_decisions_total
+          Metric_Mode         counter
+          Metric_Description  Total OPA decisions by status, subject, and domain
+          Add_Label         status $result['computed_status']
+          Add_Label         subject $result['metadata']['sub']
+          Add_Label         domain $input['domain']
+          Add_Label         opa_env $labels['environment']
+
+      [FILTER]
+          Name                log_to_metrics
+          Match               opa.logs*
+          Tag                 opa.metrics
+          Metric_Name         opa_server_handler_ns
+          Metric_Mode         histogram
+          Metric_Description  OPA server handler latency in nanoseconds - not full request latency, but the time spent in the OPA handler itself
+          Value_Field         $metrics['timer_server_handler_ns']
+          Add_Label         status $result['computed_status']
+          Add_Label         opa_env $labels['environment']
+          Bucket              50000
+          Bucket              100000
+          Bucket              250000
+          Bucket              500000
+          Bucket              1000000
+          Bucket              2500000
+          Bucket              5000000
+          Bucket              10000000
+          Bucket              25000000
+          Bucket              50000000
+
+      [FILTER]
+          Name         grep
+          Match        opa.logs*
+          Exclude      $result['computed_status'] ^allowed$
+
+      [FILTER]
           Name         lua
-          Match        *
+          Match        opa.logs*
           script       /fluent-bit/scripts/transform.lua
           call         transform_opa_log
     outputs: |
       [OUTPUT]
           Name         loki
-          Match        *
+          Match        opa.logs*
           Host         ${FLUENT_LOKI_HOST}
           Port         ${FLUENT_LOKI_PORT}
           
@@ -276,7 +324,13 @@ fluentbit:
           Labels       job=opa, environment=$env, opa_domain=$opa_domain
           
           # METADATA: Allowed moved here, along with other high-cardinality data
-          Structured_metadata trace_id=$trace_id, span_id=$span_id, requested_by=$requested_by, reason=$reason, subject=$sub, token_kid=$kid, warnings=$warnings, total_time_ns=$total_time_ns, allowed=$allowed, token_location=$token_location, origin=$origin, user_agent=$user_agent, bundle_revision=$bundle_revision
+          Structured_metadata trace_id=$trace_id, span_id=$span_id, requested_by=$requested_by, reason=$reason, subject=$sub, token_kid=$kid, warnings=$warnings, total_time_ns=$total_time_ns, allowed=$allowed, token_location=$token_location, origin=$origin, user_agent=$user_agent, bundle_revision=$bundle_revision, origin=$origin, referer=$referer
           
           # CLEANUP: Strip these fields from the main JSON log body
           Remove_Keys  env, domain, allowed, trace_id, span_id, requested_by, sub, total_time_ns, opa_domain, token_location, origin, user_agent, bundles, referer
+
+      [OUTPUT]
+          Name prometheus_exporter
+          Match *
+          Host 0.0.0.0
+          Port 2021

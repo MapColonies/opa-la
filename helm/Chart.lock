@@ -18,4 +18,4 @@ dependencies:
   repository: oci://acrarolibotnonprod.azurecr.io/helm/common
   version: 2.1.6
 digest: sha256:308e8858a1eb16b3072275759ef3560469dfefb4c6bd84d9d50bf9ab31ddaa70
-generated: "2026-06-22T13:49:46.070144028+03:00"
+generated: "2026-07-09T10:42:39.33632291+03:00"

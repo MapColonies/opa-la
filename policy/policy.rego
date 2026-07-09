@@ -187,7 +187,6 @@ warn contains "token environment mismatch" if {
 warn contains "ie11 legacy browser detected" if {
 	user_data
 	is_ie11
-	not user_data.allowNoOrigin
 	claims.payload.sub != "c2b"
 
 	# OPA evaluates deny and warn as independent sets — no circular dependency.
@@ -250,7 +249,7 @@ deny contains {"reason": "domain missing", "code": "domain_missing"} if {
 #   group: domain-unauthorized
 #   category: authorization
 #   type: unauthorized
-deny contains {"reason": $"domain check failed: '{input.domain}' is not in the allowed domains {user_data.domains}", "code": "domain_check_failed"} if {
+deny contains {"reason": $"domain check failed: '{input.domain}' is not in the allowed domains {concat(", ", user_data.domains)}", "code": "domain_check_failed"} if {
 	every domain in user_data.domains { domain != input.domain }
 }
 
@@ -546,7 +545,13 @@ warnings := warn if {
 	count(warn) > 0
 }
 
-default decision := {"allowed": false, "reasons": ["unknown error"], "codes": ["unknown_error"]}
+default computed_status := "allowed"
+
+computed_status := "warning" if {
+	count(warn) > 0
+}
+
+default decision := {"allowed": false, "reasons": ["unknown error"], "codes": ["unknown_error"], "computed_status": "denied"}
 
 # METADATA
 # title: Authorization Decision
@@ -554,13 +559,14 @@ default decision := {"allowed": false, "reasons": ["unknown error"], "codes": ["
 #   Policy entrypoint. Produces allowed:true with the subject and kid when all checks pass,
 #   or allowed:false with a concatenated reason string when any deny rule fires.
 # entrypoint: true
-decision := {"allowed": true, "metadata": metadata, "warnings": warnings} if {
+decision := {"allowed": true, "metadata": metadata, "warnings": warnings, "computed_status": computed_status} if {
 	count(deny) == 0
 	claims.payload.sub != null
 }
 
-decision := {"allowed": false, "metadata": metadata, "reasons": reasons, "codes": codes, "warnings": warnings} if {
+decision := {"allowed": false, "metadata": metadata, "reasons": reasons, "codes": codes, "warnings": warnings, "computed_status": computed_status} if {
 	count(deny) > 0
 	reasons := [d.reason | some d in deny]
 	codes := [d.code | some d in deny]
+	computed_status := "denied"
 }
