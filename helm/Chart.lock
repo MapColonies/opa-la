@@ -17,5 +17,8 @@ dependencies:
 - name: nginx
   repository: oci://acrarolibotnonprod.azurecr.io/helm/common
   version: 2.1.6
-digest: sha256:308e8858a1eb16b3072275759ef3560469dfefb4c6bd84d9d50bf9ab31ddaa70
-generated: "2026-07-19T15:47:57.259221418+03:00"
+- name: grafana-datasources
+  repository: file:///home/schnitz/repos/libot/helm-charts-new/charts/grafana-datasources
+  version: 0.1.0
+digest: sha256:4d01971947eeb377282cd006a7fdaed1c203fb4aa24af5d6c5fd9ca99e73e395
+generated: "2026-07-20T15:20:56.397316616+03:00"

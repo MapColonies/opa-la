@@ -30,3 +30,8 @@ dependencies:
     condition: kiosk-ui.enabled
     alias: kiosk-ui
     version: 2.1.6
+  - name: grafana-datasources
+    repository: file:///home/schnitz/repos/libot/helm-charts-new/charts/grafana-datasources
+    condition: datasources.enabled
+    version: 0.1.0
+    alias: datasources

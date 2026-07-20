@@ -36,6 +36,16 @@ dashboards:
     prod:
       openshiftUrl: https://replace-me.com
       namespace: prod
+
+datasources:
+  enabled: true
+  team: infra
+  postgres:
+    - service: opala
+      host: localhost
+      database: auth-manager
+      username: postgres
+      password: postgres
 opa:
   enabled: true
   cloudProvider: *cloudProvider
