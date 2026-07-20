@@ -24,6 +24,18 @@ tls: &tls
   key: ''
   caCertificate: ''
 
+dashboards:
+  enabled: true
+  values:
+    np:
+      openshiftUrl: https://replace-me.com
+      namespace: dev
+    stage:
+      openshiftUrl: https://replace-me.com
+      namespace: stage
+    prod:
+      openshiftUrl: https://replace-me.com
+      namespace: prod
 opa:
   enabled: true
   cloudProvider: *cloudProvider

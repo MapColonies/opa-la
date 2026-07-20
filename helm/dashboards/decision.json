@@ -1,0 +1,615 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "color-text"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "hideFrom": {
+              "viz": false
+            },
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "N/A": {
+                  "color": "red",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_time_ns"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ns"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "opa_timestamp"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "allowed"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "false": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "false 😡"
+                      },
+                      "true": {
+                        "color": "yellow",
+                        "index": 0,
+                        "text": "warn 😳"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "reasons"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "pill"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 314
+              },
+              {
+                "id": "custom.tooltip.field",
+                "value": "codes"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "index": 0,
+                        "text": "😌"
+                      }
+                    },
+                    "type": "special"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "codes"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "pill"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "warnings"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "pill"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "input"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "json-view"
+                }
+              },
+              {
+                "id": "custom.inspect",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "token_location"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "both": {
+                        "color": "orange",
+                        "index": 3
+                      },
+                      "header": {
+                        "color": "green",
+                        "index": 2
+                      },
+                      "missing": {
+                        "color": "red",
+                        "index": 1
+                      },
+                      "query": {
+                        "color": "green",
+                        "index": 0
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "codes"
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom.viz",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "lg",
+        "enablePagination": true,
+        "frozenColumns": {
+          "left": 2
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "opa_timestamp"
+          }
+        ]
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "direction": "backward",
+          "editorMode": "builder",
+          "expr": "{job=\"opa\", environment=\"$environment\"} |~ `$error_codes` | subject =~ `$subject` | opa_domain =~ `$domains` | json opa_timestamp, reasons, input, warn, codes",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "delimiter": ",",
+            "format": "json",
+            "keepTime": false,
+            "replace": false,
+            "source": "labels"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Line": true,
+              "Time": true,
+              "codes": false,
+              "detected_level": true,
+              "id": true,
+              "job": true,
+              "labelTypes": true,
+              "labels": true,
+              "service_name": true,
+              "span_id": true,
+              "total_time_ns": false,
+              "trace_id": true,
+              "tsNs": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Line": 23,
+              "Time": 3,
+              "allowed": 1,
+              "bundle_revision": 19,
+              "codes": 25,
+              "detected_level": 8,
+              "environment": 9,
+              "id": 7,
+              "input": 24,
+              "job": 10,
+              "labelTypes": 6,
+              "labels": 4,
+              "opa_domain": 11,
+              "opa_timestamp": 0,
+              "origin": 17,
+              "reasons": 12,
+              "referer": 18,
+              "service_name": 20,
+              "span_id": 21,
+              "subject": 13,
+              "token_kid": 14,
+              "token_location": 16,
+              "total_time_ns": 2,
+              "trace_id": 22,
+              "tsNs": 5,
+              "warn": 15
+            },
+            "renameByName": {
+              "total_time_ns": "Duration",
+              "warn": "warnings"
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "other",
+                "targetField": "reasons"
+              }
+            ],
+            "fields": {}
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 42,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "infra-opala-postgres",
+          "value": "Rn73E9SNk"
+        },
+        "hide": 2,
+        "name": "pg",
+        "options": [],
+        "query": "grafana-postgresql-datasource",
+        "refresh": 1,
+        "regex": "/.*opala.*/",
+        "type": "datasource"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "Loki",
+          "value": "loki"
+        },
+        "hide": 2,
+        "name": "loki",
+        "options": [],
+        "query": "loki",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "development",
+          "value": "development"
+        },
+        "label": "Environment",
+        "name": "environment",
+        "options": [
+          {
+            "selected": true,
+            "text": "development",
+            "value": "development"
+          },
+          {
+            "selected": false,
+            "text": "staging",
+            "value": "staging"
+          },
+          {
+            "selected": false,
+            "text": "production",
+            "value": "production"
+          }
+        ],
+        "query": "development,staging,production",
+        "type": "custom"
+      },
+      {
+        "allValue": ".*",
+        "allowCustomValue": false,
+        "current": {
+          "text": [
+            "token_not_valid"
+          ],
+          "value": [
+            "token_not_valid"
+          ]
+        },
+        "description": "",
+        "includeAll": true,
+        "label": "Error codes",
+        "multi": true,
+        "name": "error_codes",
+        "options": [
+          {
+            "selected": true,
+            "text": "token_not_valid",
+            "value": "token_not_valid"
+          },
+          {
+            "selected": false,
+            "text": "no_token_supplied",
+            "value": "no_token_supplied"
+          },
+          {
+            "selected": false,
+            "text": "user_not_found",
+            "value": "user_not_found"
+          },
+          {
+            "selected": false,
+            "text": "domain_missing",
+            "value": "domain_missing"
+          },
+          {
+            "selected": false,
+            "text": "domain_check_failed",
+            "value": "domain_check_failed"
+          },
+          {
+            "selected": false,
+            "text": "user_agent_missing",
+            "value": "user_agent_missing"
+          },
+          {
+            "selected": false,
+            "text": "user_agent_not_allowed",
+            "value": "user_agent_not_allowed"
+          },
+          {
+            "selected": false,
+            "text": "c2b_ua_not_allowed",
+            "value": "c2b_ua_not_allowed"
+          },
+          {
+            "selected": false,
+            "text": "bot_user_agent_detected",
+            "value": "bot_user_agent_detected"
+          },
+          {
+            "selected": false,
+            "text": "no_origins_configured",
+            "value": "no_origins_configured"
+          },
+          {
+            "selected": false,
+            "text": "ie11_missing_origin_and_referer",
+            "value": "ie11_missing_origin_and_referer"
+          },
+          {
+            "selected": false,
+            "text": "ie11_origin_and_referer_check_failed",
+            "value": "ie11_origin_and_referer_check_failed"
+          },
+          {
+            "selected": false,
+            "text": "api_missing_origin_and_referer",
+            "value": "api_missing_origin_and_referer"
+          },
+          {
+            "selected": false,
+            "text": "api_origin_mismatch",
+            "value": "api_origin_mismatch"
+          },
+          {
+            "selected": false,
+            "text": "api_request_referer_check_failed",
+            "value": "api_request_referer_check_failed"
+          },
+          {
+            "selected": false,
+            "text": "unknown_error",
+            "value": "unknown_error"
+          }
+        ],
+        "query": "token_not_valid,no_token_supplied,user_not_found,domain_missing,domain_check_failed,user_agent_missing,user_agent_not_allowed,c2b_ua_not_allowed,bot_user_agent_detected,no_origins_configured,ie11_missing_origin_and_referer,ie11_origin_and_referer_check_failed,api_missing_origin_and_referer,api_origin_mismatch,api_request_referer_check_failed,unknown_error",
+        "type": "custom"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "SELECT name FROM \"auth_manager\".\"client\"",
+        "includeAll": true,
+        "label": "Subject",
+        "multi": true,
+        "name": "subject",
+        "options": [],
+        "query": "SELECT name FROM \"auth_manager\".\"client\"",
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "staticOptions": [
+          {
+            "text": "N/A",
+            "value": "N/A"
+          }
+        ],
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "select name from \"auth_manager\".\"domain\"",
+        "includeAll": true,
+        "label": "Domains",
+        "multi": true,
+        "name": "domains",
+        "options": [],
+        "query": "select name from \"auth_manager\".\"domain\"",
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Decision logs",
+  "uid": "opala-decision-logs",
+  "version": 17
+}
