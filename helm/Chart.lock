@@ -18,7 +18,7 @@ dependencies:
   repository: oci://acrarolibotnonprod.azurecr.io/helm/common
   version: 2.1.6
 - name: grafana-datasources
-  repository: file:///home/schnitz/repos/libot/helm-charts-new/charts/grafana-datasources
+  repository: file:///home/oferade/repos/libot/helm-charts-new/charts/grafana-datasources
   version: 0.1.0
-digest: sha256:4d01971947eeb377282cd006a7fdaed1c203fb4aa24af5d6c5fd9ca99e73e395
-generated: "2026-07-20T15:20:56.397316616+03:00"
+digest: sha256:37018f44d46baa5ec0a97ca6c1db0cc62e4c1485581328458c348e7564132660
+generated: "2026-07-21T07:17:51.654822187+03:00"

@@ -394,8 +394,8 @@
       {
         "allowCustomValue": false,
         "current": {
-          "text": "infra-opala-postgres",
-          "value": "Rn73E9SNk"
+          "text": "infra-opala-{{ include "opa-la.environment" . }}",
+          "value": "infra-opala-{{ include "opa-la.environment" . }}"
         },
         "hide": 2,
         "name": "pg",

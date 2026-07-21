@@ -19,7 +19,7 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
-{{/*
+{{/* 
 Create chart name and version as used by the chart label.
 */}}
 {{- define "opa-la.chart" -}}
@@ -57,11 +57,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Returns the environment from global if exists or from the chart's values, defaults to development
 */}}
 {{- define "opa-la.environment" -}}
-{{- if .Values.global.environment }}
-    {{- .Values.global.environment -}}
-{{- else -}}
-    {{- .Values.environment | default "development" -}}
-{{- end -}}
+{{- $global := dig "mclabels" "environment" "" ((.Values.global | default dict) | toJson | fromJson) -}}
+{{- required "opa-la: environment is required. Set global.mclabels.environment (or .Values.environment)." (default .Values.environment $global) -}}
 {{- end -}}
 
 {{/*
