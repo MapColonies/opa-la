@@ -31,6 +31,6 @@ dependencies:
     alias: kiosk-ui
     version: 2.1.6
   - name: grafana-datasources
-    repository: file:///home/oferade/repos/libot/helm-charts-new/charts/grafana-datasources
+    repository: oci://acrarolibotnonprod.azurecr.io/helm/infra
     condition: grafana-datasources.enabled
-    version: 0.1.0
+    version: 1.0.0
