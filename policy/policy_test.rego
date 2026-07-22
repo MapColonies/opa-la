@@ -153,7 +153,7 @@ test_deny_user_not_found if {
 		with data.users as users
 
 	not res.allowed
-	res.reasons[_] == "the token is valid, but the user is not found"
+	"the token is valid, but the user is not found" in res.reasons
 }
 
 # =========================================================
@@ -168,7 +168,8 @@ test_deny_domain_missing_from_request if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "domain missing")
+	some _r in res.reasons
+	contains(_r, "domain missing")
 }
 
 test_deny_domain_not_allowed_for_user if {
@@ -179,7 +180,8 @@ test_deny_domain_not_allowed_for_user if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "domain check failed")
+	some _r in res.reasons
+	contains(_r, "domain check failed")
 }
 
 # =========================================================
@@ -292,7 +294,8 @@ test_deny_non_browser_user_agent if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "user-agent is not from allowed browsers")
+	some _r in res.reasons
+	contains(_r, "user-agent is not from allowed browsers")
 }
 
 test_deny_missing_user_agent if {
@@ -303,7 +306,8 @@ test_deny_missing_user_agent if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "user-agent missing")
+	some _r in res.reasons
+	contains(_r, "user-agent missing")
 }
 
 test_allow_non_browser_user_agent_when_user_permits_it if {
@@ -386,7 +390,8 @@ test_deny_c2b_connection_no_user_agent if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "user-agent missing")
+	some _r in res.reasons
+	contains(_r, "user-agent missing")
 }
 
 test_deny_c2b_connection_wrong_domain if {
@@ -397,7 +402,8 @@ test_deny_c2b_connection_wrong_domain if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "domain check failed")
+	some _r in res.reasons
+	contains(_r, "domain check failed")
 }
 
 test_deny_c2b_connection_if_token_expired if {
@@ -422,7 +428,8 @@ test_deny_curl_user_agent if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "bot user-agent detected: curl")
+	some _r in res.reasons
+	contains(_r, "bot user-agent detected: curl")
 }
 
 test_deny_python_requests_user_agent if {
@@ -433,7 +440,8 @@ test_deny_python_requests_user_agent if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "bot user-agent detected: python")
+	some _r in res.reasons
+	contains(_r, "bot user-agent detected: python")
 }
 
 test_deny_wget_user_agent if {
@@ -444,7 +452,8 @@ test_deny_wget_user_agent if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "bot user-agent detected: wget")
+	some _r in res.reasons
+	contains(_r, "bot user-agent detected: wget")
 }
 
 test_allow_no_browser_exempts_bot_ua if {
@@ -485,7 +494,6 @@ test_allow_chrome_not_flagged_as_bot if {
 # 	not res.allowed
 # 	some _r in res.reasons; contains(_r, "sec-fetch-dest image request does not accept image content")
 # }
-
 
 test_allow_image_dest_with_image_accept if {
 	token := generate_token(private_key_1, {"sub": "avi"})
@@ -672,7 +680,8 @@ test_deny_user_with_no_origins_configured if {
 		with data.users.avi.origins as []
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "user has no allowed origins configured")
+	some _r in res.reasons
+	contains(_r, "user has no allowed origins configured")
 }
 
 # allowNoOrigin:true with empty origins must still be allowed (exempt from origin checks).
@@ -735,7 +744,8 @@ test_deny_ie11_no_origin_no_referer if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "ie11 missing origin and referer")
+	some _r in res.reasons
+	contains(_r, "ie11 missing origin and referer")
 }
 
 test_allow_ie11_no_origin_check_when_exempt if {
@@ -862,7 +872,8 @@ test_deny_api_request_invalid_origin if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "api request origin mismatch")
+	some _r in res.reasons
+	contains(_r, "api request origin mismatch")
 }
 
 test_allow_api_request_no_origin_valid_referer_fallback if {
@@ -883,7 +894,8 @@ test_deny_api_request_no_origin_invalid_referer_fallback if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "api request referer fallback check failed")
+	some _r in res.reasons
+	contains(_r, "api request referer fallback check failed")
 }
 
 test_deny_api_request_no_origin_no_referer if {
@@ -894,7 +906,8 @@ test_deny_api_request_no_origin_no_referer if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "api request missing origin and referer")
+	some _r in res.reasons
+	contains(_r, "api request missing origin and referer")
 }
 
 # test_allow_api_request_same_origin_bypass if {
@@ -968,7 +981,8 @@ test_deny_api_request_invalid_referer_scheme if {
 		with data.users as users
 
 	not res.allowed
-	some _r in res.reasons; contains(_r, "api request referer fallback check failed")
+	some _r in res.reasons
+	contains(_r, "api request referer fallback check failed")
 }
 
 # =========================================================
@@ -994,7 +1008,6 @@ test_allow_ie11_wildcard_referer_fallback if {
 # 		with data.keys as public_key_1
 # 		with data.possibleLocations as possible_locations
 # 		with data.users as users
-
 # 	not res.allowed
 # 	some _r in res.reasons; contains(_r, "ie11 origin and referer check failed")
 # }
