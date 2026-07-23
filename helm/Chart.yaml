@@ -7,15 +7,15 @@ dependencies:
   - name: opa
     repository: file://charts/opa
     condition: opa.enabled
-    version: 1.12.0
+    version: 2.0.0 # x-release-please-version
   - name: auth-cron
     repository: file://../apps/auth-cron/helm
     condition: auth-cron.enabled
-    version: 1.12.0
+    version: 2.0.0 # x-release-please-version
   - name: auth-manager
     repository: file://../apps/auth-manager/helm
     condition: auth-manager.enabled
-    version: 1.12.0
+    version: 2.0.0 # x-release-please-version
   - name: nginx
     repository: oci://acrarolibotnonprod.azurecr.io/helm/common
     condition: auth-ui.enabled
@@ -24,7 +24,7 @@ dependencies:
   - name: token-kiosk
     repository: file://../apps/token-kiosk/helm
     condition: token-kiosk.enabled
-    version: 1.12.0
+    version: 2.0.0 # x-release-please-version
   - name: nginx
     repository: oci://acrarolibotnonprod.azurecr.io/helm/common
     condition: kiosk-ui.enabled
