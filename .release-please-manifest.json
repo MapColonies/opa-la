@@ -1,13 +1,13 @@
 {
-  "packages/auth-bundler": "2.0.0",
-  "packages/auth-core": "2.0.0",
+  "packages/auth-bundler": "2.0.1",
+  "packages/auth-core": "2.0.1",
   "packages/auth-openapi": "1.14.0",
   "packages/token-openapi": "1.14.0",
-  "packages/test-utils": "2.0.0",
-  "apps/auth-cron": "2.0.0",
-  "apps/auth-manager": "2.0.0",
-  "apps/token-kiosk": "2.0.0",
-  "apps/auth-ui": "2.0.0",
-  "apps/kiosk-ui": "2.0.0",
-  ".": "2.0.0"
+  "packages/test-utils": "2.0.1",
+  "apps/auth-cron": "2.0.1",
+  "apps/auth-manager": "2.0.1",
+  "apps/token-kiosk": "2.0.1",
+  "apps/auth-ui": "2.0.1",
+  "apps/kiosk-ui": "2.0.1",
+  ".": "2.0.1"
 }
