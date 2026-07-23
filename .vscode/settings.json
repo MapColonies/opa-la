@@ -12,5 +12,9 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "opa.dependency_paths.opa": "${workspaceFolder}/policy/opa",
-  "opa.dependency_paths.regal": "${workspaceFolder}/policy/regal"
+  "opa.dependency_paths.regal": "${workspaceFolder}/policy/regal",
+  "files.associations": {
+    "**/helm/dashboards/*.json": "helm",
+    "**/helm/charts/opa/config/opa.yaml": "helm"
+  }
 }

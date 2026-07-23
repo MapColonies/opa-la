@@ -1,0 +1,1025 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 301,
+  "links": [],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "Tracks whether OPA pods are running the bundle Postgres built for them, per environment.\n\n*Table* — OPA pods running in the namespace that serves the selected environment. **Health**: 🟢 on the latest revision and polling; 🟡 a newer revision was just published and the pod hasn't caught up yet (within the grace window); 🔴 wrong revision past the grace window, or not polling.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${pg}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 8,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${pg}"
+          },
+          "format": "table",
+          "rawSql": "select revision from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Latest DB revision ($env)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${pg}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "dateTimeAsIso"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 13,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${pg}"
+          },
+          "format": "table",
+          "rawSql": "select created_at from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+          "refId": "A"
+        }
+      ],
+      "title": "DB bundle created",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${pg}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 19,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${pg}"
+          },
+          "format": "table",
+          "rawSql": "select opa_version from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Built for OPA version",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "One row per pod whose active_revision belongs to $env, one column per metric. Health is red if the pod's active_revision doesn't match the current DB revision, or if it hasn't polled in >180s.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last activation (s)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last download (s)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last poll (s)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "red",
+                      "value": 180
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Health"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "1": {
+                        "color": "yellow",
+                        "text": "⏳ Catching up"
+                      },
+                      "2": {
+                        "color": "red",
+                        "text": "⚠ Problem"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "color": "green",
+                        "text": "✅ OK"
+                      }
+                    },
+                    "type": "special"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pod"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open pod in OpenShift",
+                    "url": "${console_url}/k8s/ns/${__data.fields.Namespace}/pods/${__data.fields.Pod}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Release"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open deployment in OpenShift",
+                    "url": "${console_url}/k8s/ns/${__data.fields.Namespace}/deployments/${__data.fields.Release}-opa"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 3,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance, namespace, release, app_kubernetes_io_version, active_revision) (time() - (last_success_bundle_activation{namespace=~\"$ns\"} / 1e9))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (time() - (last_bundle_request{namespace=~\"$ns\"} / 1e9))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (time() - (last_success_bundle_download{namespace=~\"$ns\"} / 1e9))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "(((max by (instance) (((time() - last_bundle_request/1e9) > ($grace_window_minutes * 60)) and on(instance) last_success_bundle_activation{namespace=~\"$ns\"})) * 0 + 2) or ((max by (instance) (last_success_bundle_activation{namespace=~\"$ns\"} unless on(active_revision) label_replace(vector(1), \"active_revision\", \"$latest_revision\", \"\", \"\"))) * 0 + (1 + $grace_expired)))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "D"
+        }
+      ],
+      "title": "OPA pods matching $env",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value #A": "Last activation (s)",
+              "Value #B": "Last poll (s)",
+              "Value #C": "Last download (s)",
+              "Value #D": "Health",
+              "active_revision": "Active Revision",
+              "app_kubernetes_io_version": "OPA Version",
+              "instance": "Pod",
+              "namespace": "Namespace",
+              "release": "Release"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Does any pod whose active_revision belongs to $env report the exact revision that's currently latest in Postgres for $env?",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "from": 1,
+                "result": {
+                  "color": "green",
+                  "text": "MATCH"
+                },
+                "to": 999
+              },
+              "type": "range"
+            }
+          ],
+          "noValue": "MISMATCH",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 0,
+        "y": 13
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "last_success_bundle_activation{namespace=~\"$ns\"} and on(active_revision) label_replace(vector(1), \"active_revision\", \"$latest_revision\", \"\", \"\")",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Revision match ($env)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Seconds since the most-recently-polling pod whose active_revision belongs to $env last asked for a bundle (last_bundle_request — the only metric confirmed to update on every poll).",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 180
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 5,
+        "y": 13
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "min(time() - (last_bundle_request{namespace=~\"$ns\"} / 1e9))",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Pod poll liveness ($env)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${pg}"
+      },
+      "description": "Informational only — age alone isn't a problem; a bundle can be hours old and perfectly fine if the pod already activated it. Pair with Revision match / Pod health for actual status.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "dtdurations"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 10,
+        "y": 13
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${pg}"
+          },
+          "format": "table",
+          "rawSql": "select extract(epoch from (now() - created_at))::int as age_seconds from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+          "refId": "A"
+        }
+      ],
+      "title": "DB bundle freshness ($env)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 0,
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Healthy"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Catching up"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Problem"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 15,
+        "y": 13
+      },
+      "id": 9,
+      "options": {
+        "displayLabels": [
+          "value",
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "(count(last_success_bundle_activation{namespace=~\"$ns\"}) or vector(0)) - (count((((max by (instance) (((time() - last_bundle_request/1e9) > ($grace_window_minutes * 60)) and on(instance) last_success_bundle_activation{namespace=~\"$ns\"})) * 0 + 2) or ((max by (instance) (last_success_bundle_activation{namespace=~\"$ns\"} unless on(active_revision) label_replace(vector(1), \"active_revision\", \"$latest_revision\", \"\", \"\"))) * 0 + (1 + $grace_expired))) == 1) or vector(0)) - (count((((max by (instance) (((time() - last_bundle_request/1e9) > ($grace_window_minutes * 60)) and on(instance) last_success_bundle_activation{namespace=~\"$ns\"})) * 0 + 2) or ((max by (instance) (last_success_bundle_activation{namespace=~\"$ns\"} unless on(active_revision) label_replace(vector(1), \"active_revision\", \"$latest_revision\", \"\", \"\"))) * 0 + (1 + $grace_expired))) == 2) or vector(0))",
+          "instant": true,
+          "legendFormat": "Healthy",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "count((((max by (instance) (((time() - last_bundle_request/1e9) > ($grace_window_minutes * 60)) and on(instance) last_success_bundle_activation{namespace=~\"$ns\"})) * 0 + 2) or ((max by (instance) (last_success_bundle_activation{namespace=~\"$ns\"} unless on(active_revision) label_replace(vector(1), \"active_revision\", \"$latest_revision\", \"\", \"\"))) * 0 + (1 + $grace_expired))) == 1) or vector(0)",
+          "instant": true,
+          "legendFormat": "Catching up",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "count((((max by (instance) (((time() - last_bundle_request/1e9) > ($grace_window_minutes * 60)) and on(instance) last_success_bundle_activation{namespace=~\"$ns\"})) * 0 + 2) or ((max by (instance) (last_success_bundle_activation{namespace=~\"$ns\"} unless on(active_revision) label_replace(vector(1), \"active_revision\", \"$latest_revision\", \"\", \"\"))) * 0 + (1 + $grace_expired))) == 2) or vector(0)",
+          "instant": true,
+          "legendFormat": "Problem",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Pod health ($env) — how many pods are up to date and are polling normally",
+      "type": "piechart"
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 42,
+  "tags": [
+    "OPAla"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "infra-opala-{{ include "opa-la.environment" . }}",
+          "value": "infra-opala-{{ include "opa-la.environment" . }}"
+        },
+        "hide": 2,
+        "label": "Postgres",
+        "name": "pg",
+        "options": [],
+        "query": "grafana-postgresql-datasource",
+        "refresh": 1,
+        "regex": "/.*opala.*/",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "Prometheus",
+          "value": "prometheus"
+        },
+        "hide": 2,
+        "label": "Prometheus",
+        "name": "prom",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "/^Prometheus$/",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "np",
+          "value": "np"
+        },
+        "includeAll": false,
+        "label": "Environment",
+        "name": "env",
+        "options": [
+          {
+            "selected": true,
+            "text": "development",
+            "value": "np"
+          },
+          {
+            "selected": false,
+            "text": "staging",
+            "value": "stage"
+          },
+          {
+            "selected": false,
+            "text": "production",
+            "value": "prod"
+          }
+        ],
+        "query": "development : np,staging : stage,production : prod",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "np-e9ed4a8eb683",
+          "value": "np-e9ed4a8eb683"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "select revision from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+        "hide": 2,
+        "label": "Latest DB revision",
+        "name": "latest_revision",
+        "options": [],
+        "query": "select revision from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+        "refresh": 1,
+        "skipUrlSync": true,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "5",
+          "value": "5"
+        },
+        "hide": 2,
+        "label": "Grace window (minutes)",
+        "name": "grace_window_minutes",
+        "query": "5",
+        "skipUrlSync": true,
+        "type": "constant"
+      },
+      {
+        "current": {
+          "text": "{{ .Values.dashboards.values.prod.openshiftUrl }}",
+          "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "OpenShift console",
+        "name": "console_url",
+        "options": [
+          {
+            "selected": true,
+            "text": "np",
+            "value": "{{ .Values.dashboards.values.np.openshiftUrl }}"
+          },
+          {
+            "selected": true,
+            "text": "stage",
+            "value": "{{ .Values.dashboards.values.stage.openshiftUrl }}"
+          },
+          {
+            "selected": true,
+            "text": "prod",
+            "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
+          }
+        ],
+        "query": "np : {{ .Values.dashboards.values.np.openshiftUrl }},stage : {{ .Values.dashboards.values.stage.openshiftUrl }},prod : {{ .Values.dashboards.values.prod.openshiftUrl }}",
+        "skipUrlSync": true,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "{{ .Values.dashboards.values.prod.namespace }}",
+          "value": "{{ .Values.dashboards.values.prod.namespace }}"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Namespace (mapped from env)",
+        "name": "ns",
+        "options": [],
+        "query": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
+        "refresh": 1,
+        "skipUrlSync": true,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "1",
+          "value": "1"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "select coalesce((select case when extract(epoch from (now() - created_at)) > ($grace_window_minutes * 60) then 1 else 0 end from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1), 1)",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Grace expired",
+        "name": "grace_expired",
+        "options": [],
+        "query": "select coalesce((select case when extract(epoch from (now() - created_at)) > ($grace_window_minutes * 60) then 1 else 0 end from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1), 1)",
+        "refresh": 1,
+        "skipUrlSync": true,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Bundle Status",
+  "uid": "opala-bundle-status",
+  "version": 20
+}

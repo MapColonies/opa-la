@@ -30,3 +30,7 @@ dependencies:
     condition: kiosk-ui.enabled
     alias: kiosk-ui
     version: 2.1.6
+  - name: grafana-datasources
+    repository: oci://acrarolibotnonprod.azurecr.io/helm/infra
+    condition: grafana-datasources.enabled
+    version: 1.0.0

@@ -9,8 +9,11 @@ rules:
         - data.keys.kid
         - data.users.avi.allowNoBrowser
         - data.users.avi.allowNoOrigin
+        - data.users.avi.origins
   style:
     line-length:
+      level: ignore
+    file-length:
       level: ignore
   idiomatic:
     directory-package-mismatch:

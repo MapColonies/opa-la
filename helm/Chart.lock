@@ -17,5 +17,8 @@ dependencies:
 - name: nginx
   repository: oci://acrarolibotnonprod.azurecr.io/helm/common
   version: 2.1.6
-digest: sha256:49f1a50c589b1760030c7a449e779d5ca15acdbf8173ef953aceb699b88a170f
-generated: "2026-06-01T12:20:36.236385936+03:00"
+- name: grafana-datasources
+  repository: oci://acrarolibotnonprod.azurecr.io/helm/infra
+  version: 1.0.0
+digest: sha256:0797bfd08fb9ee79413ee32bc2944d1052ed7e250c9140e5a310cbfa4cbf1e73
+generated: "2026-07-22T09:52:31.741378493+03:00"

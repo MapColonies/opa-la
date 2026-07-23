@@ -1,0 +1,1773 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 302,
+  "links": [
+    {
+      "asDashboard": false,
+      "icon": "dashboard",
+      "tags": [],
+      "targetBlank": true,
+      "title": "Open Policy Agent Metrics (Go runtime internals)",
+      "tooltip": "Deep debugging: stock Go-runtime dashboard",
+      "type": "link",
+      "url": "/d/opala-opa-metrics/open-policy-agent-metrics"
+    },
+    {
+      "asDashboard": false,
+      "icon": "dashboard",
+      "tags": [],
+      "targetBlank": true,
+      "title": "Bundle Status",
+      "tooltip": "Per-pod bundle revision vs. DB, staleness/liveness",
+      "type": "link",
+      "url": "/d/opala-bundle-status/bundle-status"
+    },
+    {
+      "asDashboard": false,
+      "icon": "dashboard",
+      "tags": [],
+      "targetBlank": true,
+      "title": "Decision Logs",
+      "tooltip": "Denial-investigation tool (denied/warning decisions only)",
+      "type": "link",
+      "url": "/d/opala-decision-logs/decision-logs"
+    }
+  ],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "### Performance\n\nOPA throughput, latency, error rate, and pod count for the selected environment; decision outcomes (allow/deny/warn); auth-manager/auth-cron health.\n\nOPA panels are scoped to the pods serving the selected environment. Decision Quality metrics come from the log pipeline and are only populated where it runs.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 10,
+      "panels": [],
+      "title": "OPA — Native Performance",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Requests per second across OPA pods serving the selected environment.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 5
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "legendFormat": "req/s",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Decision request rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 5
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "100 * sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\", namespace=~\"$ns\"}[5m])) / sum(rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "legendFormat": "error %",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Error rate (5xx)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 5
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "legendFormat": "p99",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Latency p99 (v1/data)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Number of OPA pods currently serving the selected environment. Pods on an OPA version that doesn't yet report which environment it serves won't be counted until upgraded.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 5
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "count(last_success_bundle_activation{namespace=~\"$ns\"})",
+          "legendFormat": "matching pods",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "OPA pods",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 11
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (release, code) (rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "legendFormat": "{{ "{{" }}release{{ "}}" }} ({{ "{{" }}code{{ "}}" }})",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Request rate by release & response code",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 11
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "legendFormat": "p50",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "legendFormat": "p95",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "legendFormat": "p99",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Latency percentiles (v1/data)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Pods currently serving the selected environment. Pods on an OPA version that doesn't yet report which environment it serves won't appear here until upgraded.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pod"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open pod in OpenShift",
+                    "url": "${console_url}/k8s/ns/${__data.fields.Namespace}/pods/${__data.fields.Pod}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Release"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open deployment in OpenShift",
+                    "url": "${console_url}/k8s/ns/${__data.fields.Namespace}/deployments/${__data.fields.Release}-opa"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
+      "id": 17,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "100 * sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\", namespace=~\"$ns\"}[5m])) / sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance, namespace, release, active_revision) (last_success_bundle_activation{namespace=~\"$ns\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "OPA pod detail",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #C": true
+            },
+            "renameByName": {
+              "Value #A": "Req/s",
+              "Value #B": "Error %",
+              "Value #C": "",
+              "active_revision": "Active Revision",
+              "instance": "Pod",
+              "namespace": "Namespace",
+              "release": "Release"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Decision Quality",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Loki never receives allowed decisions — this counter is the only source for allow/deny/warn rate.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 26
+      },
+      "id": 21,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]))",
+          "legendFormat": "{{ "{{" }}status{{ "}}" }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Decision rate by status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "ns"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 10,
+        "y": 26
+      },
+      "id": 22,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(log_metric_histogram_opa_server_handler_ns_bucket{opa_env=\"${env:text}\"}[5m])))",
+          "legendFormat": "p50",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(log_metric_histogram_opa_server_handler_ns_bucket{opa_env=\"${env:text}\"}[5m])))",
+          "legendFormat": "p99",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Decision handler latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Trust signal for the row above: if fluentbit drops records, decision-quality numbers silently undercount.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0.001
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 26
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(fluentbit_filter_drop_records_total{namespace=~\"$ns\"}[5m]))",
+          "legendFormat": "dropped/s",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Fluentbit drop rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 30
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "fluentbit_input_http_server_ingress_queue_pending_events{namespace=~\"$ns\"}",
+          "legendFormat": "pending events",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Fluentbit queue backlog",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Per-domain slice of decision volume for the selected environment.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 25,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (domain) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]))",
+          "legendFormat": "{{ "{{" }}domain{{ "}}" }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Decisions by domain",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 30,
+      "panels": [],
+      "title": "auth-manager & auth-cron",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "auth-manager and auth-cron run one instance per Kubernetes namespace, not per environment, so this table isn't affected by the environment selector above.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Health"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "green",
+                        "text": "✅ OK"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "from": -999,
+                      "result": {
+                        "color": "red",
+                        "text": "⚠ Short"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deployment"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open deployment in OpenShift",
+                    "url": "${console_url}/k8s/ns/${__data.fields.Namespace}/deployments/${__data.fields.Deployment}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 31,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "max by (deployment, namespace) (kube_deployment_status_replicas_ready{deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "max by (deployment, namespace) (kube_deployment_spec_replicas{deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "(max by (deployment, namespace) (kube_deployment_status_replicas_ready{deployment=~\".*-auth-manager$|.*-auth-cron$\"})) - on(deployment, namespace) (max by (deployment, namespace) (kube_deployment_spec_replicas{deployment=~\".*-auth-manager$|.*-auth-cron$\"}))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value #A": "Ready",
+              "Value #B": "Desired",
+              "Value #C": "Health",
+              "deployment": "Deployment",
+              "namespace": "Namespace"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 48
+      },
+      "id": 32,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (operation) (rate(http_request_duration_seconds_count{app=\"auth-manager\"}[5m]))",
+          "legendFormat": "{{ "{{" }}operation{{ "}}" }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "auth-manager request rate by operation",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 48
+      },
+      "id": 33,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le, operation) (rate(http_request_duration_seconds_bucket{app=\"auth-manager\"}[5m])))",
+          "legendFormat": "{{ "{{" }}operation{{ "}}" }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "auth-manager latency p95 by operation",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 56
+      },
+      "id": 34,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "nodejs_eventloop_lag_p99_seconds{app=~\"auth-manager|auth-cron\"}",
+          "legendFormat": "{{ "{{" }}app{{ "}}" }} ({{ "{{" }}namespace{{ "}}" }})",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Event loop lag p99 (auth-manager, auth-cron)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Time since auth-cron/auth-manager last fetched their config. Informational only — not a measure of bundle freshness (see Bundle Status for that).",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "dtdurations"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 56
+      },
+      "id": 35,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "time() - config_time_of_last_fetch_unix_timestamp{app=~\"auth-manager|auth-cron\"}",
+          "legendFormat": "{{ "{{" }}app{{ "}}" }} ({{ "{{" }}namespace{{ "}}" }})",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "auth-cron config fetch age",
+      "type": "stat"
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 42,
+  "tags": [
+    "OPAla"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "Prometheus",
+          "value": "prometheus"
+        },
+        "hide": 2,
+        "label": "Prometheus",
+        "name": "prom",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "/^Prometheus$/",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "np",
+          "value": "np"
+        },
+        "includeAll": false,
+        "label": "Environment",
+        "name": "env",
+        "options": [
+          {
+            "selected": true,
+            "text": "development",
+            "value": "np"
+          },
+          {
+            "selected": false,
+            "text": "staging",
+            "value": "stage"
+          },
+          {
+            "selected": false,
+            "text": "production",
+            "value": "prod"
+          }
+        ],
+        "query": "development : np,staging : stage,production : prod",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "{{ .Values.dashboards.values.prod.openshiftUrl }}",
+          "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "OpenShift console",
+        "name": "console_url",
+        "options": [
+          {
+            "selected": true,
+            "text": "np",
+            "value": "{{ .Values.dashboards.values.np.openshiftUrl }}"
+          },
+          {
+            "selected": true,
+            "text": "stage",
+            "value": "{{ .Values.dashboards.values.stage.openshiftUrl }}"
+          },
+          {
+            "selected": true,
+            "text": "prod",
+            "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
+          }
+        ],
+        "query": "np : {{ .Values.dashboards.values.np.openshiftUrl }},stage : {{ .Values.dashboards.values.stage.openshiftUrl }},prod : {{ .Values.dashboards.values.prod.openshiftUrl }}",
+        "skipUrlSync": true,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "infra-opala-{{ include "opa-la.environment" . }}",
+          "value": "infra-opala-{{ include "opa-la.environment" . }}"
+        },
+        "hide": 2,
+        "label": "Postgres",
+        "name": "pg",
+        "options": [],
+        "query": "grafana-postgresql-datasource",
+        "refresh": 1,
+        "regex": "/.*opala.*/",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "{{ .Values.dashboards.values.prod.namespace }}",
+          "value": "{{ .Values.dashboards.values.prod.namespace }}"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Namespace (mapped from env)",
+        "name": "ns",
+        "options": [],
+        "query": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
+        "refresh": 1,
+        "skipUrlSync": true,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Performance",
+  "uid": "opala-performance",
+  "version": 11
+}

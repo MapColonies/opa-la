@@ -10,7 +10,6 @@ const config: KnipConfig = {
     type: true,
   },
   ignoreBinaries: ['helm'],
-  ignoreFiles: ['example/**'],
   ignoreDependencies: ['@map-colonies/infra-copilot-instructions', '@vitest/eslint-plugin'],
   workspaces: {
     'packages/auth-core': {

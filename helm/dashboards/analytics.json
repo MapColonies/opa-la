@@ -1,0 +1,1183 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 324,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "Decision logs (raw records)",
+      "type": "link",
+      "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=$__all&var-domains=$__all&var-error_codes=$__all"
+    }
+  ],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "**Denial Analytics** — aggregated statistics for denied and warned decisions: who is failing, how much, and with which error codes. The filters above apply to every panel; the **Error code** filter only affects the code panels (the Prometheus counter carries no code label). Subjects and codes in the tables link to [Decision Logs](/d/opala-decision-logs/decision-logs) with the matching filters and time range applied. Panels are empty for environments with no decision-log traffic.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 10,
+      "panels": [],
+      "title": "Landscape",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Rate of non-allowed decisions (denied, warning) for the selected filters, from the decision-log metric pipeline. Empty means no denials or warnings are flowing for this selection.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "denied"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "warning"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 0,
+        "y": 4
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status!=\"allowed\"}[$__rate_interval]))",
+          "legendFormat": "{{ "{{" }}status{{ "}}" }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Failure rate by status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "description": "Denied decisions per error code over time — exact counts from Loki (which receives only non-allowed decisions). A denial carrying several codes shows as a comma-joined category. A new color appearing here is a new failure mode.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 10,
+        "y": 4
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "sum by (code) (count_over_time({job=\"opa\", environment=\"${env:text}\", opa_domain=~\"${domain:regex}\"} | subject=~\"${subject:regex}\" |~ `${code:regex}` | allowed=\"false\" | json codes | label_format code=`{{ "{{" }} .codes | replace \"\\\"\" \"\" | replace \"[\" \"\" | replace \"]\" \"\" {{ "}}" }}` [$__auto]))",
+          "legendFormat": "{{ "{{" }}code{{ "}}" }}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Denials by code",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Share of all decisions that were denied in the dashboard time range, for the selected filters. No data means no decisions at all for this selection.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.25
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 4
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "expr": "sum(increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range])) / sum(increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range]))",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Denial ratio",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Who's in trouble",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Subjects ranked by the share of their requests that were denied in the time range. Subjects with fewer than 10 requests are excluded from the ratio so one-off probes don't pin the ranking. Click a subject to open its raw records in Decision logs. Counts are counter-based: a brand-new subject whose entire burst fits inside one scrape interval can undercount here — the code panels below count exactly from Loki.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Denial ratio"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 0.05
+                    },
+                    {
+                      "color": "red",
+                      "value": 0.25
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "subject"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open raw records in Decision logs",
+                    "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__data.fields.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "id": 21,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Denial ratio"
+          }
+        ]
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range]))",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range]))",
+          "format": "table",
+          "instant": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"warning\"}[$__range]))",
+          "format": "table",
+          "instant": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "expr": "(sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range])) / (sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range])) > $min_requests)) or ((sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range])) > $min_requests) * 0)",
+          "format": "table",
+          "instant": true,
+          "refId": "D"
+        }
+      ],
+      "title": "Subjects by denial ratio",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 4,
+              "Value #D": 1,
+              "subject": 0
+            },
+            "renameByName": {
+              "Value #A": "Requests",
+              "Value #B": "Denied",
+              "Value #C": "Warnings",
+              "Value #D": "Denial ratio"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Most-denied subjects by absolute count in the time range — the impact view. Click a bar to open raw records.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "Open raw records in Decision logs",
+              "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__field.labels.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
+            }
+          ],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 6,
+        "x": 12,
+        "y": 13
+      },
+      "id": 22,
+      "options": {
+        "displayMode": "basic",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "expr": "topk(10, sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range])) > 0)",
+          "instant": true,
+          "legendFormat": "{{ "{{" }}subject{{ "}}" }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top denied subjects",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Subjects accumulating warnings in the time range — today's warnings are often next week's denials (e.g. expiring credentials). Click a bar to open raw records.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "Open raw records in Decision logs",
+              "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__field.labels.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
+            }
+          ],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 6,
+        "x": 18,
+        "y": 13
+      },
+      "id": 23,
+      "options": {
+        "displayMode": "basic",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "expr": "topk(10, sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"warning\"}[$__range])) > 0)",
+          "instant": true,
+          "legendFormat": "{{ "{{" }}subject{{ "}}" }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top warned subjects",
+      "type": "bargauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 30,
+      "panels": [],
+      "title": "Why — error codes",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "description": "Exact denial counts per error code for the time range, from Loki. Multi-code denials show as comma-joined categories.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 0,
+          "displayName": "${__field.labels.code}",
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 24
+      },
+      "id": 31,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "sum by (code) (count_over_time({job=\"opa\", environment=\"${env:text}\", opa_domain=~\"${domain:regex}\"} | subject=~\"${subject:regex}\" |~ `${code:regex}` | allowed=\"false\" | json codes | label_format code=`{{ "{{" }} .codes | replace \"\\\"\" \"\" | replace \"[\" \"\" | replace \"]\" \"\" {{ "}}" }}` [$__range]))",
+          "legendFormat": "{{ "{{" }}code{{ "}}" }}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Denials by code (time range total)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${loki}"
+      },
+      "description": "Which subject is failing with which error code — exact counts from Loki for the time range. Click a subject or code to open the matching raw records in Decision logs.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "decimals": 0,
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "subject"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open raw records in Decision logs",
+                    "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__data.fields.subject}&var-error_codes=${__data.fields.code}&var-domains=$__all&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "code"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open raw records in Decision logs",
+                    "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__data.fields.subject}&var-error_codes=${__data.fields.code}&var-domains=$__all&${__url_time_range}"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 16,
+        "x": 8,
+        "y": 24
+      },
+      "id": 32,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Denials"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${loki}"
+          },
+          "expr": "sum by (code, subject) (count_over_time({job=\"opa\", environment=\"${env:text}\", opa_domain=~\"${domain:regex}\"} | subject=~\"${subject:regex}\" |~ `${code:regex}` | allowed=\"false\" | json codes | label_format code=`{{ "{{" }} .codes | replace \"\\\"\" \"\" | replace \"[\" \"\" | replace \"]\" \"\" {{ "}}" }}` [$__range]))",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Code × subject",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {}
+        },
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "Value #A": 2,
+              "code": 1,
+              "subject": 0
+            },
+            "renameByName": {
+              "Value": "Denials",
+              "Value #A": "Denials"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 42,
+  "tags": [
+    "OPAla"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "Prometheus",
+          "value": "prometheus"
+        },
+        "hide": 2,
+        "label": "Prometheus",
+        "name": "prom",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "/^Prometheus$/",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "Loki",
+          "value": "loki"
+        },
+        "hide": 2,
+        "label": "Loki",
+        "name": "loki",
+        "options": [],
+        "query": "loki",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "np",
+          "value": "np"
+        },
+        "includeAll": false,
+        "label": "Environment",
+        "name": "env",
+        "options": [
+          {
+            "selected": true,
+            "text": "development",
+            "value": "np"
+          },
+          {
+            "selected": false,
+            "text": "staging",
+            "value": "stage"
+          },
+          {
+            "selected": false,
+            "text": "production",
+            "value": "prod"
+          }
+        ],
+        "query": "development : np,staging : stage,production : prod",
+        "type": "custom"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prom}"
+        },
+        "definition": "label_values(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}, domain)",
+        "includeAll": true,
+        "label": "Domain",
+        "multi": true,
+        "name": "domain",
+        "options": [],
+        "query": "label_values(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}, domain)",
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prom}"
+        },
+        "definition": "label_values(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}, subject)",
+        "includeAll": true,
+        "label": "Subject",
+        "multi": true,
+        "name": "subject",
+        "options": [],
+        "query": "label_values(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}, subject)",
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": [
+            "$__all"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "includeAll": true,
+        "label": "Error code",
+        "multi": true,
+        "name": "code",
+        "options": [
+          {
+            "selected": false,
+            "text": "token_not_valid",
+            "value": "token_not_valid"
+          },
+          {
+            "selected": false,
+            "text": "no_token_supplied",
+            "value": "no_token_supplied"
+          },
+          {
+            "selected": false,
+            "text": "user_not_found",
+            "value": "user_not_found"
+          },
+          {
+            "selected": false,
+            "text": "domain_missing",
+            "value": "domain_missing"
+          },
+          {
+            "selected": false,
+            "text": "domain_check_failed",
+            "value": "domain_check_failed"
+          },
+          {
+            "selected": false,
+            "text": "user_agent_missing",
+            "value": "user_agent_missing"
+          },
+          {
+            "selected": false,
+            "text": "user_agent_not_allowed",
+            "value": "user_agent_not_allowed"
+          },
+          {
+            "selected": false,
+            "text": "c2b_ua_not_allowed",
+            "value": "c2b_ua_not_allowed"
+          },
+          {
+            "selected": false,
+            "text": "bot_user_agent_detected",
+            "value": "bot_user_agent_detected"
+          },
+          {
+            "selected": false,
+            "text": "no_origins_configured",
+            "value": "no_origins_configured"
+          },
+          {
+            "selected": false,
+            "text": "ie11_missing_origin_and_referer",
+            "value": "ie11_missing_origin_and_referer"
+          },
+          {
+            "selected": false,
+            "text": "ie11_origin_and_referer_check_failed",
+            "value": "ie11_origin_and_referer_check_failed"
+          },
+          {
+            "selected": false,
+            "text": "api_missing_origin_and_referer",
+            "value": "api_missing_origin_and_referer"
+          },
+          {
+            "selected": false,
+            "text": "api_origin_mismatch",
+            "value": "api_origin_mismatch"
+          },
+          {
+            "selected": false,
+            "text": "api_request_referer_check_failed",
+            "value": "api_request_referer_check_failed"
+          },
+          {
+            "selected": false,
+            "text": "unknown_error",
+            "value": "unknown_error"
+          }
+        ],
+        "query": "token_not_valid,no_token_supplied,user_not_found,domain_missing,domain_check_failed,user_agent_missing,user_agent_not_allowed,c2b_ua_not_allowed,bot_user_agent_detected,no_origins_configured,ie11_missing_origin_and_referer,ie11_origin_and_referer_check_failed,api_missing_origin_and_referer,api_origin_mismatch,api_request_referer_check_failed,unknown_error",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "10",
+          "value": "10"
+        },
+        "hide": 2,
+        "label": "Min requests for ratio ranking",
+        "name": "min_requests",
+        "query": "10",
+        "skipUrlSync": true,
+        "type": "constant"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Denial Analytics",
+  "uid": "opala-denial-analytics",
+  "version": 3
+}

@@ -1,0 +1,1340 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 313,
+  "links": [
+    {
+      "asDashboard": false,
+      "icon": "dashboard",
+      "tags": [],
+      "targetBlank": true,
+      "title": "Performance",
+      "tooltip": "OPA throughput, latency, error rate, decision outcomes",
+      "type": "link",
+      "url": "/d/opala-performance/performance"
+    },
+    {
+      "asDashboard": false,
+      "icon": "dashboard",
+      "tags": [],
+      "targetBlank": true,
+      "title": "Bundle Status",
+      "tooltip": "Per-pod bundle revision vs. DB, staleness/liveness",
+      "type": "link",
+      "url": "/d/opala-bundle-status/bundle-status"
+    },
+    {
+      "asDashboard": false,
+      "icon": "dashboard",
+      "tags": [],
+      "targetBlank": true,
+      "title": "Denial Analytics",
+      "tooltip": "Aggregated denial/warning statistics by subject, domain, error code",
+      "type": "link",
+      "url": "/d/opala-denial-analytics/denial-analytics"
+    },
+    {
+      "asDashboard": false,
+      "icon": "dashboard",
+      "tags": [],
+      "targetBlank": true,
+      "title": "Decision Logs",
+      "tooltip": "Denial-investigation tool (denied/warning decisions only)",
+      "type": "link",
+      "url": "/d/opala-decision-logs/decision-logs"
+    }
+  ],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "### System Overview\n\nOne-glance health for **OPA**, **auth-manager**, and **auth-cron**. Each section links to a dedicated dashboard for detail.\n\nUse the **Environment** selector (`development` / `staging` / `production`) to pick a target environment. OPA, decision, and bundle panels are scoped to that environment; auth-manager and auth-cron run one instance per cluster serving every environment, so their health table is not scoped.\n\nBundle freshness flags any OPA pod running a bundle other than the one Postgres built for its environment. Decision outcomes come from the log pipeline and appear only where it runs.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.3.1",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 10,
+      "panels": [],
+      "title": "Whole-system health",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "OPA pods running in the namespace that serves the selected environment.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 0,
+        "y": 5
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "count(last_success_bundle_activation{namespace=~\"$ns\"}) or vector(0)",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "OPA pods serving $env",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Container restarts in the last hour across OPA pods serving the selected environment.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 5,
+        "y": 5
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"$ns\"}[1h]) and on(pod) label_replace(last_success_bundle_activation, \"pod\", \"$1\", \"instance\", \"(.*)\")) or vector(0)",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "OPA restarts ($env, 1h)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "auth-manager and auth-cron run one instance per cluster, not per environment, so this table is not affected by the environment selector. Health is red when ready replicas are below desired.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Health"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "green",
+                        "text": "✅ OK"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "from": -999,
+                      "result": {
+                        "color": "red",
+                        "text": "⚠ Short"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Restarts"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "basic",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deployment"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Open deployment in OpenShift",
+                    "url": "${console_url}/k8s/ns/${__data.fields.Namespace}/deployments/${__data.fields.Deployment}"
+                  }
+                ]
+              },
+              {
+                "id": "custom.width",
+                "value": 196
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Ready"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 61
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Desired"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 73
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 14,
+        "x": 10,
+        "y": 5
+      },
+      "id": 13,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "max by (deployment, namespace) (kube_deployment_status_replicas_ready{deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "max by (deployment, namespace) (kube_deployment_spec_replicas{deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "(max by (deployment, namespace) (kube_deployment_status_replicas_ready{deployment=~\".*-auth-manager$|.*-auth-cron$\"})) - on(deployment, namespace) (max by (deployment, namespace) (kube_deployment_spec_replicas{deployment=~\".*-auth-manager$|.*-auth-cron$\"}))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (deployment, namespace) (label_replace(kube_pod_container_status_restarts_total{pod=~\".*-auth-(manager|cron)-.*\"}, \"deployment\", \"$1\", \"pod\", \"^(.*-auth-(?:manager|cron))-.*$\"))",
+          "format": "table",
+          "instant": true,
+          "range": false,
+          "refId": "D"
+        }
+      ],
+      "title": "auth-manager & auth-cron health",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value #A": "Ready",
+              "Value #B": "Desired",
+              "Value #C": "Health",
+              "Value #D": "Restarts",
+              "deployment": "Deployment",
+              "namespace": "Namespace"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 20,
+      "panels": [],
+      "title": "Decision health",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Allow / deny / warn decision rate for the selected environment, from the decision-log metric pipeline. Only populated where that pipeline runs. Open Denial Analytics for aggregated statistics by subject and error code, or Decision Logs to investigate individual denials.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "allowed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "denied"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "warning"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 16,
+        "x": 0,
+        "y": 12
+      },
+      "id": 21,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Open Denial Analytics",
+          "url": "/d/opala-denial-analytics/denial-analytics"
+        },
+        {
+          "targetBlank": true,
+          "title": "Open Decision Logs",
+          "url": "/d/opala-decision-logs/decision-logs"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]))",
+          "legendFormat": "{{ "{{" }}status{{ "}}" }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Decision rate by status ($env)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Current denied-decision rate for the selected environment. Zero or empty when no denials are flowing through the log pipeline.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
+      "id": 22,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Open Denial Analytics",
+          "url": "/d/opala-denial-analytics/denial-analytics"
+        },
+        {
+          "targetBlank": true,
+          "title": "Open Decision Logs",
+          "url": "/d/opala-decision-logs/decision-logs"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\",status=\"denied\"}[5m]))",
+          "legendFormat": "denied/s",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Denied rate ($env)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
+      "id": 30,
+      "panels": [],
+      "title": "Performance",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Decision requests per second across OPA pods serving the selected environment.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 20
+      },
+      "id": 31,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Open Performance",
+          "url": "/d/opala-performance/performance"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "legendFormat": "req/s",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "OPA decision rate ($env)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "99th-percentile latency of decision requests for OPA pods serving the selected environment.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 20
+      },
+      "id": 32,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Open Performance",
+          "url": "/d/opala-performance/performance"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "legendFormat": "p99",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Decision latency p99 ($env)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Share of decision requests returning a 5xx response, for OPA pods serving the selected environment.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 20
+      },
+      "id": 33,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Open Performance",
+          "url": "/d/opala-performance/performance"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "100 * sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\", namespace=~\"$ns\"}[5m])) / sum(rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "legendFormat": "error %",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Error rate 5xx ($env)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 40,
+      "panels": [],
+      "title": "Bundle freshness",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "OPA pods serving the selected environment whose active bundle revision is not the latest revision Postgres built for that environment. Above zero means at least one pod is running the wrong or an outdated bundle.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 27
+      },
+      "id": 41,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Open Bundle Status",
+          "url": "/d/opala-bundle-status/bundle-status"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "count((max by (instance) (last_success_bundle_activation{namespace=~\"$ns\"} unless on(active_revision) label_replace(vector(1), \"active_revision\", \"$latest_revision\", \"\", \"\"))) * 0 + 1 or (max by (instance) (((time() - last_bundle_request/1e9) > ($grace_window_minutes * 60)) and on(instance) last_success_bundle_activation{namespace=~\"$ns\"})) * 0 + 1) or vector(0)",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Stale pods ($env)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${pg}"
+      },
+      "description": "Latest bundle revision Postgres built for the selected environment — the desired state every OPA pod for this environment should converge to.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 6,
+        "y": 27
+      },
+      "id": 42,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Open Bundle Status",
+          "url": "/d/opala-bundle-status/bundle-status"
+        }
+      ],
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${pg}"
+          },
+          "format": "table",
+          "rawSql": "select revision from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Latest DB revision ($env)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "description": "Seconds since the most-recently-polling OPA pod serving the selected environment last asked for a bundle. Rising above the threshold means a pod has stopped polling and will silently stop receiving new bundles.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 180
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 15,
+        "y": 27
+      },
+      "id": 43,
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "Open Bundle Status",
+          "url": "/d/opala-bundle-status/bundle-status"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "min(time() - (last_bundle_request{namespace=~\"$ns\"} / 1e9))",
+          "instant": true,
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Pod poll liveness ($env)",
+      "type": "stat"
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 42,
+  "tags": [
+    "OPAla"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "infra-opala-{{ include "opa-la.environment" . }}",
+          "value": "infra-opala-{{ include "opa-la.environment" . }}"
+        },
+        "hide": 2,
+        "label": "Postgres",
+        "name": "pg",
+        "options": [],
+        "query": "grafana-postgresql-datasource",
+        "refresh": 1,
+        "regex": "/.*opala.*/",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "Prometheus",
+          "value": "prometheus"
+        },
+        "hide": 2,
+        "label": "Prometheus",
+        "name": "prom",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "/^Prometheus$/",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "np",
+          "value": "np"
+        },
+        "includeAll": false,
+        "label": "Environment",
+        "name": "env",
+        "options": [
+          {
+            "selected": true,
+            "text": "development",
+            "value": "np"
+          },
+          {
+            "selected": false,
+            "text": "staging",
+            "value": "stage"
+          },
+          {
+            "selected": false,
+            "text": "production",
+            "value": "prod"
+          }
+        ],
+        "query": "development : np,staging : stage,production : prod",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "{{ .Values.dashboards.values.prod.namespace }}",
+          "value": "{{ .Values.dashboards.values.prod.namespace }}"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Namespace (mapped from env)",
+        "name": "ns",
+        "options": [],
+        "query": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
+        "refresh": 1,
+        "skipUrlSync": true,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "np-e9ed4a8eb683",
+          "value": "np-e9ed4a8eb683"
+        },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "select revision from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+        "hide": 2,
+        "label": "Latest DB revision",
+        "name": "latest_revision",
+        "options": [],
+        "query": "select revision from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
+        "refresh": 1,
+        "skipUrlSync": true,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "5",
+          "value": "5"
+        },
+        "hide": 2,
+        "label": "Grace window (minutes)",
+        "name": "grace_window_minutes",
+        "query": "5",
+        "skipUrlSync": true,
+        "type": "constant"
+      },
+      {
+        "current": {
+          "text": "{{ .Values.dashboards.values.prod.openshiftUrl }}",
+          "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
+        },
+        "hide": 2,
+        "includeAll": false,
+        "label": "OpenShift console",
+        "name": "console_url",
+        "options": [
+          {
+            "selected": true,
+            "text": "np",
+            "value": "{{ .Values.dashboards.values.np.openshiftUrl }}"
+          },
+          {
+            "selected": true,
+            "text": "stage",
+            "value": "{{ .Values.dashboards.values.stage.openshiftUrl }}"
+          },
+          {
+            "selected": true,
+            "text": "prod",
+            "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
+          }
+        ],
+        "query": "np : {{ .Values.dashboards.values.np.openshiftUrl }},stage : {{ .Values.dashboards.values.stage.openshiftUrl }},prod : {{ .Values.dashboards.values.prod.openshiftUrl }}",
+        "skipUrlSync": true,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "System Overview",
+  "uid": "opala-overview",
+  "version": 10
+}
