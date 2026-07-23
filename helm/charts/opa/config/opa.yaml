@@ -31,7 +31,7 @@ decision_logs:
   reporting:
     buffer_type: event
     buffer_size_limit_events: {{ .Values.decisionLogs.maxBufferEvents }}
-    upload_size_limit_bytes: {{ .Values.decisionLogs.maxUploadSizeBytes }}
+    upload_size_limit_bytes: {{ .Values.decisionLogs.maxUploadSizeBytes | int64 }}
     min_delay_seconds: {{ .Values.decisionLogs.minDelaySeconds }}
     max_delay_seconds: {{ .Values.decisionLogs.maxDelaySeconds }}
 
