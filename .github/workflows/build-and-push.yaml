@@ -73,7 +73,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          tags: ${{ secrets.ACR_URL }}/infra/${{ matrix.service }}:${{ matrix.version }}
+          tags: ${{ secrets.ACR_URL }}/infra/${{ matrix.service }}:v${{ matrix.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: ${{ matrix.dockerfile }}
