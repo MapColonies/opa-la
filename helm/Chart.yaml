@@ -2,20 +2,20 @@ apiVersion: v2
 name: opa-la
 description: A Helm chart for opa-la
 type: application
-version: 2.0.0
+version: 2.0.1
 dependencies:
   - name: opa
     repository: file://charts/opa
     condition: opa.enabled
-    version: 2.0.0 # x-release-please-version
+    version: 2.0.0
   - name: auth-cron
     repository: file://../apps/auth-cron/helm
     condition: auth-cron.enabled
-    version: 2.0.0 # x-release-please-version
+    version: 2.0.0
   - name: auth-manager
     repository: file://../apps/auth-manager/helm
     condition: auth-manager.enabled
-    version: 2.0.0 # x-release-please-version
+    version: 2.0.0
   - name: nginx
     repository: oci://acrarolibotnonprod.azurecr.io/helm/common
     condition: auth-ui.enabled
@@ -24,7 +24,7 @@ dependencies:
   - name: token-kiosk
     repository: file://../apps/token-kiosk/helm
     condition: token-kiosk.enabled
-    version: 2.0.0 # x-release-please-version
+    version: 2.0.0
   - name: nginx
     repository: oci://acrarolibotnonprod.azurecr.io/helm/common
     condition: kiosk-ui.enabled
