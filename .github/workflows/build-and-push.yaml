@@ -3,7 +3,7 @@ name: Build and Push Service Images
 on:
   push:
     tags:
-      - 'v*'
+      - 'root*'
   workflow_dispatch:
 
 jobs:
@@ -70,7 +70,7 @@ jobs:
           cache-dir: cache-mount
           dockerfile: ${{ matrix.dockerfile }}
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           tags: ${{ secrets.ACR_URL }}/infra/${{ matrix.service }}:${{ matrix.version }}
@@ -78,6 +78,8 @@ jobs:
           cache-to: type=gha,mode=max
           file: ${{ matrix.dockerfile }}
           push: true
+          build-args: |
+            APP_NAME=${{ matrix.service }}
 
   build-and-push-helm:
     needs: setup
