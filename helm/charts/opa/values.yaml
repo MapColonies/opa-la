@@ -59,8 +59,8 @@ status:
 
 decisionLogs:
   console: true
-  min_delay_seconds: 5
-  max_delay_seconds: 60
+  minDelaySeconds: 5
+  maxDelaySeconds: 60
   maxBufferEvents: 30000
   maxUploadSizeBytes: 1048576
 
