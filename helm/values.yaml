@@ -156,7 +156,7 @@ auth-ui:
     logScraping: false
   image:
     repository: infra/auth-ui
-    tag: v12.0.0 # x-release-please-version
+    tag: v2.0.0 # x-release-please-version
   extraVolumes:
     - name: config
       configMap:
@@ -206,7 +206,7 @@ kiosk-ui:
     logScraping: false
   image:
     repository: infra/kiosk-ui
-    tag: v12.0.0 # x-release-please-version
+    tag: v2.0.0 # x-release-please-version
   extraVolumes:
     - name: config
       configMap:
