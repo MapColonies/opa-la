@@ -9,6 +9,7 @@ mclabels:
   component: infrastructure
   owner: infra
   partOf: authentication
+  criticality: customer
   prometheus:
     enabled: true
     port: 8181

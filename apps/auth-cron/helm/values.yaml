@@ -9,6 +9,7 @@ mclabels:
   owner: infra
   prometheus:
     enabled: true
+  criticality: internal
 
 enabled: true
 replicaCount: 1

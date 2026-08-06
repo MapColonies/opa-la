@@ -10,6 +10,7 @@ mclabels:
   partOf: authentication
   prometheus:
     enabled: true
+  criticality: internal
 
 enabled: true
 replicaCount: 1
