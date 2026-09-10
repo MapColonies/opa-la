@@ -24,5 +24,12 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
+  },
+  {
+    // Test doubles and render helpers are not hot-reloaded.
+    files: ['tests/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
   }
 );

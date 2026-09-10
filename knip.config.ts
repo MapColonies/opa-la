@@ -39,7 +39,10 @@ const config: KnipConfig = {
     'apps/kiosk-ui': {
       ignore: ['src/types/**'],
     },
-    'apps/auth-ui': {},
+    'apps/auth-ui': {
+      // The editor double is wired in by the vitest config's alias, not by an import.
+      entry: ['tests/mocks/*.tsx'],
+    },
   },
 };
 
