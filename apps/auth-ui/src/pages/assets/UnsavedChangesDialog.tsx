@@ -7,7 +7,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
  * leaving loses the work outright; the guard is the only thing between the two.
  */
 export const UnsavedChangesDialog = ({ when }: { when: boolean }) => {
-  const blocker = useBlocker(({ currentLocation, nextLocation }) => when && currentLocation.pathname !== nextLocation.pathname);
+  // Search included, not just the path: on the asset page the search is which asset
+  // version is being viewed, and switching it leaves the edit surface just the same.
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      when && (currentLocation.pathname !== nextLocation.pathname || currentLocation.search !== nextLocation.search)
+  );
 
   return (
     <Dialog open={blocker.state === 'blocked'} onOpenChange={(open) => !open && blocker.reset?.()}>

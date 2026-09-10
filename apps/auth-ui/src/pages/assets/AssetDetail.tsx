@@ -11,6 +11,7 @@ import { Button } from '../../components/ui/button';
 import { getFetchClient } from '../../fetch';
 import { MAX_ENCODED_BYTES, decodeAssetContent, encodeAssetContent, estimateEncodedSize } from '../../lib/asset-content';
 import { AssetMetadataFields } from './AssetMetadataFields';
+import { AssetVersionSelect } from './AssetVersionSelect';
 import { draftOf, isDirty, type AssetDraft, type AssetUpsertBody } from './draft';
 import { resolveEditorLanguage } from './language';
 import { UnsavedChangesDialog } from './UnsavedChangesDialog';
@@ -38,9 +39,11 @@ class SaveFailure extends Error {
 interface AssetDetailProps {
   /** The stored asset this page is editing against — the latest asset version. */
   asset: Asset;
+  /** Every asset version row the api returned for this name, latest first. */
+  versions: Asset[];
 }
 
-export const AssetDetail = ({ asset }: AssetDetailProps) => {
+export const AssetDetail = ({ asset, versions }: AssetDetailProps) => {
   const queryClient = useQueryClient();
 
   const stored = decodeAssetContent(asset.value);
@@ -130,9 +133,10 @@ export const AssetDetail = ({ asset }: AssetDetailProps) => {
         {/* Shown, never edited: renaming would create a second asset, and there is no delete
             to remove the original. */}
         <dl className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
-          <Fact label="Asset version" value={String(asset.version)} />
           <Fact label="Created" value={formatCreatedAt(asset.createdAt)} />
         </dl>
+
+        <AssetVersionSelect assetName={asset.name} versions={versions} selectedVersion={asset.version} latestVersion={asset.version} />
 
         <AssetMetadataFields draft={draft} onChange={change} uriError={uriError} disabled={!stored.isValidText} />
 
