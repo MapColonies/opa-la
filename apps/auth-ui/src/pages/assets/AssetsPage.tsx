@@ -9,13 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { $api } from '../../fetch';
 import { useDebounce } from '../../hooks/useDebounce';
 import { AssetsTable } from './AssetsTable';
+import { ASSET_TYPES, ENVIRONMENTS } from './draft';
 import { nextSort, parseSort, sortAssets, type AssetSortField } from './sorting';
 
 type AssetType = components['schemas']['assetType'];
 type Environment = components['schemas']['environment'];
 
-const ENVIRONMENTS: Environment[] = ['np', 'stage', 'prod'];
-const ASSET_TYPES: AssetType[] = ['POLICY', 'TEST', 'DATA', 'TEST_DATA'];
 const PAGE_SIZES = ['10', '20', '50', '100'];
 
 /** Radix rejects an empty option value, so "no filter" needs a name of its own. */

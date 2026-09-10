@@ -110,7 +110,10 @@ describe('opening an asset', () => {
 
     openAsset();
 
-    expect(await screen.findByText('none — reaches no bundle')).toBeInTheDocument();
+    expect(await screen.findByText('No environments — this asset reaches no bundle.')).toBeInTheDocument();
+    for (const environment of ['np', 'stage', 'prod']) {
+      expect(screen.getByRole('checkbox', { name: environment })).not.toBeChecked();
+    }
   });
 
   it('opens content that is not valid text read-only, and says why', async () => {
