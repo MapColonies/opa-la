@@ -177,14 +177,13 @@ describe('editing an asset', () => {
   });
 
   it('confirms a save and leaves the list showing the change on return', async () => {
-    let currentVersion = 3;
-    http.on('GET', '/asset', () => ({ body: [anAsset({ name: 'authz.rego', version: currentVersion })] }));
-    http.on('GET', '/asset/authz.rego', () => ({
-      body: [anAsset({ name: 'authz.rego', version: currentVersion, value: encodeText('package authz\n') })],
-    }));
-    http.on('POST', '/asset', () => {
-      currentVersion += 1;
-      return { body: anAsset({ name: 'authz.rego', version: currentVersion }) };
+    // A stub that keeps what it was sent, so the page sees the save it just made.
+    let current = anAsset({ name: 'authz.rego', version: 3, value: encodeText('package authz\n') });
+    http.on('GET', '/asset', () => ({ body: [current] }));
+    http.on('GET', '/asset/authz.rego', () => ({ body: [current] }));
+    http.on('POST', '/asset', (request) => {
+      current = { ...(request.body as typeof current), createdAt: current.createdAt, version: current.version + 1 };
+      return { body: current };
     });
 
     renderRoutes(appRoutes, '/assets');

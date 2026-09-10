@@ -86,6 +86,12 @@ const createApiClientsFromConfig = (config: NetworkConfig) => {
   return siteApis;
 };
 
+/**
+ * The raw fetch client behind `$api`, for the few calls that need the response status
+ * rather than just its body — telling a stale-version conflict from any other failure.
+ */
+export const getFetchClient = () => defaultFetchClient;
+
 export const updateApiBaseUrl = (baseUrl: string) => {
   localStorage.setItem('currentBaseUrl', baseUrl);
   window.location.reload();

@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { components } from 'auth-openapi';
 import { ArrowLeft, GitCompare, Loader2, Save } from 'lucide-react';
 import { useState } from 'react';
@@ -13,15 +13,33 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Switch } from '../../components/ui/switch';
-import { $api } from '../../fetch';
-import { decodeAssetContent, encodeAssetContent } from '../../lib/asset-content';
+import { getFetchClient } from '../../fetch';
+import { MAX_ENCODED_BYTES, decodeAssetContent, encodeAssetContent, estimateEncodedSize } from '../../lib/asset-content';
 import { ASSET_TYPES, ENVIRONMENTS, draftOf, isDirty, type AssetDraft, type AssetUpsertBody } from './draft';
 import { resolveEditorLanguage } from './language';
+import { UnsavedChangesDialog } from './UnsavedChangesDialog';
 import { validateUri } from './uri';
+
+const CONFLICT_STATUS = 409;
 
 type Asset = components['schemas']['asset'];
 type AssetType = components['schemas']['assetType'];
 type Environment = components['schemas']['environment'];
+
+/** Warn before the api does, so a large asset fails here with an explanation rather than as an opaque server error. */
+const SIZE_WARNING_BYTES = MAX_ENCODED_BYTES * 0.9;
+
+const asKilobytes = (bytes: number): string => `${Math.round(bytes / 1024)} KB`;
+
+/** A save the server refused. The status is what tells a stale asset version from anything else. */
+class SaveFailure extends Error {
+  public constructor(
+    public readonly status: number,
+    message: string
+  ) {
+    super(message);
+  }
+}
 
 interface AssetDetailProps {
   /** The stored asset this page is editing against — the latest asset version. */
@@ -34,6 +52,7 @@ export const AssetDetail = ({ asset }: AssetDetailProps) => {
   const stored = decodeAssetContent(asset.value);
   const [draft, setDraft] = useState<AssetDraft>(() => draftOf(asset, stored.text));
   const [showDiff, setShowDiff] = useState(false);
+  const [conflictedVersion, setConflictedVersion] = useState<number | null>(null);
 
   const change = (changes: Partial<AssetDraft>) => setDraft((current) => ({ ...current, ...changes }));
 
@@ -41,21 +60,40 @@ export const AssetDetail = ({ asset }: AssetDetailProps) => {
   const dirty = isDirty(draft, asset, stored.text);
   const language = resolveEditorLanguage(draft.type, asset.name);
 
-  const save = $api.useMutation('post', '/asset', {
+  const encodedSize = estimateEncodedSize(draft.content);
+  const overSizeLimit = encodedSize > MAX_ENCODED_BYTES;
+
+  const save = useMutation({
+    mutationFn: async (body: AssetUpsertBody) => {
+      const { data, error, response } = await getFetchClient().POST('/asset', { body: body as Asset });
+      if (error !== undefined || data === undefined) throw new SaveFailure(response.status, error?.message ?? 'The asset was not saved.');
+      return data;
+    },
     onSuccess: () => {
       toast.success(`Saved ${asset.name}`);
       // Both, so the list and this page reflect the change on return.
       queryClient.invalidateQueries({ queryKey: ['get', '/asset'] });
       queryClient.invalidateQueries({ queryKey: ['get', '/asset/{assetName}'] });
     },
+    onError: (failure) => {
+      if (!(failure instanceof SaveFailure) || failure.status !== CONFLICT_STATUS) return;
+
+      // Nothing was merged and nothing is discarded: the working content stays put, the
+      // stored content is refetched, and the two go side by side in the diff.
+      setConflictedVersion(asset.version);
+      setShowDiff(true);
+      queryClient.invalidateQueries({ queryKey: ['get', '/asset/{assetName}'] });
+    },
   });
 
-  const canSave = dirty && uriError === null && stored.isValidText && !save.isPending;
+  const canSave = dirty && uriError === null && stored.isValidText && !overSizeLimit && !save.isPending;
 
   const submit = () => {
     if (!canSave) return;
 
-    const body: AssetUpsertBody = {
+    setConflictedVersion(null);
+
+    save.mutate({
       name: asset.name,
       // The asset version that was loaded, as the concurrency token.
       version: asset.version,
@@ -64,13 +102,13 @@ export const AssetDetail = ({ asset }: AssetDetailProps) => {
       type: draft.type,
       isTemplate: draft.isTemplate,
       environment: draft.environment,
-    };
-
-    save.mutate({ body: body as Asset });
+    });
   };
 
   return (
     <div className="flex h-full flex-col gap-4">
+      <UnsavedChangesDialog when={dirty} />
+
       <div className="space-y-3">
         <Link to="/assets" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
@@ -187,11 +225,40 @@ export const AssetDetail = ({ asset }: AssetDetailProps) => {
           </Alert>
         )}
 
-        {save.isError && (
+        {conflictedVersion !== null && (
+          <Alert variant="destructive">
+            <AlertTitle>Conflict: this asset moved on while you were editing</AlertTitle>
+            <AlertDescription>
+              The save declared asset version {conflictedVersion}, which is no longer the latest. Nothing was merged and none of your edits were
+              discarded — they are on the right of the diff, against the stored content on the left. Re-apply what you need, then save again.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {save.isError && conflictedVersion === null && (
           <Alert variant="destructive">
             <AlertTitle>Save failed</AlertTitle>
-            <AlertDescription>{save.error?.message ?? 'The asset was not saved.'}</AlertDescription>
+            <AlertDescription>{save.error.message}</AlertDescription>
           </Alert>
+        )}
+
+        {overSizeLimit ? (
+          <Alert variant="destructive">
+            <AlertTitle>Too large to save</AlertTitle>
+            <AlertDescription>
+              This content encodes to {asKilobytes(encodedSize)}, over the api&apos;s {asKilobytes(MAX_ENCODED_BYTES)} request limit. Shorten it
+              before saving.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          encodedSize > SIZE_WARNING_BYTES && (
+            <Alert>
+              <AlertTitle>Approaching the request size limit</AlertTitle>
+              <AlertDescription>
+                This content encodes to {asKilobytes(encodedSize)} of the api&apos;s {asKilobytes(MAX_ENCODED_BYTES)} request limit.
+              </AlertDescription>
+            </Alert>
+          )
         )}
       </div>
 
