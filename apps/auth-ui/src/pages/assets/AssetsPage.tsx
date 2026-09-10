@@ -1,7 +1,7 @@
 import type { components } from 'auth-openapi';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, Search, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, Plus, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -100,6 +100,12 @@ export const AssetsPage = () => {
     <div className="flex flex-col h-full p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Assets</h1>
+        <Button asChild>
+          <Link to="/assets/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Add asset
+          </Link>
+        </Button>
       </div>
 
       <div className="mb-6 space-y-4">

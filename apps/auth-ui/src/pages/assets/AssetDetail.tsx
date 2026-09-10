@@ -8,23 +8,17 @@ import { AssetDiffEditor, AssetEditor } from '../../components/asset-editor';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import { Checkbox } from '../../components/ui/checkbox';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Switch } from '../../components/ui/switch';
 import { getFetchClient } from '../../fetch';
 import { MAX_ENCODED_BYTES, decodeAssetContent, encodeAssetContent, estimateEncodedSize } from '../../lib/asset-content';
-import { ASSET_TYPES, ENVIRONMENTS, draftOf, isDirty, type AssetDraft, type AssetUpsertBody } from './draft';
+import { AssetMetadataFields } from './AssetMetadataFields';
+import { draftOf, isDirty, type AssetDraft, type AssetUpsertBody } from './draft';
 import { resolveEditorLanguage } from './language';
 import { UnsavedChangesDialog } from './UnsavedChangesDialog';
-import { validateUri } from './uri';
+import { validateUri } from './validation';
 
 const CONFLICT_STATUS = 409;
 
 type Asset = components['schemas']['asset'];
-type AssetType = components['schemas']['assetType'];
-type Environment = components['schemas']['environment'];
 
 /** Warn before the api does, so a large asset fails here with an explanation rather than as an opaque server error. */
 const SIZE_WARNING_BYTES = MAX_ENCODED_BYTES * 0.9;
@@ -140,71 +134,7 @@ export const AssetDetail = ({ asset }: AssetDetailProps) => {
           <Fact label="Created" value={formatCreatedAt(asset.createdAt)} />
         </dl>
 
-        <div className="flex flex-wrap items-end gap-6">
-          <div className="space-y-1">
-            <Label htmlFor="asset-type">Asset type</Label>
-            <Select value={draft.type} onValueChange={(value) => change({ type: value as AssetType })} disabled={!stored.isValidText}>
-              <SelectTrigger id="asset-type" className="w-[150px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ASSET_TYPES.map((value) => (
-                  <SelectItem key={value} value={value}>
-                    {value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="asset-uri">URI</Label>
-            <Input
-              id="asset-uri"
-              className="w-[280px]"
-              value={draft.uri}
-              onChange={(event) => change({ uri: event.target.value })}
-              disabled={!stored.isValidText}
-              aria-invalid={uriError !== null}
-            />
-          </div>
-
-          <fieldset className="space-y-1">
-            <legend className="text-sm font-medium">Environments</legend>
-            <div className="flex items-center gap-4 pt-1">
-              {ENVIRONMENTS.map((environment) => (
-                <div key={environment} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`environment-${environment}`}
-                    checked={draft.environment.includes(environment)}
-                    disabled={!stored.isValidText}
-                    onCheckedChange={(checked) =>
-                      change({
-                        environment:
-                          checked === true ? [...draft.environment, environment] : draft.environment.filter((value) => value !== environment),
-                      })
-                    }
-                  />
-                  <Label htmlFor={`environment-${environment}`}>{environment}</Label>
-                </div>
-              ))}
-            </div>
-            {/* Permitted, and a valid work-in-progress state, but worth saying out loud. */}
-            {draft.environment.length === 0 && <p className="text-xs text-muted-foreground">No environments — this asset reaches no bundle.</p>}
-          </fieldset>
-
-          <div className="flex items-center gap-2 pb-1">
-            <Switch
-              id="asset-template"
-              checked={draft.isTemplate}
-              disabled={!stored.isValidText}
-              onCheckedChange={(checked) => change({ isTemplate: checked })}
-            />
-            <Label htmlFor="asset-template">Template asset</Label>
-          </div>
-        </div>
-
-        {uriError !== null && <p className="text-sm text-destructive">{uriError}</p>}
+        <AssetMetadataFields draft={draft} onChange={change} uriError={uriError} disabled={!stored.isValidText} />
 
         {draft.type !== asset.type && (
           <Alert>

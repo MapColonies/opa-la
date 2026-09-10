@@ -1,6 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { Layout } from './components/layout';
-import { AssetPage, AssetsPage } from './pages/assets';
+import { AssetPage, AssetsPage, CreateAssetPage } from './pages/assets';
 import { ClientsPage } from './pages/clients';
 import { ConnectionsPage } from './pages/connections';
 import { DomainsPage } from './pages/domains';
@@ -25,6 +25,7 @@ export const appRoutes: RouteObject[] = [
         path: 'assets',
         children: [
           { index: true, element: <AssetsPage /> },
+          { path: 'new', element: <CreateAssetPage /> },
           { path: ':assetName', element: <AssetPage /> },
         ],
       },
