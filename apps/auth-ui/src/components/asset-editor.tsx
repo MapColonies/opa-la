@@ -1,5 +1,6 @@
 import { DiffEditor, Editor } from '@monaco-editor/react';
 import { useTheme } from 'next-themes';
+import { useRef } from 'react';
 import { REGO_LANGUAGE_ID, REGO_TEMPLATE_LANGUAGE_ID } from '../lib/monaco/language-ids';
 
 /**
@@ -45,9 +46,16 @@ const templateVariant = (language: string, isTemplate: boolean): string =>
 export const AssetEditor = ({ value, language, isTemplate = false, readOnly = false, onChange, onSave }: AssetEditorProps) => {
   const theme = useEditorTheme();
 
+  // The command is registered once, on mount, so it has to read the current handler.
+  const onSaveRef = useRef(onSave);
+  onSaveRef.current = onSave;
+
   return (
     <div
       className="h-full overflow-hidden rounded-md border"
+      // Belt and braces. The command below is the one the editor itself dispatches; this
+      // catches the keystroke if it ever reaches the wrapper instead, and either way the
+      // browser's own save dialog is what must not open.
       onKeyDown={(event) => {
         if (!onSave || event.key !== 's' || !(event.ctrlKey || event.metaKey)) return;
         event.preventDefault();
@@ -61,6 +69,10 @@ export const AssetEditor = ({ value, language, isTemplate = false, readOnly = fa
         value={value}
         onChange={(next) => onChange?.(next ?? '')}
         options={{ ...EDITOR_OPTIONS, readOnly }}
+        onMount={(editor, monaco) => {
+          if (monaco.KeyMod === undefined || monaco.KeyCode === undefined) return;
+          editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => onSaveRef.current?.());
+        }}
       />
     </div>
   );

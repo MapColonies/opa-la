@@ -48,7 +48,7 @@ export const AssetMetadataFields = ({ draft, onChange, uriError, disabled = fals
       </div>
 
       <fieldset className="space-y-1">
-        <legend className="text-sm font-medium">Environments</legend>
+        <legend className="text-sm font-medium">Targeted environments</legend>
         <div className="flex items-center gap-4 pt-1">
           {ENVIRONMENTS.map((environment) => (
             <div key={environment} className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export const AssetMetadataFields = ({ draft, onChange, uriError, disabled = fals
           ))}
         </div>
         {/* Permitted, and a valid work-in-progress state, but worth saying out loud. */}
-        {draft.environment.length === 0 && <p className="text-xs text-muted-foreground">No environments — this asset reaches no bundle.</p>}
+        {draft.environment.length === 0 && <p className="text-xs text-muted-foreground">No targeted environments — this asset reaches no bundle.</p>}
       </fieldset>
 
       <div className="flex items-center gap-2 pb-1">

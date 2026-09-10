@@ -31,6 +31,13 @@ export const draftOf = (asset: Asset, content: string): AssetDraft => ({
   isTemplate: asset.isTemplate,
 });
 
+export const sameDraft = (left: AssetDraft, right: AssetDraft): boolean =>
+  left.content === right.content &&
+  left.type === right.type &&
+  left.uri === right.uri &&
+  left.isTemplate === right.isTemplate &&
+  sameEnvironments(left.environment, right.environment);
+
 const sameEnvironments = (left: Environment[], right: Environment[]): boolean =>
   left.length === right.length && [...left].sort().join() === [...right].sort().join();
 

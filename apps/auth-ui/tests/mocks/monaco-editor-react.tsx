@@ -6,7 +6,7 @@
  * component that renders both sides. Consequence: highlighting and diff rendering
  * are not covered by component tests.
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface EditorProps {
   value?: string;
@@ -29,21 +29,32 @@ interface DiffEditorProps {
   options?: Record<string, unknown>;
 }
 
-const fakeEditor = {
-  onDidContentSizeChange: () => ({ dispose: () => {} }),
-  getContentHeight: () => 200,
-  addCommand: () => {},
-  focus: () => {},
-  layout: () => {},
-};
+/** The real library's values, so a test can name the keybinding that was registered. */
+const CTRL_CMD = 2048;
+const KEY_S = 49;
+
+const fakeMonaco = { KeyMod: { CtrlCmd: CTRL_CMD }, KeyCode: { KeyS: KEY_S } };
+
+export const SAVE_KEYBINDING = CTRL_CMD | KEY_S;
 
 export const Editor = ({ value, defaultValue, language, defaultLanguage, theme, height, options, onChange, onMount }: EditorProps) => {
   const mounted = useRef(false);
+  const [commands, setCommands] = useState<number[]>([]);
 
   useEffect(() => {
     if (mounted.current) return;
     mounted.current = true;
-    onMount?.(fakeEditor, {});
+
+    onMount?.(
+      {
+        onDidContentSizeChange: () => ({ dispose: () => {} }),
+        getContentHeight: () => 200,
+        addCommand: (keybinding: number) => setCommands((current) => [...current, keybinding]),
+        focus: () => {},
+        layout: () => {},
+      },
+      fakeMonaco
+    );
   }, [onMount]);
 
   return (
@@ -53,6 +64,7 @@ export const Editor = ({ value, defaultValue, language, defaultLanguage, theme, 
       data-language={language ?? defaultLanguage}
       data-theme={theme}
       data-height={height}
+      data-commands={commands.join(',')}
       readOnly={options?.readOnly === true}
       value={value ?? defaultValue ?? ''}
       onChange={(event) => onChange?.(event.target.value)}

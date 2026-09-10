@@ -66,7 +66,7 @@ describe('assets list', () => {
     await screen.findByText('authz.rego');
     expect(http.lastRequestFor('GET', '/asset')?.query.getAll('environment')).toEqual([]);
 
-    await userEvent.click(screen.getByRole('combobox', { name: 'Environment' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Targeted environment' }));
     await userEvent.click(await screen.findByRole('option', { name: 'prod' }));
 
     await waitFor(() => expect(http.lastRequestFor('GET', '/asset')?.query.getAll('environment')).toEqual(['prod']));
@@ -126,13 +126,35 @@ describe('assets list', () => {
     await waitFor(() => expect(router.state.location.search).not.toContain('sort='));
   });
 
+  it('ignores a filter the url invents rather than sending it to the server', async () => {
+    http.on('GET', '/asset', { body: [anAsset()] });
+
+    openAssets('?environment=nowhere&type=NONSENSE');
+
+    await screen.findByText('authz.rego');
+    const request = http.lastRequestFor('GET', '/asset');
+    expect(request?.query.getAll('environment')).toEqual([]);
+    expect(request?.query.get('type')).toBeNull();
+    expect(screen.getByRole('combobox', { name: 'Targeted environment' })).toHaveTextContent('All targeted environments');
+  });
+
+  it('falls back to the first page when the url asks for one that is not a number', async () => {
+    http.on('GET', '/asset', { body: [anAsset({ name: 'a.rego' }), anAsset({ name: 'b.rego' })] });
+
+    openAssets('?page=abc&pageSize=-1');
+
+    expect(await screen.findByText('a.rego')).toBeInTheDocument();
+    expect(screen.getByText('Page 1 of 1')).toBeInTheDocument();
+    expect(rowsInBody()).toHaveLength(2);
+  });
+
   it('reads filters, sort and page back out of the url', async () => {
     http.on('GET', '/asset', { body: [anAsset({ name: 'a.rego' }), anAsset({ name: 'b.rego' })] });
 
     openAssets('?environment=stage&type=TEST&template=false&sort=name%3Adesc&page=2&pageSize=1');
 
     await screen.findByText('a.rego');
-    expect(screen.getByRole('combobox', { name: 'Environment' })).toHaveTextContent('stage');
+    expect(screen.getByRole('combobox', { name: 'Targeted environment' })).toHaveTextContent('stage');
     expect(screen.getByRole('combobox', { name: 'Asset type' })).toHaveTextContent('TEST');
     expect(screen.getByRole('combobox', { name: 'Template' })).toHaveTextContent('Non-templates only');
     expect(screen.getByText('Page 2 of 2')).toBeInTheDocument();

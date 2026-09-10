@@ -110,7 +110,7 @@ describe('opening an asset', () => {
 
     openAsset();
 
-    expect(await screen.findByText('No environments — this asset reaches no bundle.')).toBeInTheDocument();
+    expect(await screen.findByText('No targeted environments — this asset reaches no bundle.')).toBeInTheDocument();
     for (const environment of ['np', 'stage', 'prod']) {
       expect(screen.getByRole('checkbox', { name: environment })).not.toBeChecked();
     }
@@ -149,5 +149,20 @@ describe('opening an asset', () => {
 
     expect(await screen.findByRole('heading', { name: 'Domains' })).toBeInTheDocument();
     expect(within(screen.getByRole('table')).getByText('example.com')).toBeInTheDocument();
+  });
+});
+
+describe('a render error inside a route', () => {
+  it('lands on the application error page rather than the router default', async () => {
+    const Boom = () => {
+      throw new Error('the page fell over');
+    };
+    const [root, ...rest] = appRoutes;
+    const routes = [{ ...root!, children: [...(root!.children ?? []), { path: 'boom', element: <Boom /> }] }, ...rest];
+
+    renderRoutes(routes, '/boom');
+
+    expect(await screen.findByText('Application Error')).toBeInTheDocument();
+    expect(screen.getByText('the page fell over')).toBeInTheDocument();
   });
 });

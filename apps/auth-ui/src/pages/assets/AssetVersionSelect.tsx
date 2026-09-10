@@ -6,11 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 type Asset = components['schemas']['asset'];
 
 interface AssetVersionSelectProps {
-  assetName: string;
-  /** Every asset version row the api returned for this name, latest first. */
+  /** Every asset version row the api returned for one name, latest first. */
   versions: Asset[];
   selectedVersion: number;
-  latestVersion: number;
 }
 
 /**
@@ -20,8 +18,11 @@ interface AssetVersionSelectProps {
  * That is recorded in the spec's Further Notes as a probable backend bug; the dropdown
  * fills in with no change here if it is corrected.
  */
-export const AssetVersionSelect = ({ assetName, versions, selectedVersion, latestVersion }: AssetVersionSelectProps) => {
+export const AssetVersionSelect = ({ versions, selectedVersion }: AssetVersionSelectProps) => {
   const navigate = useNavigate();
+
+  const latest = versions[0];
+  if (!latest) return null;
 
   return (
     <div className="space-y-1">
@@ -29,8 +30,8 @@ export const AssetVersionSelect = ({ assetName, versions, selectedVersion, lates
       <Select
         value={String(selectedVersion)}
         onValueChange={(value) => {
-          const target = `/assets/${encodeURIComponent(assetName)}`;
-          void navigate(Number(value) === latestVersion ? target : `${target}?version=${value}`);
+          const target = `/assets/${encodeURIComponent(latest.name)}`;
+          void navigate(Number(value) === latest.version ? target : `${target}?version=${value}`);
         }}
       >
         <SelectTrigger id="asset-version" className="w-[180px]">
@@ -39,7 +40,7 @@ export const AssetVersionSelect = ({ assetName, versions, selectedVersion, lates
         <SelectContent>
           {versions.map((version) => (
             <SelectItem key={version.version} value={String(version.version)}>
-              {version.version === latestVersion ? `${version.version} (latest)` : version.version}
+              {version.version === latest.version ? `${version.version} (latest)` : version.version}
             </SelectItem>
           ))}
         </SelectContent>

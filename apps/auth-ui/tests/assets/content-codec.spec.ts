@@ -125,3 +125,9 @@ describe('the size limit', () => {
     expect(isOverSizeLimit(HEBREW)).toBe(false);
   });
 });
+
+describe('content that is not base64 at all', () => {
+  it('is flagged rather than thrown, so the page still renders', () => {
+    expect(decodeAssetContent('not base64 !!!')).toEqual({ text: '', isValidText: false });
+  });
+});

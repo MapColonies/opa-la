@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useRouteError } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 
@@ -31,5 +31,21 @@ export const ErrorPage = ({
         </Link>
       </div>
     </div>
+  );
+};
+
+/**
+ * The router's error boundary for the whole route tree. Without one, a render error in a
+ * page reaches the router's own default screen rather than this application's.
+ */
+export const RouteErrorPage = () => {
+  const error = useRouteError();
+
+  return (
+    <ErrorPage
+      title="Application Error"
+      message={error instanceof Error ? error.message : 'An unexpected error occurred in the application.'}
+      code="500"
+    />
   );
 };

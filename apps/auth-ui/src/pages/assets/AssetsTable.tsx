@@ -1,10 +1,10 @@
 import type { components } from 'auth-openapi';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { formatTimestamp } from '../../lib/utils';
 import type { AssetSortField, SortDirection } from './sorting';
 
 type Asset = components['schemas']['asset'];
@@ -19,34 +19,30 @@ const COLUMNS: { field: AssetSortField; label: string }[] = [
   { field: 'name', label: 'Name' },
   { field: 'version', label: 'Version' },
   { field: 'type', label: 'Type' },
-  { field: 'environment', label: 'Environments' },
+  { field: 'environment', label: 'Targeted environments' },
   { field: 'isTemplate', label: 'Template' },
   { field: 'uri', label: 'URI' },
   { field: 'createdAt', label: 'Created' },
 ];
 
 export const AssetsTable = ({ assets, onSort, sortDirection }: AssetsTableProps) => {
-  const headers = useMemo(
-    () =>
-      COLUMNS.map(({ field, label }) => {
-        const direction = sortDirection(field);
-        return (
-          <TableHead key={field}>
-            <Button variant="ghost" onClick={() => onSort(field)}>
-              {label}
-              {direction === 'asc' ? (
-                <ArrowUp className="ml-2 h-4 w-4" />
-              ) : direction === 'desc' ? (
-                <ArrowDown className="ml-2 h-4 w-4" />
-              ) : (
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              )}
-            </Button>
-          </TableHead>
-        );
-      }),
-    [onSort, sortDirection]
-  );
+  const headers = COLUMNS.map(({ field, label }) => {
+    const direction = sortDirection(field);
+    return (
+      <TableHead key={field}>
+        <Button variant="ghost" onClick={() => onSort(field)}>
+          {label}
+          {direction === 'asc' ? (
+            <ArrowUp className="ml-2 h-4 w-4" />
+          ) : direction === 'desc' ? (
+            <ArrowDown className="ml-2 h-4 w-4" />
+          ) : (
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          )}
+        </Button>
+      </TableHead>
+    );
+  });
 
   return (
     <div className="h-full flex flex-col">
@@ -85,7 +81,7 @@ export const AssetsTable = ({ assets, onSort, sortDirection }: AssetsTableProps)
                     {asset.uri}
                   </span>
                 </TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">{formatCreatedAt(asset.createdAt)}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">{formatTimestamp(asset.createdAt)}</TableCell>
               </TableRow>
             ))
           )}
@@ -108,8 +104,3 @@ const EnvironmentBadges = ({ environments }: { environments: Asset['environment'
       ))}
     </div>
   );
-
-const formatCreatedAt = (createdAt: string): string => {
-  const parsed = new Date(createdAt);
-  return Number.isNaN(parsed.getTime()) ? createdAt : parsed.toLocaleString();
-};

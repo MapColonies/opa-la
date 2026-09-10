@@ -4,7 +4,7 @@ import { AssetPage, AssetsPage, CreateAssetPage } from './pages/assets';
 import { ClientsPage } from './pages/clients';
 import { ConnectionsPage } from './pages/connections';
 import { DomainsPage } from './pages/domains';
-import { ErrorPage } from './pages/error';
+import { ErrorPage, RouteErrorPage } from './pages/error';
 import { JWTInspectorPage } from './pages/jwt-inspector';
 import { NotFoundPage } from './pages/not-found';
 import { OPAValidatorPage } from './pages/opa-validator';
@@ -14,6 +14,9 @@ export const appRoutes: RouteObject[] = [
   {
     path: '/',
     element: <Layout />,
+    // A data router catches a render error itself, so the application's error screen has
+    // to be handed to it; the react error boundary around the tree no longer sees these.
+    errorElement: <RouteErrorPage />,
     children: [
       { index: true, element: <Navigate to="/clients" replace /> },
       { path: 'clients', element: <ClientsPage /> },

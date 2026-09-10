@@ -1,4 +1,3 @@
-import type { components } from 'auth-openapi';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, Plus, Search, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -12,23 +11,28 @@ import { AssetsTable } from './AssetsTable';
 import { ASSET_TYPES, ENVIRONMENTS } from './draft';
 import { nextSort, parseSort, sortAssets, type AssetSortField } from './sorting';
 
-type AssetType = components['schemas']['assetType'];
-type Environment = components['schemas']['environment'];
-
 const PAGE_SIZES = ['10', '20', '50', '100'];
 
 /** Radix rejects an empty option value, so "no filter" needs a name of its own. */
 const ANY = 'all';
 
+const positiveInteger = (value: string | null, fallback: number): number => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const oneOf = <T extends string>(value: string | null, allowed: readonly T[]): T | typeof ANY => (allowed.includes(value as T) ? (value as T) : ANY);
+
 export const AssetsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const environment = searchParams.get('environment') ?? ANY;
-  const type = searchParams.get('type') ?? ANY;
-  const template = searchParams.get('template') ?? ANY;
+  // The url is external input: an unknown value would otherwise travel to the server as a filter and come back a 400.
+  const environment = oneOf(searchParams.get('environment'), ENVIRONMENTS);
+  const type = oneOf(searchParams.get('type'), ASSET_TYPES);
+  const template = oneOf(searchParams.get('template'), ['true', 'false']);
   const sort = parseSort(searchParams.get('sort'));
-  const page = Number(searchParams.get('page') ?? '1');
-  const pageSize = Number(searchParams.get('pageSize') ?? '10');
+  const page = positiveInteger(searchParams.get('page'), 1);
+  const pageSize = positiveInteger(searchParams.get('pageSize'), 10);
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('name') ?? '');
   const debouncedSearchTerm = useDebounce(searchTerm);
@@ -47,7 +51,8 @@ export const AssetsPage = () => {
     );
   };
 
-  // The typed term drives the filter immediately; the url follows once typing settles.
+  // The url follows the typed term once typing settles, so a view stays shareable without
+  // a history entry, or a request, per keystroke.
   useEffect(() => {
     if (debouncedSearchTerm === (searchParams.get('name') ?? '')) return;
     updateParams({ name: debouncedSearchTerm, page: null });
@@ -56,8 +61,8 @@ export const AssetsPage = () => {
 
   // Only the three filters the collection endpoint understands travel to the server.
   const query = {
-    ...(environment === ANY ? {} : { environment: [environment as Environment] }),
-    ...(type === ANY ? {} : { type: type as AssetType }),
+    ...(environment === ANY ? {} : { environment: [environment] }),
+    ...(type === ANY ? {} : { type }),
     ...(template === ANY ? {} : { isTemplate: template === 'true' }),
   };
 
@@ -123,11 +128,11 @@ export const AssetsPage = () => {
           </div>
 
           <Select value={environment} onValueChange={(value) => updateParams({ environment: value, page: null })}>
-            <SelectTrigger className="w-[170px]" aria-label="Environment">
+            <SelectTrigger className="w-[170px]" aria-label="Targeted environment">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ANY}>All environments</SelectItem>
+              <SelectItem value={ANY}>All targeted environments</SelectItem>
               {ENVIRONMENTS.map((value) => (
                 <SelectItem key={value} value={value}>
                   {value}

@@ -35,6 +35,10 @@ export interface DecodedAssetContent {
 export function decodeAssetContent(base64: string): DecodedAssetContent {
   const bytes = base64ToBytes(base64);
 
+  // Not even base64. Nothing can be shown, and re-encoding an empty buffer over it would
+  // be the same corruption the flag exists to prevent.
+  if (bytes === null) return { text: '', isValidText: false };
+
   try {
     return { text: new TextDecoder('utf-8', { fatal: true }).decode(bytes), isValidText: true };
   } catch {
@@ -61,9 +65,13 @@ export function isOverSizeLimit(text: string): boolean {
   return estimateEncodedSize(text) > MAX_ENCODED_BYTES;
 }
 
-function base64ToBytes(base64: string): Uint8Array {
-  const binary = atob(base64);
-  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+/** Null when the string is not base64 at all, which `atob` reports by throwing. */
+function base64ToBytes(base64: string): Uint8Array | null {
+  try {
+    return Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
+  } catch {
+    return null;
+  }
 }
 
 function bytesToBase64(bytes: Uint8Array): string {

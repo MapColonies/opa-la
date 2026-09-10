@@ -1,6 +1,6 @@
 import type { components } from 'auth-openapi';
 import { ArrowLeft, GitCompare } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AssetDiffEditor, AssetEditor } from '../../components/asset-editor';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
@@ -27,8 +27,8 @@ interface AssetVersionViewProps {
 export const AssetVersionView = ({ asset, latest, versions }: AssetVersionViewProps) => {
   const [showComparison, setShowComparison] = useState(false);
 
-  const content = decodeAssetContent(asset.value);
-  const latestContent = decodeAssetContent(latest.value);
+  const content = useMemo(() => decodeAssetContent(asset.value), [asset.value]);
+  const latestContent = useMemo(() => decodeAssetContent(latest.value), [latest.value]);
   const language = resolveEditorLanguage(asset.type, asset.name);
 
   return (
@@ -47,7 +47,7 @@ export const AssetVersionView = ({ asset, latest, versions }: AssetVersionViewPr
           </div>
 
           <div className="flex items-end gap-2">
-            <AssetVersionSelect assetName={asset.name} versions={versions} selectedVersion={asset.version} latestVersion={latest.version} />
+            <AssetVersionSelect versions={versions} selectedVersion={asset.version} />
             <Button variant="outline" onClick={() => setShowComparison((shown) => !shown)}>
               <GitCompare className="mr-2 h-4 w-4" />
               {showComparison ? 'Back to content' : 'Compare with latest'}

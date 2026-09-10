@@ -2,6 +2,7 @@ import { createEvent, fireEvent, screen, waitFor, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { REGO_LANGUAGE_ID } from '@/lib/monaco/language-ids';
+import { SAVE_KEYBINDING } from '../mocks/monaco-editor-react';
 import { decodeAssetContent } from '@/lib/asset-content';
 import { appRoutes } from '../../src/routes';
 import { anAsset, encodeText } from '../asset-fixtures';
@@ -159,6 +160,34 @@ describe('editing an asset', () => {
 
     await waitFor(() => expect(http.requestsFor('POST', '/asset')).toHaveLength(1));
     expect(decodeAssetContent(savedBody()!['value'] as string)).toEqual({ text: content, isValidText: true });
+  });
+
+  it('binds the save shortcut inside the editor itself', async () => {
+    stubAsset();
+
+    openAsset();
+
+    expect(await screen.findByTestId('monaco-editor')).toHaveAttribute('data-commands', String(SAVE_KEYBINDING));
+  });
+
+  it('does not raise the unsaved-work guard once a save has landed', async () => {
+    stubAsset();
+    http.on('GET', '/asset', { body: [] });
+    // The stub keeps answering with the old content, so nothing but the save itself can
+    // tell the page it is clean again.
+    stubSave();
+
+    const { router } = openAsset();
+    await screen.findByTestId('monaco-editor');
+    setContent('package authz.v2\n');
+
+    await userEvent.click(saveButton());
+    await screen.findByText('Saved authz.rego');
+
+    await userEvent.click(screen.getByRole('link', { name: 'Back to assets' }));
+
+    await waitFor(() => expect(router.state.location.pathname).toBe('/assets'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('saves from the keyboard, and swallows the browser default', async () => {

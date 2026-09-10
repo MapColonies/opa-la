@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { decodeAssetContent } from '@/lib/asset-content';
 import { appRoutes } from '../../src/routes';
+import { MAX_ENCODED_BYTES } from '@/lib/asset-content';
 import { anAsset } from '../asset-fixtures';
 import { http } from '../http-stub';
 import { renderRoutes } from '../render';
@@ -93,6 +94,47 @@ describe('creating an asset', () => {
     expect(await screen.findByText(/The name authz.rego is already in use/)).toBeInTheDocument();
     expect(screen.queryByText(/stale/)).not.toBeInTheDocument();
     expect(screen.queryByText(/declared asset version/)).not.toBeInTheDocument();
+  });
+
+  it('guards a half-written asset against a navigation away', async () => {
+    http.on('GET', '/asset', { body: [] });
+
+    const { router } = openCreate();
+    await screen.findByRole('heading', { name: 'New asset' });
+
+    fireEvent.change(nameField(), { target: { value: 'billing.rego' } });
+    await userEvent.click(screen.getByRole('link', { name: 'Assets' }));
+
+    expect(await screen.findByRole('dialog')).toHaveTextContent('Leave without saving?');
+    expect(router.state.location.pathname).toBe('/assets/new');
+  });
+
+  it('does not guard an untouched create page', async () => {
+    http.on('GET', '/asset', { body: [] });
+
+    const { router } = openCreate();
+    await screen.findByRole('heading', { name: 'New asset' });
+
+    await userEvent.click(screen.getByRole('link', { name: 'Assets' }));
+
+    await waitFor(() => expect(router.state.location.pathname).toBe('/assets'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('refuses content over the request size limit here rather than at the server', async () => {
+    http.on('POST', '/asset', { body: anAsset() });
+
+    openCreate();
+    await screen.findByRole('heading', { name: 'New asset' });
+
+    fireEvent.change(nameField(), { target: { value: 'billing.rego' } });
+    fireEvent.change(screen.getByTestId('monaco-editor'), { target: { value: 'a'.repeat((MAX_ENCODED_BYTES * 3) / 4 + 100) } });
+
+    expect(screen.getByText('Too large to save')).toBeInTheDocument();
+    expect(createButton()).toBeDisabled();
+
+    await userEvent.click(createButton());
+    expect(http.requestsFor('POST', '/asset')).toHaveLength(0);
   });
 
   it('rejects a traversing uri before any request, as the asset page does', async () => {

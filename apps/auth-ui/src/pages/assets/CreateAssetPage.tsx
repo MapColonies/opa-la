@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { components } from 'auth-openapi';
 import { ArrowLeft, Loader2, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AssetEditor } from '../../components/asset-editor';
@@ -9,16 +8,14 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { getFetchClient } from '../../fetch';
-import { encodeAssetContent } from '../../lib/asset-content';
+import { encodeAssetContent, isOverSizeLimit } from '../../lib/asset-content';
 import { AssetMetadataFields } from './AssetMetadataFields';
-import { type AssetDraft, type AssetUpsertBody } from './draft';
+import { ContentSizeAlert } from './ContentSizeAlert';
+import { sameDraft, type AssetDraft, type AssetUpsertBody } from './draft';
 import { resolveEditorLanguage } from './language';
+import { CONFLICT_STATUS, SaveFailure, saveAsset } from './save';
+import { UnsavedChangesDialog } from './UnsavedChangesDialog';
 import { validateAssetName, validateUri } from './validation';
-
-type Asset = components['schemas']['asset'];
-
-const CONFLICT_STATUS = 409;
 
 /** The api requires 1 for an asset that does not yet exist. */
 const FIRST_ASSET_VERSION = 1;
@@ -38,32 +35,41 @@ export const CreateAssetPage = () => {
 
   const nameError = validateAssetName(name);
   const uriError = validateUri(draft.uri);
+  const overSizeLimit = isOverSizeLimit(draft.content);
+
+  // Nothing is kept as a draft here either, and a whole freshly typed policy is easier to
+  // lose from this page than from an existing asset's.
+  const started = name !== '' || !sameDraft(draft, DEFAULT_DRAFT);
 
   const create = useMutation({
     mutationFn: async (body: AssetUpsertBody) => {
-      const { data, error, response } = await getFetchClient().POST('/asset', { body: body as Asset });
-      if (error !== undefined || data === undefined) {
-        // A conflict here is a name already taken — a different failure, with a
-        // different remedy, from the stale asset version a save on an existing asset hits.
-        throw new Error(
-          response.status === CONFLICT_STATUS
-            ? `The name ${body.name} is already in use. Open that asset instead, or pick another name.`
-            : (error?.message ?? 'The asset was not created.')
-        );
+      try {
+        return await saveAsset(body);
+      } catch (failure) {
+        // A conflict here is a name already taken — a different failure, with a different
+        // remedy, from the stale asset version a save on an existing asset hits.
+        if (failure instanceof SaveFailure && failure.status === CONFLICT_STATUS) {
+          throw new Error(`The name ${body.name} is already in use. Open that asset instead, or pick another name.`);
+        }
+        throw failure;
       }
-      return data;
     },
     onSuccess: (created) => {
       toast.success(`Created ${created.name}`);
       queryClient.invalidateQueries({ queryKey: ['get', '/asset'] });
-      // Land in the editor for what was just created, so the work can continue.
-      void navigate(`/assets/${encodeURIComponent(created.name)}`);
     },
   });
 
+  // Land in the editor for what was just created, so the work can continue. In an effect
+  // rather than in onSuccess so the unsaved-work guard has already seen the save land.
+  const created = create.data;
+  useEffect(() => {
+    if (created !== undefined) void navigate(`/assets/${encodeURIComponent(created.name)}`);
+  }, [created, navigate]);
+
   const submit = () => {
     setAttempted(true);
-    if (nameError !== null || uriError !== null || create.isPending) return;
+    if (nameError !== null || uriError !== null || overSizeLimit || create.isPending) return;
 
     create.mutate({
       name: name.trim(),
@@ -78,6 +84,8 @@ export const CreateAssetPage = () => {
 
   return (
     <div className="flex h-full flex-col gap-4">
+      <UnsavedChangesDialog when={started && !create.isSuccess} />
+
       <div className="space-y-3">
         <Link to="/assets" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
@@ -86,7 +94,7 @@ export const CreateAssetPage = () => {
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">New asset</h1>
-          <Button onClick={submit} disabled={create.isPending}>
+          <Button onClick={submit} disabled={create.isPending || overSizeLimit}>
             {create.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
             Create
           </Button>
@@ -112,6 +120,8 @@ export const CreateAssetPage = () => {
         </div>
 
         <AssetMetadataFields draft={draft} onChange={change} uriError={uriError} />
+
+        <ContentSizeAlert content={draft.content} />
 
         {create.isError && (
           <Alert variant="destructive">
