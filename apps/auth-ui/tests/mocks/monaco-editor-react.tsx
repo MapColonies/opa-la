@@ -37,7 +37,7 @@ const fakeEditor = {
   layout: () => {},
 };
 
-export const Editor = ({ value, defaultValue, language, defaultLanguage, theme, options, onChange, onMount }: EditorProps) => {
+export const Editor = ({ value, defaultValue, language, defaultLanguage, theme, height, options, onChange, onMount }: EditorProps) => {
   const mounted = useRef(false);
 
   useEffect(() => {
@@ -52,6 +52,7 @@ export const Editor = ({ value, defaultValue, language, defaultLanguage, theme, 
       aria-label="Editor"
       data-language={language ?? defaultLanguage}
       data-theme={theme}
+      data-height={height}
       readOnly={options?.readOnly === true}
       value={value ?? defaultValue ?? ''}
       onChange={(event) => onChange?.(event.target.value)}

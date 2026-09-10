@@ -1,6 +1,7 @@
 import type { components } from 'auth-openapi';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
@@ -63,7 +64,11 @@ export const AssetsTable = ({ assets, onSort, sortDirection }: AssetsTableProps)
           ) : (
             assets.map((asset) => (
               <TableRow key={asset.name}>
-                <TableCell className="font-medium">{asset.name}</TableCell>
+                <TableCell className="font-medium">
+                  <Link to={`/assets/${encodeURIComponent(asset.name)}`} className="hover:underline">
+                    {asset.name}
+                  </Link>
+                </TableCell>
                 <TableCell>{asset.version}</TableCell>
                 <TableCell>
                   <Badge variant="outline">{asset.type}</Badge>
