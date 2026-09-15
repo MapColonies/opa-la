@@ -30,7 +30,9 @@ describe('creating an asset', () => {
     openCreate();
 
     expect(await screen.findByRole('heading', { name: 'New asset' })).toBeInTheDocument();
-    expect(screen.getByText('Will be saved as asset version 1')).toBeInTheDocument();
+    // The asset version is the api's to assign and is always 1 here, so the page does not
+    // state it. It is stated on the page the create lands on, once it is a fact.
+    expect(screen.queryByText(/asset version/i)).not.toBeInTheDocument();
     expect(nameField()).toHaveValue('');
     expect(screen.getByRole('combobox', { name: /Asset type/ })).toHaveTextContent('POLICY');
     expect(screen.getByRole('textbox', { name: 'URI' })).toHaveValue('/');

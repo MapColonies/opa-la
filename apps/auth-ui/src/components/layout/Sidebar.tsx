@@ -62,7 +62,7 @@ export const Sidebar = ({ className, isCollapsed, onCollapse }: SidebarProps) =>
       )}
       <nav className="flex-1 p-2 space-y-1">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.href;
+          const isActive = location.pathname === item.href || location.pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}

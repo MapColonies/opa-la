@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { components } from 'auth-openapi';
-import { ArrowLeft, GitCompare, Loader2, Pencil, Save, Undo2 } from 'lucide-react';
+import { GitCompare, Loader2, Pencil, Save, Undo2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -185,17 +185,19 @@ export const AssetDetail = ({ asset, versions }: AssetDetailProps) => {
       />
 
       <div className="space-y-3">
-        {/* The way back belongs in the title row rather than above it: this page's action
-            button has to land at the same height as the list page's, or moving between the
-            two jumps. */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
-            <Button variant="ghost" size="icon" aria-label="Back to assets" asChild>
-              <Link to="/assets">
-                <ArrowLeft className="h-4 w-4" />
+            {/* A path rather than a bare arrow: it names where the way back goes, and sits on
+                the title's line so the action button keeps the list page's height. */}
+            <div className="flex items-center gap-2">
+              <Link to="/assets" aria-label="Back to assets" className="text-2xl text-muted-foreground hover:text-foreground">
+                Assets
               </Link>
-            </Button>
-            <h1 className="text-2xl font-bold">{asset.name}</h1>
+              <span aria-hidden="true" className="text-2xl text-muted-foreground">
+                /
+              </span>
+              <h1 className="text-2xl font-bold">{asset.name}</h1>
+            </div>
             {draft.isTemplate && <Badge variant="secondary">Template</Badge>}
             {/* Latest usually is what is deployed, but only for the environments it targets. */}
             {inUse.length > 0 && <Badge>In use: {inUse.join(', ')}</Badge>}

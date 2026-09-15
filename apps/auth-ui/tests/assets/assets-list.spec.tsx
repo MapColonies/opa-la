@@ -26,6 +26,22 @@ describe('assets list', () => {
     expect(entries).toEqual(['Clients', 'Connections', 'Domains', 'Assets', 'JWT Inspector', 'OPA Validator']);
   });
 
+  it('marks the Assets entry in the sidebar from anywhere underneath it', async () => {
+    http.on('GET', '/asset', { body: [] });
+    http.on('GET', '/asset/authz.rego', { body: [anAsset()] });
+
+    const marked = () => screen.getByRole('link', { name: 'Assets' }).className.includes('bg-primary');
+
+    const { unmount } = openAssets();
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+    expect(marked()).toBe(true);
+    unmount();
+
+    renderRoutes(appRoutes, '/assets/new');
+    await screen.findByRole('heading', { name: 'New asset' });
+    expect(marked()).toBe(true);
+  });
+
   it('renders name, version, type, environments, the template flag and the uri', async () => {
     http.on('GET', '/asset', {
       body: [anAsset({ name: 'authz.rego', version: 4, type: 'POLICY', environment: ['np', 'prod'], isTemplate: true, uri: '/policies/authz.rego' })],

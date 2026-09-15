@@ -1,5 +1,5 @@
 import type { components } from 'auth-openapi';
-import { ArrowLeft, GitCompare } from 'lucide-react';
+import { GitCompare } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AssetDiffEditor, AssetEditor } from '../../components/asset-editor';
@@ -41,17 +41,19 @@ export const AssetVersionView = ({ asset, latest, versions }: AssetVersionViewPr
   return (
     <div className="flex h-full flex-col gap-4 p-6">
       <div className="space-y-3">
-        {/* The way back belongs in the title row rather than above it: this page's action
-            button has to land at the same height as the list page's, or moving between the
-            two jumps. */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
-            <Button variant="ghost" size="icon" aria-label="Back to assets" asChild>
-              <Link to="/assets">
-                <ArrowLeft className="h-4 w-4" />
+            {/* A path rather than a bare arrow: it names where the way back goes, and sits on
+                the title's line so the action button keeps the list page's height. */}
+            <div className="flex items-center gap-2">
+              <Link to="/assets" aria-label="Back to assets" className="text-2xl text-muted-foreground hover:text-foreground">
+                Assets
               </Link>
-            </Button>
-            <h1 className="text-2xl font-bold">{asset.name}</h1>
+              <span aria-hidden="true" className="text-2xl text-muted-foreground">
+                /
+              </span>
+              <h1 className="text-2xl font-bold">{asset.name}</h1>
+            </div>
             <Badge variant="outline">{asset.type}</Badge>
             {asset.isTemplate && <Badge variant="secondary">Template</Badge>}
             {inUse.length > 0 && <Badge>In use: {inUse.join(', ')}</Badge>}

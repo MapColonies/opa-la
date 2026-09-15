@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AssetEditor } from '../../components/asset-editor';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
-import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -93,20 +92,17 @@ export const CreateAssetPage = () => {
       <UnsavedChangesDialog when={started && !create.isSuccess} />
 
       <div className="space-y-3">
-        {/* The way back belongs in the title row rather than above it: this page's action
-            button has to land at the same height as the list page's, or moving between the
-            two jumps. */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="ghost" size="icon" aria-label="Back to assets" asChild>
-              <Link to="/assets">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
+          {/* A path rather than a bare arrow: it names where the way back goes, and sits on
+              the title's line so the action button keeps the list page's height. */}
+          <div className="flex items-center gap-2">
+            <Link to="/assets" aria-label="Back to assets" className="text-2xl text-muted-foreground hover:text-foreground">
+              Assets
+            </Link>
+            <span aria-hidden="true" className="text-2xl text-muted-foreground">
+              /
+            </span>
             <h1 className="text-2xl font-bold">New asset</h1>
-            {/* An asset's version is assigned by the api, not chosen here. Saying which one
-                this will be belongs beside the title, not in a field that looks fillable. */}
-            <Badge variant="outline">Will be saved as asset version {FIRST_ASSET_VERSION}</Badge>
           </div>
           <Button onClick={submit} disabled={create.isPending || overSizeLimit}>
             {create.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
