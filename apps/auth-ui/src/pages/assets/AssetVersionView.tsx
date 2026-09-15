@@ -39,7 +39,7 @@ export const AssetVersionView = ({ asset, latest, versions }: AssetVersionViewPr
   const inUse = environmentsInUseBy(asset.version, versions);
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 p-6">
       <div className="space-y-3">
         <Link to="/assets" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />

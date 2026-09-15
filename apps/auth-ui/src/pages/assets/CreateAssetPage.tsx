@@ -89,7 +89,7 @@ export const CreateAssetPage = () => {
   };
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 p-6">
       <UnsavedChangesDialog when={started && !create.isSuccess} />
 
       <div className="space-y-3">

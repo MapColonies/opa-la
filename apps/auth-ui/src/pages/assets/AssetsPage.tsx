@@ -116,10 +116,10 @@ export const AssetsPage = () => {
         </Button>
       </div>
 
-      {/* The same shape as the other entity pages: a search box, a filter toggle carrying a
-          count, the filters themselves in a panel underneath, and the active ones as
-          removable badges. Every part of it is always mounted, so turning a filter on
-          changes what the table holds and nothing about where the controls sit. */}
+      {/* The same shape, and the same order, as the other entity pages: a search box taking
+          the width, then the filter toggle hard against the right edge with the clear
+          button beside it, the filters themselves in a panel underneath, and the active
+          ones as removable badges. */}
       <div className="mb-6 space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
@@ -142,44 +142,43 @@ export const AssetsPage = () => {
             >
               <Filter className="h-4 w-4" />
               Filters
-              <Badge
-                variant="secondary"
-                aria-hidden={!hasActiveFilters}
-                aria-label={`${activeFilters} active ${activeFilters === 1 ? 'filter' : 'filters'}`}
-                className={cn('ml-1 h-5 w-5 rounded-full p-0 text-xs', !hasActiveFilters && 'invisible')}
-              >
-                {activeFilters}
-              </Badge>
+              {hasActiveFilters && (
+                <Badge
+                  variant="secondary"
+                  aria-label={`${activeFilters} active ${activeFilters === 1 ? 'filter' : 'filters'}`}
+                  className="ml-1 h-5 w-5 rounded-full p-0 text-xs"
+                >
+                  {activeFilters}
+                </Badge>
+              )}
               <ChevronDown className={cn('h-4 w-4 transition-transform', showFilters && 'rotate-180')} />
             </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn('gap-1', !hasActiveFilters && 'invisible')}
-              disabled={!hasActiveFilters}
-              onClick={clearAllFilters}
-            >
-              <X className="h-3 w-3" />
-              Clear
-            </Button>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" className="gap-1" onClick={clearAllFilters}>
+                <X className="h-3 w-3" />
+                Clear
+              </Button>
+            )}
           </div>
         </div>
 
-        <div className="flex min-h-6 flex-wrap items-center gap-2">
-          {searchTerm && <FilterBadge label="Name" value={searchTerm} onRemove={() => setSearchTerm('')} />}
-          {environment !== ANY && (
-            <FilterBadge label="Environment" value={environment} onRemove={() => updateParams({ environment: null, page: null })} />
-          )}
-          {type !== ANY && <FilterBadge label="Type" value={type} onRemove={() => updateParams({ type: null, page: null })} />}
-          {template !== ANY && (
-            <FilterBadge
-              label="Template"
-              value={TEMPLATE_LABELS[template] ?? template}
-              onRemove={() => updateParams({ template: null, page: null })}
-            />
-          )}
-        </div>
+        {hasActiveFilters && (
+          <div className="flex flex-wrap items-center gap-2">
+            {searchTerm && <FilterBadge label="Name" value={searchTerm} onRemove={() => setSearchTerm('')} />}
+            {environment !== ANY && (
+              <FilterBadge label="Environment" value={environment} onRemove={() => updateParams({ environment: null, page: null })} />
+            )}
+            {type !== ANY && <FilterBadge label="Type" value={type} onRemove={() => updateParams({ type: null, page: null })} />}
+            {template !== ANY && (
+              <FilterBadge
+                label="Template"
+                value={TEMPLATE_LABELS[template] ?? template}
+                onRemove={() => updateParams({ template: null, page: null })}
+              />
+            )}
+          </div>
+        )}
 
         {showFilters && (
           <div className="rounded-lg border bg-muted/50 p-4 space-y-4">

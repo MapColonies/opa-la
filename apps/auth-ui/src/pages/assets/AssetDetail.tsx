@@ -138,6 +138,14 @@ export const AssetDetail = ({ asset, versions }: AssetDetailProps) => {
     setEditing(false);
   };
 
+  /** What a save actually changes: not the past, which the asset version keeps, but every bundle ahead of it. */
+  const saveConsequence =
+    draft.environment.length === 0
+      ? `This writes asset version ${asset.version + 1}. It targets no environment, so no bundle changes until one is chosen.`
+      : `This writes asset version ${asset.version + 1}. ${draft.environment.join(', ')} ${
+          draft.environment.length === 1 ? 'builds its' : 'build their'
+        } next bundle from it, in place of asset version ${asset.version}.`;
+
   const landed =
     savedVersion !== null
       ? {
@@ -152,13 +160,13 @@ export const AssetDetail = ({ asset, versions }: AssetDetailProps) => {
         : null;
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-4 p-6">
       <UnsavedChangesDialog when={dirty} />
 
       <ConfirmDialog
         open={pending === 'save'}
         title={`Save changes to ${asset.name}?`}
-        description={`This writes asset version ${asset.version + 1}. An asset keeps no content history, so what is stored now cannot be brought back — review the diff first if you have not.`}
+        description={saveConsequence}
         confirmLabel="Save changes"
         cancelLabel="Keep editing"
         onConfirm={confirmSave}
@@ -250,8 +258,8 @@ export const AssetDetail = ({ asset, versions }: AssetDetailProps) => {
           <Alert variant="destructive">
             <AlertTitle>Opened read-only</AlertTitle>
             <AlertDescription>
-              This asset&apos;s content is not valid text. Saving it back would replace the original bytes with a mangled copy, and there is no way to
-              restore it.
+              This asset&apos;s content is not valid text. Saving it back would store a mangled copy as the next asset version, and the original bytes
+              cannot be recovered from it.
             </AlertDescription>
           </Alert>
         )}

@@ -186,7 +186,7 @@ describe('assets list', () => {
     expect(router.state.location.search).not.toContain('showFilters');
   });
 
-  it('counts the active filters on the toggle, and keeps the count out of the way when there are none', async () => {
+  it('counts the active filters on the toggle, and carries no count when there are none', async () => {
     http.on('GET', '/asset', { body: [anAsset()] });
 
     openAssets('?environment=np&type=TEST');
@@ -196,6 +196,7 @@ describe('assets list', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
 
     await waitFor(() => expect(filtersToggle()).toHaveAccessibleName('Filters'));
+    expect(screen.queryByRole('button', { name: 'Clear' })).not.toBeInTheDocument();
   });
 
   it('shows each active filter as a badge that removes just that one', async () => {
@@ -214,25 +215,26 @@ describe('assets list', () => {
     expect(screen.getByText('Template: Templates only')).toBeInTheDocument();
   });
 
-  it('leaves the controls where they were when a filter is turned on', async () => {
-    http.on('GET', '/asset', { body: [anAsset()] });
+  it('keeps the search box and the filters on screen while a filter change is loading', async () => {
+    let request = 0;
+    http.on('GET', '/asset', () => {
+      request += 1;
+      // The second request is the one a filter starts; it has no cached answer to show.
+      return request === 1 ? { body: [anAsset()] } : { body: [anAsset()], delayMs: 30 };
+    });
 
-    const { router } = openAssets();
+    openAssets('?showFilters=true');
     await screen.findByText('authz.rego');
+    const search = screen.getByRole('searchbox', { name: 'Search by asset name' });
 
-    // The toggle, the count and the clear button are all mounted before any filter is
-    // chosen, so choosing one cannot reflow the row they sit in.
-    const clear = screen.getByRole('button', { name: 'Clear' });
-    expect(clear).toBeDisabled();
-    expect(filtersToggle()).toBeInTheDocument();
-
-    await openFilters();
     await userEvent.click(screen.getByRole('combobox', { name: 'Environment' }));
     await userEvent.click(await screen.findByRole('option', { name: 'prod' }));
 
-    await waitFor(() => expect(router.state.location.search).toContain('environment=prod'));
-    expect(screen.getByRole('button', { name: 'Clear' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Clear' })).toBe(clear);
+    // Only the table waits. The controls that started the wait stay exactly where they were.
+    expect(await screen.findByRole('status', { name: 'Loading assets' })).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: 'Search by asset name' })).toBe(search);
+    expect(filtersToggle()).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Environment' })).toBeInTheDocument();
   });
 
   it('distinguishes loading, an empty result and a retryable failure', async () => {

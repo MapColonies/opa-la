@@ -119,8 +119,8 @@ describe('leaving edit mode', () => {
 });
 
 describe('confirming a save', () => {
-  it('asks before writing, naming the asset version it is about to write', async () => {
-    stubAsset();
+  it('asks before writing, and warns about the bundles rather than about lost history', async () => {
+    stubAsset(anAsset({ name: 'authz.rego', version: 3, environment: ['np', 'prod'], value: encodeText('package authz\n') }));
     http.on('POST', '/asset', { body: stored });
 
     openAsset();
@@ -131,8 +131,23 @@ describe('confirming a save', () => {
 
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toHaveTextContent('Save changes to authz.rego?');
-    expect(dialog).toHaveTextContent('writes asset version 4');
+    expect(dialog).toHaveTextContent('This writes asset version 4. np, prod build their next bundle from it, in place of asset version 3.');
+    // The asset version is the history, so there is nothing here about content being lost.
+    expect(dialog).not.toHaveTextContent(/history|brought back/);
     expect(http.requestsFor('POST', '/asset')).toHaveLength(0);
+  });
+
+  it('says a save changes no bundle when the asset targets nothing', async () => {
+    stubAsset(anAsset({ name: 'authz.rego', version: 3, environment: [], value: encodeText('package authz\n') }));
+    http.on('POST', '/asset', { body: stored });
+
+    openAsset();
+    await startEditing();
+    setContent('package authz.v2\n');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByRole('dialog')).toHaveTextContent('It targets no environment, so no bundle changes until one is chosen.');
   });
 
   it('sends nothing and stays in edit mode when the answer is no', async () => {
