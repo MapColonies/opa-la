@@ -10,6 +10,9 @@ const openAssets = (search = '') => renderRoutes(appRoutes, `/assets${search}`);
 
 const rowsInBody = () => within(screen.getByRole('table')).getAllByRole('row').slice(1);
 
+const filtersToggle = () => screen.getByRole('button', { name: /^Filters/ });
+const openFilters = () => userEvent.click(filtersToggle());
+
 describe('assets list', () => {
   it('appends an Assets entry to the sidebar after Domains, leaving the others in place', async () => {
     http.on('GET', '/asset', { body: [] });
@@ -66,7 +69,8 @@ describe('assets list', () => {
     await screen.findByText('authz.rego');
     expect(http.lastRequestFor('GET', '/asset')?.query.getAll('environment')).toEqual([]);
 
-    await userEvent.click(screen.getByRole('combobox', { name: 'Targeted environment' }));
+    await openFilters();
+    await userEvent.click(screen.getByRole('combobox', { name: 'Environment' }));
     await userEvent.click(await screen.findByRole('option', { name: 'prod' }));
 
     await waitFor(() => expect(http.lastRequestFor('GET', '/asset')?.query.getAll('environment')).toEqual(['prod']));
@@ -135,7 +139,9 @@ describe('assets list', () => {
     const request = http.lastRequestFor('GET', '/asset');
     expect(request?.query.getAll('environment')).toEqual([]);
     expect(request?.query.get('type')).toBeNull();
-    expect(screen.getByRole('combobox', { name: 'Targeted environment' })).toHaveTextContent('All targeted environments');
+
+    await openFilters();
+    expect(screen.getByRole('combobox', { name: 'Environment' })).toHaveTextContent('All environments');
   });
 
   it('falls back to the first page when the url asks for one that is not a number', async () => {
@@ -151,14 +157,82 @@ describe('assets list', () => {
   it('reads filters, sort and page back out of the url', async () => {
     http.on('GET', '/asset', { body: [anAsset({ name: 'a.rego' }), anAsset({ name: 'b.rego' })] });
 
-    openAssets('?environment=stage&type=TEST&template=false&sort=name%3Adesc&page=2&pageSize=1');
+    openAssets('?environment=stage&type=TEST&template=false&sort=name%3Adesc&page=2&pageSize=1&showFilters=true');
 
     await screen.findByText('a.rego');
-    expect(screen.getByRole('combobox', { name: 'Targeted environment' })).toHaveTextContent('stage');
+    expect(screen.getByRole('combobox', { name: 'Environment' })).toHaveTextContent('stage');
     expect(screen.getByRole('combobox', { name: 'Asset type' })).toHaveTextContent('TEST');
     expect(screen.getByRole('combobox', { name: 'Template' })).toHaveTextContent('Non-templates only');
     expect(screen.getByText('Page 2 of 2')).toBeInTheDocument();
     expect(rowsInBody()).toHaveLength(1);
+  });
+
+  it('keeps the filters in a panel behind the toggle, whose state is in the url', async () => {
+    http.on('GET', '/asset', { body: [anAsset()] });
+
+    const { router } = openAssets();
+    await screen.findByText('authz.rego');
+
+    expect(screen.queryByRole('combobox', { name: 'Environment' })).not.toBeInTheDocument();
+
+    await openFilters();
+    expect(screen.getByRole('combobox', { name: 'Environment' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Asset type' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Template' })).toBeInTheDocument();
+    expect(router.state.location.search).toContain('showFilters=true');
+
+    await openFilters();
+    await waitFor(() => expect(screen.queryByRole('combobox', { name: 'Environment' })).not.toBeInTheDocument());
+    expect(router.state.location.search).not.toContain('showFilters');
+  });
+
+  it('counts the active filters on the toggle, and keeps the count out of the way when there are none', async () => {
+    http.on('GET', '/asset', { body: [anAsset()] });
+
+    openAssets('?environment=np&type=TEST');
+    await screen.findByText('authz.rego');
+    expect(filtersToggle()).toHaveAccessibleName(/2 active filters/);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
+
+    await waitFor(() => expect(filtersToggle()).toHaveAccessibleName('Filters'));
+  });
+
+  it('shows each active filter as a badge that removes just that one', async () => {
+    http.on('GET', '/asset', { body: [anAsset()] });
+
+    const { router } = openAssets('?environment=np&template=true');
+    await screen.findByText('authz.rego');
+
+    expect(screen.getByText('Environment: np')).toBeInTheDocument();
+    expect(screen.getByText('Template: Templates only')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Remove the environment filter' }));
+
+    await waitFor(() => expect(router.state.location.search).not.toContain('environment'));
+    expect(router.state.location.search).toContain('template=true');
+    expect(screen.getByText('Template: Templates only')).toBeInTheDocument();
+  });
+
+  it('leaves the controls where they were when a filter is turned on', async () => {
+    http.on('GET', '/asset', { body: [anAsset()] });
+
+    const { router } = openAssets();
+    await screen.findByText('authz.rego');
+
+    // The toggle, the count and the clear button are all mounted before any filter is
+    // chosen, so choosing one cannot reflow the row they sit in.
+    const clear = screen.getByRole('button', { name: 'Clear' });
+    expect(clear).toBeDisabled();
+    expect(filtersToggle()).toBeInTheDocument();
+
+    await openFilters();
+    await userEvent.click(screen.getByRole('combobox', { name: 'Environment' }));
+    await userEvent.click(await screen.findByRole('option', { name: 'prod' }));
+
+    await waitFor(() => expect(router.state.location.search).toContain('environment=prod'));
+    expect(screen.getByRole('button', { name: 'Clear' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Clear' })).toBe(clear);
   });
 
   it('distinguishes loading, an empty result and a retryable failure', async () => {

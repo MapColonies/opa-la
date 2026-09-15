@@ -30,7 +30,7 @@ describe('creating an asset', () => {
     openCreate();
 
     expect(await screen.findByRole('heading', { name: 'New asset' })).toBeInTheDocument();
-    expect(screen.getByText('Asset version').nextElementSibling).toHaveTextContent('1');
+    expect(screen.getByText('Will be saved as asset version 1')).toBeInTheDocument();
     expect(nameField()).toHaveValue('');
     expect(screen.getByRole('combobox', { name: /Asset type/ })).toHaveTextContent('POLICY');
     expect(screen.getByRole('textbox', { name: 'URI' })).toHaveValue('/');
@@ -38,6 +38,20 @@ describe('creating an asset', () => {
     for (const environment of ['np', 'stage', 'prod']) {
       expect(screen.getByRole('checkbox', { name: environment })).not.toBeChecked();
     }
+  });
+
+  it('keeps the environments hint on its line when a box is ticked, so the controls do not move', async () => {
+    const { container } = openCreate();
+    await screen.findByRole('heading', { name: 'New asset' });
+
+    const hint = container.querySelector('#asset-environments-hint');
+    expect(hint).toHaveTextContent('No environments selected');
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'np' }));
+
+    // The same element, still holding its line. Only the words go away.
+    expect(container.querySelector('#asset-environments-hint')).toBe(hint);
+    expect(hint).not.toHaveTextContent('No environments selected');
   });
 
   it.each([

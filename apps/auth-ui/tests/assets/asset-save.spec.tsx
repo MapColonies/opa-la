@@ -18,15 +18,27 @@ const stubSave = (response: { status?: number; body?: unknown } = { body: stored
 
 const editor = () => screen.getByTestId('monaco-editor');
 const setContent = (text: string) => fireEvent.change(editor(), { target: { value: text } });
-const saveButton = () => screen.getByRole('button', { name: /Save/ });
+const saveButton = () => screen.getByRole('button', { name: 'Save' });
 const savedBody = () => http.lastRequestFor('POST', '/asset')?.body as Record<string, unknown> | undefined;
+
+/** An asset opens read-only, so every test that changes something starts here. */
+const startEditing = async () => {
+  await screen.findByTestId('monaco-editor');
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+};
+
+/** Save asks before it writes; this is the whole way through. */
+const saveAndConfirm = async () => {
+  await userEvent.click(saveButton());
+  await userEvent.click(await screen.findByRole('button', { name: 'Save changes' }));
+};
 
 describe('editing an asset', () => {
   it('offers nothing to save until something changes', async () => {
     stubAsset();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
 
     expect(saveButton()).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Review changes' })).toBeDisabled();
@@ -40,7 +52,7 @@ describe('editing an asset', () => {
     stubAsset();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
 
     expect(editor()).not.toHaveAttribute('readonly');
     expect(screen.getByRole('combobox', { name: /Asset type/ })).toBeEnabled();
@@ -57,7 +69,7 @@ describe('editing an asset', () => {
     stubAsset(anAsset({ name: 'authz.rego', type: 'POLICY' }));
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     expect(editor()).toHaveAttribute('data-language', REGO_LANGUAGE_ID);
 
     await userEvent.click(screen.getByRole('combobox', { name: /Asset type/ }));
@@ -71,7 +83,8 @@ describe('editing an asset', () => {
     stubAsset();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
+    setContent('package authz.v2\n');
 
     fireEvent.change(screen.getByRole('textbox', { name: 'URI' }), { target: { value: '/' } });
     expect(screen.queryByText(/cannot contain/)).not.toBeInTheDocument();
@@ -90,7 +103,7 @@ describe('editing an asset', () => {
     stubSave();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
 
     setContent('package authz.v2\n');
     fireEvent.change(screen.getByRole('textbox', { name: 'URI' }), { target: { value: uri } });
@@ -107,10 +120,10 @@ describe('editing an asset', () => {
     stubSave();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
 
     await userEvent.click(screen.getByRole('checkbox', { name: 'np' }));
-    await userEvent.click(saveButton());
+    await saveAndConfirm();
 
     await waitFor(() => expect(savedBody()?.['environment']).toEqual([]));
   });
@@ -119,7 +132,7 @@ describe('editing an asset', () => {
     stubAsset();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
     await userEvent.click(screen.getByRole('button', { name: 'Review changes' }));
@@ -134,10 +147,10 @@ describe('editing an asset', () => {
     stubSave();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
-    await userEvent.click(saveButton());
+    await saveAndConfirm();
 
     await waitFor(() => expect(http.requestsFor('POST', '/asset')).toHaveLength(1));
     const body = savedBody()!;
@@ -153,10 +166,10 @@ describe('editing an asset', () => {
     stubSave();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent(content);
 
-    await userEvent.click(saveButton());
+    await saveAndConfirm();
 
     await waitFor(() => expect(http.requestsFor('POST', '/asset')).toHaveLength(1));
     expect(decodeAssetContent(savedBody()!['value'] as string)).toEqual({ text: content, isValidText: true });
@@ -178,10 +191,10 @@ describe('editing an asset', () => {
     stubSave();
 
     const { router } = openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
-    await userEvent.click(saveButton());
+    await saveAndConfirm();
     await screen.findByText('Saved authz.rego');
 
     await userEvent.click(screen.getByRole('link', { name: 'Back to assets' }));
@@ -195,13 +208,16 @@ describe('editing an asset', () => {
     stubSave();
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
     const keyDown = createEvent.keyDown(editor(), { key: 's', ctrlKey: true });
     fireEvent(editor(), keyDown);
 
     expect(keyDown.defaultPrevented).toBe(true);
+
+    // The shortcut reaches the same confirmation the button does, not the server.
+    await userEvent.click(await screen.findByRole('button', { name: 'Save changes' }));
     await waitFor(() => expect(http.requestsFor('POST', '/asset')).toHaveLength(1));
   });
 
@@ -217,10 +233,10 @@ describe('editing an asset', () => {
 
     renderRoutes(appRoutes, '/assets');
     await userEvent.click(await screen.findByRole('link', { name: 'authz.rego' }));
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
 
     setContent('package authz.v2\n');
-    await userEvent.click(saveButton());
+    await saveAndConfirm();
 
     expect(await screen.findByText('Saved authz.rego')).toBeInTheDocument();
 
@@ -238,10 +254,10 @@ describe('editing an asset', () => {
     stubSave({ status: 500, body: { message: 'the site is unreachable' } });
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
-    await userEvent.click(saveButton());
+    await saveAndConfirm();
 
     expect(await screen.findByText('Save failed')).toBeInTheDocument();
     expect(editor()).toHaveValue('package authz.v2\n');

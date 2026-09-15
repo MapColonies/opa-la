@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/button';
 import { AssetVersionSelect } from './AssetVersionSelect';
 import { decodeAssetContent } from '../../lib/asset-content';
 import { resolveEditorLanguage } from './language';
+import { environmentsInUseBy } from './working-versions';
 
 type Asset = components['schemas']['asset'];
 
@@ -23,6 +24,10 @@ interface AssetVersionViewProps {
  * An older asset version, read-only. There is no way to save from here: posting this
  * content back would declare a stale asset version, and overwriting latest with an
  * older body is exactly the mistake this page exists to prevent.
+ *
+ * Not the latest does not mean not in use. An environment builds its bundle from the
+ * highest asset version targeting it, so an older version stays live for an environment
+ * the latest one stopped targeting. The banner says which of the two this is.
  */
 export const AssetVersionView = ({ asset, latest, versions }: AssetVersionViewProps) => {
   const [showComparison, setShowComparison] = useState(false);
@@ -30,6 +35,8 @@ export const AssetVersionView = ({ asset, latest, versions }: AssetVersionViewPr
   const content = useMemo(() => decodeAssetContent(asset.value), [asset.value]);
   const latestContent = useMemo(() => decodeAssetContent(latest.value), [latest.value]);
   const language = resolveEditorLanguage(asset.type, asset.name);
+
+  const inUse = environmentsInUseBy(asset.version, versions);
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -44,6 +51,7 @@ export const AssetVersionView = ({ asset, latest, versions }: AssetVersionViewPr
             <h1 className="text-2xl font-bold">{asset.name}</h1>
             <Badge variant="outline">{asset.type}</Badge>
             {asset.isTemplate && <Badge variant="secondary">Template</Badge>}
+            {inUse.length > 0 && <Badge>In use: {inUse.join(', ')}</Badge>}
           </div>
 
           <div className="flex items-end gap-2">
@@ -58,6 +66,13 @@ export const AssetVersionView = ({ asset, latest, versions }: AssetVersionViewPr
         <Alert>
           <AlertTitle>Asset version {asset.version} is not the latest</AlertTitle>
           <AlertDescription className="flex flex-wrap items-center gap-3">
+            {inUse.length > 0 && (
+              <span>
+                <span className="font-medium text-foreground">It is still in use for {inUse.join(', ')}.</span> An environment builds its bundle from
+                the highest asset version targeting it, and the latest one does not target{' '}
+                {inUse.length === 1 ? 'that environment' : 'those environments'} — so this is the content running there today.
+              </span>
+            )}
             <span>Latest is asset version {latest.version}. This one is read-only, so it cannot be saved over what is deployed.</span>
             <Button variant="outline" size="sm" asChild>
               <Link to={`/assets/${encodeURIComponent(asset.name)}`}>Go to latest</Link>

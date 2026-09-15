@@ -19,7 +19,7 @@ const COLUMNS: { field: AssetSortField; label: string }[] = [
   { field: 'name', label: 'Name' },
   { field: 'version', label: 'Version' },
   { field: 'type', label: 'Type' },
-  { field: 'environment', label: 'Targeted environments' },
+  { field: 'environment', label: 'Environments' },
   { field: 'isTemplate', label: 'Template' },
   { field: 'uri', label: 'URI' },
   { field: 'createdAt', label: 'Created' },

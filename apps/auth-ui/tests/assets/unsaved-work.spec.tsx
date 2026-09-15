@@ -11,7 +11,19 @@ const openAsset = () => renderRoutes(appRoutes, '/assets/authz.rego');
 
 const editor = () => screen.getByTestId('monaco-editor');
 const setContent = (text: string) => fireEvent.change(editor(), { target: { value: text } });
-const saveButton = () => screen.getByRole('button', { name: /Save/ });
+const saveButton = () => screen.getByRole('button', { name: 'Save' });
+
+/** An asset opens read-only, so every test that changes something starts here. */
+const startEditing = async () => {
+  await screen.findByTestId('monaco-editor');
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+};
+
+/** Save asks before it writes; this is the whole way through. */
+const saveAndConfirm = async () => {
+  await userEvent.click(saveButton());
+  await userEvent.click(await screen.findByRole('button', { name: 'Save changes' }));
+};
 
 /** Raw text whose encoded size lands at the given fraction of the api's body limit. */
 const contentSized = (fractionOfLimit: number) => 'a'.repeat(Math.round((MAX_ENCODED_BYTES * fractionOfLimit * 3) / 4));
@@ -27,10 +39,10 @@ describe('a stale save', () => {
     });
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz\n\n# mine\n');
 
-    await userEvent.click(saveButton());
+    await saveAndConfirm();
 
     const diff = await screen.findByTestId('monaco-diff-editor');
     await waitFor(() => expect(within(diff).getByTestId('diff-original')).toHaveTextContent('# theirs'));
@@ -42,10 +54,10 @@ describe('a stale save', () => {
     http.on('POST', '/asset', { status: 409, body: { message: 'version mismatch between database asset and given asset' } });
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
-    await userEvent.click(saveButton());
+    await saveAndConfirm();
 
     expect(await screen.findByText('Conflict: this asset moved on while you were editing')).toBeInTheDocument();
     expect(screen.getByText(/declared asset version 3/)).toBeInTheDocument();
@@ -59,7 +71,7 @@ describe('navigating away', () => {
     http.on('GET', '/asset/authz.rego', { body: [anAsset({ name: 'authz.rego' })] });
 
     const { router } = openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
     await userEvent.click(screen.getByRole('link', { name: 'Clients' }));
@@ -79,7 +91,7 @@ describe('navigating away', () => {
     http.on('GET', '/asset/authz.rego', { body: [anAsset({ name: 'authz.rego' })] });
 
     const { router } = openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
     await userEvent.click(screen.getByRole('link', { name: 'Assets' }));
@@ -107,7 +119,7 @@ describe('content approaching the request size limit', () => {
     http.on('GET', '/asset/authz.rego', { body: [anAsset({ name: 'authz.rego' })] });
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent(contentSized(0.95));
 
     expect(screen.getByText('Approaching the request size limit')).toBeInTheDocument();
@@ -119,7 +131,7 @@ describe('content approaching the request size limit', () => {
     http.on('POST', '/asset', { body: anAsset() });
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent(contentSized(1.05));
 
     expect(screen.getByText('Too large to save')).toBeInTheDocument();
@@ -133,7 +145,7 @@ describe('content approaching the request size limit', () => {
     http.on('GET', '/asset/authz.rego', { body: [anAsset({ name: 'authz.rego' })] });
 
     openAsset();
-    await screen.findByTestId('monaco-editor');
+    await startEditing();
     setContent('package authz.v2\n');
 
     expect(screen.queryByText(/request size limit/)).not.toBeInTheDocument();

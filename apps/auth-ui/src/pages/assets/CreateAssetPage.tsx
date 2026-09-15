@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AssetEditor } from '../../components/asset-editor';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
+import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -62,9 +63,14 @@ export const CreateAssetPage = () => {
 
   // Land in the editor for what was just created, so the work can continue. In an effect
   // rather than in onSuccess so the unsaved-work guard has already seen the save land.
+  //
+  // The asset page it lands on looks the same whether it was just created or opened from
+  // the list, so what happened travels with the navigation and is said there.
   const created = create.data;
   useEffect(() => {
-    if (created !== undefined) void navigate(`/assets/${encodeURIComponent(created.name)}`);
+    if (created !== undefined) {
+      void navigate(`/assets/${encodeURIComponent(created.name)}`, { state: { createdVersion: created.version } });
+    }
   }, [created, navigate]);
 
   const submit = () => {
@@ -93,19 +99,17 @@ export const CreateAssetPage = () => {
         </Link>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold">New asset</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-bold">New asset</h1>
+            {/* An asset's version is assigned by the api, not chosen here. Saying which one
+                this will be belongs beside the title, not in a field that looks fillable. */}
+            <Badge variant="outline">Will be saved as asset version {FIRST_ASSET_VERSION}</Badge>
+          </div>
           <Button onClick={submit} disabled={create.isPending || overSizeLimit}>
             {create.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
             Create
           </Button>
         </div>
-
-        <dl className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
-          <div className="flex gap-2">
-            <dt className="text-muted-foreground">Asset version</dt>
-            <dd className="font-medium">{FIRST_ASSET_VERSION}</dd>
-          </div>
-        </dl>
 
         <div className="space-y-1">
           <Label htmlFor="asset-name">Name</Label>
