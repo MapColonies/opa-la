@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useBlocker } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
@@ -13,6 +14,19 @@ export const UnsavedChangesDialog = ({ when }: { when: boolean }) => {
     ({ currentLocation, nextLocation }) =>
       when && (currentLocation.pathname !== nextLocation.pathname || currentLocation.search !== nextLocation.search)
   );
+
+  // useBlocker only catches in-app navigation. A hard reload or tab close bypasses
+  // it entirely, so beforeunload is the only hook that can warn for those.
+  useEffect(() => {
+    if (!when) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [when]);
 
   return (
     <Dialog open={blocker.state === 'blocked'} onOpenChange={(open) => !open && blocker.reset?.()}>

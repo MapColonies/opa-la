@@ -59,7 +59,7 @@ export const AssetsTable = ({ assets, onSort, sortDirection }: AssetsTableProps)
             </TableRow>
           ) : (
             assets.map((asset) => (
-              <TableRow key={asset.name}>
+              <TableRow key={`${asset.name}-${asset.version}`}>
                 <TableCell className="font-medium">
                   <Link to={`/assets/${encodeURIComponent(asset.name)}`} className="hover:underline">
                     {asset.name}
