@@ -13,7 +13,8 @@ import { AssetsTable } from './AssetsTable';
 import { ASSET_TYPES, ENVIRONMENTS } from './draft';
 import { nextSort, parseSort, sortAssets, type AssetSortField } from './sorting';
 
-const PAGE_SIZES = ['10', '20', '50', '100'];
+const PAGE_SIZES = ['10', '20', '50', '100'] as const;
+const DEFAULT_PAGE_SIZE = PAGE_SIZES[0];
 
 /** Radix rejects an empty option value, so "no filter" needs a name of its own. */
 const ANY = 'all';
@@ -25,18 +26,21 @@ const positiveInteger = (value: string | null, fallback: number): number => {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 };
 
-const oneOf = <T extends string>(value: string | null, allowed: readonly T[]): T | typeof ANY => (allowed.includes(value as T) ? (value as T) : ANY);
+const oneOf = <T extends string>(value: string | null, allowed: readonly T[], fallback: T): T =>
+  allowed.includes(value as T) ? (value as T) : fallback;
 
 export const AssetsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // The url is external input: an unknown value would otherwise travel to the server as a filter and come back a 400.
-  const environment = oneOf(searchParams.get('environment'), ENVIRONMENTS);
-  const type = oneOf(searchParams.get('type'), ASSET_TYPES);
-  const template = oneOf(searchParams.get('template'), ['true', 'false']);
+  const environment = oneOf(searchParams.get('environment'), ENVIRONMENTS, ANY);
+  const type = oneOf(searchParams.get('type'), ASSET_TYPES, ANY);
+  const template = oneOf(searchParams.get('template'), ['true', 'false'], ANY);
   const sort = parseSort(searchParams.get('sort'));
   const page = positiveInteger(searchParams.get('page'), 1);
-  const pageSize = positiveInteger(searchParams.get('pageSize'), 10);
+  // Any positive integer would slice correctly but leave the page-size select showing
+  // nothing, since no option would match it.
+  const pageSize = Number(oneOf(searchParams.get('pageSize'), PAGE_SIZES, DEFAULT_PAGE_SIZE));
   const showFilters = searchParams.get('showFilters') === 'true';
 
   const [searchTerm, setSearchTerm] = useState(searchParams.get('name') ?? '');

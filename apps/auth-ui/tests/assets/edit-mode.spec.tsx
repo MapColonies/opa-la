@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { appRoutes } from '../../src/routes';
-import { anAsset, encodeText } from '../asset-fixtures';
+import { anAsset, encodeText, stubCreating } from '../asset-fixtures';
 import { http } from '../http-stub';
 import { renderRoutes } from '../render';
 
@@ -190,8 +190,7 @@ describe('proof that a write landed', () => {
   });
 
   it('says so on the page a create lands on, which otherwise looks untouched', async () => {
-    http.on('POST', '/asset', { status: 201, body: anAsset({ name: 'billing.rego', version: 1 }) });
-    http.on('GET', '/asset/billing.rego', { body: [anAsset({ name: 'billing.rego', version: 1 })] });
+    stubCreating(anAsset({ name: 'billing.rego', version: 1 }));
 
     renderRoutes(appRoutes, '/assets/new');
     await screen.findByRole('heading', { name: 'New asset' });
@@ -203,8 +202,7 @@ describe('proof that a write landed', () => {
   });
 
   it('drops the notice again as soon as editing starts', async () => {
-    http.on('POST', '/asset', { status: 201, body: anAsset({ name: 'billing.rego', version: 1 }) });
-    http.on('GET', '/asset/billing.rego', { body: [anAsset({ name: 'billing.rego', version: 1 })] });
+    stubCreating(anAsset({ name: 'billing.rego', version: 1 }));
 
     renderRoutes(appRoutes, '/assets/new');
     await screen.findByRole('heading', { name: 'New asset' });

@@ -9,6 +9,11 @@ import { renderRoutes } from '../render';
 const openAssets = (search = '') => renderRoutes(appRoutes, `/assets${search}`);
 
 const rowsInBody = () => within(screen.getByRole('table')).getAllByRole('row').slice(1);
+const namesInBody = () => rowsInBody().map((row) => within(row).getAllByRole('cell')[0]?.textContent);
+
+/** One more asset than the smallest page size holds, so a second page exists. */
+const ELEVEN_NAMES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k'].map((letter) => `${letter}.rego`);
+const elevenAssets = () => ELEVEN_NAMES.map((name) => anAsset({ name }));
 
 const filtersToggle = () => screen.getByRole('button', { name: /^Filters/ });
 const openFilters = () => userEvent.click(filtersToggle());
@@ -104,15 +109,16 @@ describe('assets list', () => {
   });
 
   it('filters by name client-side, only once typing settles, and returns to the first page', async () => {
-    http.on('GET', '/asset', { body: [anAsset({ name: 'authz.rego' }), anAsset({ name: 'billing.rego' })] });
+    http.on('GET', '/asset', { body: [anAsset({ name: 'billing.rego' }), ...elevenAssets()] });
 
-    const { router } = openAssets('?pageSize=1&page=2');
-    await screen.findByText('billing.rego');
+    const { router } = openAssets('?page=2');
+    await screen.findByText('k.rego');
 
     await userEvent.type(screen.getByRole('searchbox', { name: 'Search by asset name' }), 'billing');
 
     // Still the page-two slice: the term has not settled yet, so no filtering has happened.
-    expect(screen.getByText('billing.rego')).toBeInTheDocument();
+    expect(screen.getByText('k.rego')).toBeInTheDocument();
+    expect(screen.queryByText('billing.rego')).not.toBeInTheDocument();
 
     await waitFor(() => expect(router.state.location.search).toContain('name=billing'), { timeout: 2000 });
     expect(router.state.location.search).not.toContain('page=2');
@@ -122,20 +128,20 @@ describe('assets list', () => {
   });
 
   it('toggles sort per column and slices the filtered rows into pages', async () => {
-    http.on('GET', '/asset', { body: [anAsset({ name: 'b.rego' }), anAsset({ name: 'a.rego' }), anAsset({ name: 'c.rego' })] });
+    // Reversed, so the unsorted first page is the one sorting has to change.
+    http.on('GET', '/asset', { body: elevenAssets().reverse() });
 
-    const { router } = openAssets('?pageSize=2');
-    await screen.findByText('a.rego');
+    const { router } = openAssets();
+    await screen.findByText('k.rego');
 
     const nameHeader = screen.getByRole('button', { name: /^Name/ });
     await userEvent.click(nameHeader);
     await waitFor(() => expect(router.state.location.search).toContain('sort=name%3Aasc'));
-    expect(rowsInBody().map((row) => row.textContent?.split('1')[0])).toEqual(['a.rego', 'b.rego']);
+    expect(namesInBody()).toEqual(ELEVEN_NAMES.slice(0, 10));
 
     await userEvent.click(nameHeader);
     await waitFor(() => expect(router.state.location.search).toContain('sort=name%3Adesc'));
-    expect(rowsInBody()).toHaveLength(2);
-    expect(screen.getByText('c.rego')).toBeInTheDocument();
+    expect(namesInBody()).toEqual([...ELEVEN_NAMES].reverse().slice(0, 10));
     expect(screen.queryByText('a.rego')).not.toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
@@ -170,15 +176,37 @@ describe('assets list', () => {
     expect(rowsInBody()).toHaveLength(2);
   });
 
-  it('reads filters, sort and page back out of the url', async () => {
+  it('falls back to a page size the select offers when the url invents one', async () => {
     http.on('GET', '/asset', { body: [anAsset({ name: 'a.rego' }), anAsset({ name: 'b.rego' })] });
 
-    openAssets('?environment=stage&type=TEST&template=false&sort=name%3Adesc&page=2&pageSize=1&showFilters=true');
+    openAssets('?pageSize=999');
+
+    expect(await screen.findByText('a.rego')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Page size' })).toHaveTextContent('10');
+    expect(rowsInBody()).toHaveLength(2);
+  });
+
+  it('takes a page size the select does offer from the url', async () => {
+    http.on('GET', '/asset', { body: elevenAssets() });
+
+    openAssets('?pageSize=20');
+
+    expect(await screen.findByText('a.rego')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Page size' })).toHaveTextContent('20');
+    expect(screen.getByText('Page 1 of 1')).toBeInTheDocument();
+    expect(rowsInBody()).toHaveLength(ELEVEN_NAMES.length);
+  });
+
+  it('reads filters, sort and page back out of the url', async () => {
+    http.on('GET', '/asset', { body: elevenAssets() });
+
+    openAssets('?environment=stage&type=TEST&template=false&sort=name%3Adesc&page=2&pageSize=10&showFilters=true');
 
     await screen.findByText('a.rego');
     expect(screen.getByRole('combobox', { name: 'Environment' })).toHaveTextContent('stage');
     expect(screen.getByRole('combobox', { name: 'Asset type' })).toHaveTextContent('TEST');
     expect(screen.getByRole('combobox', { name: 'Template' })).toHaveTextContent('Non-templates only');
+    expect(screen.getByRole('combobox', { name: 'Page size' })).toHaveTextContent('10');
     expect(screen.getByText('Page 2 of 2')).toBeInTheDocument();
     expect(rowsInBody()).toHaveLength(1);
   });

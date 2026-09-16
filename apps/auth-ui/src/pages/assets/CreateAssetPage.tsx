@@ -13,12 +13,15 @@ import { AssetMetadataFields } from './AssetMetadataFields';
 import { ContentSizeAlert } from './ContentSizeAlert';
 import { sameDraft, type AssetDraft, type AssetUpsertBody } from './draft';
 import { resolveEditorLanguage } from './language';
-import { CONFLICT_STATUS, SaveFailure, saveAsset } from './save';
+import { assetNameIsTaken, CONFLICT_STATUS, SaveFailure, saveAsset } from './save';
 import { UnsavedChangesDialog } from './UnsavedChangesDialog';
 import { validateAssetName, validateUri } from './validation';
 
 /** The api requires 1 for an asset that does not yet exist. */
 const FIRST_ASSET_VERSION = 1;
+
+/** Both ways a taken name surfaces say the same thing, because the remedy is the same. */
+const nameInUse = (name: string): string => `The name ${name} is already in use. Open that asset instead, or pick another name.`;
 
 /** Everything an author should not have to fill in for a new asset. */
 const DEFAULT_DRAFT: AssetDraft = { content: '', type: 'POLICY', uri: '/', environment: [], isTemplate: false };
@@ -43,13 +46,21 @@ export const CreateAssetPage = () => {
 
   const create = useMutation({
     mutationFn: async (body: AssetUpsertBody) => {
+      // Asked before the post, because the api would not refuse it: a post of asset version
+      // 1 for a name already at version 1 overwrites that asset's content rather than
+      // failing. See `assetNameIsTaken`.
+      if (await assetNameIsTaken(body.name)) {
+        throw new Error(nameInUse(body.name));
+      }
+
       try {
         return await saveAsset(body);
       } catch (failure) {
-        // A conflict here is a name already taken — a different failure, with a different
-        // remedy, from the stale asset version a save on an existing asset hits.
+        // A conflict here is the same name, taken between the check above and this post —
+        // a different failure, with a different remedy, from the stale asset version a save
+        // on an existing asset hits.
         if (failure instanceof SaveFailure && failure.status === CONFLICT_STATUS) {
-          throw new Error(`The name ${body.name} is already in use. Open that asset instead, or pick another name.`);
+          throw new Error(nameInUse(body.name));
         }
         throw failure;
       }

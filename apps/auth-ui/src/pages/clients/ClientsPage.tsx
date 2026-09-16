@@ -60,7 +60,10 @@ const updateURL = (params: Record<string, string | number | boolean | string[]>)
     }
   });
 
-  window.history.replaceState({}, '', url.toString());
+  // The state, not a fresh object: a data router keeps its history index in there, and
+  // wiping it leaves every entry pushed afterwards with an index of NaN — which the asset
+  // editor's useBlocker guard then reads on a back navigation.
+  window.history.replaceState(window.history.state, '', url.toString());
 };
 
 const getURLParams = () => {

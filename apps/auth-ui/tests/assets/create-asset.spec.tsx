@@ -1,10 +1,9 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { decodeAssetContent } from '@/lib/asset-content';
+import { decodeAssetContent, MAX_ENCODED_BYTES } from '@/lib/asset-content';
 import { appRoutes } from '../../src/routes';
-import { MAX_ENCODED_BYTES } from '@/lib/asset-content';
-import { anAsset } from '../asset-fixtures';
+import { anAsset, stubCreating } from '../asset-fixtures';
 import { http } from '../http-stub';
 import { renderRoutes } from '../render';
 
@@ -73,8 +72,7 @@ describe('creating an asset', () => {
   });
 
   it('posts asset version 1 and lands in the editor for what it just created', async () => {
-    http.on('POST', '/asset', { status: 201, body: anAsset({ name: 'billing.rego', version: 1 }) });
-    http.on('GET', '/asset/billing.rego', { body: [anAsset({ name: 'billing.rego', version: 1 })] });
+    stubCreating(anAsset({ name: 'billing.rego', version: 1 }));
 
     const { router } = openCreate();
     await screen.findByRole('heading', { name: 'New asset' });
@@ -99,6 +97,9 @@ describe('creating an asset', () => {
   });
 
   it('reads a conflict as a name already in use, not as a stale asset version', async () => {
+    // The backstop for a name taken between the check below and the post: the check sees
+    // nothing, and the server refuses.
+    http.on('GET', '/asset/authz.rego', { body: [] });
     http.on('POST', '/asset', { status: 409, body: { message: 'given asset version is not 1, when no asset already exists' } });
 
     openCreate();
@@ -110,6 +111,53 @@ describe('creating an asset', () => {
     expect(await screen.findByText(/The name authz.rego is already in use/)).toBeInTheDocument();
     expect(screen.queryByText(/stale/)).not.toBeInTheDocument();
     expect(screen.queryByText(/declared asset version/)).not.toBeInTheDocument();
+  });
+
+  it('refuses a name already in use rather than overwriting that asset', async () => {
+    // The api reads a post of asset version 1 for a name already at version 1 as an update
+    // and replaces the stored content in place, so nothing on the server refuses this.
+    http.on('GET', '/asset/authz.rego', { body: [anAsset({ name: 'authz.rego', version: 1 })] });
+    http.on('POST', '/asset', { status: 201, body: anAsset({ name: 'authz.rego', version: 2 }) });
+
+    openCreate();
+    await screen.findByRole('heading', { name: 'New asset' });
+
+    fireEvent.change(nameField(), { target: { value: 'authz.rego' } });
+    fireEvent.change(screen.getByTestId('monaco-editor'), { target: { value: 'package authz\n' } });
+    await userEvent.click(createButton());
+
+    expect(await screen.findByText(/The name authz.rego is already in use/)).toBeInTheDocument();
+    expect(http.requestsFor('POST', '/asset')).toHaveLength(0);
+  });
+
+  it('checks the name it is about to take, not the one typed before it was trimmed', async () => {
+    http.on('GET', '/asset/billing.rego', { body: [anAsset({ name: 'billing.rego', version: 1 })] });
+    http.on('POST', '/asset', { status: 201, body: anAsset({ name: 'billing.rego', version: 2 }) });
+
+    openCreate();
+    await screen.findByRole('heading', { name: 'New asset' });
+
+    fireEvent.change(nameField(), { target: { value: '  billing.rego  ' } });
+    await userEvent.click(createButton());
+
+    expect(await screen.findByText(/The name billing.rego is already in use/)).toBeInTheDocument();
+    expect(http.requestsFor('POST', '/asset')).toHaveLength(0);
+  });
+
+  it('reads the declared 404 as a free name rather than as a failure to check', async () => {
+    // The schema declares a 404 on the named-asset endpoint that the server does not emit
+    // today. If it ever does, it answers the question rather than refusing to.
+    http.on('GET', '/asset/billing.rego', { status: 404, body: { message: 'asset was not found in the database' } });
+    http.on('POST', '/asset', { status: 201, body: anAsset({ name: 'billing.rego', version: 1 }) });
+
+    openCreate();
+    await screen.findByRole('heading', { name: 'New asset' });
+
+    fireEvent.change(nameField(), { target: { value: 'billing.rego' } });
+    await userEvent.click(createButton());
+
+    await waitFor(() => expect(http.requestsFor('POST', '/asset')).toHaveLength(1));
+    expect(createdBody()?.['name']).toBe('billing.rego');
   });
 
   it('guards a half-written asset against a navigation away', async () => {
