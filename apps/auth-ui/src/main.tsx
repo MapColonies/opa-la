@@ -4,8 +4,10 @@ import './index.css';
 import App from './App';
 import loader from '@monaco-editor/loader';
 import * as monaco from 'monaco-editor';
+import { registerRego } from './lib/monaco/rego';
 
 loader.config({ monaco });
+registerRego();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

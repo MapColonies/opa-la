@@ -1,0 +1,51 @@
+import { useEffect } from 'react';
+import { useBlocker } from 'react-router-dom';
+import { Button } from '../../components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+
+/**
+ * Blocks a navigation away from unsaved edits. There is no draft persistence, so
+ * leaving loses the work outright; the guard is the only thing between the two.
+ */
+export const UnsavedChangesDialog = ({ when }: { when: boolean }) => {
+  // Search included, not just the path: on the asset page the search is which asset
+  // version is being viewed, and switching it leaves the edit surface just the same.
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      when && (currentLocation.pathname !== nextLocation.pathname || currentLocation.search !== nextLocation.search)
+  );
+
+  // useBlocker only catches in-app navigation. A hard reload or tab close bypasses
+  // it entirely, so beforeunload is the only hook that can warn for those.
+  useEffect(() => {
+    if (!when) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [when]);
+
+  return (
+    <Dialog open={blocker.state === 'blocked'} onOpenChange={(open) => !open && blocker.reset?.()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Leave without saving?</DialogTitle>
+          <DialogDescription>
+            This asset has edits that have not been saved. Leaving now discards them — nothing is kept as a draft.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => blocker.reset?.()}>
+            Keep editing
+          </Button>
+          <Button variant="destructive" onClick={() => blocker.proceed?.()}>
+            Discard changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};

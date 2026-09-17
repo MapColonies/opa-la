@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
-import { Users, Link as LinkIcon, Globe, Menu, X, Key, Shield } from 'lucide-react';
+import { Users, Link as LinkIcon, Globe, Menu, X, Key, Shield, FileCode } from 'lucide-react';
 import { Button } from '../ui/button';
 import { SiteSwitcher } from './SiteSwitcher';
 import { ThemeToggle } from '../theme-toggle';
@@ -31,6 +31,11 @@ export const Sidebar = ({ className, isCollapsed, onCollapse }: SidebarProps) =>
       icon: Globe,
     },
     {
+      title: 'Assets',
+      href: '/assets',
+      icon: FileCode,
+    },
+    {
       title: 'JWT Inspector',
       href: '/jwt-inspector',
       icon: Key,
@@ -57,7 +62,7 @@ export const Sidebar = ({ className, isCollapsed, onCollapse }: SidebarProps) =>
       )}
       <nav className="flex-1 p-2 space-y-1">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.href;
+          const isActive = location.pathname === item.href || location.pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}
