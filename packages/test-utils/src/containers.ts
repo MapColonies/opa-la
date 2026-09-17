@@ -1,8 +1,9 @@
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import { MinioContainer, type StartedMinioContainer } from '@testcontainers/minio';
+// import { MinioContainer, type StartedMinioContainer,  } from '@testcontainers/minio';
+import { GenericContainer, Wait, type StartedTestContainer } from 'testcontainers';
 
 const POSTGRES_IMAGE = 'postgres:15';
-const MINIO_IMAGE = 'minio/minio:latest';
+const SEAWEEDFS_IMAGE = 'chrislusf/seaweedfs:4.47';
 
 export const PG_PORT = 5432;
 
@@ -20,14 +21,23 @@ export async function createPostgresContainer(options: {
   return container.withUsername(options.username).withDatabase(options.database).withPassword(options.password).start();
 }
 
-export const MINIO_PORT = 9000;
+export const S3_PORT = 8333;
+export const S3_UI_PORT = 8888;
 
-export async function createMinioContainer(options: { username: string; password: string }): Promise<StartedMinioContainer> {
-  const container = new MinioContainer(MINIO_IMAGE);
+export async function createS3Container(options: { username: string; password: string }): Promise<StartedTestContainer> {
+  const container = new GenericContainer(SEAWEEDFS_IMAGE)
+    .withExposedPorts(S3_PORT, S3_UI_PORT)
+    .withEnvironment({
+      /* eslint-disable @typescript-eslint/naming-convention */
+      AWS_ACCESS_KEY_ID: options.username,
+      AWS_SECRET_ACCESS_KEY: options.password,
+      S3_BUCKET: 'test-bucket',
+      /* eslint-enable @typescript-eslint/naming-convention */
+    })
+    .withWaitStrategy(Wait.forLogMessage('/.*All enabled components are running and ready to use.*/'));
 
   if (process.env.CI === undefined) {
     container.withReuse();
   }
-
-  return container.withUsername(options.username).withPassword(options.password).start();
+  return container.start();
 }
