@@ -142,6 +142,28 @@ describe('editing an asset', () => {
     expect(within(diff).getByTestId('diff-modified')).toHaveTextContent('package authz.v2');
   });
 
+  it('reviews a metadata-only change too, not just content', async () => {
+    stubAsset(anAsset({ name: 'authz.rego', version: 3, uri: '/policies/authz.rego', type: 'POLICY', environment: ['np'] }));
+
+    openAsset();
+    await startEditing();
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'URI' }), { target: { value: '/policies/authz-v2.rego' } });
+    await userEvent.click(screen.getByRole('checkbox', { name: 'stage' }));
+    await userEvent.click(screen.getByRole('switch', { name: 'Template asset' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Review changes' }));
+
+    expect(screen.getByText('URI:')).toBeInTheDocument();
+    expect(screen.getByText('/policies/authz.rego')).toBeInTheDocument();
+    expect(screen.getByText('/policies/authz-v2.rego')).toBeInTheDocument();
+    expect(screen.getByText('Environments:')).toBeInTheDocument();
+    expect(screen.getByText('np, stage')).toBeInTheDocument();
+    expect(screen.getByText('Template:')).toBeInTheDocument();
+
+    expect(screen.queryByText('Type:')).not.toBeInTheDocument();
+  });
+
   it('posts the asset version it loaded and omits the read-only creation time', async () => {
     stubAsset();
     stubSave();

@@ -14,7 +14,7 @@ import { AssetMetadataFields } from './AssetMetadataFields';
 import { AssetVersionSelect } from './AssetVersionSelect';
 import { ConfirmDialog } from './ConfirmDialog';
 import { ContentSizeAlert } from './ContentSizeAlert';
-import { draftOf, isDirty, sameDraft, type AssetDraft } from './draft';
+import { changedFields, draftOf, isDirty, sameDraft, type AssetDraft } from './draft';
 import { resolveEditorLanguage } from './language';
 import { CONFLICT_STATUS, SaveFailure, saveAsset } from './save';
 import { UnsavedChangesDialog } from './UnsavedChangesDialog';
@@ -63,6 +63,7 @@ export const AssetDetail = ({ asset, versions }: AssetDetailProps) => {
 
   const overSizeLimit = isOverSizeLimit(draft.content);
   const inUse = environmentsInUseBy(asset.version, versions);
+  const metadataChanges = changedFields(draft, asset);
 
   const save = useMutation({
     mutationFn: saveAsset,
@@ -288,6 +289,23 @@ export const AssetDetail = ({ asset, versions }: AssetDetailProps) => {
 
         {editing && <ContentSizeAlert content={draft.content} />}
       </div>
+
+      {/* The content diff below only ever covers content: this is the rest of the review. */}
+      {showDiff && metadataChanges.length > 0 && (
+        <div className="rounded-md border p-3 text-sm">
+          <p className="mb-2 font-medium">Metadata changes</p>
+          <dl className="space-y-1">
+            {metadataChanges.map((change) => (
+              <div key={change.label} className="flex flex-wrap gap-x-2">
+                <dt className="text-muted-foreground">{change.label}:</dt>
+                <dd>
+                  <span className="text-muted-foreground line-through">{change.before}</span> → <span className="font-medium">{change.after}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
 
       <div className="min-h-0 flex-1">
         {showDiff ? (

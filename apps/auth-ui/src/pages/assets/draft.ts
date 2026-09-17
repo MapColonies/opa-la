@@ -47,3 +47,31 @@ export const isDirty = (draft: AssetDraft, asset: Asset, storedContent: string):
   draft.uri !== asset.uri ||
   draft.isTemplate !== asset.isTemplate ||
   !sameEnvironments(draft.environment, asset.environment);
+
+export interface FieldChange {
+  label: string;
+  before: string;
+  after: string;
+}
+
+/** The metadata half of a review: content gets its own diff editor, so this covers the rest. */
+export const changedFields = (draft: AssetDraft, asset: Asset): FieldChange[] => {
+  const changes: FieldChange[] = [];
+
+  if (draft.type !== asset.type) changes.push({ label: 'Type', before: asset.type, after: draft.type });
+  if (draft.uri !== asset.uri) changes.push({ label: 'URI', before: asset.uri, after: draft.uri });
+  if (!sameEnvironments(draft.environment, asset.environment)) {
+    changes.push({
+      label: 'Environments',
+      before: describeEnvironments(asset.environment),
+      after: describeEnvironments(draft.environment),
+    });
+  }
+  if (draft.isTemplate !== asset.isTemplate) {
+    changes.push({ label: 'Template', before: asset.isTemplate ? 'Yes' : 'No', after: draft.isTemplate ? 'Yes' : 'No' });
+  }
+
+  return changes;
+};
+
+const describeEnvironments = (environment: Environment[]): string => [...environment].sort().join(', ') || '(none)';
