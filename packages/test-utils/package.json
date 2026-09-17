@@ -35,8 +35,8 @@
     "@faker-js/faker": "catalog:",
     "@map-colonies/auth-core": "workspace:^",
     "@map-colonies/schemas": "catalog:",
-    "@testcontainers/minio": "~11.14.0",
     "@testcontainers/postgresql": "^11.14.0",
+    "testcontainers": "^11.14.0",
     "lodash": "catalog:",
     "drizzle-orm": "catalog:",
     "pg": "catalog:"
