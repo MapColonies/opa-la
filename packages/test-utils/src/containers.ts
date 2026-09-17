@@ -34,7 +34,7 @@ export async function createS3Container(options: { username: string; password: s
       S3_BUCKET: 'test-bucket',
       /* eslint-enable @typescript-eslint/naming-convention */
     })
-    .withWaitStrategy(Wait.forLogMessage('/.*All enabled components are running and ready to use.*/'));
+    .withWaitStrategy(Wait.forListeningPorts());
 
   if (process.env.CI === undefined) {
     container.withReuse();
