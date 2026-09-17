@@ -1,5 +1,4 @@
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-// import { MinioContainer, type StartedMinioContainer,  } from '@testcontainers/minio';
 import { GenericContainer, Wait, type StartedTestContainer } from 'testcontainers';
 
 const POSTGRES_IMAGE = 'postgres:15';
