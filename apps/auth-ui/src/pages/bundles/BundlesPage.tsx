@@ -1,13 +1,17 @@
 import type { components } from 'auth-openapi';
 import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
+import { Dialog } from '../../components/ui/dialog';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { $api } from '../../fetch';
+import { BundleDetailsModal } from './BundleDetailsModal';
 import { BundlesTable } from './BundlesTable';
 
+type Bundle = components['schemas']['bundle'];
 type Environment = components['schemas']['environment'];
 
 const ENVIRONMENTS: Environment[] = ['np', 'stage', 'prod'];
@@ -20,6 +24,7 @@ const oneOf = <T extends string>(value: string | null, allowed: readonly T[], fa
 
 export const BundlesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedBundle, setSelectedBundle] = useState<Bundle | null>(null);
 
   // The url is external input: an unknown value would otherwise travel to the server as a filter and come back a 400.
   const environment = oneOf(searchParams.get('environment'), ENVIRONMENTS, ANY);
@@ -117,9 +122,13 @@ export const BundlesPage = () => {
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <BundlesTable bundles={data ?? []} />
+          <BundlesTable bundles={data ?? []} onSelectBundle={setSelectedBundle} />
         )}
       </div>
+
+      <Dialog open={selectedBundle !== null} onOpenChange={(open) => !open && setSelectedBundle(null)}>
+        {selectedBundle && <BundleDetailsModal bundle={selectedBundle} />}
+      </Dialog>
     </div>
   );
 };

@@ -7,11 +7,12 @@ type Bundle = components['schemas']['bundle'];
 
 interface BundlesTableProps {
   bundles: Bundle[];
+  onSelectBundle: (bundle: Bundle) => void;
 }
 
 const COLUMNS = ['Created At', 'Environment', 'Revision', 'OPA Version', 'Id'];
 
-export const BundlesTable = ({ bundles }: BundlesTableProps) => (
+export const BundlesTable = ({ bundles, onSelectBundle }: BundlesTableProps) => (
   <div className="h-full flex flex-col">
     <Table>
       <TableHeader className="sticky top-0 bg-background z-10">
@@ -30,7 +31,7 @@ export const BundlesTable = ({ bundles }: BundlesTableProps) => (
           </TableRow>
         ) : (
           bundles.map((bundle) => (
-            <TableRow key={bundle.id}>
+            <TableRow key={bundle.id} onClick={() => onSelectBundle(bundle)} className="cursor-pointer hover:bg-muted/50">
               <TableCell className="whitespace-nowrap text-muted-foreground">{bundle.createdAt ? formatTimestamp(bundle.createdAt) : '—'}</TableCell>
               <TableCell>
                 <Badge variant={bundle.environment === 'prod' ? 'destructive' : bundle.environment === 'stage' ? 'secondary' : 'default'}>
