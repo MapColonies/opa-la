@@ -22,6 +22,11 @@ const ANY = 'all';
 const oneOf = <T extends string>(value: string | null, allowed: readonly T[], fallback: T): T =>
   allowed.includes(value as T) ? (value as T) : fallback;
 
+// The date inputs pick a day; the endpoint filters on a full timestamp. Widening to the
+// day's first and last instant keeps the picked day inclusive on both ends.
+const startOfDay = (date: string): string => `${date}T00:00:00.000Z`;
+const endOfDay = (date: string): string => `${date}T23:59:59.999Z`;
+
 export const BundlesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedBundle, setSelectedBundle] = useState<Bundle | null>(null);
@@ -47,8 +52,8 @@ export const BundlesPage = () => {
 
   const query = {
     ...(environment === ANY ? {} : { environment: [environment] }),
-    ...(createdAfter && { createdAfter }),
-    ...(createdBefore && { createdBefore }),
+    ...(createdAfter && { createdAfter: startOfDay(createdAfter) }),
+    ...(createdBefore && { createdBefore: endOfDay(createdBefore) }),
   };
 
   const { data, isLoading, isError, error, refetch } = $api.useQuery('get', '/bundle', { params: { query } });
