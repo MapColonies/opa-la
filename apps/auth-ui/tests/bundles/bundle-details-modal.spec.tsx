@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { appRoutes } from '../../src/routes';
 import { aBundle } from '../bundle-fixtures';
 import { http } from '../http-stub';
@@ -67,6 +67,29 @@ describe('bundle details modal', () => {
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).queryByRole('button', { name: /edit/i })).not.toBeInTheDocument();
     expect(within(dialog).queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
+  });
+
+  it('renders a large connections list, keeping the close button reachable and each row uniquely keyed', async () => {
+    // A real bundle can carry hundreds of connections; two rows share a name/version pair
+    // (the API contract marks this array uniqueItems, but nothing enforces that here), to
+    // guard the list against relying on that guarantee for React's row keys.
+    const manyConnections = Array.from({ length: 320 }, (_, index) => ({ name: `connection-${index % 300}`, version: 1 }));
+    http.on('GET', '/bundle', { body: [aBundle({ connections: manyConnections })] });
+
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    openBundles();
+    await userEvent.click(await screen.findByText('rev-1'));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getAllByText('connection-0')).toHaveLength(2);
+    expect(within(dialog).getByText('connection-299')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument();
+
+    const keyWarning = consoleError.mock.calls.find((call) => typeof call[0] === 'string' && call[0].includes('two children with the same key'));
+    expect(keyWarning).toBeUndefined();
+
+    consoleError.mockRestore();
   });
 
   it('closes the modal without affecting the underlying list', async () => {
