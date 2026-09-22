@@ -21,7 +21,7 @@ export default defineConfig({
     environment: 'jsdom',
     environmentOptions: { jsdom: { url: 'http://localhost:3000/' } },
     setupFiles: ['./tests/setup.ts'],
-    // Scoped to the assets feature. The rest of the application has no tests yet.
-    include: ['tests/assets/**/*.spec.{ts,tsx}'],
+    // Scoped to the assets and bundles features. The rest of the application has no tests yet.
+    include: ['tests/assets/**/*.spec.{ts,tsx}', 'tests/bundles/**/*.spec.{ts,tsx}'],
   },
 });

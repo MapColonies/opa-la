@@ -28,7 +28,7 @@ describe('assets list', () => {
     const entries = within(nav)
       .getAllByRole('link')
       .map((link) => link.textContent);
-    expect(entries).toEqual(['Clients', 'Connections', 'Domains', 'Assets', 'JWT Inspector', 'OPA Validator']);
+    expect(entries).toEqual(['Clients', 'Connections', 'Domains', 'Assets', 'Bundles', 'JWT Inspector', 'OPA Validator']);
   });
 
   it('marks the Assets entry in the sidebar from anywhere underneath it', async () => {
