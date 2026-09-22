@@ -27,6 +27,10 @@ const oneOf = <T extends string>(value: string | null, allowed: readonly T[], fa
 const startOfDay = (date: string): string => `${date}T00:00:00.000Z`;
 const endOfDay = (date: string): string => `${date}T23:59:59.999Z`;
 
+// The endpoint has no sort parameter, so the newest-first order is applied here rather
+// than relied upon from the response.
+const byCreatedAtDesc = (a: Bundle, b: Bundle): number => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
+
 export const BundlesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedBundle, setSelectedBundle] = useState<Bundle | null>(null);
@@ -127,7 +131,7 @@ export const BundlesPage = () => {
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <BundlesTable bundles={data ?? []} onSelectBundle={setSelectedBundle} />
+          <BundlesTable bundles={[...(data ?? [])].sort(byCreatedAtDesc)} onSelectBundle={setSelectedBundle} />
         )}
       </div>
 

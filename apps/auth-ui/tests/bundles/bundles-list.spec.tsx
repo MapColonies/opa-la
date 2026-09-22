@@ -48,6 +48,25 @@ describe('bundles list', () => {
     expect(within(row).getByText('42')).toBeInTheDocument();
   });
 
+  it('orders bundles with the newest createdAt first, regardless of the order returned by the server', async () => {
+    http.on('GET', '/bundle', {
+      body: [
+        aBundle({ id: 1, createdAt: '2026-01-01T00:00:00.000Z' }),
+        aBundle({ id: 3, createdAt: '2026-03-01T00:00:00.000Z' }),
+        aBundle({ id: 2, createdAt: '2026-02-01T00:00:00.000Z' }),
+      ],
+    });
+
+    openBundles();
+
+    const table = await screen.findByRole('table');
+    const idsInOrder = within(table)
+      .getAllByRole('row')
+      .slice(1)
+      .map((row) => within(row).getAllByRole('cell').at(-1)?.textContent);
+    expect(idsInOrder).toEqual(['3', '2', '1']);
+  });
+
   it('shows a loading state while the request is in flight', async () => {
     http.on('GET', '/bundle', { body: [aBundle()], delayMs: 30 });
 
