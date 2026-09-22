@@ -1,4 +1,5 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { appRoutes } from '../../src/routes';
 import { aBundle } from '../bundle-fixtures';
@@ -72,5 +73,62 @@ describe('bundles list', () => {
     expect(screen.queryByRole('button', { name: /add bundle/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
+  });
+
+  it('sends no environment filter until one is chosen, then sends it as a one-element array', async () => {
+    http.on('GET', '/bundle', { body: [aBundle()] });
+
+    openBundles();
+    await screen.findByText('rev-1');
+    expect(http.lastRequestFor('GET', '/bundle')?.query.getAll('environment')).toEqual([]);
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'Environment' }));
+    await userEvent.click(await screen.findByRole('option', { name: 'prod' }));
+
+    await waitFor(() => expect(http.lastRequestFor('GET', '/bundle')?.query.getAll('environment')).toEqual(['prod']));
+  });
+
+  it('sends the createdAfter and createdBefore date filters to the server', async () => {
+    http.on('GET', '/bundle', { body: [aBundle()] });
+
+    openBundles();
+    await screen.findByText('rev-1');
+
+    await userEvent.type(screen.getByLabelText('Created after'), '2026-01-01');
+    await waitFor(() => expect(http.lastRequestFor('GET', '/bundle')?.query.get('createdAfter')).toBe('2026-01-01'));
+
+    await userEvent.type(screen.getByLabelText('Created before'), '2026-06-01');
+    await waitFor(() => expect(http.lastRequestFor('GET', '/bundle')?.query.get('createdBefore')).toBe('2026-06-01'));
+  });
+
+  it('combines the environment and date filters into a single request', async () => {
+    http.on('GET', '/bundle', { body: [aBundle()] });
+
+    openBundles('?environment=stage&createdAfter=2026-01-01&createdBefore=2026-06-01');
+    await screen.findByText('rev-1');
+
+    const request = http.lastRequestFor('GET', '/bundle');
+    expect(request?.query.getAll('environment')).toEqual(['stage']);
+    expect(request?.query.get('createdAfter')).toBe('2026-01-01');
+    expect(request?.query.get('createdBefore')).toBe('2026-06-01');
+  });
+
+  it('reads the filters back out of the url on load, and restores them across a refresh', async () => {
+    http.on('GET', '/bundle', { body: [aBundle()] });
+
+    openBundles('?environment=prod&createdAfter=2026-01-01&createdBefore=2026-06-01');
+
+    await screen.findByText('rev-1');
+    expect(screen.getByRole('combobox', { name: 'Environment' })).toHaveTextContent('prod');
+    expect(screen.getByLabelText('Created after')).toHaveValue('2026-01-01');
+    expect(screen.getByLabelText('Created before')).toHaveValue('2026-06-01');
+  });
+
+  it('shows an empty state when the active filters match no bundles', async () => {
+    http.on('GET', '/bundle', { body: [] });
+
+    openBundles('?environment=prod');
+
+    expect(await screen.findByText('No bundles found.')).toBeInTheDocument();
   });
 });
