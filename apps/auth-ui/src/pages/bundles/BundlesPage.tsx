@@ -22,10 +22,19 @@ const ANY = 'all';
 const oneOf = <T extends string>(value: string | null, allowed: readonly T[], fallback: T): T =>
   allowed.includes(value as T) ? (value as T) : fallback;
 
-// The date inputs pick a day; the endpoint filters on a full timestamp. Widening to the
-// day's first and last instant keeps the picked day inclusive on both ends.
-const startOfDay = (date: string): string => `${date}T00:00:00.000Z`;
-const endOfDay = (date: string): string => `${date}T23:59:59.999Z`;
+// The date input hands back a bare YYYY-MM-DD with no timezone attached — the day the
+// user pointed at in their own local time, not in UTC. `new Date(y, m, d, ...)` reads
+// its numeric arguments as local time, so the boundary lands on the right side of
+// midnight for that user; `.toISOString()` then converts it to the UTC instant the
+// endpoint expects. Matches the local-day-picked, UTC-on-the-wire pattern ClientsPage
+// already uses via its Calendar picker.
+const dayBoundary = (date: string, end: boolean): string => {
+  const [year, month, day] = date.split('-').map(Number) as [number, number, number];
+  return end ? new Date(year, month - 1, day, 23, 59, 59, 999).toISOString() : new Date(year, month - 1, day, 0, 0, 0, 0).toISOString();
+};
+
+const startOfDay = (date: string): string => dayBoundary(date, false);
+const endOfDay = (date: string): string => dayBoundary(date, true);
 
 // The endpoint has no sort parameter, so the newest-first order is applied here rather
 // than relied upon from the response.

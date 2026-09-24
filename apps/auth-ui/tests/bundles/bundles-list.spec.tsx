@@ -8,6 +8,26 @@ import { renderRoutes } from '../render';
 
 const openBundles = (search = '') => renderRoutes(appRoutes, `/bundles${search}`);
 
+/**
+ * Asserts a sent timestamp is the local midnight (or local end-of-instant) of the given
+ * calendar day, without hardcoding a UTC literal — the conversion depends on the host's
+ * timezone, so the assertion has to round-trip through the same local getters rather
+ * than assume a fixed UTC offset.
+ */
+const expectLocalDayBoundary = (iso: string | null | undefined, year: number, month: number, day: number, end: boolean): void => {
+  expect(iso).not.toBeNull();
+  const parsed = new Date(iso!);
+  expect([
+    parsed.getFullYear(),
+    parsed.getMonth() + 1,
+    parsed.getDate(),
+    parsed.getHours(),
+    parsed.getMinutes(),
+    parsed.getSeconds(),
+    parsed.getMilliseconds(),
+  ]).toEqual([year, month, day, ...(end ? [23, 59, 59, 999] : [0, 0, 0, 0])]);
+};
+
 describe('bundles list', () => {
   it('appends a Bundles entry to the sidebar after Assets, leaving the others in place', async () => {
     http.on('GET', '/bundle', { body: [] });
@@ -107,17 +127,17 @@ describe('bundles list', () => {
     await waitFor(() => expect(http.lastRequestFor('GET', '/bundle')?.query.getAll('environment')).toEqual(['prod']));
   });
 
-  it('sends the createdAfter and createdBefore date filters to the server as full timestamps, covering the whole day picked', async () => {
+  it('sends the createdAfter and createdBefore date filters to the server as the local midnight/end-of-day of the picked day', async () => {
     http.on('GET', '/bundle', { body: [aBundle()] });
 
     openBundles();
     await screen.findByText('rev-1');
 
     await userEvent.type(screen.getByLabelText('Created after'), '2026-01-01');
-    await waitFor(() => expect(http.lastRequestFor('GET', '/bundle')?.query.get('createdAfter')).toBe('2026-01-01T00:00:00.000Z'));
+    await waitFor(() => expectLocalDayBoundary(http.lastRequestFor('GET', '/bundle')?.query.get('createdAfter'), 2026, 1, 1, false));
 
     await userEvent.type(screen.getByLabelText('Created before'), '2026-06-01');
-    await waitFor(() => expect(http.lastRequestFor('GET', '/bundle')?.query.get('createdBefore')).toBe('2026-06-01T23:59:59.999Z'));
+    await waitFor(() => expectLocalDayBoundary(http.lastRequestFor('GET', '/bundle')?.query.get('createdBefore'), 2026, 6, 1, true));
   });
 
   it('combines the environment and date filters into a single request', async () => {
@@ -128,8 +148,8 @@ describe('bundles list', () => {
 
     const request = http.lastRequestFor('GET', '/bundle');
     expect(request?.query.getAll('environment')).toEqual(['stage']);
-    expect(request?.query.get('createdAfter')).toBe('2026-01-01T00:00:00.000Z');
-    expect(request?.query.get('createdBefore')).toBe('2026-06-01T23:59:59.999Z');
+    expectLocalDayBoundary(request?.query.get('createdAfter'), 2026, 1, 1, false);
+    expectLocalDayBoundary(request?.query.get('createdBefore'), 2026, 6, 1, true);
   });
 
   it('reads the filters back out of the url on load, and restores them across a refresh', async () => {
