@@ -70,9 +70,7 @@ describe('bundle details modal', () => {
   });
 
   it('renders a large connections list, keeping the close button reachable and each row uniquely keyed', async () => {
-    // A real bundle can carry hundreds of connections; two rows share a name/version pair
-    // (the API contract marks this array uniqueItems, but nothing enforces that here), to
-    // guard the list against relying on that guarantee for React's row keys.
+    // Duplicate name+version pair, despite uniqueItems in the schema.
     const manyConnections = Array.from({ length: 320 }, (_, index) => ({ name: `connection-${index % 300}`, version: 1 }));
     http.on('GET', '/bundle', { body: [aBundle({ connections: manyConnections })] });
 

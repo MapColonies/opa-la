@@ -8,12 +8,7 @@ import { renderRoutes } from '../render';
 
 const openBundles = (search = '') => renderRoutes(appRoutes, `/bundles${search}`);
 
-/**
- * Asserts a sent timestamp is the local midnight (or local end-of-instant) of the given
- * calendar day, without hardcoding a UTC literal — the conversion depends on the host's
- * timezone, so the assertion has to round-trip through the same local getters rather
- * than assume a fixed UTC offset.
- */
+/** Round-trips through local getters instead of a hardcoded UTC literal, since the offset depends on the host's timezone. */
 const expectLocalDayBoundary = (iso: string | null | undefined, year: number, month: number, day: number, end: boolean): void => {
   expect(iso).not.toBeNull();
   const parsed = new Date(iso!);

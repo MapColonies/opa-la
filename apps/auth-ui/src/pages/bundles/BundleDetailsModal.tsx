@@ -9,9 +9,7 @@ interface BundleDetailsModalProps {
 }
 
 export const BundleDetailsModal = ({ bundle }: BundleDetailsModalProps) => (
-  // A bundle's assets/connections lists have no upper bound in practice, so the header
-  // (and its close button) stays outside the scrolling area rather than scrolling away
-  // with a long list.
+  // Only the body scrolls, so a long list can't carry the close button off-screen with it.
   <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
     <DialogHeader>
       <DialogTitle>Bundle {bundle.id}</DialogTitle>
@@ -48,12 +46,10 @@ const BundleEntryList = ({ title, emptyLabel, entries }: { title: string; emptyL
   <div>
     <h3 className="mb-2 text-sm font-medium">{title}</h3>
     {entries && entries.length > 0 ? (
-      // Bounded and independently scrollable: a bundle can carry hundreds of these, and
-      // the list shouldn't force scrolling past everything else to reach what follows it.
+      // Bounded so a long list doesn't bury what follows it.
       <ul className="max-h-48 space-y-1 overflow-y-auto rounded-md border p-2">
         {entries.map((entry, index) => (
-          // The index guards against a duplicate name+version pair; the API contract
-          // marks this array uniqueItems, but nothing enforces that at this layer.
+          // uniqueItems isn't enforced at this layer, so the index guards the key.
           <li key={`${index}-${entry.name}-${entry.version}`} className="flex items-center gap-2 text-sm">
             <span>{entry.name}</span>
             <Badge variant="outline">v{entry.version}</Badge>
