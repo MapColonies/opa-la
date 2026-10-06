@@ -804,6 +804,25 @@ paths:
           $ref: '#/components/responses/409Conflict'
         '500':
           $ref: '#/components/responses/500InternalServerError'
+  '/domain/{domain}':
+    parameters:
+      - $ref: '#/components/parameters/domainParam'
+    delete:
+      operationId: deleteDomain
+      summary: delete a domain that is not in use by any connection
+      tags:
+        - domain
+      responses:
+        '204':
+          description: deleted
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '409':
+          $ref: '#/components/responses/409Conflict'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 security: []
 components:
   responses:
@@ -814,7 +833,7 @@ components:
           schema:
             $ref: '#/components/schemas/error'
     404NotFound:
-      description: Not Found - If client does not exist
+      description: Not Found - If the requested resource does not exist
       content:
         application/json:
           schema:
@@ -870,6 +889,12 @@ components:
       schema:
         type: string
         minLength: 3
+    domainParam:
+      name: domain
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/name'
     assetParam:
       name: assetName
       in: path

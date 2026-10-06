@@ -5,7 +5,7 @@ import type { Domain } from '@map-colonies/auth-core';
 import type { TypedRequestHandlers } from 'auth-openapi';
 import { DEFAULT_PAGE_SIZE, sortOptionParser } from '@map-colonies/drizzle-utils';
 import { DomainManager } from '../models/domainManager';
-import { DomainAlreadyExistsError } from '../models/errors';
+import { DomainAlreadyExistsError, DomainInUseError, DomainNotFoundError } from '../models/errors';
 
 const domainSortMap = new Map<string, keyof Domain>(
   Object.entries({
@@ -43,6 +43,21 @@ export class DomainController {
       return res.status(httpStatus.CREATED).json(createdDomain);
     } catch (error) {
       if (error instanceof DomainAlreadyExistsError) {
+        (error as HttpError).status = httpStatus.CONFLICT;
+      }
+      return next(error);
+    }
+  };
+
+  public deleteDomain: TypedRequestHandlers['deleteDomain'] = async (req, res, next) => {
+    try {
+      await this.manager.deleteDomain(req.params.domain);
+      return res.status(httpStatus.NO_CONTENT).send();
+    } catch (error) {
+      if (error instanceof DomainNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      if (error instanceof DomainInUseError) {
         (error as HttpError).status = httpStatus.CONFLICT;
       }
       return next(error);

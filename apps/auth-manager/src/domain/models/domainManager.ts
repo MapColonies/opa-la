@@ -1,11 +1,11 @@
 import type { Logger } from '@map-colonies/js-logger';
-import { Domain, domainTable, type NewDomain, type Drizzle } from '@map-colonies/auth-core';
+import { connectionTable, Domain, domainTable, type NewDomain, type Drizzle } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { count } from 'drizzle-orm';
+import { and, arrayContains, count, eq, notExists } from 'drizzle-orm';
 import { isDrizzleQueryError } from '@map-colonies/drizzle-utils';
 import { type PaginationParams, paginationParamsToOffsetAndLimit, type SortOptions } from '@map-colonies/drizzle-utils';
 import { SERVICES } from '@common/constants';
-import { DomainAlreadyExistsError } from './errors';
+import { DomainAlreadyExistsError, DomainInUseError, DomainNotFoundError } from './errors';
 
 @injectable()
 export class DomainManager {
@@ -45,5 +45,31 @@ export class DomainManager {
       }
       throw error;
     }
+  }
+
+  public async deleteDomain(name: string): Promise<void> {
+    this.logger.info({ msg: 'deleting domain', name });
+    // a domain is in use if any connection version, in any environment, lists it
+    const connectionsUsingDomain = this.drizzle
+      .select()
+      .from(connectionTable)
+      .where(arrayContains(connectionTable.domains, [name]));
+
+    const deleted = await this.drizzle
+      .delete(domainTable)
+      .where(and(eq(domainTable.name, name), notExists(connectionsUsingDomain)))
+      .returning();
+
+    if (deleted.length > 0) {
+      return;
+    }
+
+    const domain = await this.drizzle.query.domain.findFirst({ where: { name } });
+
+    if (domain === undefined) {
+      throw new DomainNotFoundError('domain not found');
+    }
+
+    throw new DomainInUseError('domain is in use by connections');
   }
 }

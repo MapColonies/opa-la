@@ -11,3 +11,10 @@ export class DomainNotFoundError extends Error {
     Object.setPrototypeOf(this, DomainNotFoundError.prototype);
   }
 }
+
+export class DomainInUseError extends Error {
+  public constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, DomainInUseError.prototype);
+  }
+}
