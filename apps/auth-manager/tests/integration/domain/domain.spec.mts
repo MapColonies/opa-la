@@ -65,9 +65,15 @@ describe('domain', function () {
     });
 
     describe('DELETE /domain/{domain}', function () {
+      afterEach(async function () {
+        await drizzle.delete(connectionTable);
+      });
+
       it('should return 204 status code and the domain should no longer be listed', async function () {
         const name = faker.string.alpha(16);
-        await drizzle.insert(domainTable).values({ name });
+        const otherName = faker.string.alpha(16);
+        await drizzle.insert(domainTable).values([{ name }, { name: otherName }]);
+        await drizzle.insert(connectionTable).values(getFakeConnection(false, { domains: [otherName] }));
 
         const res = await requestSender.deleteDomain({ pathParams: { domain: name } });
 
@@ -121,7 +127,7 @@ describe('domain', function () {
         await drizzle.delete(connectionTable);
       });
 
-      it('should return 409 status code if a connection in the same environment lists the domain, and keep the domain', async function () {
+      it('should return 409 status code if a connection in np lists the domain, and keep the domain', async function () {
         const name = faker.string.alpha(16);
         await drizzle.insert(domainTable).values({ name });
         await drizzle.insert(connectionTable).values(getFakeConnection(false, { environment: Environment.NP, domains: [name] }));
@@ -136,7 +142,7 @@ describe('domain', function () {
       });
 
       it.each([
-        { usage: 'a connection in a different environment', override: { environment: Environment.PROD } },
+        { usage: 'a connection in prod', override: { environment: Environment.PROD } },
         { usage: 'a disabled connection', override: { enabled: false } },
       ])('should return 409 status code if the domain is listed only by $usage', async function ({ override }) {
         const name = faker.string.alpha(16);
@@ -180,6 +186,7 @@ describe('domain', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
         expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ message: 'domain not found' });
       });
     });
   });
