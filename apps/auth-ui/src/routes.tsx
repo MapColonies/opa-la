@@ -1,6 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { Layout } from './components/layout';
 import { AssetPage, AssetsPage, CreateAssetPage } from './pages/assets';
+import { BundlesPage } from './pages/bundles';
 import { ClientsPage } from './pages/clients';
 import { ConnectionsPage } from './pages/connections';
 import { DomainsPage } from './pages/domains';
@@ -32,6 +33,7 @@ export const appRoutes: RouteObject[] = [
           { path: ':assetName', element: <AssetPage /> },
         ],
       },
+      { path: 'bundles', element: <BundlesPage /> },
       { path: 'jwt-inspector', element: <JWTInspectorPage /> },
       { path: 'opa-validator', element: <OPAValidatorPage /> },
       { path: '*', element: <NotFoundPage /> },

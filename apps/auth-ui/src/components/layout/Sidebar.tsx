@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
-import { Users, Link as LinkIcon, Globe, Menu, X, Key, Shield, FileCode } from 'lucide-react';
+import { Users, Link as LinkIcon, Globe, Menu, X, Key, Shield, FileCode, Package } from 'lucide-react';
 import { Button } from '../ui/button';
 import { SiteSwitcher } from './SiteSwitcher';
 import { ThemeToggle } from '../theme-toggle';
@@ -34,6 +34,11 @@ export const Sidebar = ({ className, isCollapsed, onCollapse }: SidebarProps) =>
       title: 'Assets',
       href: '/assets',
       icon: FileCode,
+    },
+    {
+      title: 'Bundles',
+      href: '/bundles',
+      icon: Package,
     },
     {
       title: 'JWT Inspector',
