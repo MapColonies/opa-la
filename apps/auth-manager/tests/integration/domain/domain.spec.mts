@@ -64,7 +64,7 @@ describe('domain', function () {
       });
     });
 
-    describe('DELETE /domain/{domain}', function () {
+    describe('DELETE /domain/{domainName}', function () {
       afterEach(async function () {
         await drizzle.delete(connectionTable);
       });
@@ -75,7 +75,7 @@ describe('domain', function () {
         await drizzle.insert(domainTable).values([{ name }, { name: otherName }]);
         await drizzle.insert(connectionTable).values(getFakeConnection(false, { domains: [otherName] }));
 
-        const res = await requestSender.deleteDomain({ pathParams: { domain: name } });
+        const res = await requestSender.deleteDomain({ pathParams: { domainName: name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NO_CONTENT);
         expect(res).toSatisfyApiSpec();
@@ -122,7 +122,7 @@ describe('domain', function () {
       });
     });
 
-    describe('DELETE /domain/{domain}', function () {
+    describe('DELETE /domain/{domainName}', function () {
       afterEach(async function () {
         await drizzle.delete(connectionTable);
       });
@@ -132,7 +132,7 @@ describe('domain', function () {
         await drizzle.insert(domainTable).values({ name });
         await drizzle.insert(connectionTable).values(getFakeConnection(false, { environment: Environment.NP, domains: [name] }));
 
-        const res = await requestSender.deleteDomain({ pathParams: { domain: name } });
+        const res = await requestSender.deleteDomain({ pathParams: { domainName: name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
@@ -149,7 +149,7 @@ describe('domain', function () {
         await drizzle.insert(domainTable).values({ name });
         await drizzle.insert(connectionTable).values(getFakeConnection(false, { ...override, domains: [name] }));
 
-        const res = await requestSender.deleteDomain({ pathParams: { domain: name } });
+        const res = await requestSender.deleteDomain({ pathParams: { domainName: name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
@@ -162,7 +162,7 @@ describe('domain', function () {
         await drizzle.insert(domainTable).values({ name });
         await drizzle.insert(connectionTable).values([olderVersion, latestVersion]);
 
-        const res = await requestSender.deleteDomain({ pathParams: { domain: name } });
+        const res = await requestSender.deleteDomain({ pathParams: { domainName: name } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
@@ -174,7 +174,7 @@ describe('domain', function () {
         await drizzle.insert(connectionTable).values(getFakeConnection(false, { domains: names }));
 
         for (const name of names) {
-          const res = await requestSender.deleteDomain({ pathParams: { domain: name } });
+          const res = await requestSender.deleteDomain({ pathParams: { domainName: name } });
 
           expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
           expect(res).toSatisfyApiSpec();
@@ -182,7 +182,7 @@ describe('domain', function () {
       });
 
       it('should return 404 status code if the domain does not exist', async function () {
-        const res = await requestSender.deleteDomain({ pathParams: { domain: faker.string.alpha(16) } });
+        const res = await requestSender.deleteDomain({ pathParams: { domainName: faker.string.alpha(16) } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
         expect(res).toSatisfyApiSpec();

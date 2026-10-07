@@ -346,12 +346,12 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  '/domain/{domain}': {
+  '/domain/{domainName}': {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        domain: components['parameters']['domainParam'];
+        domainName: components['parameters']['domainParam'];
       };
       cookie?: never;
     };
@@ -1309,7 +1309,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        domain: components['parameters']['domainParam'];
+        domainName: components['parameters']['domainParam'];
       };
       cookie?: never;
     };

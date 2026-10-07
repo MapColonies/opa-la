@@ -51,7 +51,7 @@ export class DomainController {
 
   public deleteDomain: TypedRequestHandlers['deleteDomain'] = async (req, res, next) => {
     try {
-      await this.manager.deleteDomain(req.params.domain);
+      await this.manager.deleteDomain(req.params.domainName);
       return res.status(httpStatus.NO_CONTENT).send();
     } catch (error) {
       if (error instanceof DomainNotFoundError) {

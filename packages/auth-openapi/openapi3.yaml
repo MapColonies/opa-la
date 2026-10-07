@@ -804,7 +804,7 @@ paths:
           $ref: '#/components/responses/409Conflict'
         '500':
           $ref: '#/components/responses/500InternalServerError'
-  '/domain/{domain}':
+  '/domain/{domainName}':
     parameters:
       - $ref: '#/components/parameters/domainParam'
     delete:
@@ -890,7 +890,7 @@ components:
         type: string
         minLength: 3
     domainParam:
-      name: domain
+      name: domainName
       in: path
       required: true
       schema:
