@@ -13,6 +13,7 @@ mclabels:
 
 enabled: true
 replicaCount: 1
+revisionHistoryLimit: 5 # Amount of revisions we keep
 initialDelaySeconds: 60
 nodePort: 30030 #for minikube deployment only
 resetOnConfigChange: true

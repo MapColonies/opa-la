@@ -32,6 +32,7 @@ image:
 
 enabled: true
 replicaCount: 1
+revisionHistoryLimit: 5 # Amount of revisions we keep
 nodePort: 30000
 
 servicePort: 80
