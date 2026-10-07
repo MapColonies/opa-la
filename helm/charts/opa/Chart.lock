@@ -1,9 +1,9 @@
 dependencies:
 - name: mclabels
   repository: oci://acrarolibotnonprod.azurecr.io/helm/infra
-  version: 1.0.1
+  version: 1.1.0
 - name: fluent-bit
   repository: oci://ghcr.io/fluent/helm-charts
   version: 0.57.7
-digest: sha256:d4c09206ec7d0bee95f3cae64e127bfe93c4f3d827cdc1aac2a3e695210716b8
-generated: "2026-06-17T11:32:28.877870547+03:00"
+digest: sha256:06dfec2aaed8bc523d02a03d59bc9bb38aba02183cc0097642f3cc53a976ffff
+generated: "2026-10-07T09:57:42.747104+03:00"
