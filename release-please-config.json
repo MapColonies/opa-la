@@ -138,12 +138,10 @@
       "component": "root",
       "skip-changelog": true,
       "extra-files": [
-        {
-          "type": "yaml",
-          "glob": true,
-          "path": "**/Chart.yaml",
-          "jsonpath": "$.version"
-        },
+        { "type": "yaml", "path": "helm/charts/opa/Chart.yaml", "jsonpath": "$.version" },
+        { "type": "yaml", "path": "apps/auth-cron/helm/Chart.yaml", "jsonpath": "$.version" },
+        { "type": "yaml", "path": "apps/auth-manager/helm/Chart.yaml", "jsonpath": "$.version" },
+        { "type": "yaml", "path": "apps/token-kiosk/helm/Chart.yaml", "jsonpath": "$.version" },
         { "type": "generic", "glob": true, "path": "**/values.yaml" },
         { "type": "generic", "path": "helm/Chart.yaml" }
       ]
