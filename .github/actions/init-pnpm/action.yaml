@@ -8,6 +8,10 @@ inputs:
   install-filter:
     description: 'Filter for pnpm install (e.g., --filter=packages/*)'
     required: false
+  build:
+    description: 'Run the turbo build after installing dependencies'
+    required: false
+    default: 'true'
 runs:
   using: composite
   steps:
@@ -36,6 +40,7 @@ runs:
           pnpm install --frozen-lockfile
         fi
     - name: build
+      if: inputs.build == 'true'
       shell: bash
       env:
         INSTALL_FILTER: ${{ inputs.install-filter }}
