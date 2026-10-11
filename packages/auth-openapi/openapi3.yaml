@@ -189,7 +189,7 @@ paths:
           $ref: '#/components/responses/500InternalServerError'
     delete:
       operationId: deleteClient
-      summary: delete a client that has no connections
+      summary: delete a client that is not in use by any connection
       tags:
         - client
       responses:

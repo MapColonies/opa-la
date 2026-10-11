@@ -474,10 +474,10 @@ describe('client', function () {
         await drizzle.delete(connectionTable);
       });
 
-      it('should return 409 status code if the client has a connection, and keep the client', async function () {
+      it('should return 409 status code if the client has a connection in np, and keep the client', async function () {
         const client = getFakeClient(false);
         await drizzle.insert(clientTable).values(client);
-        await drizzle.insert(connectionTable).values(getFakeConnection(false, { name: client.name }));
+        await drizzle.insert(connectionTable).values(getFakeConnection(false, { environment: Environment.NP, name: client.name }));
 
         const res = await requestSender.deleteClient({ pathParams: { clientName: client.name } });
 
@@ -494,7 +494,7 @@ describe('client', function () {
         { usage: 'a connection in stage', override: { environment: Environment.STAGE } },
         { usage: 'a connection in prod', override: { environment: Environment.PROD } },
         { usage: 'a disabled connection', override: { enabled: false } },
-      ])('should return 409 status code if the client has only $usage', async function ({ override }) {
+      ])('should return 409 status code if the client has only $usage, and keep the client', async function ({ override }) {
         const client = getFakeClient(false);
         await drizzle.insert(clientTable).values(client);
         await drizzle.insert(connectionTable).values(getFakeConnection(false, { ...override, name: client.name }));
@@ -503,6 +503,10 @@ describe('client', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
         expect(res).toSatisfyApiSpec();
+
+        const getRes = await requestSender.getClient({ pathParams: { clientName: client.name } });
+
+        expect(getRes).toHaveProperty('status', httpStatusCodes.OK);
       });
 
       it('should return 404 status code if the client does not exist', async function () {

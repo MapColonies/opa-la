@@ -35,7 +35,7 @@ export type paths = {
     get: operations['getClient'];
     put?: never;
     post?: never;
-    /** delete a client that has no connections */
+    /** delete a client that is not in use by any connection */
     delete: operations['deleteClient'];
     options?: never;
     head?: never;
