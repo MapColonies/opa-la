@@ -1,8 +1,8 @@
 import { type Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
 import { DatabaseError } from 'pg';
-import { count, eq, and, arrayContains, ilike } from 'drizzle-orm';
-import { clientTable, type Client, type Drizzle, type NewClient } from '@map-colonies/auth-core';
+import { count, eq, and, arrayContains, ilike, notExists } from 'drizzle-orm';
+import { clientTable, connectionTable, type Client, type Drizzle, type NewClient } from '@map-colonies/auth-core';
 import {
   createDatesComparison,
   isDrizzleQueryError,
@@ -13,7 +13,7 @@ import {
   sortOptionsToOrderBy,
 } from '@map-colonies/drizzle-utils';
 import { SERVICES } from '@common/constants';
-import { ClientAlreadyExistsError, ClientNotFoundError } from './errors';
+import { ClientAlreadyExistsError, ClientInUseError, ClientNotFoundError } from './errors';
 import { ClientSearchParams } from './client';
 
 @injectable()
@@ -104,5 +104,28 @@ export class ClientManager {
     }
 
     return updatedClients[0] as Client;
+  }
+
+  public async deleteClient(name: string): Promise<void> {
+    this.logger.info({ msg: 'deleting client', name });
+    // a client is in use if it has any connection version, in any environment
+    const connectionsOfClient = this.drizzle.select().from(connectionTable).where(eq(connectionTable.name, name));
+
+    const deleted = await this.drizzle
+      .delete(clientTable)
+      .where(and(eq(clientTable.name, name), notExists(connectionsOfClient)))
+      .returning();
+
+    if (deleted.length > 0) {
+      return;
+    }
+
+    const client = await this.drizzle.query.client.findFirst({ where: { name } });
+
+    if (client === undefined) {
+      throw new ClientNotFoundError('client with given name was not found');
+    }
+
+    throw new ClientInUseError('client is in use by connections');
   }
 }

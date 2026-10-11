@@ -35,7 +35,8 @@ export type paths = {
     get: operations['getClient'];
     put?: never;
     post?: never;
-    delete?: never;
+    /** delete a client that has no connections */
+    delete: operations['deleteClient'];
     options?: never;
     head?: never;
     /** update the client */
@@ -669,6 +670,30 @@ export interface operations {
       };
       400: components['responses']['400BadRequest'];
       404: components['responses']['404NotFound'];
+      500: components['responses']['500InternalServerError'];
+    };
+  };
+  deleteClient: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        clientName: components['parameters']['clientParam'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components['responses']['400BadRequest'];
+      404: components['responses']['404NotFound'];
+      409: components['responses']['409Conflict'];
       500: components['responses']['500InternalServerError'];
     };
   };
