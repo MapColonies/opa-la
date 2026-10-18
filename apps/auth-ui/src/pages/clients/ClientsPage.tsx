@@ -8,6 +8,7 @@ import type { components } from 'auth-openapi';
 import { ClientsTable } from './ClientsTable';
 import { CreateClientModal } from './CreateClientModal';
 import { EditClientModal } from './EditClientModal';
+import { DeleteRecordModal } from '../../components/DeleteRecordModal';
 import { toast } from 'sonner';
 import { useDebounce } from '../../hooks/useDebounce';
 import { Label } from '../../components/ui/label';
@@ -107,6 +108,7 @@ export const ClientsPage = () => {
   const [createSiteResults, setCreateSiteResults] = useState<SiteResult[]>([]);
   const [updateSiteResults, setUpdateSiteResults] = useState<SiteResult[]>([]);
   const [currentEditStep, setCurrentEditStep] = useState<'edit' | 'send'>('edit');
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
 
   const urlParams = getURLParams();
   const [searchTerm, setSearchTerm] = useState(urlParams.searchTerm);
@@ -225,6 +227,24 @@ export const ClientsPage = () => {
       setUpdateError(error.message);
     },
   });
+
+  const deleteClientMutation = $api.useMutation('delete', '/client/{clientName}', {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get', '/client'] });
+    },
+  });
+
+  const deleteClientBySite = availableSites.reduce(
+    (acc, site) => {
+      const siteApi = siteApis?.[site];
+      if (siteApi) {
+        const mutation = siteApi.useMutation('delete', '/client/{clientName}');
+        acc[site] = (clientName) => mutation.mutateAsync({ params: { path: { clientName } } });
+      }
+      return acc;
+    },
+    {} as Record<string, (clientName: string) => Promise<unknown>>
+  );
 
   useEffect(() => {
     if (!isCreateDialogOpen) {
@@ -798,7 +818,13 @@ export const ClientsPage = () => {
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <ClientsTable clients={data?.items || []} onEditClient={openEditDialog} onSort={handleSort} sortDirection={getSortDirection} />
+          <ClientsTable
+            clients={data?.items || []}
+            onEditClient={openEditDialog}
+            onDeleteClient={setClientToDelete}
+            onSort={handleSort}
+            sortDirection={getSortDirection}
+          />
         )}
       </div>
 
@@ -894,6 +920,15 @@ export const ClientsPage = () => {
           />
         )}
       </Dialog>
+      {clientToDelete && (
+        <DeleteRecordModal
+          recordType="client"
+          recordName={clientToDelete.name}
+          onDelete={() => deleteClientMutation.mutateAsync({ params: { path: { clientName: clientToDelete.name } } })}
+          onDeleteOnSite={(site) => deleteClientBySite[site]?.(clientToDelete.name) ?? Promise.reject(new Error('Site API not available'))}
+          onClose={() => setClientToDelete(null)}
+        />
+      )}
     </div>
   );
 };
