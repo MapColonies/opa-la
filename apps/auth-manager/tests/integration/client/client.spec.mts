@@ -509,6 +509,14 @@ describe('client', function () {
         expect(getRes).toHaveProperty('status', httpStatusCodes.OK);
       });
 
+      it('should return 400 status code if the client name is too short', async function () {
+        const res = await requestSender.deleteClient({ pathParams: { clientName: 'ab' } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ message: 'request/params/clientName must NOT have fewer than 3 characters' });
+      });
+
       it('should return 404 status code if the client does not exist', async function () {
         const res = await requestSender.deleteClient({ pathParams: { clientName: faker.string.alpha(16) } });
 

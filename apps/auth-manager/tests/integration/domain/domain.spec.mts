@@ -181,6 +181,14 @@ describe('domain', function () {
         }
       });
 
+      it('should return 400 status code if the domain name is too short', async function () {
+        const res = await requestSender.deleteDomain({ pathParams: { domainName: 'a' } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ message: 'request/params/domainName must NOT have fewer than 2 characters' });
+      });
+
       it('should return 404 status code if the domain does not exist', async function () {
         const res = await requestSender.deleteDomain({ pathParams: { domainName: faker.string.alpha(16) } });
 
