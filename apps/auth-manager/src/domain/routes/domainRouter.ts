@@ -8,6 +8,7 @@ const domainRouterFactory: FactoryFunction<Router> = (dependencyContainer) => {
 
   router.get('/', controller.getDomains);
   router.post('/', controller.createDomain);
+  router.delete('/:domainName', controller.deleteDomain);
 
   return router;
 };

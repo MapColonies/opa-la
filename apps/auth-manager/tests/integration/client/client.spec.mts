@@ -4,10 +4,10 @@ import httpStatusCodes from 'http-status-codes';
 import { faker } from '@faker-js/faker';
 import 'jest-openapi';
 import type { Drizzle } from '@map-colonies/auth-core';
-import { clientTable } from '@map-colonies/auth-core';
+import { clientTable, connectionTable, Environment } from '@map-colonies/auth-core';
 import type { ExpectResponseStatus, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
 import { expectResponseStatusFactory } from '@map-colonies/openapi-helpers/requestSender';
-import { getFakeClient } from 'test-utils';
+import { getFakeClient, getFakeConnection } from 'test-utils';
 import type { paths, operations } from 'auth-openapi';
 import { initEnvironment } from '../setup.js';
 
@@ -381,6 +381,28 @@ describe('client', function () {
         expect(res.body).toMatchObject({ ...client, description: 'xd', tags: ['a', 'b'] });
       });
     });
+
+    describe('DELETE /client/:clientName', function () {
+      afterEach(async function () {
+        await drizzle.delete(connectionTable);
+      });
+
+      it('should return 204 status code and the client should no longer be found', async function () {
+        const client = getFakeClient(false);
+        const otherClient = getFakeClient(false);
+        await drizzle.insert(clientTable).values([client, otherClient]);
+        await drizzle.insert(connectionTable).values(getFakeConnection(false, { name: otherClient.name }));
+
+        const res = await requestSender.deleteClient({ pathParams: { clientName: client.name } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.NO_CONTENT);
+        expect(res).toSatisfyApiSpec();
+
+        const getRes = await requestSender.getClient({ pathParams: { clientName: client.name } });
+
+        expect(getRes).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
+      });
+    });
   });
 
   describe('Bad Path', function () {
@@ -440,6 +462,63 @@ describe('client', function () {
           pathParams: { clientName: 'lol' },
           requestBody: client,
         });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ message: 'client with given name was not found' });
+      });
+    });
+
+    describe('DELETE /client/:clientName', function () {
+      afterEach(async function () {
+        await drizzle.delete(connectionTable);
+      });
+
+      it('should return 409 status code if the client has a connection in np, and keep the client', async function () {
+        const client = getFakeClient(false);
+        await drizzle.insert(clientTable).values(client);
+        await drizzle.insert(connectionTable).values(getFakeConnection(false, { environment: Environment.NP, name: client.name }));
+
+        const res = await requestSender.deleteClient({ pathParams: { clientName: client.name } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ message: 'client is in use by connections' });
+
+        const getRes = await requestSender.getClient({ pathParams: { clientName: client.name } });
+
+        expect(getRes).toHaveProperty('status', httpStatusCodes.OK);
+      });
+
+      it.each([
+        { usage: 'a connection in stage', override: { environment: Environment.STAGE } },
+        { usage: 'a connection in prod', override: { environment: Environment.PROD } },
+        { usage: 'a disabled connection', override: { enabled: false } },
+      ])('should return 409 status code if the client has only $usage, and keep the client', async function ({ override }) {
+        const client = getFakeClient(false);
+        await drizzle.insert(clientTable).values(client);
+        await drizzle.insert(connectionTable).values(getFakeConnection(false, { ...override, name: client.name }));
+
+        const res = await requestSender.deleteClient({ pathParams: { clientName: client.name } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.CONFLICT);
+        expect(res).toSatisfyApiSpec();
+
+        const getRes = await requestSender.getClient({ pathParams: { clientName: client.name } });
+
+        expect(getRes).toHaveProperty('status', httpStatusCodes.OK);
+      });
+
+      it('should return 400 status code if the client name is too short', async function () {
+        const res = await requestSender.deleteClient({ pathParams: { clientName: 'ab' } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+        expect(res.body).toStrictEqual({ message: 'request/params/clientName must NOT have fewer than 3 characters' });
+      });
+
+      it('should return 404 status code if the client does not exist', async function () {
+        const res = await requestSender.deleteClient({ pathParams: { clientName: faker.string.alpha(16) } });
 
         expect(res).toHaveProperty('status', httpStatusCodes.NOT_FOUND);
         expect(res).toSatisfyApiSpec();

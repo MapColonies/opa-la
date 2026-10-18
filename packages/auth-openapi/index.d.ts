@@ -35,7 +35,8 @@ export type paths = {
     get: operations['getClient'];
     put?: never;
     post?: never;
-    delete?: never;
+    /** delete a client that is not in use by any connection */
+    delete: operations['deleteClient'];
     options?: never;
     head?: never;
     /** update the client */
@@ -346,6 +347,25 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
+  '/domain/{domainName}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        domainName: components['parameters']['domainParam'];
+      };
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** delete a domain that is not in use by any connection */
+    delete: operations['deleteDomain'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 };
 export type webhooks = Record<string, never>;
 export type components = {
@@ -477,7 +497,7 @@ export type components = {
         'application/json': components['schemas']['error'];
       };
     };
-    /** @description Not Found - If client does not exist */
+    /** @description Not Found - If the requested resource does not exist */
     '404NotFound': {
       headers: {
         [name: string]: unknown;
@@ -524,6 +544,7 @@ export type components = {
     /** @description number of items per page */
     pageSize: number;
     clientParam: string;
+    domainParam: components['schemas']['name'];
     assetParam: string;
     versionParam: components['schemas']['version'];
     environmentQueryParam: components['schemas']['environment'][];
@@ -649,6 +670,30 @@ export interface operations {
       };
       400: components['responses']['400BadRequest'];
       404: components['responses']['404NotFound'];
+      500: components['responses']['500InternalServerError'];
+    };
+  };
+  deleteClient: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        clientName: components['parameters']['clientParam'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components['responses']['400BadRequest'];
+      404: components['responses']['404NotFound'];
+      409: components['responses']['409Conflict'];
       500: components['responses']['500InternalServerError'];
     };
   };
@@ -1280,6 +1325,30 @@ export interface operations {
         };
       };
       400: components['responses']['400BadRequest'];
+      409: components['responses']['409Conflict'];
+      500: components['responses']['500InternalServerError'];
+    };
+  };
+  deleteDomain: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        domainName: components['parameters']['domainParam'];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components['responses']['400BadRequest'];
+      404: components['responses']['404NotFound'];
       409: components['responses']['409Conflict'];
       500: components['responses']['500InternalServerError'];
     };
