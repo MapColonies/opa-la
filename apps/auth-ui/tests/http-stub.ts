@@ -36,12 +36,24 @@ const PAGE_ORIGIN = 'http://localhost:3000';
 /** The api origin the fetch client resolves to, via the stubbed `/config.json`. */
 export const API_ORIGIN = 'http://localhost:8080';
 
+/**
+ * The sites besides the current one that a change can be sent to. Their requests land on
+ * this same stub, so a test tells them apart by the request's origin.
+ */
+export const OTHER_SITE_ORIGINS = {
+  north: 'http://north.test',
+  south: 'http://south.test',
+};
+
+// `local` first: the fetch client falls back to the first site when none is selected.
 const TEST_SITE_CONFIG = {
   local: {
     name: 'Local',
     url: API_ORIGIN,
     envs: [{ envKey: 'np', opaUrl: API_ORIGIN }],
   },
+  north: { name: 'North', url: OTHER_SITE_ORIGINS.north, envs: [] },
+  south: { name: 'South', url: OTHER_SITE_ORIGINS.south, envs: [] },
 };
 
 class HttpStub {

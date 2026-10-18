@@ -7,6 +7,7 @@ import { Dialog } from '../../components/ui/dialog';
 import type { components } from 'auth-openapi';
 import { DomainsTable } from './DomainsTable';
 import { CreateDomainModal } from './CreateDomainModal';
+import { DeleteRecordModal } from '../../components/DeleteRecordModal';
 import { toast } from 'sonner';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useQueryClient } from '@tanstack/react-query';
@@ -78,6 +79,7 @@ export const DomainsPage = () => {
   const [isOtherSitesPending, setIsOtherSitesPending] = useState(false);
   const [siteResults, setSiteResults] = useState<SiteResult[]>([]);
   const [currentCreateStep, setCurrentCreateStep] = useState<'create' | 'send'>('create');
+  const [domainToDelete, setDomainToDelete] = useState<Domain | null>(null);
 
   const urlParams = getURLParams();
   const [searchTerm, setSearchTerm] = useState(urlParams.name);
@@ -153,6 +155,24 @@ export const DomainsPage = () => {
       setCreateError(error.message);
     },
   });
+
+  const deleteDomainMutation = $api.useMutation('delete', '/domain/{domainName}', {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get', '/domain'] });
+    },
+  });
+
+  const deleteDomainBySite = availableSites.reduce(
+    (acc, site) => {
+      const siteApi = siteApis?.[site];
+      if (siteApi) {
+        const mutation = siteApi.useMutation('delete', '/domain/{domainName}');
+        acc[site] = (domainName) => mutation.mutateAsync({ params: { path: { domainName } } });
+      }
+      return acc;
+    },
+    {} as Record<string, (domainName: string) => Promise<unknown>>
+  );
 
   useEffect(() => {
     if (!isCreateDialogOpen) {
@@ -365,8 +385,18 @@ export const DomainsPage = () => {
       </div>
 
       <div className="flex-1 min-h-[400px] overflow-hidden border rounded-md">
-        <DomainsTable domains={filteredData} onSort={handleSort} sortDirection={getSortDirection} />
+        <DomainsTable domains={filteredData} onDeleteDomain={setDomainToDelete} onSort={handleSort} sortDirection={getSortDirection} />
       </div>
+
+      {domainToDelete && (
+        <DeleteRecordModal
+          recordType="domain"
+          recordName={domainToDelete.name}
+          onDelete={() => deleteDomainMutation.mutateAsync({ params: { path: { domainName: domainToDelete.name } } })}
+          onDeleteOnSite={(site) => deleteDomainBySite[site]?.(domainToDelete.name) ?? Promise.reject(new Error('Site API not available'))}
+          onClose={() => setDomainToDelete(null)}
+        />
+      )}
 
       {/* Pagination Controls */}
       <div className="flex items-center justify-between px-2 py-4">
