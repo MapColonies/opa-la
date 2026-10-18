@@ -189,6 +189,13 @@ fluentbit:
       port: 2021
       containerPort: 2021
       protocol: TCP
+  extraVolumes:
+    - name: buffer
+      emptyDir:
+        sizeLimit: 512Mi
+  extraVolumeMounts:
+    - name: buffer
+      mountPath: /fluent-bit/buffer
   luaScripts:
     transform.lua: |
       function transform_opa_log(tag, timestamp, record)
@@ -260,12 +267,27 @@ fluentbit:
       end
 
   config:
+    # Upstream default [SERVICE] plus filesystem buffering, so queued chunks survive a fluent-bit container restart.
+    service: |
+      [SERVICE]
+          Daemon Off
+          Flush {{ .Values.flush }}
+          Log_Level {{ .Values.logLevel }}
+          Parsers_File /fluent-bit/etc/parsers.conf
+          Parsers_File /fluent-bit/etc/conf/custom_parsers.conf
+          HTTP_Server On
+          HTTP_Listen 0.0.0.0
+          HTTP_Port {{ .Values.metricsPort }}
+          Health_Check On
+          storage.path /fluent-bit/buffer
+          storage.sync normal
     inputs: |
       [INPUT]
           Name         http
           Listen       0.0.0.0
           Port         9880
           Tag opa.logs
+          storage.type filesystem
 
       [INPUT]
           Name fluentbit_metrics
@@ -321,7 +343,10 @@ fluentbit:
           Match        opa.logs*
           Host         ${FLUENT_LOKI_HOST}
           Port         ${FLUENT_LOKI_PORT}
-          
+          # Default is 1 retry, which drops chunks during even a short Loki restart.
+          Retry_Limit  10
+          storage.total_limit_size 256M
+
           # LABELS: Domain added here for fast stream routing
           Labels       job=opa, environment=$env, opa_domain=$opa_domain
           
