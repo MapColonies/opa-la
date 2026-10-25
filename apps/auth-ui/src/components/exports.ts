@@ -31,4 +31,7 @@ const buttonVariants = cva(
 
 const getAvailableSites = () => Object.keys(siteApis || {});
 
-export { buttonVariants, getAvailableSites };
+/** The site requests go to: the one picked in the site switcher, else the first, as the fetch client falls back to. */
+const getCurrentSite = () => localStorage.getItem('selectedSite') || getAvailableSites()[0] || '';
+
+export { buttonVariants, getAvailableSites, getCurrentSite };

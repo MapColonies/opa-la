@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { SiteSelection } from '../../components/SiteSelection';
 import { isEqual } from 'lodash';
-import { getAvailableSites } from '@/components/exports';
+import { getAvailableSites, getCurrentSite } from '@/components/exports';
 
 type Client = components['schemas']['client'];
 type NamelessClient = components['schemas']['namelessClient'];
@@ -80,7 +80,7 @@ export const EditClientModal = ({
   const [originalValues, setOriginalValues] = useState<FormValues | null>(null);
   const [formChanged, setFormChanged] = useState(false);
   const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null);
-  const currentSite = localStorage.getItem('selectedSite') || '';
+  const currentSite = getCurrentSite();
 
   const otherSites = availableSites.filter((site) => site !== currentSite);
 

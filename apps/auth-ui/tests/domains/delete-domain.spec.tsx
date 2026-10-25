@@ -185,4 +185,18 @@ describe('deleting a domain', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(deleteRequests('avi').map(originOf)).toEqual([API_ORIGIN]);
   });
+
+  it('treats the first site as the current one when no site was ever picked', async () => {
+    localStorage.removeItem('selectedSite');
+    stubDomains('avi');
+    http.on('DELETE', '/domain/avi', { status: 204 });
+
+    openDomains();
+    const dialog = await openDeleteFor('avi');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    expect(await within(dialog).findByText(/deleted successfully on local/i)).toBeInTheDocument();
+    expect(within(dialog).getByRole('checkbox', { name: 'north' })).toBeInTheDocument();
+    expect(within(dialog).queryByRole('checkbox', { name: 'local' })).not.toBeInTheDocument();
+  });
 });

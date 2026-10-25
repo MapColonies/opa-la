@@ -5,7 +5,7 @@ import { Alert, AlertDescription } from './ui/alert';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { SiteSelection } from './SiteSelection';
-import { getAvailableSites } from './exports';
+import { getAvailableSites, getCurrentSite } from './exports';
 
 type SiteResult = {
   site: string;
@@ -52,7 +52,7 @@ export const DeleteRecordModal = ({ recordType, recordName, onDelete, onDeleteOn
   const resultsHeadingId = useId();
 
   const title = capitalize(recordType);
-  const currentSite = localStorage.getItem('selectedSite') || '';
+  const currentSite = getCurrentSite();
   const otherSites = availableSites.filter((site) => site !== currentSite);
 
   const handleDelete = async () => {

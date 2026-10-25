@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { SiteSelection } from '../../components/SiteSelection';
-import { getAvailableSites } from '@/components/exports';
+import { getAvailableSites, getCurrentSite } from '@/components/exports';
 
 type Domain = components['schemas']['domain'];
 
@@ -57,7 +57,7 @@ export const CreateDomainModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState<Step>('create');
-  const currentSite = localStorage.getItem('selectedSite') || '';
+  const currentSite = getCurrentSite();
 
   const otherSites = availableSites.filter((site) => site !== currentSite);
 
