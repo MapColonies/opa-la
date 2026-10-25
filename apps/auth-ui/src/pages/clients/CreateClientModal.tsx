@@ -12,7 +12,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { SiteSelection } from '../../components/SiteSelection';
-import { getAvailableSites } from '@/components/exports';
+import { getAvailableSites, getCurrentSite } from '@/components/exports';
 
 type Client = components['schemas']['client'];
 
@@ -69,7 +69,7 @@ export const CreateClientModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState<Step>('create');
-  const currentSite = localStorage.getItem('selectedSite') || '';
+  const currentSite = getCurrentSite();
 
   const otherSites = availableSites.filter((site) => site !== currentSite);
 

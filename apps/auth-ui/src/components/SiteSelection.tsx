@@ -2,7 +2,7 @@ import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { useSiteLiveness } from '../hooks/useSiteLiveness';
 import { LivenessIndicator } from './ui/liveness-indicator';
-import { getAvailableSites } from './exports';
+import { getAvailableSites, getCurrentSite } from './exports';
 
 interface SiteSelectionProps {
   selectedSites: string[];
@@ -10,7 +10,7 @@ interface SiteSelectionProps {
 }
 
 export const SiteSelection = ({ selectedSites, setSelectedSites }: SiteSelectionProps) => {
-  const currentSite = localStorage.getItem('selectedSite') || '';
+  const currentSite = getCurrentSite();
   const availableSites = getAvailableSites();
   const liveness = useSiteLiveness(availableSites);
 
