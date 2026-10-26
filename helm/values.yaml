@@ -188,7 +188,9 @@ auth-ui:
     enabled: false
   route:
     enabled: true
-    host: *host
+    routesMapping:
+      - path: /
+        host: *host
     tls: *tls
 
 token-kiosk:
@@ -242,5 +244,7 @@ kiosk-ui:
     enabled: false
   route:
     enabled: true
-    host: *host
+    routesMapping:
+      - path: /
+        host: *host
     tls: *tls
