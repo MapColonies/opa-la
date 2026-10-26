@@ -76,11 +76,11 @@ resources:
   enabled: true
   value:
     limits:
-      cpu: 400m
-      memory: 300Mi
+      cpu: 800m
+      memory: 512Mi
     requests:
-      cpu: 100m
-      memory: 300Mi
+      cpu: 200m
+      memory: 512Mi
 
 hpa:
   enabled: false
@@ -92,7 +92,7 @@ hpa:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 75
+        averageUtilization: 225
   - type: Resource
     resource:
       name: memory
@@ -156,11 +156,11 @@ fluentbit:
     enabled: true
   resources:
     limits:
-      cpu: 400m
-      memory: 256Mi
+      cpu: 800m
+      memory: 768Mi
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 200m
+      memory: 768Mi
   autoscaling:
     enabled: true
   labels:
