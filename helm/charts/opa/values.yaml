@@ -163,6 +163,7 @@ fluentbit:
       memory: 768Mi
   autoscaling:
     enabled: true
+    targetCPUUtilizationPercentage: 225
   labels:
     mapcolonies.io/environment: dev
     mapcolonies.io/component: "infrastructure"
