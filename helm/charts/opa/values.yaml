@@ -63,7 +63,7 @@ decisionLogs:
   console: true
   minDelaySeconds: 5
   maxDelaySeconds: 60
-  maxBufferEvents: 30000
+  maxBufferEvents: 1000
   maxUploadSizeBytes: 1048576
 
 tracing:
