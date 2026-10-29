@@ -20,6 +20,11 @@ cloudProvider:
   imagePullSecretName: 'my-registry-secret'
   flavor: openshift
 
+extraEnvVars: []
+# extraEnvVars:
+#   - name: MY_VAR
+#     value: my-value
+
 ca:
   enabled: false
   secretName: ''

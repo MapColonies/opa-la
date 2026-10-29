@@ -114,6 +114,9 @@ spec:
             - name: SSL_CERT_FILE
               value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
             {{- end }}
+            {{- if .Values.extraEnvVars }}
+            {{- toYaml .Values.extraEnvVars | nindent 12 }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /health?plugins
