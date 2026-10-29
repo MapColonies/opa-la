@@ -173,7 +173,7 @@ auth-ui:
     criticality: internal
   image:
     repository: infra/auth-ui
-    tag: v2.1.0 # x-release-please-version
+    tag: v3.0.0 # x-release-please-version
   resources:
     value:
       limits:
@@ -232,7 +232,7 @@ kiosk-ui:
     criticality: internal
   image:
     repository: infra/kiosk-ui
-    tag: v2.1.0 # x-release-please-version
+    tag: v3.0.0 # x-release-please-version
   resources:
     value:
       limits:
