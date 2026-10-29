@@ -24,18 +24,34 @@ tls: &tls
   key: ''
   caCertificate: ''
 
+# Grafana dashboards for this site. They show only this site's OPA pods:
+# pods whose mapcolonies.io/environment matches global.mclabels.environment, split by the
+# mapcolonies.io/opa-environment label that the opa chart sets from opaEnvironment.
+# OPA releases deployed separately (opa.enabled only) must use the same global.mclabels.environment.
 dashboards:
   enabled: true
-  values:
+  # Environment selected when a dashboard opens. Must be one of the enabled environments.
+  defaultEnvironment: prod
+  # Bundle environments served by this site's OPAs (np = development OPAs,
+  # stage = staging, prod = production). Disable the ones this site doesn't serve.
+  environments:
     np:
+      enabled: true
+      # UIDs of the Grafana datasources holding this environment's OPA metrics and decision logs
+      prometheusDatasourceUid: prometheus
+      lokiDatasourceUid: loki
+      # OpenShift console of the cluster running this environment's OPAs, for pod links
       openshiftUrl: https://replace-me.com
-      namespace: dev
     stage:
+      enabled: true
+      prometheusDatasourceUid: prometheus
+      lokiDatasourceUid: loki
       openshiftUrl: https://replace-me.com
-      namespace: stage
     prod:
+      enabled: true
+      prometheusDatasourceUid: prometheus
+      lokiDatasourceUid: loki
       openshiftUrl: https://replace-me.com
-      namespace: prod
 
 grafana-datasources:
   enabled: true

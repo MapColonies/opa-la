@@ -24,3 +24,5 @@
 .vscode/
 Chart.lock
 /*.tgz
+# Dashboard query tests
+tests/
