@@ -157,7 +157,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "count(last_success_bundle_activation{namespace=~\"$ns\"}) or vector(0)",
+          "expr": "count(max by (instance) (last_success_bundle_activation{ {{ include "opa-la.dashboards.opaSelector" . }} })) or vector(0)",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -223,7 +223,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=~\"$ns\"}[1h]) and on(pod) label_replace(last_success_bundle_activation, \"pod\", \"$1\", \"instance\", \"(.*)\")) or vector(0)",
+          "expr": "sum(max by (pod, container) (increase(kube_pod_container_status_restarts_total[1h])) and on(pod) label_replace(max by (instance) (last_success_bundle_activation{ {{ include "opa-la.dashboards.opaSelector" . }} }), \"pod\", \"$1\", \"instance\", \"(.*)\")) or vector(0)",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -400,7 +400,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "max by (deployment, namespace) (kube_deployment_status_replicas_ready{deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
+          "expr": "max by (deployment, namespace) (kube_deployment_status_replicas_ready{ {{ include "opa-la.dashboards.servicesSelector" . }}, deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
           "format": "table",
           "instant": true,
           "range": false,
@@ -412,7 +412,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "max by (deployment, namespace) (kube_deployment_spec_replicas{deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
+          "expr": "max by (deployment, namespace) (kube_deployment_spec_replicas{ {{ include "opa-la.dashboards.servicesSelector" . }}, deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
           "format": "table",
           "instant": true,
           "range": false,
@@ -424,7 +424,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "(max by (deployment, namespace) (kube_deployment_status_replicas_ready{deployment=~\".*-auth-manager$|.*-auth-cron$\"})) - on(deployment, namespace) (max by (deployment, namespace) (kube_deployment_spec_replicas{deployment=~\".*-auth-manager$|.*-auth-cron$\"}))",
+          "expr": "(max by (deployment, namespace) (kube_deployment_status_replicas_ready{ {{ include "opa-la.dashboards.servicesSelector" . }}, deployment=~\".*-auth-manager$|.*-auth-cron$\"})) - on(deployment, namespace) (max by (deployment, namespace) (kube_deployment_spec_replicas{ {{ include "opa-la.dashboards.servicesSelector" . }}, deployment=~\".*-auth-manager$|.*-auth-cron$\"}))",
           "format": "table",
           "instant": true,
           "range": false,
@@ -436,7 +436,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum by (deployment, namespace) (label_replace(kube_pod_container_status_restarts_total{pod=~\".*-auth-(manager|cron)-.*\"}, \"deployment\", \"$1\", \"pod\", \"^(.*-auth-(?:manager|cron))-.*$\"))",
+          "expr": "sum by (deployment, namespace) (label_replace(kube_pod_container_status_restarts_total{ {{ include "opa-la.dashboards.servicesSelector" . }}, pod=~\".*-auth-(manager|cron)-.*\"}, \"deployment\", \"$1\", \"pod\", \"^(.*-auth-(?:manager|cron))-.*$\"))",
           "format": "table",
           "instant": true,
           "range": false,
@@ -626,7 +626,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]))",
+          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "legendFormat": "{{ "{{" }}status{{ "}}" }}",
           "range": true,
           "refId": "A"
@@ -702,7 +702,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\",status=\"denied\"}[5m]))",
+          "expr": "sum(rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\",status=\"denied\"}[5m]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "legendFormat": "denied/s",
           "range": true,
           "refId": "A"
@@ -786,7 +786,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "expr": "sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m]))",
           "legendFormat": "req/s",
           "range": true,
           "refId": "A"
@@ -865,7 +865,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m])))",
           "legendFormat": "p99",
           "range": true,
           "refId": "A"
@@ -944,7 +944,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "100 * sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\", namespace=~\"$ns\"}[5m])) / sum(rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "expr": "100 * sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m])) / sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m]))",
           "legendFormat": "error %",
           "range": true,
           "refId": "A"
@@ -1030,7 +1030,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "count((max by (instance) (last_success_bundle_activation{namespace=~\"$ns\"} unless on(active_revision) label_replace(vector(1), \"active_revision\", \"$latest_revision\", \"\", \"\"))) * 0 + 1 or (max by (instance) (((time() - last_bundle_request/1e9) > ($grace_window_minutes * 60)) and on(instance) last_success_bundle_activation{namespace=~\"$ns\"})) * 0 + 1) or vector(0)",
+          "expr": "count({{ include "opa-la.dashboards.podBundleStatus" . }} == 2) or vector(0)",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -1171,7 +1171,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "min(time() - (last_bundle_request{namespace=~\"$ns\"} / 1e9))",
+          "expr": "min(time() - (last_bundle_request{ {{ include "opa-la.dashboards.opaSelector" . }} } / 1e9))",
           "instant": true,
           "range": false,
           "refId": "A"
@@ -1189,82 +1189,7 @@
   ],
   "templating": {
     "list": [
-      {
-        "current": {
-          "text": "infra-opala-{{ include "opa-la.environment" . }}",
-          "value": "infra-opala-{{ include "opa-la.environment" . }}"
-        },
-        "hide": 2,
-        "label": "Postgres",
-        "name": "pg",
-        "options": [],
-        "query": "grafana-postgresql-datasource",
-        "refresh": 1,
-        "regex": "/.*opala.*/",
-        "type": "datasource"
-      },
-      {
-        "current": {
-          "text": "Prometheus",
-          "value": "prometheus"
-        },
-        "hide": 2,
-        "label": "Prometheus",
-        "name": "prom",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "regex": "/^Prometheus$/",
-        "type": "datasource"
-      },
-      {
-        "current": {
-          "text": "np",
-          "value": "np"
-        },
-        "includeAll": false,
-        "label": "Environment",
-        "name": "env",
-        "options": [
-          {
-            "selected": true,
-            "text": "development",
-            "value": "np"
-          },
-          {
-            "selected": false,
-            "text": "staging",
-            "value": "stage"
-          },
-          {
-            "selected": false,
-            "text": "production",
-            "value": "prod"
-          }
-        ],
-        "query": "development : np,staging : stage,production : prod",
-        "type": "custom"
-      },
-      {
-        "current": {
-          "text": "{{ .Values.dashboards.values.prod.namespace }}",
-          "value": "{{ .Values.dashboards.values.prod.namespace }}"
-        },
-        "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "${pg}"
-        },
-        "definition": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
-        "hide": 2,
-        "includeAll": false,
-        "label": "Namespace (mapped from env)",
-        "name": "ns",
-        "options": [],
-        "query": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
-        "refresh": 1,
-        "skipUrlSync": true,
-        "type": "query"
-      },
+      {{ include "opa-la.dashboards.variables" . }},
       {
         "current": {
           "text": "np-e9ed4a8eb683",
@@ -1298,33 +1223,23 @@
       },
       {
         "current": {
-          "text": "{{ .Values.dashboards.values.prod.openshiftUrl }}",
-          "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
+          "text": "1",
+          "value": "1"
         },
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${pg}"
+        },
+        "definition": "select coalesce((select case when extract(epoch from (now() - created_at)) > ($grace_window_minutes * 60) then 1 else 0 end from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1), 1)",
         "hide": 2,
         "includeAll": false,
-        "label": "OpenShift console",
-        "name": "console_url",
-        "options": [
-          {
-            "selected": true,
-            "text": "np",
-            "value": "{{ .Values.dashboards.values.np.openshiftUrl }}"
-          },
-          {
-            "selected": true,
-            "text": "stage",
-            "value": "{{ .Values.dashboards.values.stage.openshiftUrl }}"
-          },
-          {
-            "selected": true,
-            "text": "prod",
-            "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
-          }
-        ],
-        "query": "np : {{ .Values.dashboards.values.np.openshiftUrl }},stage : {{ .Values.dashboards.values.stage.openshiftUrl }},prod : {{ .Values.dashboards.values.prod.openshiftUrl }}",
+        "label": "Grace expired",
+        "name": "grace_expired",
+        "options": [],
+        "query": "select coalesce((select case when extract(epoch from (now() - created_at)) > ($grace_window_minutes * 60) then 1 else 0 end from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1), 1)",
+        "refresh": 1,
         "skipUrlSync": true,
-        "type": "custom"
+        "type": "query"
       }
     ]
   },

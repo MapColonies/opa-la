@@ -5,6 +5,11 @@ global:
 
 podLabels: {}
 
+# Required. Environment of the bundle this OPA serves: development, staging or production
+# (bundle environments np, stage and prod). Labels decision logs and the pods, so the
+# opa-la dashboards can tell environments apart.
+# opaEnvironment: production
+
 mclabels:
   component: infrastructure
   owner: infra

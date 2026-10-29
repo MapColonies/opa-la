@@ -31,6 +31,7 @@ spec:
         app: {{ $chartName }}
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
+        mapcolonies.io/opa-environment: {{ .Values.opaEnvironment | quote }}
         {{- include "opa.labels" . | nindent 8 }}
         {{- if .Values.podLabels }}
         {{- toYaml .Values.podLabels | nindent 8}}
