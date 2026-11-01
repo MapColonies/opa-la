@@ -35,7 +35,7 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
   let pool: Pool;
   try {
-    pool = await initConnection(dataSourceOptions);
+    pool = await initConnection(dataSourceOptions, { onError: (err) => logger.error({ msg: 'database connection error', err }) });
   } catch (error) {
     throw new Error(`Failed to connect to the database`, { cause: error });
   }
