@@ -12,6 +12,7 @@ export const clientRouterFactory: FactoryFunction<Router> = (dependencyContainer
   router.post('/', controller.createClient);
   router.get('/:clientName', controller.getClient);
   router.patch('/:clientName', controller.updateClient);
+  router.delete('/:clientName', controller.deleteClient);
   router.get('/:clientName/connection', connectionController.getNamedConnections);
   router.get('/:clientName/connection/:environment', connectionController.getNamedEnvConnections);
   router.get('/:clientName/connection/:environment/latest', connectionController.getLatestConnection);

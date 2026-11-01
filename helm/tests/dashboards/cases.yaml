@@ -1,0 +1,103 @@
+# promtool unit tests for the dashboard queries. Each `query` is <dashboard>/<panel id>/<refId>
+# and is taken from the rendered chart, with Grafana variables replaced by `vars`.
+# The site under test is `development`; the selected environment is np (development OPAs).
+#
+# Pods of the selected site and environment (release opa-a):
+#   ok        - on the latest revision, polling
+#   updating  - on an old revision, polling
+#   dead      - on the latest revision, stopped polling 10 minutes ago
+# Pods that must never show up:
+#   other-site - production site's development OPA (release opa-other)
+#   other-env     - this site's staging OPA
+evaluation_interval: 1m
+
+input_series:
+  - series: 'last_success_bundle_activation{instance="ok", app_kubernetes_io_instance="opa-a", mapcolonies_io_environment="development", mapcolonies_io_opa_environment="development", active_revision="np-new"}'
+    values: '1x30'
+  - series: 'last_success_bundle_activation{instance="updating", app_kubernetes_io_instance="opa-a", mapcolonies_io_environment="development", mapcolonies_io_opa_environment="development", active_revision="np-old"}'
+    values: '1x30'
+  - series: 'last_success_bundle_activation{instance="dead", app_kubernetes_io_instance="opa-a", mapcolonies_io_environment="development", mapcolonies_io_opa_environment="development", active_revision="np-new"}'
+    values: '1x30'
+  - series: 'last_success_bundle_activation{instance="other-site", app_kubernetes_io_instance="opa-other", mapcolonies_io_environment="production", mapcolonies_io_opa_environment="development", active_revision="np-old"}'
+    values: '1x30'
+  - series: 'last_success_bundle_activation{instance="other-env", app_kubernetes_io_instance="opa-a", mapcolonies_io_environment="development", mapcolonies_io_opa_environment="staging", active_revision="stage-old"}'
+    values: '1x30'
+
+  # last poll, in unix nanoseconds; tests evaluate at 20m (1200s)
+  - series: 'last_bundle_request{instance="ok", mapcolonies_io_environment="development", mapcolonies_io_opa_environment="development"}'
+    values: '1190000000000x30'
+  - series: 'last_bundle_request{instance="updating", mapcolonies_io_environment="development", mapcolonies_io_opa_environment="development"}'
+    values: '1190000000000x30'
+  - series: 'last_bundle_request{instance="dead", mapcolonies_io_environment="development", mapcolonies_io_opa_environment="development"}'
+    values: '600000000000x30'
+  - series: 'last_bundle_request{instance="other-site", mapcolonies_io_environment="production", mapcolonies_io_opa_environment="development"}'
+    values: '600000000000x30'
+  - series: 'last_bundle_request{instance="other-env", mapcolonies_io_environment="development", mapcolonies_io_opa_environment="staging"}'
+    values: '600000000000x30'
+
+  # kube-state-metrics scraped by two jobs, as in dev: restarts must not be counted twice
+  - series: 'kube_pod_container_status_restarts_total{pod="ok", container="opa", job="kube-state-metrics"}'
+    values: '0x17 3x12'
+  - series: 'kube_pod_container_status_restarts_total{pod="ok", container="opa", job="k8s-svc-scrape"}'
+    values: '0x17 3x12'
+  - series: 'kube_pod_container_status_restarts_total{pod="other-site", container="opa", job="kube-state-metrics"}'
+    values: '0x17 5x12'
+
+  # fluent-bit pods carry only their release
+  - series: 'fluentbit_filter_drop_records_total{app_kubernetes_io_instance="opa-a"}'
+    values: '0+60x30'
+  - series: 'fluentbit_filter_drop_records_total{app_kubernetes_io_instance="opa-other"}'
+    values: '0+600x30'
+
+groups:
+  - name: within the grace window
+    vars:
+      env:text: development
+      grace_window_minutes: '5'
+      latest_revision: np-new
+      grace_expired: '0'
+    tests:
+      - query: bundle/3/D # per-pod status: 2 = stale, 1 = updating
+        exp_samples:
+          - labels: '{instance="dead"}'
+            value: 2
+          - labels: '{instance="updating"}'
+            value: 1
+      - query: bundle/9/A # healthy
+        exp_samples: [{ value: 1 }]
+      - query: bundle/9/B # updating
+        exp_samples: [{ value: 1 }]
+      - query: bundle/9/C # stale
+        exp_samples: [{ value: 1 }]
+      - query: overview/41/A # Overview stale pods agrees with Bundle stale
+        exp_samples: [{ value: 1 }]
+      - query: overview/11/A
+        exp_samples: [{ value: 3 }]
+      - query: performance/14/A
+        exp_samples: [{ value: 3 }]
+      - query: performance/19/A # ok's 3 restarts, not doubled, without other-site's 5
+        exp_samples: [{ value: 3 }]
+      - query: performance/23/A # opa-a's fluent-bit only
+        exp_samples: [{ value: 1 }]
+
+  - name: after the grace window
+    vars:
+      env:text: development
+      grace_window_minutes: '5'
+      latest_revision: np-new
+      grace_expired: '1'
+    tests:
+      - query: bundle/3/D
+        exp_samples:
+          - labels: '{instance="dead"}'
+            value: 2
+          - labels: '{instance="updating"}'
+            value: 2
+      - query: bundle/9/A
+        exp_samples: [{ value: 1 }]
+      - query: bundle/9/B
+        exp_samples: [{ value: 0 }]
+      - query: bundle/9/C
+        exp_samples: [{ value: 2 }]
+      - query: overview/41/A
+        exp_samples: [{ value: 2 }]

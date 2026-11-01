@@ -9,7 +9,7 @@ import { DEFAULT_PAGE_SIZE, sortOptionParser } from '@map-colonies/drizzle-utils
 import { SERVICES } from '@common/constants';
 import { removeNulls } from '@src/utils/mapper';
 import { ClientManager } from '../models/clientManager';
-import { ClientAlreadyExistsError, ClientNotFoundError } from '../models/errors';
+import { ClientAlreadyExistsError, ClientInUseError, ClientNotFoundError } from '../models/errors';
 import { ClientSearchParams } from '../models/client';
 
 function responseClientToOpenApi(client: Client): components['schemas']['client'] {
@@ -110,6 +110,22 @@ export class ClientController {
     } catch (error) {
       if (error instanceof ClientNotFoundError) {
         (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+  };
+
+  public deleteClient: TypedRequestHandlers['deleteClient'] = async (req, res, next) => {
+    try {
+      this.logger.debug('executing #deleteClient handler');
+      await this.manager.deleteClient(req.params.clientName);
+      return res.status(httpStatus.NO_CONTENT).send();
+    } catch (error) {
+      if (error instanceof ClientNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      if (error instanceof ClientInUseError) {
+        (error as HttpError).status = httpStatus.CONFLICT;
       }
       return next(error);
     }

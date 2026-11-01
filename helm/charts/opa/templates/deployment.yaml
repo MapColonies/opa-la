@@ -31,6 +31,7 @@ spec:
         app: {{ $chartName }}
         release: {{ $releaseName }}
         run: {{ $releaseName }}-{{ $chartName }}
+        mapcolonies.io/opa-environment: {{ .Values.opaEnvironment | quote }}
         {{- include "opa.labels" . | nindent 8 }}
         {{- if .Values.podLabels }}
         {{- toYaml .Values.podLabels | nindent 8}}
@@ -113,6 +114,9 @@ spec:
             {{- if .Values.ca.enabled }}
             - name: SSL_CERT_FILE
               value: {{ printf "%s/%s" .Values.ca.path .Values.ca.key | quote }}
+            {{- end }}
+            {{- if .Values.extraEnvVars }}
+            {{- toYaml .Values.extraEnvVars | nindent 12 }}
             {{- end }}
           livenessProbe:
             httpGet:

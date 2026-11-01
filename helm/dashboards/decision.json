@@ -300,7 +300,7 @@
           },
           "direction": "backward",
           "editorMode": "builder",
-          "expr": "{job=\"opa\", environment=\"$environment\"} |~ `$error_codes` | subject =~ `$subject` | opa_domain =~ `$domains` | json opa_timestamp, reasons, input, warn, codes",
+          "expr": "{job=\"opa\", environment=\"${env:text}\"} |~ `$error_codes` | subject =~ `$subject` | opa_domain =~ `$domains` | json opa_timestamp, reasons, input, warn, codes",
           "queryType": "range",
           "refId": "A"
         }
@@ -391,62 +391,7 @@
   "tags": [],
   "templating": {
     "list": [
-      {
-        "allowCustomValue": false,
-        "current": {
-          "text": "infra-opala-{{ include "opa-la.environment" . }}",
-          "value": "infra-opala-{{ include "opa-la.environment" . }}"
-        },
-        "hide": 2,
-        "name": "pg",
-        "options": [],
-        "query": "grafana-postgresql-datasource",
-        "refresh": 1,
-        "regex": "/.*opala.*/",
-        "type": "datasource"
-      },
-      {
-        "allowCustomValue": false,
-        "current": {
-          "text": "Loki",
-          "value": "loki"
-        },
-        "hide": 2,
-        "name": "loki",
-        "options": [],
-        "query": "loki",
-        "refresh": 1,
-        "regex": "",
-        "type": "datasource"
-      },
-      {
-        "allowCustomValue": false,
-        "current": {
-          "text": "development",
-          "value": "development"
-        },
-        "label": "Environment",
-        "name": "environment",
-        "options": [
-          {
-            "selected": true,
-            "text": "development",
-            "value": "development"
-          },
-          {
-            "selected": false,
-            "text": "staging",
-            "value": "staging"
-          },
-          {
-            "selected": false,
-            "text": "production",
-            "value": "production"
-          }
-        ],
-        "query": "development,staging,production",
-        "type": "custom"
-      },
+      {{ include "opa-la.dashboards.variables" . }},
       {
         "allValue": ".*",
         "allowCustomValue": false,

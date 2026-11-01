@@ -50,7 +50,7 @@ jobs:
       - name: Init nodejs
         uses: ./.github/actions/init-pnpm
         with:
-          install-filter: './apps/*'
+          install-filter: '{./apps/*}...'
       - name: Create new lockfile for the service
         shell: bash
         run: pnpm exec turbo prune ${{ matrix.service }} --docker

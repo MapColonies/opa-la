@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import type { components } from 'auth-openapi';
 import { Button } from '../../components/ui/button';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Row } from '@tanstack/react-table';
 
 type Domain = components['schemas']['domain'];
 type SortField = 'domain';
@@ -11,11 +11,12 @@ type SortDirection = 'asc' | 'desc';
 
 interface DomainsTableProps {
   domains: Domain[];
+  onDeleteDomain: (domain: Domain) => void;
   onSort: (field: SortField) => void;
   sortDirection: (field: SortField) => SortDirection | null;
 }
 
-export const DomainsTable = ({ domains, onSort, sortDirection }: DomainsTableProps) => {
+export const DomainsTable = ({ domains, onDeleteDomain, onSort, sortDirection }: DomainsTableProps) => {
   const columns: ColumnDef<Domain>[] = useMemo(
     () => [
       {
@@ -36,8 +37,19 @@ export const DomainsTable = ({ domains, onSort, sortDirection }: DomainsTablePro
           );
         },
       },
+      {
+        id: 'actions',
+        cell: ({ row }: { row: Row<Domain> }) => {
+          const domain = row.original;
+          return (
+            <Button variant="ghost" size="sm" aria-label={`Delete ${domain.name}`} onClick={() => onDeleteDomain(domain)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          );
+        },
+      },
     ],
-    [onSort, sortDirection]
+    [onDeleteDomain, onSort, sortDirection]
   );
 
   const table = useReactTable({

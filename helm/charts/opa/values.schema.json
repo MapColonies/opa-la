@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["opaEnvironment"],
+  "properties": {
+    "opaEnvironment": {
+      "description": "Environment of the bundle this OPA serves. Sent as the `environment` label on decision logs and as the mapcolonies.io/opa-environment pod label, which the opa-la dashboards filter on.",
+      "type": "string",
+      "enum": ["development", "staging", "production"]
+    }
+  }
+}

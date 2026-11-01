@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "dashboards": {
+      "type": "object",
+      "required": ["enabled", "defaultEnvironment", "environments"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "defaultEnvironment": {
+          "description": "Environment selected when a dashboard opens. Must be enabled under dashboards.environments.",
+          "type": "string",
+          "enum": ["np", "stage", "prod"]
+        },
+        "environments": {
+          "description": "Bundle environments shown in the dashboards, keyed by bundle environment.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "np": { "$ref": "#/definitions/environment" },
+            "stage": { "$ref": "#/definitions/environment" },
+            "prod": { "$ref": "#/definitions/environment" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "prometheusDatasourceUid", "lokiDatasourceUid", "openshiftUrl"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "prometheusDatasourceUid": {
+          "description": "UID of the Grafana Prometheus datasource scraping this environment's OPA pods.",
+          "type": "string",
+          "minLength": 1
+        },
+        "lokiDatasourceUid": {
+          "description": "UID of the Grafana Loki datasource holding this environment's OPA decision logs.",
+          "type": "string",
+          "minLength": 1
+        },
+        "openshiftUrl": {
+          "description": "OpenShift console URL of the cluster running this environment's OPAs.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

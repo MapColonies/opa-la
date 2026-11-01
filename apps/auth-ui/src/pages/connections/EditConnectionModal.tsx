@@ -17,7 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { SiteSelection } from '../../components/SiteSelection';
 import { isEqual } from 'lodash';
-import { getAvailableSites } from '@/components/exports';
+import { getAvailableSites, getCurrentSite } from '@/components/exports';
 type Connection = components['schemas']['connection'];
 type Domain = components['schemas']['domain'];
 
@@ -92,7 +92,7 @@ export const EditConnectionModal = ({
   const [originalValues, setOriginalValues] = useState<FormValues | null>(null);
   const [formChanged, setFormChanged] = useState(false);
   const [lastSubmittedData, setLastSubmittedData] = useState<FormValues | null>(null);
-  const currentSite = localStorage.getItem('selectedSite') || '';
+  const currentSite = getCurrentSite();
 
   const otherSites = availableSites.filter((site) => site !== currentSite);
 

@@ -18,7 +18,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { SiteSelection } from '../../components/SiteSelection';
-import { getAvailableSites } from '@/components/exports';
+import { getAvailableSites, getCurrentSite } from '@/components/exports';
 import { cn } from '../../lib/utils';
 
 type Connection = components['schemas']['connection'];
@@ -92,7 +92,7 @@ export const CreateConnectionModal = ({
   const [currentStep, setCurrentStep] = useState<Step>('create');
   const [clientSearch, setClientSearch] = useState('');
   const [clientPopoverOpen, setClientPopoverOpen] = useState(false);
-  const currentSite = localStorage.getItem('selectedSite') || '';
+  const currentSite = getCurrentSite();
 
   const otherSites = availableSites.filter((site) => site !== currentSite);
 

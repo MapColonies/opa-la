@@ -1,6 +1,7 @@
 import { useConfig } from '../../contexts/ConfigProvider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { updateApiBaseUrl } from '../../fetch/client';
+import { getCurrentSite } from '../exports';
 
 export const SiteSwitcher = () => {
   const { config } = useConfig();
@@ -18,7 +19,7 @@ export const SiteSwitcher = () => {
     }
   };
 
-  const selectedSite = localStorage.getItem('selectedSite') || Object.keys(config)[0];
+  const selectedSite = getCurrentSite();
   const selectedSiteConfig = selectedSite ? config[selectedSite] : null;
 
   return (

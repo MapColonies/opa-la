@@ -29,7 +29,7 @@
       "targetBlank": false,
       "title": "Decision logs (raw records)",
       "type": "link",
-      "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=$__all&var-domains=$__all&var-error_codes=$__all"
+      "url": "/d/opala-decision-logs/decision-logs?var-env=${env}&var-subject=$__all&var-domains=$__all&var-error_codes=$__all"
     }
   ],
   "panels": [
@@ -193,7 +193,7 @@
             "type": "prometheus",
             "uid": "${prom}"
           },
-          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status!=\"allowed\"}[$__rate_interval]))",
+          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status!=\"allowed\"}[$__rate_interval]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "legendFormat": "{{ "{{" }}status{{ "}}" }}",
           "refId": "A"
         }
@@ -367,7 +367,7 @@
             "type": "prometheus",
             "uid": "${prom}"
           },
-          "expr": "sum(increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range])) / sum(increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range]))",
+          "expr": "sum(increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }}) / sum(increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "instant": true,
           "refId": "A"
         }
@@ -478,7 +478,7 @@
                   {
                     "targetBlank": true,
                     "title": "Open raw records in Decision logs",
-                    "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__data.fields.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
+                    "url": "/d/opala-decision-logs/decision-logs?var-env=${env}&var-subject=${__data.fields.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
                   }
                 ]
               }
@@ -510,7 +510,7 @@
             "type": "prometheus",
             "uid": "${prom}"
           },
-          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range]))",
+          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -520,7 +520,7 @@
             "type": "prometheus",
             "uid": "${prom}"
           },
-          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range]))",
+          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "format": "table",
           "instant": true,
           "refId": "B"
@@ -530,7 +530,7 @@
             "type": "prometheus",
             "uid": "${prom}"
           },
-          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"warning\"}[$__range]))",
+          "expr": "sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"warning\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "format": "table",
           "instant": true,
           "refId": "C"
@@ -540,7 +540,7 @@
             "type": "prometheus",
             "uid": "${prom}"
           },
-          "expr": "(sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range])) / (sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range])) > $min_requests)) or ((sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range])) > $min_requests) * 0)",
+          "expr": "(sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }}) / (sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }}) > $min_requests)) or ((sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }}) > $min_requests) * 0)",
           "format": "table",
           "instant": true,
           "refId": "D"
@@ -593,7 +593,7 @@
             {
               "targetBlank": true,
               "title": "Open raw records in Decision logs",
-              "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__field.labels.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
+              "url": "/d/opala-decision-logs/decision-logs?var-env=${env}&var-subject=${__field.labels.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
             }
           ],
           "mappings": [],
@@ -653,7 +653,7 @@
             "type": "prometheus",
             "uid": "${prom}"
           },
-          "expr": "topk(10, sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range])) > 0)",
+          "expr": "topk(10, sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }}) > 0)",
           "instant": true,
           "legendFormat": "{{ "{{" }}subject{{ "}}" }}",
           "refId": "A"
@@ -679,7 +679,7 @@
             {
               "targetBlank": true,
               "title": "Open raw records in Decision logs",
-              "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__field.labels.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
+              "url": "/d/opala-decision-logs/decision-logs?var-env=${env}&var-subject=${__field.labels.subject}&var-domains=$__all&var-error_codes=$__all&${__url_time_range}"
             }
           ],
           "mappings": [],
@@ -739,7 +739,7 @@
             "type": "prometheus",
             "uid": "${prom}"
           },
-          "expr": "topk(10, sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"warning\"}[$__range])) > 0)",
+          "expr": "topk(10, sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"warning\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }}) > 0)",
           "instant": true,
           "legendFormat": "{{ "{{" }}subject{{ "}}" }}",
           "refId": "A"
@@ -852,7 +852,7 @@
                   {
                     "targetBlank": true,
                     "title": "Open raw records in Decision logs",
-                    "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__data.fields.subject}&var-error_codes=${__data.fields.code}&var-domains=$__all&${__url_time_range}"
+                    "url": "/d/opala-decision-logs/decision-logs?var-env=${env}&var-subject=${__data.fields.subject}&var-error_codes=${__data.fields.code}&var-domains=$__all&${__url_time_range}"
                   }
                 ]
               }
@@ -870,7 +870,7 @@
                   {
                     "targetBlank": true,
                     "title": "Open raw records in Decision logs",
-                    "url": "/d/opala-decision-logs/decision-logs?var-environment=${env:text}&var-subject=${__data.fields.subject}&var-error_codes=${__data.fields.code}&var-domains=$__all&${__url_time_range}"
+                    "url": "/d/opala-decision-logs/decision-logs?var-env=${env}&var-subject=${__data.fields.subject}&var-error_codes=${__data.fields.code}&var-domains=$__all&${__url_time_range}"
                   }
                 ]
               },
@@ -958,62 +958,7 @@
   ],
   "templating": {
     "list": [
-      {
-        "current": {
-          "text": "Prometheus",
-          "value": "prometheus"
-        },
-        "hide": 2,
-        "label": "Prometheus",
-        "name": "prom",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "regex": "/^Prometheus$/",
-        "type": "datasource"
-      },
-      {
-        "current": {
-          "text": "Loki",
-          "value": "loki"
-        },
-        "hide": 2,
-        "label": "Loki",
-        "name": "loki",
-        "options": [],
-        "query": "loki",
-        "refresh": 1,
-        "regex": "",
-        "type": "datasource"
-      },
-      {
-        "current": {
-          "text": "np",
-          "value": "np"
-        },
-        "includeAll": false,
-        "label": "Environment",
-        "name": "env",
-        "options": [
-          {
-            "selected": true,
-            "text": "development",
-            "value": "np"
-          },
-          {
-            "selected": false,
-            "text": "staging",
-            "value": "stage"
-          },
-          {
-            "selected": false,
-            "text": "production",
-            "value": "prod"
-          }
-        ],
-        "query": "development : np,staging : stage,production : prod",
-        "type": "custom"
-      },
+      {{ include "opa-la.dashboards.variables" . }},
       {
         "allValue": ".*",
         "current": {

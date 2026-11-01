@@ -144,7 +144,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "expr": "sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m]))",
           "legendFormat": "req/s",
           "range": true,
           "refId": "A"
@@ -214,7 +214,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "100 * sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\", namespace=~\"$ns\"}[5m])) / sum(rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "expr": "100 * sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m])) / sum(rate(http_request_duration_seconds_count{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m]))",
           "legendFormat": "error %",
           "range": true,
           "refId": "A"
@@ -284,7 +284,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m])))",
           "legendFormat": "p99",
           "range": true,
           "refId": "A"
@@ -350,7 +350,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "count(last_success_bundle_activation{namespace=~\"$ns\"})",
+          "expr": "count(max by (instance) (last_success_bundle_activation{ {{ include "opa-la.dashboards.opaSelector" . }} })) or vector(0)",
           "legendFormat": "matching pods",
           "range": true,
           "refId": "A"
@@ -445,7 +445,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum by (release, code) (rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "expr": "sum by (release, code) (rate(http_request_duration_seconds_count{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m]))",
           "legendFormat": "{{ "{{" }}release{{ "}}" }} ({{ "{{" }}code{{ "}}" }})",
           "range": true,
           "refId": "A"
@@ -540,7 +540,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m])))",
           "legendFormat": "p50",
           "range": true,
           "refId": "A"
@@ -551,7 +551,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m])))",
           "legendFormat": "p95",
           "range": true,
           "refId": "B"
@@ -562,7 +562,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\", namespace=~\"$ns\"}[5m])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m])))",
           "legendFormat": "p99",
           "range": true,
           "refId": "C"
@@ -658,7 +658,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "expr": "sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m]))",
           "format": "table",
           "instant": true,
           "range": false,
@@ -670,7 +670,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "100 * sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\", namespace=~\"$ns\"}[5m])) / sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\", namespace=~\"$ns\"}[5m]))",
+          "expr": "100 * sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\",code=~\"5..\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m])) / sum by (instance, namespace, release) (rate(http_request_duration_seconds_count{handler=\"v1/data\",  {{ include "opa-la.dashboards.opaSelector" . }} }[5m]))",
           "format": "table",
           "instant": true,
           "range": false,
@@ -682,7 +682,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "max by (instance, namespace, release, active_revision) (last_success_bundle_activation{namespace=~\"$ns\"})",
+          "expr": "max by (instance, namespace, release, active_revision) (last_success_bundle_activation{ {{ include "opa-la.dashboards.opaSelector" . }} })",
           "format": "table",
           "instant": true,
           "range": false,
@@ -717,12 +717,204 @@
       "type": "table"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 25
+      },
+      "id": 18,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "count(max by (instance) (last_success_bundle_activation{ {{ include "opa-la.dashboards.opaSelector" . }} }))",
+          "legendFormat": "pods",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "OPA pods over time",
+      "type": "timeseries",
+      "description": "Number of OPA pods serving the selected environment, counted by pods that loaded a bundle."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 25
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "editorMode": "code",
+          "expr": "sum(max by (pod, container) (increase(kube_pod_container_status_restarts_total[5m])) and on(pod) label_replace(max by (instance) (last_success_bundle_activation{ {{ include "opa-la.dashboards.opaSelector" . }} }), \"pod\", \"$1\", \"instance\", \"(.*)\"))",
+          "legendFormat": "restarts",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "OPA restarts",
+      "type": "timeseries",
+      "description": "Container restarts of the selected OPA pods per 5 minutes."
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 33
       },
       "id": 20,
       "panels": [],
@@ -789,7 +981,7 @@
         "h": 8,
         "w": 10,
         "x": 0,
-        "y": 26
+        "y": 34
       },
       "id": 21,
       "options": {
@@ -813,7 +1005,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]))",
+          "expr": "sum by (status) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "legendFormat": "{{ "{{" }}status{{ "}}" }}",
           "range": true,
           "refId": "A"
@@ -881,7 +1073,7 @@
         "h": 8,
         "w": 10,
         "x": 10,
-        "y": 26
+        "y": 34
       },
       "id": 22,
       "options": {
@@ -905,7 +1097,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.50, sum by (le) (rate(log_metric_histogram_opa_server_handler_ns_bucket{opa_env=\"${env:text}\"}[5m])))",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(log_metric_histogram_opa_server_handler_ns_bucket{opa_env=\"${env:text}\"}[5m]) {{ include "opa-la.dashboards.fluentbitFilter" . }}))",
           "legendFormat": "p50",
           "range": true,
           "refId": "A"
@@ -916,7 +1108,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(log_metric_histogram_opa_server_handler_ns_bucket{opa_env=\"${env:text}\"}[5m])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(log_metric_histogram_opa_server_handler_ns_bucket{opa_env=\"${env:text}\"}[5m]) {{ include "opa-la.dashboards.fluentbitFilter" . }}))",
           "legendFormat": "p99",
           "range": true,
           "refId": "B"
@@ -955,7 +1147,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 26
+        "y": 34
       },
       "id": 23,
       "options": {
@@ -983,7 +1175,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(fluentbit_filter_drop_records_total{namespace=~\"$ns\"}[5m]))",
+          "expr": "sum(rate(fluentbit_filter_drop_records_total[5m]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "legendFormat": "dropped/s",
           "range": true,
           "refId": "A"
@@ -1021,7 +1213,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 30
+        "y": 38
       },
       "id": 24,
       "options": {
@@ -1049,7 +1241,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "fluentbit_input_http_server_ingress_queue_pending_events{namespace=~\"$ns\"}",
+          "expr": "fluentbit_input_http_server_ingress_queue_pending_events {{ include "opa-la.dashboards.fluentbitFilter" . }}",
           "legendFormat": "pending events",
           "range": true,
           "refId": "A"
@@ -1084,7 +1276,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 42
       },
       "id": 25,
       "options": {
@@ -1119,7 +1311,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum by (domain) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]))",
+          "expr": "sum by (domain) (rate(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\"}[5m]) {{ include "opa-la.dashboards.fluentbitFilter" . }})",
           "legendFormat": "{{ "{{" }}domain{{ "}}" }}",
           "range": true,
           "refId": "A"
@@ -1134,7 +1326,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 49
       },
       "id": 30,
       "panels": [],
@@ -1235,7 +1427,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 50
       },
       "id": 31,
       "options": {
@@ -1250,7 +1442,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "max by (deployment, namespace) (kube_deployment_status_replicas_ready{deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
+          "expr": "max by (deployment, namespace) (kube_deployment_status_replicas_ready{ {{ include "opa-la.dashboards.servicesSelector" . }}, deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
           "format": "table",
           "instant": true,
           "range": false,
@@ -1262,7 +1454,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "max by (deployment, namespace) (kube_deployment_spec_replicas{deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
+          "expr": "max by (deployment, namespace) (kube_deployment_spec_replicas{ {{ include "opa-la.dashboards.servicesSelector" . }}, deployment=~\".*-auth-manager$|.*-auth-cron$\"})",
           "format": "table",
           "instant": true,
           "range": false,
@@ -1274,7 +1466,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "(max by (deployment, namespace) (kube_deployment_status_replicas_ready{deployment=~\".*-auth-manager$|.*-auth-cron$\"})) - on(deployment, namespace) (max by (deployment, namespace) (kube_deployment_spec_replicas{deployment=~\".*-auth-manager$|.*-auth-cron$\"}))",
+          "expr": "(max by (deployment, namespace) (kube_deployment_status_replicas_ready{ {{ include "opa-la.dashboards.servicesSelector" . }}, deployment=~\".*-auth-manager$|.*-auth-cron$\"})) - on(deployment, namespace) (max by (deployment, namespace) (kube_deployment_spec_replicas{ {{ include "opa-la.dashboards.servicesSelector" . }}, deployment=~\".*-auth-manager$|.*-auth-cron$\"}))",
           "format": "table",
           "instant": true,
           "range": false,
@@ -1364,7 +1556,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 56
       },
       "id": 32,
       "options": {
@@ -1388,7 +1580,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "sum by (operation) (rate(http_request_duration_seconds_count{app=\"auth-manager\"}[5m]))",
+          "expr": "sum by (operation) (rate(http_request_duration_seconds_count{ {{ include "opa-la.dashboards.servicesSelector" . }}, app=\"auth-manager\"}[5m]))",
           "legendFormat": "{{ "{{" }}operation{{ "}}" }}",
           "range": true,
           "refId": "A"
@@ -1456,7 +1648,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 56
       },
       "id": 33,
       "options": {
@@ -1480,7 +1672,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by (le, operation) (rate(http_request_duration_seconds_bucket{app=\"auth-manager\"}[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (le, operation) (rate(http_request_duration_seconds_bucket{ {{ include "opa-la.dashboards.servicesSelector" . }}, app=\"auth-manager\"}[5m])))",
           "legendFormat": "{{ "{{" }}operation{{ "}}" }}",
           "range": true,
           "refId": "A"
@@ -1548,7 +1740,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 56
+        "y": 64
       },
       "id": 34,
       "options": {
@@ -1572,7 +1764,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "nodejs_eventloop_lag_p99_seconds{app=~\"auth-manager|auth-cron\"}",
+          "expr": "nodejs_eventloop_lag_p99_seconds{ {{ include "opa-la.dashboards.servicesSelector" . }}, app=~\"auth-manager|auth-cron\"}",
           "legendFormat": "{{ "{{" }}app{{ "}}" }} ({{ "{{" }}namespace{{ "}}" }})",
           "range": true,
           "refId": "A"
@@ -1607,7 +1799,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 56
+        "y": 64
       },
       "id": 35,
       "options": {
@@ -1635,7 +1827,7 @@
             "uid": "${prom}"
           },
           "editorMode": "code",
-          "expr": "time() - config_time_of_last_fetch_unix_timestamp{app=~\"auth-manager|auth-cron\"}",
+          "expr": "time() - config_time_of_last_fetch_unix_timestamp{ {{ include "opa-la.dashboards.servicesSelector" . }}, app=~\"auth-manager|auth-cron\"}",
           "legendFormat": "{{ "{{" }}app{{ "}}" }} ({{ "{{" }}namespace{{ "}}" }})",
           "range": true,
           "refId": "A"
@@ -1653,112 +1845,7 @@
   ],
   "templating": {
     "list": [
-      {
-        "current": {
-          "text": "Prometheus",
-          "value": "prometheus"
-        },
-        "hide": 2,
-        "label": "Prometheus",
-        "name": "prom",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "regex": "/^Prometheus$/",
-        "type": "datasource"
-      },
-      {
-        "current": {
-          "text": "np",
-          "value": "np"
-        },
-        "includeAll": false,
-        "label": "Environment",
-        "name": "env",
-        "options": [
-          {
-            "selected": true,
-            "text": "development",
-            "value": "np"
-          },
-          {
-            "selected": false,
-            "text": "staging",
-            "value": "stage"
-          },
-          {
-            "selected": false,
-            "text": "production",
-            "value": "prod"
-          }
-        ],
-        "query": "development : np,staging : stage,production : prod",
-        "type": "custom"
-      },
-      {
-        "current": {
-          "text": "{{ .Values.dashboards.values.prod.openshiftUrl }}",
-          "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
-        },
-        "hide": 2,
-        "includeAll": false,
-        "label": "OpenShift console",
-        "name": "console_url",
-        "options": [
-          {
-            "selected": true,
-            "text": "np",
-            "value": "{{ .Values.dashboards.values.np.openshiftUrl }}"
-          },
-          {
-            "selected": true,
-            "text": "stage",
-            "value": "{{ .Values.dashboards.values.stage.openshiftUrl }}"
-          },
-          {
-            "selected": true,
-            "text": "prod",
-            "value": "{{ .Values.dashboards.values.prod.openshiftUrl }}"
-          }
-        ],
-        "query": "np : {{ .Values.dashboards.values.np.openshiftUrl }},stage : {{ .Values.dashboards.values.stage.openshiftUrl }},prod : {{ .Values.dashboards.values.prod.openshiftUrl }}",
-        "skipUrlSync": true,
-        "type": "custom"
-      },
-      {
-        "current": {
-          "text": "infra-opala-{{ include "opa-la.environment" . }}",
-          "value": "infra-opala-{{ include "opa-la.environment" . }}"
-        },
-        "hide": 2,
-        "label": "Postgres",
-        "name": "pg",
-        "options": [],
-        "query": "grafana-postgresql-datasource",
-        "refresh": 1,
-        "regex": "/.*opala.*/",
-        "type": "datasource"
-      },
-      {
-        "current": {
-          "text": "{{ .Values.dashboards.values.prod.namespace }}",
-          "value": "{{ .Values.dashboards.values.prod.namespace }}"
-        },
-        "datasource": {
-          "type": "grafana-postgresql-datasource",
-          "uid": "${pg}"
-        },
-        "definition": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
-        "hide": 2,
-        "includeAll": false,
-        "label": "Namespace (mapped from env)",
-        "name": "ns",
-        "options": [],
-        "query": "select (case '$env' when 'np' then '{{ .Values.dashboards.values.np.namespace }}' when 'stage' then '{{ .Values.dashboards.values.stage.namespace }}' when 'prod' then '{{ .Values.dashboards.values.prod.namespace }}' end) as ns",
-        "refresh": 1,
-        "skipUrlSync": true,
-        "type": "query"
-      }
+      {{ include "opa-la.dashboards.variables" . }}
     ]
   },
   "time": {

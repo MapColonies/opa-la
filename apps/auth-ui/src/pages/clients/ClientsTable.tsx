@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { components } from 'auth-openapi';
 import { Button } from '../../components/ui/button';
-import { Pencil, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Row } from '@tanstack/react-table';
@@ -13,11 +13,12 @@ type SortDirection = 'asc' | 'desc';
 interface ClientsTableProps {
   clients: Client[];
   onEditClient: (client: Client) => void;
+  onDeleteClient: (client: Client) => void;
   onSort: (field: SortField) => void;
   sortDirection: (field: SortField) => SortDirection | null;
 }
 
-export const ClientsTable = ({ clients, onEditClient, onSort, sortDirection }: ClientsTableProps) => {
+export const ClientsTable = ({ clients, onEditClient, onDeleteClient, onSort, sortDirection }: ClientsTableProps) => {
   const columns: ColumnDef<Client>[] = useMemo(
     () => [
       {
@@ -151,14 +152,19 @@ export const ClientsTable = ({ clients, onEditClient, onSort, sortDirection }: C
         cell: ({ row }: { row: Row<Client> }) => {
           const client = row.original;
           return (
-            <Button variant="ghost" size="sm" onClick={() => onEditClient(client)}>
-              <Pencil className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-1">
+              <Button variant="ghost" size="sm" aria-label={`Edit ${client.name}`} onClick={() => onEditClient(client)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" aria-label={`Delete ${client.name}`} onClick={() => onDeleteClient(client)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           );
         },
       },
     ],
-    [onEditClient, onSort, sortDirection]
+    [onEditClient, onDeleteClient, onSort, sortDirection]
   );
 
   const table = useReactTable({
