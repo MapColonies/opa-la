@@ -1,4 +1,4 @@
-ARG NODE_VERSION=24.13.1
+ARG NODE_VERSION=26.13.0
 
 # Base image for all stages
 FROM node:${NODE_VERSION}-slim AS base
