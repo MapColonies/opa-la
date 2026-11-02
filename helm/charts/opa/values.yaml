@@ -253,8 +253,11 @@ fluentbit:
             new_record["allowed"] = tostring(record["result"]["allowed"])
             new_record["reasons"] = record["result"]["reasons"]
             new_record["codes"] = record["result"]["codes"]
-            new_record["sub"] = record["result"]["metadata"]["sub"]
-            new_record["kid"] = record["result"]["metadata"]["kid"]
+            -- Not every decision carries metadata; indexing a missing one would abort the
+            -- whole transform and ship the record to Loki without its labels.
+            local metadata = record["result"]["metadata"] or {}
+            new_record["sub"] = metadata["sub"]
+            new_record["kid"] = metadata["kid"]
             new_record["warn"] = record["result"]["warnings"]
         end
 

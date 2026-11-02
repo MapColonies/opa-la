@@ -551,7 +551,13 @@ computed_status := "warning" if {
 	count(warn) > 0
 }
 
-default decision := {"allowed": false, "reasons": ["unknown error"], "codes": ["unknown_error"], "computed_status": "denied"}
+default decision := {
+	"allowed": false,
+	"metadata": {"sub": "N/A", "kid": "N/A"},
+	"reasons": ["unknown error"],
+	"codes": ["unknown_error"],
+	"computed_status": "denied",
+}
 
 # METADATA
 # title: Authorization Decision
