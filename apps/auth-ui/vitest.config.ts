@@ -18,6 +18,8 @@ export default defineConfig({
     ],
   },
   test: {
+    // Node 25+ exposes a global localStorage getter that shadows jsdom's implementation.
+    execArgv: ['--no-experimental-webstorage'],
     environment: 'jsdom',
     environmentOptions: { jsdom: { url: 'http://localhost:3000/' } },
     setupFiles: ['./tests/setup.ts'],

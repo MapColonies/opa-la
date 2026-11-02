@@ -1,13 +1,12 @@
-ARG NODE_VERSION=24.13.1
+ARG NODE_VERSION=26.13.0
 
 # Base image for all stages
 FROM node:${NODE_VERSION}-slim AS base
 WORKDIR /app
 
 ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME/bin:$PATH"
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-RUN corepack enable
+ENV PATH="$PNPM_HOME:$PATH"
+RUN npm install -g pnpm@10.28.1
 
 
 FROM base AS pruner

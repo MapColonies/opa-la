@@ -22,7 +22,7 @@ catalog:
   'vitest': '4.1.4'
   '@vitest/coverage-v8': '4.1.4'
   '@vitest/ui': '4.1.4'
-  '@types/node': '24.12.0'
+  '@types/node': '26.6.6'
   'jest-extended': '^7.0.0'
   '@map-colonies/vitest-utils': '0.2.0'
   '@faker-js/faker': '^9.7.0'
@@ -56,3 +56,6 @@ catalog:
   'tsc-alias': '^1.8.17'
   'prom-client': '15.1.3'
   'jose': '6.2.3'
+
+overrides:
+  '@types/node@*': 'catalog:'
