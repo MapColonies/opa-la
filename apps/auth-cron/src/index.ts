@@ -24,7 +24,7 @@ const SERVER_PORT = env['SERVER_PORT'] ?? 8080;
 
 async function initDb(dbConfig: commonDbFullV1Type): Promise<[Pool, BundleDatabase]> {
   logger.debug('initializing database connection');
-  const pool = await initConnection(dbConfig);
+  const pool = await initConnection(dbConfig, { onError: (err) => logger.warn({ msg: 'database connection error', err }) });
   return [pool, new BundleDatabase(pool)];
 }
 

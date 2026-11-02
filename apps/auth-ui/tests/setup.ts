@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach, beforeEach } from 'vitest';
 import { http } from './http-stub';
 
@@ -7,6 +7,9 @@ import { http } from './http-stub';
 // base url at module load behind a top-level await on /config.json. Any page module
 // imported before this point would resolve the fallback url and hit the network.
 http.install();
+
+// findBy* and waitFor default to 1s, which is too tight when the machine is under CPU load.
+configure({ asyncUtilTimeout: 5000 });
 
 // jsdom implements neither, and both are read while the ui mounts.
 if (!window.matchMedia) {

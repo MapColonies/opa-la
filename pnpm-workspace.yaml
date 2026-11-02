@@ -18,7 +18,7 @@ catalog:
   '@map-colonies/error-express-handler': '^4.0.0'
   '@map-colonies/express-access-log-middleware': '^4.1.0'
   '@map-colonies/openapi-express-viewer': '^5.0.0'
-  '@map-colonies/drizzle-utils': '0.2.0'
+  '@map-colonies/drizzle-utils': '1.1.0'
   'vitest': '4.1.4'
   '@vitest/coverage-v8': '4.1.4'
   '@vitest/ui': '4.1.4'
