@@ -51,7 +51,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "**Denial Analytics** — aggregated statistics for denied and warned decisions: who is failing, how much, and with which error codes. The filters above apply to every panel; the **Error code** filter only affects the code panels (the Prometheus counter carries no code label). Subjects and codes in the tables link to [Decision Logs](/d/opala-decision-logs/decision-logs) with the matching filters and time range applied. Panels are empty for environments with no decision-log traffic.",
+        "content": "**Denial Analytics** — aggregated statistics for denied and warned decisions: who is failing, how much, and with which error codes. The filters above apply to every panel; the **Error code** filter only affects the Loki panels (Denials by code, Top denied subjects and the code panels), since the Prometheus counter carries no code label. Counts of denials and warnings come from Loki, so they don't miss sparse denials; the rate and ratio panels come from the Prometheus counter and are approximate. Subjects and codes in the tables link to [Decision Logs](/d/opala-decision-logs/decision-logs) with the matching filters and time range applied. Panels are empty for environments with no decision-log traffic.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -77,7 +77,7 @@
         "type": "prometheus",
         "uid": "${prom}"
       },
-      "description": "Rate of non-allowed decisions (denied, warning) for the selected filters, from the decision-log metric pipeline. Empty means no denials or warnings are flowing for this selection.",
+      "description": "Rate of denied decisions and of allowed decisions that carried warnings, for the selected filters, from the decision-log metric pipeline. Warnings are not failures: the request was allowed. Not affected by the Error code filter. Empty means no denials or warnings are flowing for this selection.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -198,7 +198,7 @@
           "refId": "A"
         }
       ],
-      "title": "Failure rate by status",
+      "title": "Denied & warning rate",
       "type": "timeseries"
     },
     {
@@ -206,7 +206,7 @@
         "type": "loki",
         "uid": "${loki}"
       },
-      "description": "Denied decisions per error code over time — exact counts from Loki (which receives only non-allowed decisions). A denial carrying several codes shows as a comma-joined category. A new color appearing here is a new failure mode.",
+      "description": "Denied decisions per second, by error code, from Loki — in the same unit as the rate panel beside it. Loki receives denied decisions and allowed decisions that carried warnings; this panel counts only the denied ones. A denial carrying several codes shows as a comma-joined category. A new color appearing here is a new failure mode.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -260,7 +260,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "reqps"
         },
         "overrides": []
       },
@@ -291,7 +291,7 @@
             "type": "loki",
             "uid": "${loki}"
           },
-          "expr": "sum by (code) (count_over_time({job=\"opa\", environment=\"${env:text}\", opa_domain=~\"${domain:regex}\"} | subject=~\"${subject:regex}\" |~ `${code:regex}` | allowed=\"false\" | json codes | label_format code=`{{ "{{" }} .codes | replace \"\\\"\" \"\" | replace \"[\" \"\" | replace \"]\" \"\" {{ "}}" }}` [$__auto]))",
+          "expr": "sum by (code) (rate({job=\"opa\", environment=\"${env:text}\", opa_domain=~\"${domain:regex}\"} | subject=~\"${subject:regex}\" |~ `${code:regex}` | allowed=\"false\" | json codes | label_format code=`{{ "{{" }} .codes | replace \"\\\"\" \"\" | replace \"[\" \"\" | replace \"]\" \"\" {{ "}}" }}` [$__auto]))",
           "legendFormat": "{{ "{{" }}code{{ "}}" }}",
           "queryType": "range",
           "refId": "A"
@@ -305,7 +305,7 @@
         "type": "prometheus",
         "uid": "${prom}"
       },
-      "description": "Share of all decisions that were denied in the dashboard time range, for the selected filters. No data means no decisions at all for this selection.",
+      "description": "Share of all decisions that were denied in the dashboard time range, for the selected filters. Approximate: computed from the Prometheus counter, which misses the first decision of each new series, so sparse denials can be undercounted. Not affected by the Error code filter. No data means no decisions at all for this selection.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -393,7 +393,7 @@
         "type": "prometheus",
         "uid": "${prom}"
       },
-      "description": "Subjects ranked by the share of their requests that were denied in the time range. Subjects with fewer than 10 requests are excluded from the ratio so one-off probes don't pin the ranking. Click a subject to open its raw records in Decision logs. Counts are counter-based: a brand-new subject whose entire burst fits inside one scrape interval can undercount here — the code panels below count exactly from Loki.",
+      "description": "Subjects ranked by the share of their requests that were denied in the time range. Subjects with fewer than 10 requests are excluded from the ratio so one-off probes don't pin the ranking. Click a subject to open its raw records in Decision logs. Approximate: counts come from the Prometheus counter, which misses the first decision of each new series, so subjects with few denials undercount here (a single denial can show as 0) — Top denied subjects, Top warned subjects and the code panels count from Loki and don't miss them. Not affected by the Error code filter.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -578,10 +578,10 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "${prom}"
+        "type": "loki",
+        "uid": "${loki}"
       },
-      "description": "Most-denied subjects by absolute count in the time range — the impact view. Click a bar to open raw records.",
+      "description": "Most-denied subjects by absolute count in the time range — the impact view. Counts from Loki. Click a bar to open raw records.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -650,12 +650,12 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${prom}"
+            "type": "loki",
+            "uid": "${loki}"
           },
-          "expr": "topk(10, sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"denied\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }}) > 0)",
-          "instant": true,
+          "expr": "topk(10, sum by (subject) (count_over_time({job=\"opa\", environment=\"${env:text}\", opa_domain=~\"${domain:regex}\"} | subject=~\"${subject:regex}\" |~ `${code:regex}` | allowed=\"false\" [$__range])))",
           "legendFormat": "{{ "{{" }}subject{{ "}}" }}",
+          "queryType": "instant",
           "refId": "A"
         }
       ],
@@ -664,10 +664,10 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "${prom}"
+        "type": "loki",
+        "uid": "${loki}"
       },
-      "description": "Subjects accumulating warnings in the time range — today's warnings are often next week's denials (e.g. expiring credentials). Click a bar to open raw records.",
+      "description": "Subjects accumulating warnings on allowed requests in the time range — today's warnings are often next week's denials (e.g. expiring credentials). Counts from Loki. Click a bar to open raw records.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -736,12 +736,12 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${prom}"
+            "type": "loki",
+            "uid": "${loki}"
           },
-          "expr": "topk(10, sum by (subject) (increase(log_metric_counter_opa_decisions_total{opa_env=\"${env:text}\", subject=~\"${subject:regex}\", domain=~\"${domain:regex}\", status=\"warning\"}[$__range]) {{ include "opa-la.dashboards.fluentbitFilter" . }}) > 0)",
-          "instant": true,
+          "expr": "topk(10, sum by (subject) (count_over_time({job=\"opa\", environment=\"${env:text}\", opa_domain=~\"${domain:regex}\"} | subject=~\"${subject:regex}\" | allowed=\"true\" [$__range])))",
           "legendFormat": "{{ "{{" }}subject{{ "}}" }}",
+          "queryType": "instant",
           "refId": "A"
         }
       ],
@@ -766,7 +766,7 @@
         "type": "loki",
         "uid": "${loki}"
       },
-      "description": "Exact denial counts per error code for the time range, from Loki. Multi-code denials show as comma-joined categories.",
+      "description": "Denial counts per error code for the time range, from Loki. Multi-code denials show as comma-joined categories.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -826,7 +826,7 @@
         "type": "loki",
         "uid": "${loki}"
       },
-      "description": "Which subject is failing with which error code — exact counts from Loki for the time range. Click a subject or code to open the matching raw records in Decision logs.",
+      "description": "Which subject is failing with which error code — counts from Loki for the time range. Click a subject or code to open the matching raw records in Decision logs.",
       "fieldConfig": {
         "defaults": {
           "custom": {

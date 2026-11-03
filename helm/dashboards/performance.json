@@ -926,7 +926,7 @@
         "type": "prometheus",
         "uid": "${prom}"
       },
-      "description": "Loki never receives allowed decisions — this counter is the only source for allow/deny/warn rate.",
+      "description": "Loki receives only denied decisions and allowed decisions that carried warnings — never plain allowed ones — so this counter is the only source for the allow/deny/warn rate.",
       "fieldConfig": {
         "defaults": {
           "color": {
