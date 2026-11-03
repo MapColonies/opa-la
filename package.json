@@ -1,9 +1,6 @@
 {
   "name": "root",
   "private": true,
-  "workspaces": [
-    "./packages/*"
-  ],
   "scripts": {
     "prepare": "husky",
     "format": "prettier -c .",

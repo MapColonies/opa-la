@@ -1,9 +1,9 @@
 # Examples
 
-Before running any of the examples you should install the dependencies and build the packages in the root of the lerna project.
+Before running any of the examples you should install the dependencies and build the packages in the root of the monorepo.
 
 ```
-npm install && npx lerna run build
+pnpm install && pnpm build
 ```
 
 ## templating.mjs

@@ -23,6 +23,8 @@ export default defineConfig({
     environment: 'jsdom',
     environmentOptions: { jsdom: { url: 'http://localhost:3000/' } },
     setupFiles: ['./tests/setup.ts'],
+    // The default 5s is too tight when turbo runs this suite next to the backend ones.
+    testTimeout: 20_000,
     // Scoped to the features that have tests. The rest of the application has none yet.
     include: [
       'tests/assets/**/*.spec.{ts,tsx}',
