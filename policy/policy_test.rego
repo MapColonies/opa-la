@@ -348,6 +348,14 @@ test_allowed_decision_contains_kid if {
 	res.metadata.kid == "opa_test_key_1"
 }
 
+# fluent-bit's Lua reads result.metadata, so the fallback decision must carry it too.
+test_fallback_decision_carries_metadata if {
+	res := authz.decision with input as {} with authz.deny as set()
+
+	res.codes == ["unknown_error"]
+	res.metadata == {"sub": "N/A", "kid": "N/A"}
+}
+
 # =========================================================
 # c2b (client-to-backend) tests
 # =========================================================

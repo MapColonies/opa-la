@@ -217,14 +217,16 @@ fluentbit:
             new_record["env"] = record["labels"]["environment"]
         end
         
-        new_record["opa_domain"] = record["input"]["domain"]
+        -- Like metadata below, input can be missing; guard it so the transform doesn't abort.
+        local input = record["input"] or {}
+        new_record["opa_domain"] = input["domain"]
 
         new_record["token_location"] = "missing"
-        if record["input"]["headers"] ~= nil and record["input"]["headers"]["x-api-key"] ~= nil then
+        if input["headers"] ~= nil and input["headers"]["x-api-key"] ~= nil then
             new_record["token_location"] = "header"
         end
 
-        if record["input"]["query"] ~= nil and record["input"]["query"]["token"] ~= nil then
+        if input["query"] ~= nil and input["query"]["token"] ~= nil then
             if new_record["token_location"] == "header" then
                 new_record["token_location"] = "both"
             else
@@ -238,10 +240,10 @@ fluentbit:
             end
         end
 
-        if record["input"]["headers"] ~= nil then 
-          new_record["origin"] = record["input"]["headers"]["origin"]
-          new_record["user_agent"] = record["input"]["headers"]["user-agent"]
-          new_record["referer"] = record["input"]["headers"]["referer"]
+        if input["headers"] ~= nil then
+          new_record["origin"] = input["headers"]["origin"]
+          new_record["user_agent"] = input["headers"]["user-agent"]
+          new_record["referer"] = input["headers"]["referer"]
         end
 
         -- 4. Requested By
@@ -259,6 +261,13 @@ fluentbit:
             new_record["sub"] = metadata["sub"]
             new_record["kid"] = metadata["kid"]
             new_record["warn"] = record["result"]["warnings"]
+            -- Loki metadata can't hold arrays, so the metadata copies are joined strings
+            if type(new_record["reasons"]) == "table" then
+                new_record["reason"] = table.concat(new_record["reasons"], ", ")
+            end
+            if type(new_record["warn"]) == "table" then
+                new_record["warnings"] = table.concat(new_record["warn"], ", ")
+            end
         end
 
         -- 6. The original OPA timestamp string
@@ -340,10 +349,10 @@ fluentbit:
           Labels       job=opa, environment=$env, opa_domain=$opa_domain
           
           # METADATA: Allowed moved here, along with other high-cardinality data
-          Structured_metadata trace_id=$trace_id, span_id=$span_id, requested_by=$requested_by, reason=$reason, subject=$sub, token_kid=$kid, warnings=$warnings, total_time_ns=$total_time_ns, allowed=$allowed, token_location=$token_location, origin=$origin, user_agent=$user_agent, bundle_revision=$bundle_revision, origin=$origin, referer=$referer
+          Structured_metadata trace_id=$trace_id, span_id=$span_id, requested_by=$requested_by, reason=$reason, subject=$sub, token_kid=$kid, warnings=$warnings, total_time_ns=$total_time_ns, allowed=$allowed, token_location=$token_location, origin=$origin, user_agent=$user_agent, bundle_revision=$bundle_revision, referer=$referer
           
           # CLEANUP: Strip these fields from the main JSON log body
-          Remove_Keys  env, domain, allowed, trace_id, span_id, requested_by, sub, total_time_ns, opa_domain, token_location, origin, user_agent, bundles, referer
+          Remove_Keys  env, domain, allowed, trace_id, span_id, requested_by, sub, total_time_ns, opa_domain, token_location, origin, user_agent, bundles, referer, reason, warnings
 
       [OUTPUT]
           Name prometheus_exporter

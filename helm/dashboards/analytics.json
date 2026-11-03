@@ -51,7 +51,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "**Denial Analytics** — aggregated statistics for denied and warned decisions: who is failing, how much, and with which error codes. The filters above apply to every panel; the **Error code** filter only affects the Loki panels (Denials by code, Top denied subjects and the code panels), since the Prometheus counter carries no code label. Counts of denials and warnings come from Loki and are exact; the rate and ratio panels come from the Prometheus counter and are approximate. Subjects and codes in the tables link to [Decision Logs](/d/opala-decision-logs/decision-logs) with the matching filters and time range applied. Panels are empty for environments with no decision-log traffic.",
+        "content": "**Denial Analytics** — aggregated statistics for denied and warned decisions: who is failing, how much, and with which error codes. The filters above apply to every panel; the **Error code** filter only affects the Loki panels (Denials by code, Top denied subjects and the code panels), since the Prometheus counter carries no code label. Counts of denials and warnings come from Loki, so they don't miss sparse denials; the rate and ratio panels come from the Prometheus counter and are approximate. Subjects and codes in the tables link to [Decision Logs](/d/opala-decision-logs/decision-logs) with the matching filters and time range applied. Panels are empty for environments with no decision-log traffic.",
         "mode": "markdown"
       },
       "pluginVersion": "12.3.1",
@@ -393,7 +393,7 @@
         "type": "prometheus",
         "uid": "${prom}"
       },
-      "description": "Subjects ranked by the share of their requests that were denied in the time range. Subjects with fewer than 10 requests are excluded from the ratio so one-off probes don't pin the ranking. Click a subject to open its raw records in Decision logs. Approximate: counts come from the Prometheus counter, which misses the first decision of each new series, so subjects with few denials undercount here (a single denial can show as 0) — Top denied subjects, Top warned subjects and the code panels count exactly from Loki. Not affected by the Error code filter.",
+      "description": "Subjects ranked by the share of their requests that were denied in the time range. Subjects with fewer than 10 requests are excluded from the ratio so one-off probes don't pin the ranking. Click a subject to open its raw records in Decision logs. Approximate: counts come from the Prometheus counter, which misses the first decision of each new series, so subjects with few denials undercount here (a single denial can show as 0) — Top denied subjects, Top warned subjects and the code panels count from Loki and don't miss them. Not affected by the Error code filter.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -581,7 +581,7 @@
         "type": "loki",
         "uid": "${loki}"
       },
-      "description": "Most-denied subjects by absolute count in the time range — the impact view. Exact counts from Loki. Click a bar to open raw records.",
+      "description": "Most-denied subjects by absolute count in the time range — the impact view. Counts from Loki. Click a bar to open raw records.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -667,7 +667,7 @@
         "type": "loki",
         "uid": "${loki}"
       },
-      "description": "Subjects accumulating warnings on allowed requests in the time range — today's warnings are often next week's denials (e.g. expiring credentials). Exact counts from Loki. Click a bar to open raw records.",
+      "description": "Subjects accumulating warnings on allowed requests in the time range — today's warnings are often next week's denials (e.g. expiring credentials). Counts from Loki. Click a bar to open raw records.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -766,7 +766,7 @@
         "type": "loki",
         "uid": "${loki}"
       },
-      "description": "Exact denial counts per error code for the time range, from Loki. Multi-code denials show as comma-joined categories.",
+      "description": "Denial counts per error code for the time range, from Loki. Multi-code denials show as comma-joined categories.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -826,7 +826,7 @@
         "type": "loki",
         "uid": "${loki}"
       },
-      "description": "Which subject is failing with which error code — exact counts from Loki for the time range. Click a subject or code to open the matching raw records in Decision logs.",
+      "description": "Which subject is failing with which error code — counts from Loki for the time range. Click a subject or code to open the matching raw records in Decision logs.",
       "fieldConfig": {
         "defaults": {
           "custom": {
