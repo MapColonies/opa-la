@@ -1158,6 +1158,8 @@ components:
           format: byte
         uri:
           type: string
+          description: The directory inside the bundle the asset is written to. Cannot contain a backslash or a parent-directory segment.
+          pattern: '^(?!(.*/)?\.\.(/.*)?$)[^\\]*$'
         type:
           $ref: '#/components/schemas/assetType'
         isTemplate:
@@ -1168,6 +1170,8 @@ components:
         name:
           type: string
           minLength: 3
+          description: The file name of the asset inside the bundle. Cannot contain a slash or a backslash.
+          pattern: '^[^/\\]+$'
     bundle:
       type: object
       properties:

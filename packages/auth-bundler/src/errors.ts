@@ -46,3 +46,17 @@ export class OpaBundleCreationError extends Error {
     Object.setPrototypeOf(this, OpaBundleCreationError.prototype);
   }
 }
+
+export class DuplicateAssetPathError extends Error {
+  public constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, DuplicateAssetPathError.prototype);
+  }
+}
+
+export class InvalidAssetPathError extends Error {
+  public constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, InvalidAssetPathError.prototype);
+  }
+}

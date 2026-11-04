@@ -202,6 +202,21 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
       });
 
+      it.each([
+        ['a uri with a parent-directory segment', { uri: '/policies/../../etc' }],
+        ['a uri with a backslash', { uri: '\\policies' }],
+        ['a name with a slash', { name: 'nested/policy.rego' }],
+        ['a name with a backslash', { name: 'nested\\policy.rego' }],
+      ])('should return 400 if the asset has %s', async function (_, override) {
+        const asset = getFakeAsset();
+        delete asset.createdAt;
+
+        const res = await requestSender.upsertAsset({ requestBody: { ...asset, ...override, value: asset.value.toString('base64') } });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.BAD_REQUEST);
+        expect(res).toSatisfyApiSpec();
+      });
+
       it("should return 409 if the request version doesn't match the DB version", async function () {
         const asset = getFakeAsset();
         await drizzle

@@ -8,6 +8,7 @@
  * @packageDocumentation
  */
 import { existsSync } from 'node:fs';
+import { rm } from 'node:fs/promises';
 import { createBundleCommand, testCommand, validateBinaryExistCommand, testCoverageCommand } from './opa';
 import { createBundleDirectoryStructure } from './bundler';
 import type { BundleContent, TestOptions } from './types';
@@ -52,7 +53,7 @@ export async function createBundle(
     throw new OpaNotFoundError('OPA cli is missing from path');
   }
 
-  await createBundleDirectoryStructure(content, workDir);
+  const testFilePaths = await createBundleDirectoryStructure(content, workDir);
 
   if (tests?.enable === true) {
     logger?.debug('tests are enabled');
@@ -72,6 +73,9 @@ export async function createBundle(
       }
     }
   }
+
+  // test files are only needed for running the tests, they should not be shipped in the bundle
+  await Promise.all(testFilePaths.map(async (filePath) => rm(filePath, { force: true })));
 
   const [creationCompleted, creationErr] = await createBundleCommand(workDir, bundlePath, revision);
 
