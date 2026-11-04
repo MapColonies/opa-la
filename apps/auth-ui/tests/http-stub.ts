@@ -20,18 +20,7 @@ export interface StubbedResponse {
   headers?: Record<string, string>;
   /** Holds the answer back, so a test can observe a loading state before it lands. */
   delayMs?: number;
-  /** Holds the answer back until this settles, so a slow run can't land it before the test is ready. */
-  heldUntil?: Promise<unknown>;
 }
-
-/** A response the test releases by hand: pass `until` as `heldUntil`, then call `release()`. */
-export const hold = (): { until: Promise<void>; release: () => void } => {
-  let release!: () => void;
-  const until = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  return { until, release };
-};
 
 export type Responder = StubbedResponse | ((request: RecordedRequest) => StubbedResponse | Promise<StubbedResponse>);
 
@@ -106,10 +95,8 @@ class HttpStub {
       if (route.method !== request.method) continue;
       if (typeof route.path === 'string' ? route.path !== request.path : !route.path.test(request.path)) continue;
 
-      const response = typeof route.responder === 'function' ? await route.responder(request) : route.responder;
-      const { status = 200, body, headers, delayMs, heldUntil } = response;
+      const { status = 200, body, headers, delayMs } = typeof route.responder === 'function' ? await route.responder(request) : route.responder;
       if (delayMs !== undefined) await new Promise((resolve) => setTimeout(resolve, delayMs));
-      await heldUntil;
       return new Response(body === undefined ? null : JSON.stringify(body), {
         status,
         headers: { 'content-type': 'application/json', ...headers },
