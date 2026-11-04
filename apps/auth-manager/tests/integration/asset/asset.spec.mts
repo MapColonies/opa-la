@@ -104,6 +104,27 @@ describe('client', function () {
         expect(res).toSatisfyApiSpec();
         expect(res.body).toMatchObject({ ...asset, version: 2, value: asset.value.toString('base64') });
       });
+
+      it('should keep the previous version when updating an asset', async function () {
+        const asset = getFakeAsset();
+        asset.environment = [Environment.NP, Environment.STAGE, Environment.PROD];
+        await drizzle.insert(assetTable).values(asset).execute();
+
+        delete asset.createdAt;
+
+        const res = await requestSender.upsertAsset({
+          requestBody: { ...asset, environment: [Environment.PROD], value: asset.value.toString('base64') },
+        });
+
+        expect(res).toHaveProperty('status', httpStatusCodes.OK);
+
+        const versions = await drizzle.query.asset.findMany({ where: { name: asset.name }, orderBy: { version: 'asc' } });
+
+        expect(versions).toMatchObject([
+          { version: 1, environment: [Environment.NP, Environment.STAGE, Environment.PROD] },
+          { version: 2, environment: [Environment.PROD] },
+        ]);
+      });
     });
 
     describe('GET /asset/:name', function () {

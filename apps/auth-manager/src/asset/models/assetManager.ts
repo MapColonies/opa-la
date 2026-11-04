@@ -1,7 +1,6 @@
 import { type Logger } from '@map-colonies/js-logger';
 import { Asset, assetTable, type Drizzle, NewAsset } from '@map-colonies/auth-core';
 import { inject, injectable } from 'tsyringe';
-import { and, eq } from 'drizzle-orm';
 import { operations } from 'auth-openapi';
 import { SERVICES } from '@common/constants';
 import { AssetRepository } from '../DAL/assetRepository';
@@ -79,12 +78,11 @@ export class AssetManager {
         throw new AssetVersionMismatchError(msg);
       }
 
-      // update
+      // update - insert a new version, previous versions are kept for other environments and history
       return (
         await tx
-          .update(assetTable)
-          .set({ ...asset, version: maxVersion + 1 })
-          .where(and(eq(assetTable.name, asset.name), eq(assetTable.version, maxVersion)))
+          .insert(assetTable)
+          .values({ ...asset, version: maxVersion + 1 })
           .returning()
       )[0] as Asset;
     });

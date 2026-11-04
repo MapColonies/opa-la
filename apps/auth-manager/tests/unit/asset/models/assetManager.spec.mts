@@ -12,8 +12,7 @@ describe('AssetManager', () => {
   describe('#upsertAsset', () => {
     let manager: AssetManager;
     const mockReturning = vi.fn();
-    const mockWhere = vi.fn();
-    const mockSet = vi.fn();
+    const mockValues = vi.fn();
     const mockTx = {
       insert: vi.fn(),
       update: vi.fn(),
@@ -29,14 +28,13 @@ describe('AssetManager', () => {
     beforeEach(function () {
       vi.resetAllMocks();
       mockReturning.mockResolvedValue([]);
-      mockWhere.mockReturnValue({ returning: mockReturning });
-      mockSet.mockReturnValue({ where: mockWhere });
-      mockTx.update.mockReturnValue({ set: mockSet });
+      mockValues.mockReturnValue({ returning: mockReturning });
+      mockTx.insert.mockReturnValue({ values: mockValues });
       drizzle.transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn(mockTx));
       manager = new AssetManager(logger, assetRepository as unknown as AssetRepository, drizzle as unknown as Drizzle);
     });
 
-    it('should update the asset,return it, and advance the version by 1 if it exist in the database and the version matches', async () => {
+    it('should insert a new version of the asset with the version advanced by 1 if it exist in the database and the version matches', async () => {
       const asset = getFakeAsset();
       asset.version = 2;
       assetRepository.getMaxVersionWithLock.mockResolvedValue(1);
@@ -46,8 +44,9 @@ describe('AssetManager', () => {
 
       await expect(assetPromise).resolves.toStrictEqual(asset);
       expect(assetRepository.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
-      expect(mockTx.update).toHaveBeenCalledTimes(1);
-      expect(mockSet).toHaveBeenCalledWith(asset);
+      expect(mockTx.insert).toHaveBeenCalledTimes(1);
+      expect(mockValues).toHaveBeenCalledWith(asset);
+      expect(mockTx.update).not.toHaveBeenCalled();
     });
 
     it("should throw an error if a asset doesn't exist and the version supplied is not 1", async () => {
@@ -69,7 +68,7 @@ describe('AssetManager', () => {
 
       await expect(assetPromise).rejects.toThrow(AssetVersionMismatchError);
       expect(assetRepository.getMaxVersionWithLock).toHaveBeenCalledTimes(1);
-      expect(mockTx.update).not.toHaveBeenCalled();
+      expect(mockTx.insert).not.toHaveBeenCalled();
     });
   });
 });
