@@ -8,17 +8,39 @@ The main idea of the repo is to store authentication data and create [Open Polic
 
 ## Packages
 
+The monorepo is managed with [pnpm workspaces](https://pnpm.io/workspaces) and [Turborepo](https://turborepo.com/).
+
+### packages
+
 - **auth-core**: A package all the common stuff like Types and Database entities are located.
 - **auth-bundler**: A package for handling the creation of new bundles from the database.
+- **auth-openapi**: OpenAPI specification and generated types for auth-manager.
+- **token-openapi**: OpenAPI specification and generated types for token-kiosk.
+- **test-utils**: Shared testing utilities.
+
+### apps
+
 - **auth-manager**: Express based API for managing the authentication data.
 - **auth-cron**: A server for checking and updating bundles based on cron schedule.
+- **token-kiosk**: Express based API for issuing temporary access tokens for MapColonies services.
+- **auth-ui**: UI for managing the authentication data.
+- **kiosk-ui**: UI for requesting temporary access tokens from token-kiosk.
 
 ## Development
 
 Before we start making any changes to the repository, we need to bootstrap the repository. To do so we need to run the following commands:
 
 ```bash
-npm install && npx lerna run build
+pnpm install && pnpm build
+```
+
+Common tasks are run through turbo from the repository root:
+
+```bash
+pnpm build                              # build all packages
+pnpm test                               # run all tests
+pnpm lint                               # run all linters
+pnpm turbo run build --filter auth-cron... # build a single app and its dependencies
 ```
 
 ## Documentation
