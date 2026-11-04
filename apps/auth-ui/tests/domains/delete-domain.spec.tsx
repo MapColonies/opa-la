@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { appRoutes } from '../../src/routes';
-import { API_ORIGIN, OTHER_SITE_ORIGINS, http, type RecordedRequest } from '../http-stub';
+import { API_ORIGIN, OTHER_SITE_ORIGINS, hold, http, type RecordedRequest } from '../http-stub';
 import { renderRoutes } from '../render';
 
 const IN_USE = { message: 'domain is in use by connections' };
@@ -84,13 +84,8 @@ describe('deleting a domain', () => {
 
   it('disables the delete button while the delete is in progress', async () => {
     stubDomains('avi');
-    // Held open until the assertions ran, so a slow run can't land the delete first.
-    let releaseDelete!: () => void;
-    const deleteHeld = new Promise<void>((resolve) => (releaseDelete = resolve));
-    http.on('DELETE', '/domain/avi', async () => {
-      await deleteHeld;
-      return { status: 204 };
-    });
+    const deleteHold = hold();
+    http.on('DELETE', '/domain/avi', { status: 204, heldUntil: deleteHold.until });
 
     openDomains();
     const dialog = await openDeleteFor('avi');
@@ -98,18 +93,15 @@ describe('deleting a domain', () => {
 
     expect(within(dialog).getByRole('button', { name: /Deleting/ })).toBeDisabled();
     expect(within(dialog).getByRole('button', { name: 'Cancel' })).toBeDisabled();
-    releaseDelete();
+    deleteHold.release();
   });
 
   it('cannot be closed while the delete is sent to the other sites', async () => {
     stubDomains('avi');
-    // The other sites' delete is held open until the assertions ran, so a slow run can't land it first.
-    let releaseOtherSites!: () => void;
-    const otherSitesHeld = new Promise<void>((resolve) => (releaseOtherSites = resolve));
-    http.on('DELETE', '/domain/avi', async (request) => {
-      if (originOf(request) !== API_ORIGIN) await otherSitesHeld;
-      return { status: 204 };
-    });
+    const otherSitesHold = hold();
+    http.on('DELETE', '/domain/avi', (request) =>
+      originOf(request) === API_ORIGIN ? { status: 204 } : { status: 204, heldUntil: otherSitesHold.until }
+    );
 
     openDomains();
     const dialog = await openDeleteFor('avi');
@@ -121,7 +113,7 @@ describe('deleting a domain', () => {
     expect(footerClose).toBeDisabled();
     await userEvent.click(cornerClose!);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    releaseOtherSites();
+    otherSitesHold.release();
     expect(await within(dialog).findByRole('listitem', { name: 'north' })).toHaveTextContent('Success');
   });
 
