@@ -554,6 +554,7 @@ paths:
     get:
       operationId: getAssets
       summary: get assets by filters
+      description: Returns one version per asset name, the newest one matching the filters. With an environment filter it is the version that environment's bundle is built from.
       tags:
         - asset
       parameters:
@@ -1158,6 +1159,8 @@ components:
           format: byte
         uri:
           type: string
+          description: The directory inside the bundle the asset is written to. Cannot contain a backslash or a parent-directory segment.
+          pattern: '^(?!(.*/)?\.\.(/.*)?$)[^\\]*$'
         type:
           $ref: '#/components/schemas/assetType'
         isTemplate:
@@ -1168,6 +1171,8 @@ components:
         name:
           type: string
           minLength: 3
+          description: The file name of the asset inside the bundle. Cannot contain a slash or a backslash.
+          pattern: '^[^/\\]+$'
     bundle:
       type: object
       properties:

@@ -449,11 +449,13 @@ export type components = {
       readonly createdAt: string;
       /** Format: byte */
       value: string;
+      /** @description The directory inside the bundle the asset is written to. Cannot contain a backslash or a parent-directory segment. */
       uri: string;
       type: components['schemas']['assetType'];
       /** @default false */
       isTemplate: boolean;
       version: components['schemas']['version'];
+      /** @description The file name of the asset inside the bundle. Cannot contain a slash or a backslash. */
       name: string;
     };
     bundle: {

@@ -47,8 +47,18 @@ const main = async (): Promise<void> => {
     return Cron(value.pattern, { unref: false, protect: true, catch: errorHandler, name: env }, async () => {
       logger.info({ msg: 'running new update job', bundleEnv: env });
 
-      await job();
-      await emptyDir(workdir);
+      // the workdir is reused between runs, so it must be emptied even when the job fails,
+      // otherwise leftover files end up in the next bundle
+      try {
+        await job();
+      } finally {
+        // a cleanup failure is only logged, so it doesn't mask the job's own error
+        try {
+          await emptyDir(workdir);
+        } catch (err) {
+          logger.error({ msg: 'failed emptying the workdir', err, bundleEnv: env });
+        }
+      }
     });
   });
 

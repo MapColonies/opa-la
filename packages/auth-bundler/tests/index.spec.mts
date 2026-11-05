@@ -1,7 +1,7 @@
 /// <reference types="jest-extended" />
 
 import path from 'node:path';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir } from 'node:fs/promises';
 import { describe, expect, it, beforeAll, afterEach, vi } from 'vitest';
 import { getTempDir } from 'test-utils';
 import {
@@ -96,6 +96,23 @@ describe('index.ts', function () {
       await createBundle(bundleContent, baseFolder, 'bundle.tar.gz', { enable: false });
 
       expect(createBundleCommandSpy).toHaveBeenCalledWith(baseFolder, 'bundle.tar.gz', undefined);
+    });
+
+    it('should remove the test files before building the bundle', async function () {
+      const dir = await mkdtemp(path.join(baseFolder, 'case-'));
+      vi.spyOn(opa, 'validateBinaryExistCommand').mockResolvedValue(true);
+      vi.spyOn(opa, 'testCommand').mockResolvedValue([true, undefined]);
+      let filesAtBuild: string[] = [];
+      vi.spyOn(opa, 'createBundleCommand').mockImplementation(async () => {
+        filesAtBuild = await readdir(dir);
+        return [true, undefined];
+      });
+
+      await createBundle(bundleContent, dir, 'bundle.tar.gz', { enable: true });
+
+      expect(opa.testCommand).toHaveBeenCalledTimes(1);
+      expect(filesAtBuild).toIncludeAllMembers(['example.rego', 'data.json']);
+      expect(filesAtBuild).not.toContain('example_test.rego');
     });
   });
 });
