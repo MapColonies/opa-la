@@ -1,5 +1,6 @@
 import { type Logger } from '@map-colonies/js-logger';
 import { Asset, assetTable, type Drizzle, NewAsset } from '@map-colonies/auth-core';
+import { and, arrayContains, desc, eq } from 'drizzle-orm';
 import { inject, injectable } from 'tsyringe';
 import { operations } from 'auth-openapi';
 import { SERVICES } from '@common/constants';
@@ -18,13 +19,19 @@ export class AssetManager {
     this.logger.info({ msg: 'fetching assets', searchParams });
     const { environment, isTemplate, type } = searchParams;
 
-    return this.drizzle.query.asset.findMany({
-      where: {
-        isTemplate,
-        type,
-        environment: environment ? { arrayContains: environment } : undefined,
-      },
-    });
+    // one row per name: the newest version matching the filters, so with an environment filter
+    // it is the version that environment's bundle is built from
+    return this.drizzle
+      .selectDistinctOn([assetTable.name])
+      .from(assetTable)
+      .where(
+        and(
+          isTemplate !== undefined ? eq(assetTable.isTemplate, isTemplate) : undefined,
+          type !== undefined ? eq(assetTable.type, type) : undefined,
+          environment ? arrayContains(assetTable.environment, environment) : undefined
+        )
+      )
+      .orderBy(assetTable.name, desc(assetTable.version));
   }
 
   public async getNamedAssets(name: string): Promise<Asset[]> {

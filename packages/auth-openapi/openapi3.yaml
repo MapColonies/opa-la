@@ -554,6 +554,7 @@ paths:
     get:
       operationId: getAssets
       summary: get assets by filters
+      description: Returns one version per asset name, the newest one matching the filters. With an environment filter it is the version that environment's bundle is built from.
       tags:
         - asset
       parameters:

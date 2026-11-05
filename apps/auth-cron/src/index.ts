@@ -52,7 +52,12 @@ const main = async (): Promise<void> => {
       try {
         await job();
       } finally {
-        await emptyDir(workdir);
+        // a cleanup failure is only logged, so it doesn't mask the job's own error
+        try {
+          await emptyDir(workdir);
+        } catch (err) {
+          logger.error({ msg: 'failed emptying the workdir', err, bundleEnv: env });
+        }
       }
     });
   });

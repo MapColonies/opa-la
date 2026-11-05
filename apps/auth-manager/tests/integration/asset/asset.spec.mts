@@ -11,6 +11,8 @@ import type { paths, operations } from 'auth-openapi';
 import { AssetRepository } from '@src/asset/DAL/assetRepository.js';
 import { initEnvironment } from '../setup.js';
 
+type AssetVersion = Pick<Asset, 'name' | 'version'>;
+
 describe('client', function () {
   let requestSender: RequestSender<paths, operations>;
   let depContainer: DependencyContainer;
@@ -25,14 +27,11 @@ describe('client', function () {
 
   describe('Happy Path', function () {
     describe('GET /assets', function () {
-      it('should return 200 status code and all the assets', async function () {
+      it('should return 200 status code and the latest version of every asset', async function () {
         const asset = getFakeAsset();
         asset.environment = [Environment.PROD];
-        const assets: NewAsset[] = [
-          asset,
-          { ...asset, version: 2 },
-          { ...asset, name: faker.string.sample(9), environment: [Environment.NP, Environment.STAGE] },
-        ];
+        const otherAsset: NewAsset = { ...asset, name: faker.string.alphanumeric(9), environment: [Environment.NP, Environment.STAGE] };
+        const assets: NewAsset[] = [asset, { ...asset, version: 2 }, otherAsset];
 
         await drizzle.insert(assetTable).values(assets).execute();
 
@@ -40,7 +39,30 @@ describe('client', function () {
 
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
-        expect(res.body).toIncludeAllPartialMembers(assets.map((a) => delete a.createdAt));
+
+        const returned = (res.body as AssetVersion[]).filter((a) => a.name === asset.name || a.name === otherAsset.name);
+        expect(returned).toIncludeSameMembers([
+          expect.objectContaining({ name: asset.name, version: 2 }),
+          expect.objectContaining({ name: otherAsset.name, version: 1 }),
+        ]);
+      });
+
+      it('should return 200 status code and the newest version targeting the requested env', async function () {
+        const asset = getFakeAsset();
+        const assets: NewAsset[] = [
+          { ...asset, environment: [Environment.NP, Environment.STAGE, Environment.PROD] },
+          { ...asset, version: 2, environment: [Environment.PROD] },
+        ];
+
+        await drizzle.insert(assetTable).values(assets).execute();
+
+        const npRes = await requestSender.getAssets({ queryParams: { environment: ['np'] } });
+        const prodRes = await requestSender.getAssets({ queryParams: { environment: ['prod'] } });
+
+        expect(npRes).toHaveProperty('status', httpStatusCodes.OK);
+        expect((npRes.body as AssetVersion[]).filter((a) => a.name === asset.name)).toMatchObject([{ version: 1 }]);
+        expect(prodRes).toHaveProperty('status', httpStatusCodes.OK);
+        expect((prodRes.body as AssetVersion[]).filter((a) => a.name === asset.name)).toMatchObject([{ version: 2 }]);
       });
 
       it('should return 200 status code and all the assets with specific env', async function () {
@@ -49,7 +71,7 @@ describe('client', function () {
         const assets: NewAsset[] = [
           asset,
           { ...asset, version: 2 },
-          { ...asset, name: faker.string.sample(9), environment: [Environment.NP, Environment.STAGE] },
+          { ...asset, name: faker.string.alphanumeric(9), environment: [Environment.NP, Environment.STAGE] },
         ];
 
         await drizzle.insert(assetTable).values(assets).execute();
@@ -65,7 +87,7 @@ describe('client', function () {
         const asset = getFakeAsset();
         asset.type = AssetType.DATA;
         const assets: NewAsset[] = [
-          { ...asset, name: faker.string.sample(9) },
+          { ...asset, name: faker.string.alphanumeric(9) },
           { ...asset, type: AssetType.POLICY },
         ];
 
@@ -289,9 +311,9 @@ describe('client', function () {
 
     describe('GET /asset', function () {
       it('should return 500 status code if db throws an error', async function () {
-        // const repo = depContainer.resolve<AssetRepository>(SERVICES.ASSET_REPOSITORY);
-        // vi.spyOn(repo, 'findBy').mockRejectedValue(new Error());
-        vi.spyOn(drizzle.query.asset, 'findMany').mockRejectedValue(new Error());
+        vi.spyOn(drizzle, 'selectDistinctOn').mockImplementation(() => {
+          throw new Error();
+        });
 
         const res = await requestSender.getAssets();
 
