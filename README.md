@@ -1,7 +1,6 @@
-# OPA - Libot Authentication
+# OPA - Libot Authentication 😎
 
-This monorepo, opa-la for short is where all the MapColonies related authentication lies.
-
+This monorepo, opa-la for short, is where all MapColonies authentication logic resides.
 ## Goal
 
 The main idea of the repo is to store authentication data and create [Open Policy Agent](https://www.openpolicyagent.org/) (OPA in short) bundles when the data changes. After a bundle was created we upload them to S3 so OPA can fetch them using the [bundles API](https://www.openpolicyagent.org/docs/latest/management-bundles/).
