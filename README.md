@@ -1,4 +1,4 @@
-# OPA - Libot Authentication 😎
+# OPA - MapColonies Authentication 😎
 
 This monorepo, opa-la for short, is where all MapColonies authentication logic resides.
 ## Goal
