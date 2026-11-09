@@ -174,7 +174,7 @@ fluentbit:
   autoscaling:
     enabled: true
     targetCPUUtilizationPercentage: 225
-  # The fluent-bit chart doesn't template these, so environment is static; override it per environment.
+  # Static (not templated); override per environment.
   labels: &fluentbitLabels
     mapcolonies.io/environment: development
     mapcolonies.io/component: "infrastructure"

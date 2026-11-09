@@ -160,6 +160,7 @@ auth-manager:
     #      - opa.domain.com
 
 auth-ui:
+  nameOverride: auth-ui
   enabled: true
   config: |
     {}
@@ -215,6 +216,7 @@ token-kiosk:
     name: 'infra-token-kiosk'
 
 kiosk-ui:
+  nameOverride: kiosk-ui
   enabled: true
   replicaCount: 1
   cloudProvider: *cloudProvider
