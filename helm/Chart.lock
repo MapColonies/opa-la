@@ -10,15 +10,15 @@ dependencies:
   version: 3.0.0
 - name: nginx
   repository: oci://acrarolibotnonprod.azurecr.io/helm/common
-  version: 2.5.0
+  version: 2.6.0
 - name: token-kiosk
   repository: file://../apps/token-kiosk/helm
   version: 3.0.0
 - name: nginx
   repository: oci://acrarolibotnonprod.azurecr.io/helm/common
-  version: 2.5.0
+  version: 2.6.0
 - name: grafana-datasources
   repository: oci://acrarolibotnonprod.azurecr.io/helm/infra
   version: 1.0.0
-digest: sha256:20d021cf5ccf1194a80ee7c8700768ae5bf070841081f6ff5234f6b03fd1ab8e
-generated: "2026-11-08T16:53:30.352795199+02:00"
+digest: sha256:677df44efcaf094f4a813491dbf78c133d2fe205d9fabae07b6ff6c0a8217ad3
+generated: "2026-11-09T14:21:32.162268153+02:00"

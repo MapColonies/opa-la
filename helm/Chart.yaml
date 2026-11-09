@@ -20,7 +20,7 @@ dependencies:
     repository: oci://acrarolibotnonprod.azurecr.io/helm/common
     condition: auth-ui.enabled
     alias: auth-ui
-    version: 2.5.0
+    version: 2.6.0
   - name: token-kiosk
     repository: file://../apps/token-kiosk/helm
     condition: token-kiosk.enabled
@@ -29,7 +29,7 @@ dependencies:
     repository: oci://acrarolibotnonprod.azurecr.io/helm/common
     condition: kiosk-ui.enabled
     alias: kiosk-ui
-    version: 2.5.0
+    version: 2.6.0
   - name: grafana-datasources
     repository: oci://acrarolibotnonprod.azurecr.io/helm/infra
     condition: grafana-datasources.enabled
