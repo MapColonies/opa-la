@@ -174,11 +174,14 @@ fluentbit:
   autoscaling:
     enabled: true
     targetCPUUtilizationPercentage: 225
-  labels:
-    mapcolonies.io/environment: dev
+  # The fluent-bit chart doesn't template these, so environment is static; override it per environment.
+  labels: &fluentbitLabels
+    mapcolonies.io/environment: development
     mapcolonies.io/component: "infrastructure"
     mapcolonies.io/part-of: "monitoring"
     mapcolonies.io/owner: "infra"
+  # Gatekeeper checks the pod template, which only gets podLabels.
+  podLabels: *fluentbitLabels
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "2021"
