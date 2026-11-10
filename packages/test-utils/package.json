@@ -1,6 +1,6 @@
 {
   "name": "test-utils",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Shared test utilities for opa-la packages and apps",
   "author": "MapColonies",
   "homepage": "https://github.com/MapColonies/opa-la#readme",
