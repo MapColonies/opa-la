@@ -870,7 +870,7 @@
         "name": "latest_revision",
         "options": [],
         "query": "select revision from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1",
-        "refresh": 1,
+        "refresh": 2,
         "skipUrlSync": true,
         "type": "query"
       },
@@ -902,7 +902,7 @@
         "name": "grace_expired",
         "options": [],
         "query": "select coalesce((select case when extract(epoch from (now() - created_at)) > ($grace_window_minutes * 60) then 1 else 0 end from \"auth_manager\".\"bundle\" where environment = '$env' order by created_at desc limit 1), 1)",
-        "refresh": 1,
+        "refresh": 2,
         "skipUrlSync": true,
         "type": "query"
       }
