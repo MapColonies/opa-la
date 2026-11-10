@@ -160,6 +160,7 @@ auth-manager:
     #      - opa.domain.com
 
 auth-ui:
+  nameOverride: auth-ui
   enabled: true
   config: |
     {}
@@ -174,12 +175,6 @@ auth-ui:
   image:
     repository: infra/auth-ui
     tag: v3.0.0 # x-release-please-version
-  resources:
-    value:
-      limits:
-        cpu: 400m
-      requests:
-        cpu: 100m
   extraVolumes:
     - name: config
       configMap:
@@ -221,6 +216,7 @@ token-kiosk:
     name: 'infra-token-kiosk'
 
 kiosk-ui:
+  nameOverride: kiosk-ui
   enabled: true
   replicaCount: 1
   cloudProvider: *cloudProvider
@@ -233,12 +229,6 @@ kiosk-ui:
   image:
     repository: infra/kiosk-ui
     tag: v3.0.0 # x-release-please-version
-  resources:
-    value:
-      limits:
-        cpu: 400m
-      requests:
-        cpu: 100m
   extraVolumes:
     - name: config
       configMap:
