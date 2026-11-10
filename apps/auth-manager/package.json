@@ -1,6 +1,6 @@
 {
   "name": "auth-manager",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "API server for managing all the authentication data",
   "dockerfile": "docker/backend.Dockerfile",
   "author": "MapColonies",
