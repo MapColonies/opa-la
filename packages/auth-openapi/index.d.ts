@@ -2,7 +2,7 @@
 // This file was auto-generated. Do not edit manually.
 // To update, run the error generation script again.
 
-import type { TypedRequestHandlers as ImportedTypedRequestHandlers } from '@map-colonies/openapi-helpers/typedRequestHandler';
+import type { TypedRequestHandlers as ImportedTypedRequestHandlers } from '@map-colonies/openapi-express-types';
 export type paths = {
   '/client': {
     parameters: {
@@ -224,7 +224,10 @@ export type paths = {
       path?: never;
       cookie?: never;
     };
-    /** get assets by filters */
+    /**
+     * get assets by filters
+     * @description Returns one version per asset name, the newest one matching the filters. With an environment filter it is the version that environment's bundle is built from.
+     */
     get: operations['getAssets'];
     put?: never;
     /** creates a new asset or updates it based on the version */

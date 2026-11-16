@@ -2,7 +2,7 @@
 import { describe, expect, it, vi, beforeAll, afterEach } from 'vitest';
 import httpStatusCodes from 'http-status-codes';
 import 'jest-openapi';
-import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { RequestSender } from '@map-colonies/openapi-supertest';
 import { eq } from 'drizzle-orm';
 import type { Drizzle, Environments, Key } from '@map-colonies/auth-core';
 import { Environment, keyTable } from '@map-colonies/auth-core';

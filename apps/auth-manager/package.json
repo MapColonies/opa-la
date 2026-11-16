@@ -65,7 +65,7 @@
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {
-    "@map-colonies/openapi-helpers": "catalog:",
+    "@map-colonies/openapi-supertest": "catalog:",
     "@map-colonies/tsconfig": "catalog:",
     "test-utils": "workspace:^",
     "@types/body-parser": "catalog:",

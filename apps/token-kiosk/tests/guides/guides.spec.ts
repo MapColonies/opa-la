@@ -2,8 +2,8 @@ import { describe, beforeEach, it, expect, beforeAll, afterEach, vi } from 'vite
 import { jsLogger } from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { createRequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { RequestSender } from '@map-colonies/openapi-supertest';
+import { createRequestSender } from '@map-colonies/openapi-supertest';
 import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
 import type { paths, operations } from 'token-openapi';

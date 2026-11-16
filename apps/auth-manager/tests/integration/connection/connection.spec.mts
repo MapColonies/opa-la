@@ -6,8 +6,8 @@ import 'jest-openapi';
 import type { Drizzle, Connection, Environments } from '@map-colonies/auth-core';
 import { clientTable, connectionTable, domainTable, Environment, keyTable } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
-import type { ExpectResponseStatus, RequestSender } from '@map-colonies/openapi-helpers/requestSender';
-import { expectResponseStatusFactory } from '@map-colonies/openapi-helpers/requestSender';
+import type { ExpectResponseStatus, RequestSender } from '@map-colonies/openapi-supertest';
+import { expectResponseStatusFactory } from '@map-colonies/openapi-supertest';
 import { getRealKeys, getFakeClient, getFakeConnection } from 'test-utils';
 import type { paths, operations } from 'auth-openapi';
 import { ConnectionRepository } from '@src/connection/DAL/connectionRepository.js';
@@ -64,7 +64,7 @@ describe('connection', function () {
         expect(res).toHaveProperty('status', httpStatusCodes.OK);
         expect(res).toSatisfyApiSpec();
 
-        // @ts-expect-error need to solve as openapi-helpers is not typed correctly
+        // @ts-expect-error need to solve as openapi-supertest is not typed correctly
         const returnedItems = res.body.items as IConnection[];
 
         expect(returnedItems).toBeArray();

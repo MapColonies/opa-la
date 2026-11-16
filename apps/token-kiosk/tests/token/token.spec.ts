@@ -5,7 +5,7 @@ import { jsLogger } from '@map-colonies/js-logger';
 import nock, { abortPendingRequests, cleanAll } from 'nock';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import { createRequestSender, type RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender, type RequestSender } from '@map-colonies/openapi-supertest';
 import type { RequestContext } from 'express-openid-connect';
 import type { RequestHandler } from 'express';
 import { eq } from 'drizzle-orm';
