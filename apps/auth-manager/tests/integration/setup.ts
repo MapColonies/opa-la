@@ -4,7 +4,7 @@ import { afterAll } from 'vitest';
 import type { DependencyContainer } from 'tsyringe';
 import { Pool } from 'pg';
 import type { Drizzle } from '@map-colonies/auth-core';
-import { createRequestSender, type RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import { createRequestSender, type RequestSender } from '@map-colonies/openapi-supertest';
 import type { operations, paths } from 'auth-openapi';
 import { getApp } from '@src/app';
 import { initConfig } from '@src/common/config';

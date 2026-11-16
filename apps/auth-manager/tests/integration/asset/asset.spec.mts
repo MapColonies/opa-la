@@ -5,7 +5,7 @@ import type { DependencyContainer } from 'tsyringe';
 import 'jest-openapi';
 import { type Asset, assetTable, AssetType, type Drizzle, Environment, type NewAsset } from '@map-colonies/auth-core';
 import { faker } from '@faker-js/faker';
-import type { RequestSender } from '@map-colonies/openapi-helpers/requestSender';
+import type { RequestSender } from '@map-colonies/openapi-supertest';
 import { getFakeAsset } from 'test-utils';
 import type { paths, operations } from 'auth-openapi';
 import { AssetRepository } from '@src/asset/DAL/assetRepository.js';

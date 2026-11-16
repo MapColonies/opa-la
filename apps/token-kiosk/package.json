@@ -66,7 +66,7 @@
   },
   "devDependencies": {
     "auth-openapi": "workspace:^",
-    "@map-colonies/openapi-helpers": "catalog:",
+    "@map-colonies/openapi-supertest": "catalog:",
     "@map-colonies/eslint-config": "catalog:",
     "@map-colonies/tsconfig": "catalog:",
     "test-utils": "workspace:^",
