@@ -70,7 +70,7 @@ status:
   console: false
 
 decisionLogs:
-  console: true
+  console: false
   minDelaySeconds: 5
   maxDelaySeconds: 60
   maxBufferEvents: 1000
