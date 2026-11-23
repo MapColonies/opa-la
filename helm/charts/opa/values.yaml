@@ -347,7 +347,9 @@ fluentbit:
           Match        opa.logs*
           Host         ${FLUENT_LOKI_HOST}
           Port         ${FLUENT_LOKI_PORT}
-          
+          # Default is 1 retry, which drops chunks during even a short Loki restart.
+          Retry_Limit  10
+
           # LABELS: Domain added here for fast stream routing
           Labels       job=opa, environment=$env, opa_domain=$opa_domain
           
